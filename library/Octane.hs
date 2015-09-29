@@ -33,6 +33,7 @@ data Replay = NewReplay
     , replayLabel :: T.Text
     , replayProperties :: Properties
     , replaySeperator :: ByteString
+    , replayEffects :: Effects
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -49,6 +50,10 @@ data Property
     | StrProperty T.Text
     deriving (Eq, Ord, Read, Show)
 
+type Effects = [Effect]
+
+type Effect = T.Text
+
 -- * Readers
 
 getReplay :: B.Get Replay
@@ -64,11 +69,14 @@ getReplay = do
     -- TODO: The meaning of these bytes is also unclear.
     separator <- B.getByteString 8
 
+    effects <- getTexts
+
     return NewReplay
         { replayIntro = intro
         , replayLabel = label
         , replayProperties = properties
         , replaySeperator = separator
+        , replayEffects = effects
         }
 
 getText :: B.Get T.Text
@@ -77,6 +85,12 @@ getText = do
     bytes <- B.getByteString (fromIntegral size)
     let text = T.dropEnd 1 (decodeUtf8 bytes)
     return text
+
+getTexts :: B.Get [T.Text]
+getTexts = do
+    size <- B.getWord32le
+    texts <- replicateM (fromIntegral size) getText
+    return texts
 
 getProperties :: B.Get Properties
 getProperties = do
