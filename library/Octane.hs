@@ -37,7 +37,7 @@ data Replay = NewReplay
     , replaySeparator :: BS.ByteString
     , replayEffects :: Effects
     , replayKeyFrames :: KeyFrames
-    , replayFrames :: BS.ByteString
+    , replayFrames :: Frames
     , replayMessages :: Messages
     , replayGoals :: Goals
     , replayPackages :: Packages
@@ -72,6 +72,8 @@ data KeyFrame = NewKeyFrame
     , keyFrameFrame :: Int
     , keyFramePosition :: Int
     } deriving (Show)
+
+type Frames = BS.ByteString
 
 type Messages = [Message]
 
@@ -248,7 +250,7 @@ getKeyFrame = do
         , keyFramePosition = fromIntegral position
         }
 
-getFrames :: B.Get BS.ByteString
+getFrames :: B.Get Frames
 getFrames = do
     size <- B.getWord32le
     frames <- B.getByteString (fromIntegral size)
@@ -337,6 +339,7 @@ putReplay replay = do
     B.putByteString (replaySeparator replay)
     putTexts (replayEffects replay)
     putKeyFrames (replayKeyFrames replay)
+    putFrames (replayFrames replay)
 
 putText :: T.Text -> B.Put
 putText text = do
@@ -416,3 +419,9 @@ putKeyFrame keyFrame = do
     B.putFloat32le (keyFrameTime keyFrame)
     B.putWord32le (fromIntegral (keyFrameFrame keyFrame))
     B.putWord32le (fromIntegral (keyFramePosition keyFrame))
+
+putFrames :: Frames -> B.Put
+putFrames frames = do
+    let size = fromIntegral (BS.length frames)
+    B.putWord32le size
+    B.putByteString frames
