@@ -32,6 +32,7 @@ data Replay = NewReplay
     { replayIntro :: ByteString
     , replayLabel :: T.Text
     , replayProperties :: Properties
+    , replaySeperator :: ByteString
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -60,10 +61,14 @@ getReplay = do
 
     properties <- getProperties
 
+    -- TODO: The meaning of these bytes is also unclear.
+    separator <- B.getByteString 8
+
     return NewReplay
         { replayIntro = intro
         , replayLabel = label
         , replayProperties = properties
+        , replaySeperator = separator
         }
 
 getText :: B.Get T.Text
