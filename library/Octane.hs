@@ -341,6 +341,7 @@ putReplay replay = do
     putKeyFrames (replayKeyFrames replay)
     putFrames (replayFrames replay)
     putMessages (replayMessages replay)
+    putGoals (replayGoals replay)
 
 putText :: T.Text -> B.Put
 putText text = do
@@ -438,3 +439,17 @@ putMessage message = do
     B.putWord32le (fromIntegral (messageFrame message))
     putText (messageName message)
     putText (messageContent message)
+
+putGoals :: Goals -> B.Put
+putGoals goals = do
+    let size = fromIntegral (length goals)
+    B.putWord32le size
+    mapM_ putGoal goals
+
+putGoal :: Goal -> B.Put
+putGoal goal = do
+    let kind = case goalTeam goal of
+            Blue -> "Team0Goal"
+            Orange -> "Team1Goal"
+    putText kind
+    B.putWord32le (fromIntegral (goalFrame goal))
