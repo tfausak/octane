@@ -381,6 +381,7 @@ putArrayProperty (ArrayProperty size array) = do
     B.putWord64le size
     let otherSize = fromIntegral (length array)
     B.putWord32le otherSize
+    mapM_ putProperties array
 putArrayProperty _ = undefined
 
 putFloatProperty :: Property -> B.Put
