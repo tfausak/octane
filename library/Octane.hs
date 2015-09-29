@@ -44,7 +44,7 @@ data Replay = NewReplay
     , replayUnknown :: BS.ByteString
     , replayEntities :: Entities
     , replayOutro :: BSL.ByteString
-    } deriving (Eq, Ord, Read, Show)
+    } deriving (Show)
 
 instance B.Binary Replay where
     get = getReplay
@@ -58,7 +58,7 @@ data Property
     | IntProperty B.Word64 Int
     | NameProperty B.Word64 T.Text
     | StrProperty B.Word64 T.Text
-    deriving (Eq, Ord, Read, Show)
+    deriving (Show)
 
 type Effects = [Effect]
 
@@ -70,7 +70,7 @@ data KeyFrame = NewKeyFrame
     { keyFrameTime :: Float
     , keyFrameFrame :: Int
     , keyFramePosition :: Int
-    } deriving (Eq, Ord, Read, Show)
+    } deriving (Show)
 
 type Messages = [Message]
 
@@ -78,19 +78,19 @@ data Message = NewMessage
     { messageFrame :: Int
     , messageName :: T.Text
     , messageContent :: T.Text
-    } deriving (Eq, Ord, Read, Show)
+    } deriving (Show)
 
 type Goals = [Goal]
 
 data Goal = NewGoal
     { goalTeam :: Team
     , goalFrame :: Int
-    } deriving (Eq, Ord, Read, Show)
+    } deriving (Show)
 
 data Team
     = Blue
     | Orange
-    deriving (Bounded, Enum, Eq, Ord, Read, Show)
+    deriving (Show)
 
 type Packages = [Package]
 
@@ -105,7 +105,7 @@ type Entities = [Entity]
 data Entity = NewEntity
     { entityName :: T.Text
     , entityValue :: Int
-    } deriving (Eq, Ord, Read, Show)
+    } deriving (Show)
 
 -- * Readers
 
