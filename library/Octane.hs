@@ -40,6 +40,7 @@ data Replay = NewReplay
     , replayGoals :: Goals
     , replayPackages :: Packages
     , replayObjects :: Objects
+    , replayEntities :: Entities
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -96,6 +97,13 @@ type Objects = [Object]
 
 type Object = T.Text
 
+type Entities = [Entity]
+
+data Entity = NewEntity
+    { entityName :: T.Text
+    , entityValue :: Int
+    } deriving (Eq, Ord, Read, Show)
+
 -- * Readers
 
 getReplay :: B.Get Replay
@@ -122,6 +130,12 @@ getReplay = do
     packages <- getPackages
     objects <- getObjects
 
+    -- TODO: It is not clear what is in these bytes. They may be a count for
+    --   something, but they are always 0 (0x00000000).
+    B.skip 4
+
+    entities <- getEntities
+
     return NewReplay
         { replayIntro = intro
         , replayLabel = label
@@ -134,6 +148,7 @@ getReplay = do
         , replayGoals = goals
         , replayPackages = packages
         , replayObjects = objects
+        , replayEntities = entities
         }
 
 getText :: B.Get T.Text
@@ -278,13 +293,28 @@ getPackage = do
 getObjects :: B.Get Objects
 getObjects = do
     size <- B.getWord32le
-    packages <- replicateM (fromIntegral size) getObject
-    return packages
+    objects <- replicateM (fromIntegral size) getObject
+    return objects
 
 getObject :: B.Get Object
 getObject = do
-    package <- getText
-    return package
+    object <- getText
+    return object
+
+getEntities :: B.Get Entities
+getEntities = do
+    size <- B.getWord32le
+    entities <- replicateM (fromIntegral size) getEntity
+    return entities
+
+getEntity :: B.Get Entity
+getEntity = do
+    name <- getText
+    value <- B.getWord32le
+    return NewEntity
+        { entityName = name
+        , entityValue = fromIntegral value
+        }
 
 -- * Writers
 
