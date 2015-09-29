@@ -3,7 +3,6 @@
 module Octane where
 
 import Control.Monad (replicateM)
-import Data.Text.Encoding (decodeUtf8, encodeUtf8)
 import System.Environment (getArgs)
 
 import qualified Data.Binary as B
@@ -14,6 +13,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Map as M
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 
 -- * High-level interface
 
@@ -168,7 +168,7 @@ getText :: B.Get T.Text
 getText = do
     size <- B.getWord32le
     bytes <- B.getByteString (fromIntegral size)
-    let text = T.dropEnd 1 (decodeUtf8 bytes)
+    let text = T.dropEnd 1 (T.decodeUtf8 bytes)
     return text
 
 getTexts :: B.Get [T.Text]
@@ -352,7 +352,7 @@ putText :: T.Text -> B.Put
 putText text = do
     let size = fromIntegral (T.length text) + 1
     B.putWord32le size
-    let bytes = BS.concat [encodeUtf8 text, "\NUL"]
+    let bytes = BS.concat [T.encodeUtf8 text, "\NUL"]
     B.putByteString bytes
 
 putTexts :: [T.Text] -> B.Put
