@@ -35,6 +35,7 @@ data Replay = NewReplay
     , replaySeperator :: ByteString
     , replayEffects :: Effects
     , replayKeyFrames :: KeyFrames
+    , replayFrames :: ByteString
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -81,6 +82,9 @@ getReplay = do
     effects <- getTexts
     keyFrames <- getKeyFrames
 
+    -- TODO: Actually parse these frames.
+    frames <- getFrames
+
     return NewReplay
         { replayIntro = intro
         , replayLabel = label
@@ -88,6 +92,7 @@ getReplay = do
         , replaySeperator = separator
         , replayEffects = effects
         , replayKeyFrames = keyFrames
+        , replayFrames = frames
         }
 
 getText :: B.Get T.Text
@@ -175,6 +180,12 @@ getKeyFrame = do
         , keyFrameFrame = fromIntegral frame
         , keyFramePosition = fromIntegral position
         }
+
+getFrames :: B.Get ByteString
+getFrames = do
+    size <- B.getWord32le
+    frames <- B.getByteString (fromIntegral size)
+    return frames
 
 -- * Writers
 
