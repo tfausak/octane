@@ -34,7 +34,7 @@ data Replay = NewReplay
     { replayIntro :: BS.ByteString
     , replayLabel :: T.Text
     , replayProperties :: Properties
-    , replaySeperator :: BS.ByteString
+    , replaySeparator :: BS.ByteString
     , replayEffects :: Effects
     , replayKeyFrames :: KeyFrames
     , replayFrames :: BS.ByteString
@@ -149,7 +149,7 @@ getReplay = do
         { replayIntro = intro
         , replayLabel = label
         , replayProperties = properties
-        , replaySeperator = separator
+        , replaySeparator = separator
         , replayEffects = effects
         , replayKeyFrames = keyFrames
         , replayFrames = frames
@@ -334,6 +334,7 @@ putReplay replay = do
     B.putByteString (replayIntro replay)
     putText (replayLabel replay)
     putProperties (replayProperties replay)
+    B.putByteString (replaySeparator replay)
 
 putText :: T.Text -> B.Put
 putText text = do
