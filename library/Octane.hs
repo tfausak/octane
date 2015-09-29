@@ -3,6 +3,7 @@ module Octane where
 import qualified Data.Binary as B
 import qualified Data.Binary.Get as G
 import qualified Data.Binary.Put as P
+import qualified Data.ByteString as BS
 import qualified System.Environment as E
 
 -- * High-level interface
@@ -21,7 +22,7 @@ printResult result = case result of
 -- * Types
 
 data Replay = NewReplay
-    {
+    { replayIntro :: BS.ByteString
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -32,8 +33,11 @@ instance B.Binary Replay where
 
 getReplay :: G.Get Replay
 getReplay = do
+    -- TODO: The meaning of these bytes is unclear.
+    intro <- G.getByteString 16
+
     return NewReplay
-        {
+        { replayIntro = intro
         }
 
 -- * Writers
