@@ -39,6 +39,7 @@ data Replay = NewReplay
     , replayMessages :: Messages
     , replayGoals :: Goals
     , replayPackages :: Packages
+    , replayObjects :: Objects
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -91,6 +92,10 @@ type Packages = [Package]
 
 type Package = T.Text
 
+type Objects = [Object]
+
+type Object = T.Text
+
 -- * Readers
 
 getReplay :: B.Get Replay
@@ -115,6 +120,7 @@ getReplay = do
     messages <- getMessages
     goals <- getGoals
     packages <- getPackages
+    objects <- getObjects
 
     return NewReplay
         { replayIntro = intro
@@ -127,6 +133,7 @@ getReplay = do
         , replayMessages = messages
         , replayGoals = goals
         , replayPackages = packages
+        , replayObjects = objects
         }
 
 getText :: B.Get T.Text
@@ -265,6 +272,17 @@ getPackages = do
 
 getPackage :: B.Get Package
 getPackage = do
+    package <- getText
+    return package
+
+getObjects :: B.Get Objects
+getObjects = do
+    size <- B.getWord32le
+    packages <- replicateM (fromIntegral size) getObject
+    return packages
+
+getObject :: B.Get Object
+getObject = do
     package <- getText
     return package
 
