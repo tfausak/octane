@@ -3,7 +3,7 @@
 module Octane where
 
 import Control.Monad (replicateM)
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text.Encoding (decodeUtf8, encodeUtf8)
 import System.Environment (getArgs)
 
 import qualified Data.Binary as B
@@ -332,3 +332,11 @@ getEntity = do
 putReplay :: Replay -> B.Put
 putReplay replay = do
     B.putByteString (replayIntro replay)
+    putText (replayLabel replay)
+
+putText :: T.Text -> B.Put
+putText text = do
+    let size = fromIntegral (T.length text) + 1
+    B.putWord32le size
+    let bytes = BS.concat [encodeUtf8 text, "\NUL"]
+    B.putByteString bytes
