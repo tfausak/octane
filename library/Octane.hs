@@ -3,26 +3,25 @@
 module Octane where
 
 import Control.Monad (replicateM)
+import Data.ByteString (ByteString)
+import Data.Text.Encoding (decodeUtf8)
+import System.Environment (getArgs)
 
 import qualified Data.Binary as B
-import qualified Data.Binary.Get as G
+import qualified Data.Binary.Get as B
 import qualified Data.Binary.IEEE754 as B
-import qualified Data.Binary.Put as P
-import qualified Data.ByteString as BS
 import qualified Data.Map as M
 import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
-import qualified System.Environment as E
 
 -- * High-level interface
 
 main :: IO ()
 main = do
-    files <- E.getArgs
+    files <- getArgs
     results <- mapM B.decodeFileOrFail files
     mapM_ printResult results
 
-printResult :: Either (G.ByteOffset, String) Replay -> IO ()
+printResult :: Either (B.ByteOffset, String) Replay -> IO ()
 printResult result = case result of
     Left (offset, message) -> putStrLn (show offset ++ ": " ++ message)
     Right replay -> print replay
@@ -30,7 +29,7 @@ printResult result = case result of
 -- * Types
 
 data Replay = NewReplay
-    { replayIntro :: BS.ByteString
+    { replayIntro :: ByteString
     , replayLabel :: T.Text
     , replayProperties :: Properties
     } deriving (Eq, Ord, Read, Show)
@@ -51,10 +50,10 @@ data Property
 
 -- * Readers
 
-getReplay :: G.Get Replay
+getReplay :: B.Get Replay
 getReplay = do
     -- TODO: The meaning of these bytes is unclear.
-    intro <- G.getByteString 16
+    intro <- B.getByteString 16
 
     -- NOTE: This label appears to always be "TAGame.Replay_Soccar_TA".
     label <- getText
@@ -67,14 +66,14 @@ getReplay = do
         , replayProperties = properties
         }
 
-getText :: G.Get T.Text
+getText :: B.Get T.Text
 getText = do
-    size <- G.getWord32le
-    bytes <- G.getByteString (fromIntegral size)
-    let text = T.dropEnd 1 (T.decodeUtf8 bytes)
+    size <- B.getWord32le
+    bytes <- B.getByteString (fromIntegral size)
+    let text = T.dropEnd 1 (decodeUtf8 bytes)
     return text
 
-getProperties :: G.Get Properties
+getProperties :: B.Get Properties
 getProperties = do
     key <- getText
     if key == "None"
@@ -86,10 +85,10 @@ getProperties = do
         properties <- getProperties
         return (M.union property properties)
 
-getProperty :: G.Get Property
+getProperty :: B.Get Property
 getProperty = do
     kind <- getText
-    size <- G.getWord64le
+    size <- B.getWord64le
     property <- case kind of
         "ArrayProperty" -> getArrayProperty size
         "FloatProperty" -> getFloatProperty size
@@ -99,33 +98,33 @@ getProperty = do
         _ -> fail ("unknown property type " ++ show kind)
     return property
 
-getArrayProperty :: B.Word64 -> G.Get Property
+getArrayProperty :: B.Word64 -> B.Get Property
 getArrayProperty _ = do
-    size <- G.getWord32le
+    size <- B.getWord32le
     array <- replicateM (fromIntegral size) getProperties
     return (ArrayProperty array)
 
-getFloatProperty :: B.Word64 -> G.Get Property
+getFloatProperty :: B.Word64 -> B.Get Property
 getFloatProperty size = do
     float <- case size of
         4 -> B.getFloat32le
         _ -> fail ("unknown FloatProperty size " ++ show size)
     return (FloatProperty float)
 
-getIntProperty :: B.Word64 -> G.Get Property
+getIntProperty :: B.Word64 -> B.Get Property
 getIntProperty size = do
     word <- case size of
-        4 -> G.getWord32le
+        4 -> B.getWord32le
         _ -> fail ("unknown IntProperty size " ++ show size)
     let integer = fromIntegral word
     return (IntProperty integer)
 
-getNameProperty :: B.Word64 -> G.Get Property
+getNameProperty :: B.Word64 -> B.Get Property
 getNameProperty _ = do
     name <- getText
     return (NameProperty name)
 
-getStrProperty :: B.Word64 -> G.Get Property
+getStrProperty :: B.Word64 -> B.Get Property
 getStrProperty _ = do
     string <- getText
     return (StrProperty string)
@@ -134,6 +133,6 @@ getStrProperty _ = do
 
 -- TODO: This library should be able to write replays, but it's not currently a
 --   high priority.
-putReplay :: Replay -> P.Put
+putReplay :: Replay -> B.Put
 putReplay _replay = do
     undefined
