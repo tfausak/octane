@@ -37,6 +37,7 @@ data Replay = NewReplay
     , replayKeyFrames :: KeyFrames
     , replayFrames :: ByteString
     , replayMessages :: Messages
+    , replayGoals :: Goals
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -73,6 +74,18 @@ data Message = NewMessage
     , messageContent :: T.Text
     } deriving (Eq, Ord, Read, Show)
 
+type Goals = [Goal]
+
+data Goal = NewGoal
+    { goalTeam :: Team
+    , goalFrame :: Int
+    } deriving (Eq, Ord, Read, Show)
+
+data Team
+    = Blue
+    | Orange
+    deriving (Bounded, Enum, Eq, Ord, Read, Show)
+
 -- * Readers
 
 getReplay :: B.Get Replay
@@ -95,6 +108,7 @@ getReplay = do
     frames <- getFrames
 
     messages <- getMessages
+    goals <- getGoals
 
     return NewReplay
         { replayIntro = intro
@@ -105,6 +119,7 @@ getReplay = do
         , replayKeyFrames = keyFrames
         , replayFrames = frames
         , replayMessages = messages
+        , replayGoals = goals
         }
 
 getText :: B.Get T.Text
@@ -215,6 +230,25 @@ getMessage = do
         , messageName = name
         , messageContent = content
         }
+
+getGoals :: B.Get Goals
+getGoals = do
+    size <- B.getWord32le
+    goals <- replicateM (fromIntegral size) getGoal
+    return goals
+
+getGoal :: B.Get Goal
+getGoal = do
+    kind <- getText
+    team <- case kind of
+        "Team0Goal" -> return Blue
+        "Team1Goal" -> return Orange
+        _ -> fail ("unknown goal type " ++ show kind)
+    frame <- B.getWord32le
+    return NewGoal
+            { goalTeam = team
+            , goalFrame = fromIntegral frame
+            }
 
 -- * Writers
 
