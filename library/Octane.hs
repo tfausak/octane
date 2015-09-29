@@ -363,17 +363,18 @@ putTexts texts = do
 
 putProperties :: Properties -> B.Put
 putProperties properties = do
-    mapM_ putProperty properties
+    mapM_ putProperty (M.assocs properties)
     putText "None"
 
-putProperty :: Property -> B.Put
-putProperty property = do
-    case property of
-        ArrayProperty _ _ -> putArrayProperty property
-        FloatProperty _ _ -> putFloatProperty property
-        IntProperty _ _ -> putIntProperty property
-        NameProperty _ _ -> putNameProperty property
-        StrProperty _ _ -> putStrProperty property
+putProperty :: (T.Text, Property) -> B.Put
+putProperty (key, value) = do
+    putText key
+    case value of
+        ArrayProperty _ _ -> putArrayProperty value
+        FloatProperty _ _ -> putFloatProperty value
+        IntProperty _ _ -> putIntProperty value
+        NameProperty _ _ -> putNameProperty value
+        StrProperty _ _ -> putStrProperty value
 
 putArrayProperty :: Property -> B.Put
 putArrayProperty (ArrayProperty size array) = do
@@ -411,7 +412,7 @@ putNameProperty _ = undefined
 
 putStrProperty :: Property -> B.Put
 putStrProperty (StrProperty size string) = do
-    putText "StryProperty"
+    putText "StrProperty"
     B.putWord64le size
     putText string
 putStrProperty _ = undefined
