@@ -335,6 +335,7 @@ putReplay replay = do
     putText (replayLabel replay)
     putProperties (replayProperties replay)
     B.putByteString (replaySeparator replay)
+    putTexts (replayEffects replay)
 
 putText :: T.Text -> B.Put
 putText text = do
@@ -342,6 +343,12 @@ putText text = do
     B.putWord32le size
     let bytes = BS.concat [encodeUtf8 text, "\NUL"]
     B.putByteString bytes
+
+putTexts :: [T.Text] -> B.Put
+putTexts texts = do
+    let size = fromIntegral (length texts)
+    B.putWord32le size
+    mapM_ putText texts
 
 putProperties :: Properties -> B.Put
 putProperties properties = do
