@@ -344,6 +344,7 @@ putReplay replay = do
     putGoals (replayGoals replay)
     putPackages (replayPackages replay)
     putObjects (replayObjects replay)
+    B.putByteString (replayUnknown replay)
     putEntities (replayEntities replay)
 
 putText :: T.Text -> B.Put
