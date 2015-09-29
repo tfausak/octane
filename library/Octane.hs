@@ -201,10 +201,10 @@ getProperty = do
     return property
 
 getArrayProperty :: B.Word64 -> B.Get Property
-getArrayProperty otherSize = do
-    size <- B.getWord32le
-    array <- replicateM (fromIntegral size) getProperties
-    return (ArrayProperty otherSize array)
+getArrayProperty size = do
+    otherSize <- B.getWord32le
+    array <- replicateM (fromIntegral otherSize) getProperties
+    return (ArrayProperty size array)
 
 getFloatProperty :: B.Word64 -> B.Get Property
 getFloatProperty size = do
@@ -333,6 +333,7 @@ putReplay :: Replay -> B.Put
 putReplay replay = do
     B.putByteString (replayIntro replay)
     putText (replayLabel replay)
+    putProperties (replayProperties replay)
 
 putText :: T.Text -> B.Put
 putText text = do
@@ -340,3 +341,57 @@ putText text = do
     B.putWord32le size
     let bytes = BS.concat [encodeUtf8 text, "\NUL"]
     B.putByteString bytes
+
+putProperties :: Properties -> B.Put
+putProperties properties = do
+    mapM_ putProperty properties
+    putText "None"
+
+putProperty :: Property -> B.Put
+putProperty property = do
+    case property of
+        ArrayProperty _ _ -> putArrayProperty property
+        FloatProperty _ _ -> putFloatProperty property
+        IntProperty _ _ -> putIntProperty property
+        NameProperty _ _ -> putNameProperty property
+        StrProperty _ _ -> putStrProperty property
+
+putArrayProperty :: Property -> B.Put
+putArrayProperty (ArrayProperty size array) = do
+    putText "ArrayProperty"
+    B.putWord64le size
+    let otherSize = fromIntegral (length array)
+    B.putWord32le otherSize
+putArrayProperty _ = undefined
+
+putFloatProperty :: Property -> B.Put
+putFloatProperty (FloatProperty size float) = do
+    putText "FloatProperty"
+    B.putWord64le size
+    case size of
+        4 -> B.putFloat32le float
+        _ -> undefined
+putFloatProperty _ = undefined
+
+putIntProperty :: Property -> B.Put
+putIntProperty (IntProperty size integer) = do
+    putText "IntProperty"
+    B.putWord64le size
+    case size of
+        4 -> B.putWord32le (fromIntegral integer)
+        _ -> undefined
+putIntProperty _ = undefined
+
+putNameProperty :: Property -> B.Put
+putNameProperty (NameProperty size name) = do
+    putText "NameProperty"
+    B.putWord64le size
+    putText name
+putNameProperty _ = undefined
+
+putStrProperty :: Property -> B.Put
+putStrProperty (StrProperty size string) = do
+    putText "StryProperty"
+    B.putWord64le size
+    putText string
+putStrProperty _ = undefined
