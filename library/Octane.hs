@@ -9,6 +9,7 @@ import System.Environment (getArgs)
 import qualified Data.Binary as B
 import qualified Data.Binary.Get as B
 import qualified Data.Binary.IEEE754 as B
+import qualified Data.Binary.Put as B
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Map as M
@@ -328,8 +329,6 @@ getEntity = do
 
 -- * Writers
 
--- TODO: This library should be able to write replays, but it's not currently a
---   high priority.
 putReplay :: Replay -> B.Put
-putReplay _replay = do
-    undefined
+putReplay replay = do
+    B.putByteString (replayIntro replay)
