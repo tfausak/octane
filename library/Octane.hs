@@ -344,6 +344,7 @@ putReplay replay = do
     putGoals (replayGoals replay)
     putPackages (replayPackages replay)
     putObjects (replayObjects replay)
+    putEntities (replayEntities replay)
 
 putText :: T.Text -> B.Put
 putText text = do
@@ -473,3 +474,13 @@ putObjects objects = do
 putObject :: Object -> B.Put
 putObject object = do
     putText object
+
+putEntities :: Entities -> B.Put
+putEntities entities = do
+    B.putWord32le (fromIntegral (length entities))
+    mapM_ putEntity entities
+
+putEntity :: Entity -> B.Put
+putEntity entity = do
+    putText (entityName entity)
+    B.putWord32le (fromIntegral (entityValue entity))
