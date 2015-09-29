@@ -3,13 +3,14 @@
 module Octane where
 
 import Control.Monad (replicateM)
-import Data.ByteString (ByteString)
 import Data.Text.Encoding (decodeUtf8)
 import System.Environment (getArgs)
 
 import qualified Data.Binary as B
 import qualified Data.Binary.Get as B
 import qualified Data.Binary.IEEE754 as B
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Map as M
 import qualified Data.Text as T
 
@@ -29,18 +30,19 @@ printResult result = case result of
 -- * Types
 
 data Replay = NewReplay
-    { replayIntro :: ByteString
+    { replayIntro :: BS.ByteString
     , replayLabel :: T.Text
     , replayProperties :: Properties
-    , replaySeperator :: ByteString
+    , replaySeperator :: BS.ByteString
     , replayEffects :: Effects
     , replayKeyFrames :: KeyFrames
-    , replayFrames :: ByteString
+    , replayFrames :: BS.ByteString
     , replayMessages :: Messages
     , replayGoals :: Goals
     , replayPackages :: Packages
     , replayObjects :: Objects
     , replayEntities :: Entities
+    , replayOutro :: BSL.ByteString
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -136,6 +138,9 @@ getReplay = do
 
     entities <- getEntities
 
+    -- TODO: The meaning of these bytes is unclear.
+    outro <- B.getRemainingLazyByteString
+
     return NewReplay
         { replayIntro = intro
         , replayLabel = label
@@ -149,6 +154,7 @@ getReplay = do
         , replayPackages = packages
         , replayObjects = objects
         , replayEntities = entities
+        , replayOutro = outro
         }
 
 getText :: B.Get T.Text
@@ -237,7 +243,7 @@ getKeyFrame = do
         , keyFramePosition = fromIntegral position
         }
 
-getFrames :: B.Get ByteString
+getFrames :: B.Get BS.ByteString
 getFrames = do
     size <- B.getWord32le
     frames <- B.getByteString (fromIntegral size)
