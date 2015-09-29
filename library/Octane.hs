@@ -34,6 +34,7 @@ data Replay = NewReplay
     , replayProperties :: Properties
     , replaySeperator :: ByteString
     , replayEffects :: Effects
+    , replayKeyFrames :: KeyFrames
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -54,6 +55,14 @@ type Effects = [Effect]
 
 type Effect = T.Text
 
+type KeyFrames = [KeyFrame]
+
+data KeyFrame = NewKeyFrame
+    { keyFrameTime :: Float
+    , keyFrameFrame :: Int
+    , keyFramePosition :: Int
+    } deriving (Eq, Ord, Read, Show)
+
 -- * Readers
 
 getReplay :: B.Get Replay
@@ -70,6 +79,7 @@ getReplay = do
     separator <- B.getByteString 8
 
     effects <- getTexts
+    keyFrames <- getKeyFrames
 
     return NewReplay
         { replayIntro = intro
@@ -77,6 +87,7 @@ getReplay = do
         , replayProperties = properties
         , replaySeperator = separator
         , replayEffects = effects
+        , replayKeyFrames = keyFrames
         }
 
 getText :: B.Get T.Text
@@ -147,6 +158,23 @@ getStrProperty :: B.Word64 -> B.Get Property
 getStrProperty _ = do
     string <- getText
     return (StrProperty string)
+
+getKeyFrames :: B.Get KeyFrames
+getKeyFrames = do
+    size <- B.getWord32le
+    keyFrames <- replicateM (fromIntegral size) getKeyFrame
+    return keyFrames
+
+getKeyFrame :: B.Get KeyFrame
+getKeyFrame = do
+    time <- B.getFloat32le
+    frame <- B.getWord32le
+    position <- B.getWord32le
+    return NewKeyFrame
+        { keyFrameTime = time
+        , keyFrameFrame = fromIntegral frame
+        , keyFramePosition = fromIntegral position
+        }
 
 -- * Writers
 
