@@ -41,6 +41,7 @@ data Replay = NewReplay
     , replayGoals :: Goals
     , replayPackages :: Packages
     , replayObjects :: Objects
+    , replayUnknown :: BS.ByteString
     , replayEntities :: Entities
     , replayOutro :: BSL.ByteString
     } deriving (Eq, Ord, Read, Show)
@@ -132,9 +133,11 @@ getReplay = do
     packages <- getPackages
     objects <- getObjects
 
-    -- TODO: It is not clear what is in these bytes. They may be a count for
-    --   something, but they are always 0 (0x00000000).
-    B.skip 4
+    -- TODO: It is not clear what is in these bytes.
+    unknown <- B.getByteString 4
+    if unknown == "\NUL\NUL\NUL\NUL"
+    then return ()
+    else fail ("unexpected value " ++ show unknown)
 
     entities <- getEntities
 
@@ -153,6 +156,7 @@ getReplay = do
         , replayGoals = goals
         , replayPackages = packages
         , replayObjects = objects
+        , replayUnknown = unknown
         , replayEntities = entities
         , replayOutro = outro
         }
