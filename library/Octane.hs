@@ -336,6 +336,7 @@ putReplay replay = do
     putProperties (replayProperties replay)
     B.putByteString (replaySeparator replay)
     putTexts (replayEffects replay)
+    putKeyFrames (replayKeyFrames replay)
 
 putText :: T.Text -> B.Put
 putText text = do
@@ -403,3 +404,15 @@ putStrProperty (StrProperty size string) = do
     B.putWord64le size
     putText string
 putStrProperty _ = undefined
+
+putKeyFrames :: KeyFrames -> B.Put
+putKeyFrames keyFrames = do
+    let size = fromIntegral (length keyFrames)
+    B.putWord32le size
+    mapM_ putKeyFrame keyFrames
+
+putKeyFrame :: KeyFrame -> B.Put
+putKeyFrame keyFrame = do
+    B.putFloat32le (keyFrameTime keyFrame)
+    B.putWord32le (fromIntegral (keyFrameFrame keyFrame))
+    B.putWord32le (fromIntegral (keyFramePosition keyFrame))
