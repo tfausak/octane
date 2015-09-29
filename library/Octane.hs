@@ -4,6 +4,8 @@ import qualified Data.Binary as B
 import qualified Data.Binary.Get as G
 import qualified Data.Binary.Put as P
 import qualified Data.ByteString as BS
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import qualified System.Environment as E
 
 -- * High-level interface
@@ -23,6 +25,7 @@ printResult result = case result of
 
 data Replay = NewReplay
     { replayIntro :: BS.ByteString
+    , replayLabel :: T.Text
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -36,9 +39,19 @@ getReplay = do
     -- TODO: The meaning of these bytes is unclear.
     intro <- G.getByteString 16
 
+    -- NOTE: This label appears to always be "TAGame.Replay_Soccar_TA".
+    label <- getText
+
     return NewReplay
         { replayIntro = intro
+        , replayLabel = label
         }
+
+getText :: G.Get T.Text
+getText = do
+    size <- G.getWord32le
+    bytes <- G.getByteString (fromIntegral size)
+    return (T.decodeUtf8 bytes)
 
 -- * Writers
 
