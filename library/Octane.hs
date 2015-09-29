@@ -53,11 +53,11 @@ instance B.Binary Replay where
 type Properties = M.Map T.Text Property
 
 data Property
-    = ArrayProperty [Properties]
-    | FloatProperty Float
-    | IntProperty Int
-    | NameProperty T.Text
-    | StrProperty T.Text
+    = ArrayProperty B.Word64 [Properties]
+    | FloatProperty B.Word64 Float
+    | IntProperty B.Word64 Int
+    | NameProperty B.Word64 T.Text
+    | StrProperty B.Word64 T.Text
     deriving (Eq, Ord, Read, Show)
 
 type Effects = [Effect]
@@ -200,17 +200,17 @@ getProperty = do
     return property
 
 getArrayProperty :: B.Word64 -> B.Get Property
-getArrayProperty _ = do
+getArrayProperty otherSize = do
     size <- B.getWord32le
     array <- replicateM (fromIntegral size) getProperties
-    return (ArrayProperty array)
+    return (ArrayProperty otherSize array)
 
 getFloatProperty :: B.Word64 -> B.Get Property
 getFloatProperty size = do
     float <- case size of
         4 -> B.getFloat32le
         _ -> fail ("unknown FloatProperty size " ++ show size)
-    return (FloatProperty float)
+    return (FloatProperty size float)
 
 getIntProperty :: B.Word64 -> B.Get Property
 getIntProperty size = do
@@ -218,17 +218,17 @@ getIntProperty size = do
         4 -> B.getWord32le
         _ -> fail ("unknown IntProperty size " ++ show size)
     let integer = fromIntegral word
-    return (IntProperty integer)
+    return (IntProperty size integer)
 
 getNameProperty :: B.Word64 -> B.Get Property
-getNameProperty _ = do
+getNameProperty size = do
     name <- getText
-    return (NameProperty name)
+    return (NameProperty size name)
 
 getStrProperty :: B.Word64 -> B.Get Property
-getStrProperty _ = do
+getStrProperty size = do
     string <- getText
-    return (StrProperty string)
+    return (StrProperty size string)
 
 getKeyFrames :: B.Get KeyFrames
 getKeyFrames = do
