@@ -340,6 +340,7 @@ putReplay replay = do
     putTexts (replayEffects replay)
     putKeyFrames (replayKeyFrames replay)
     putFrames (replayFrames replay)
+    putMessages (replayMessages replay)
 
 putText :: T.Text -> B.Put
 putText text = do
@@ -425,3 +426,15 @@ putFrames frames = do
     let size = fromIntegral (BS.length frames)
     B.putWord32le size
     B.putByteString frames
+
+putMessages :: Messages -> B.Put
+putMessages messages = do
+    let size = fromIntegral (length messages)
+    B.putWord32le size
+    mapM_ putMessage messages
+
+putMessage :: Message -> B.Put
+putMessage message = do
+    B.putWord32le (fromIntegral (messageFrame message))
+    putText (messageName message)
+    putText (messageContent message)
