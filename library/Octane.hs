@@ -346,6 +346,7 @@ putReplay replay = do
     putObjects (replayObjects replay)
     B.putByteString (replayUnknown replay)
     putEntities (replayEntities replay)
+    B.putLazyByteString (replayOutro replay)
 
 putText :: T.Text -> B.Put
 putText text = do
