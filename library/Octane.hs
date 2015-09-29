@@ -38,6 +38,7 @@ data Replay = NewReplay
     , replayFrames :: ByteString
     , replayMessages :: Messages
     , replayGoals :: Goals
+    , replayPackages :: Packages
     } deriving (Eq, Ord, Read, Show)
 
 instance B.Binary Replay where
@@ -86,6 +87,10 @@ data Team
     | Orange
     deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
+type Packages = [Package]
+
+type Package = T.Text
+
 -- * Readers
 
 getReplay :: B.Get Replay
@@ -109,6 +114,7 @@ getReplay = do
 
     messages <- getMessages
     goals <- getGoals
+    packages <- getPackages
 
     return NewReplay
         { replayIntro = intro
@@ -120,6 +126,7 @@ getReplay = do
         , replayFrames = frames
         , replayMessages = messages
         , replayGoals = goals
+        , replayPackages = packages
         }
 
 getText :: B.Get T.Text
@@ -249,6 +256,17 @@ getGoal = do
             { goalTeam = team
             , goalFrame = fromIntegral frame
             }
+
+getPackages :: B.Get Packages
+getPackages = do
+    size <- B.getWord32le
+    packages <- replicateM (fromIntegral size) getPackage
+    return packages
+
+getPackage :: B.Get Package
+getPackage = do
+    package <- getText
+    return package
 
 -- * Writers
 
