@@ -342,6 +342,7 @@ putReplay replay = do
     putFrames (replayFrames replay)
     putMessages (replayMessages replay)
     putGoals (replayGoals replay)
+    putPackages (replayPackages replay)
 
 putText :: T.Text -> B.Put
 putText text = do
@@ -453,3 +454,12 @@ putGoal goal = do
             Orange -> "Team1Goal"
     putText kind
     B.putWord32le (fromIntegral (goalFrame goal))
+
+putPackages :: Packages -> B.Put
+putPackages packages = do
+    B.putWord32le (fromIntegral (length packages))
+    mapM_ putPackage packages
+
+putPackage :: Package -> B.Put
+putPackage package = do
+    putText package
