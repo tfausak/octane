@@ -7,6 +7,7 @@ import Octane.Types.Goal (Goal)
 import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.Int64LE (Int64LE)
 import Octane.Types.List (List)
+import Octane.Types.Message (Message)
 import Octane.Types.PCString (PCString)
 
 import Control.Monad (replicateM)
@@ -80,13 +81,7 @@ data KeyFrame = NewKeyFrame
 
 type Frames = BS.ByteString
 
-type Messages = [Message]
-
-data Message = NewMessage
-    { messageFrame :: Int32LE
-    , messageName :: PCString
-    , messageContent :: PCString
-    } deriving (Show)
+type Messages = List Message
 
 type Goals = List Goal
 
@@ -111,7 +106,7 @@ getReplay = do
     effects <- B.get
     keyFrames <- getKeyFrames
     frames <- getFrames -- TODO
-    messages <- getMessages
+    messages <- B.get
     goals <- B.get
     packages <- B.get
     objects <- B.get
@@ -220,23 +215,6 @@ getFrames = do
     frames <- B.getByteString (fromIntegral size)
     return frames
 
-getMessages :: B.Get Messages
-getMessages = do
-    size <- B.getWord32le
-    messages <- replicateM (fromIntegral size) getMessage
-    return messages
-
-getMessage :: B.Get Message
-getMessage = do
-    frame <- B.get
-    name <- B.get
-    content <- B.get
-    return NewMessage
-        { messageFrame = frame
-        , messageName = name
-        , messageContent = content
-        }
-
 getUnknown :: B.Get BS.ByteString
 getUnknown = do
     unknown <- B.getByteString 4
@@ -255,7 +233,7 @@ putReplay replay = do
     B.put (replayEffects replay)
     putKeyFrames (replayKeyFrames replay)
     putFrames (replayFrames replay)
-    putMessages (replayMessages replay)
+    B.put (replayMessages replay)
     B.put (replayGoals replay)
     B.put (replayPackages replay)
     B.put (replayObjects replay)
@@ -339,14 +317,3 @@ putFrames :: Frames -> B.Put
 putFrames frames = do
     B.putWord32le (fromIntegral (BS.length frames))
     B.putByteString frames
-
-putMessages :: Messages -> B.Put
-putMessages messages = do
-    B.putWord32le (fromIntegral (length messages))
-    mapM_ putMessage messages
-
-putMessage :: Message -> B.Put
-putMessage message = do
-    B.put (messageFrame message)
-    B.put (messageName message)
-    B.put (messageContent message)

@@ -26,6 +26,7 @@ library
         Octane.Types.Int32LE
         Octane.Types.Int64LE
         Octane.Types.List
+        Octane.Types.Message
         Octane.Types.PCString
         Octane.Types.Team
     build-depends:
