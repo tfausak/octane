@@ -4,6 +4,7 @@ module Octane where
 
 import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.Int64LE (Int64LE)
+import Octane.Types.PCString (PCString)
 
 import Control.Monad (replicateM)
 import System.Environment (getArgs)
@@ -15,8 +16,6 @@ import qualified Data.Binary.Put as B
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Map as M
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
 
 -- * High-level interface
 
@@ -35,7 +34,7 @@ printResult result = case result of
 
 data Replay = NewReplay
     { replayIntro :: BS.ByteString
-    , replayLabel :: T.Text
+    , replayLabel :: PCString
     , replayProperties :: Properties
     , replaySeparator :: BS.ByteString
     , replayEffects :: Effects
@@ -54,19 +53,19 @@ instance B.Binary Replay where
     get = getReplay
     put = putReplay
 
-type Properties = M.Map T.Text Property
+type Properties = M.Map PCString Property
 
 data Property
     = ArrayProperty Int64LE [Properties]
     | FloatProperty Int64LE Float
     | IntProperty Int64LE Int32LE
-    | NameProperty Int64LE T.Text
-    | StrProperty Int64LE T.Text
+    | NameProperty Int64LE PCString
+    | StrProperty Int64LE PCString
     deriving (Show)
 
 type Effects = [Effect]
 
-type Effect = T.Text
+type Effect = PCString
 
 type KeyFrames = [KeyFrame]
 
@@ -82,8 +81,8 @@ type Messages = [Message]
 
 data Message = NewMessage
     { messageFrame :: Int32LE
-    , messageName :: T.Text
-    , messageContent :: T.Text
+    , messageName :: PCString
+    , messageContent :: PCString
     } deriving (Show)
 
 type Goals = [Goal]
@@ -100,16 +99,16 @@ data Team
 
 type Packages = [Package]
 
-type Package = T.Text
+type Package = PCString
 
 type Objects = [Object]
 
-type Object = T.Text
+type Object = PCString
 
 type Actors = [Actor]
 
 data Actor = NewActor
-    { actorName :: T.Text
+    { actorName :: PCString
     , actorValue :: Int32LE
     } deriving (Show)
 
@@ -118,7 +117,7 @@ data Actor = NewActor
 getReplay :: B.Get Replay
 getReplay = do
     intro <- B.getByteString 16 -- TODO
-    label <- getText -- NOTE: Always "TAGame.Replay_Soccar_TA".
+    label <- B.get -- NOTE: Always "TAGame.Replay_Soccar_TA".
     properties <- getProperties
     separator <- B.getByteString 8 -- TODO
     effects <- getTexts
@@ -149,22 +148,15 @@ getReplay = do
         , replayOutro = outro
         }
 
-getText :: B.Get T.Text
-getText = do
-    size <- B.getWord32le
-    bytes <- B.getByteString (fromIntegral size)
-    let text = T.dropEnd 1 (T.decodeUtf8 bytes)
-    return text
-
-getTexts :: B.Get [T.Text]
+getTexts :: B.Get [PCString]
 getTexts = do
     size <- B.getWord32le
-    texts <- replicateM (fromIntegral size) getText
+    texts <- replicateM (fromIntegral size) B.get
     return texts
 
 getProperties :: B.Get Properties
 getProperties = do
-    key <- getText
+    key <- B.get
     if key == "None"
     then do
         return M.empty
@@ -176,9 +168,9 @@ getProperties = do
 
 getProperty :: B.Get Property
 getProperty = do
-    kind <- getText
+    kind <- B.get
     size <- B.get
-    property <- case kind of
+    property <- case kind :: PCString of
         "ArrayProperty" -> getArrayProperty size
         "FloatProperty" -> getFloatProperty size
         "IntProperty" -> getIntProperty size
@@ -209,12 +201,12 @@ getIntProperty size = do
 
 getNameProperty :: Int64LE -> B.Get Property
 getNameProperty size = do
-    name <- getText
+    name <- B.get
     return (NameProperty size name)
 
 getStrProperty :: Int64LE -> B.Get Property
 getStrProperty size = do
-    string <- getText
+    string <- B.get
     return (StrProperty size string)
 
 getKeyFrames :: B.Get KeyFrames
@@ -249,8 +241,8 @@ getMessages = do
 getMessage :: B.Get Message
 getMessage = do
     frame <- B.get
-    name <- getText
-    content <- getText
+    name <- B.get
+    content <- B.get
     return NewMessage
         { messageFrame = frame
         , messageName = name
@@ -265,8 +257,8 @@ getGoals = do
 
 getGoal :: B.Get Goal
 getGoal = do
-    kind <- getText
-    team <- case kind of
+    kind <- B.get
+    team <- case kind :: PCString of
         "Team0Goal" -> return Blue
         "Team1Goal" -> return Orange
         _ -> fail ("unknown goal type " ++ show kind)
@@ -279,12 +271,12 @@ getGoal = do
 getPackages :: B.Get Packages
 getPackages = do
     size <- B.getWord32le
-    replicateM (fromIntegral size) getText
+    replicateM (fromIntegral size) B.get
 
 getObjects :: B.Get Objects
 getObjects = do
     size <- B.getWord32le
-    replicateM (fromIntegral size) getText
+    replicateM (fromIntegral size) B.get
 
 getUnknown :: B.Get BS.ByteString
 getUnknown = do
@@ -301,7 +293,7 @@ getActors = do
 
 getActor :: B.Get Actor
 getActor = do
-    name <- getText
+    name <- B.get
     value <- B.get
     return NewActor
         { actorName = name
@@ -313,7 +305,7 @@ getActor = do
 putReplay :: Replay -> B.Put
 putReplay replay = do
     B.putByteString (replayIntro replay)
-    putText (replayLabel replay)
+    B.put (replayLabel replay)
     putProperties (replayProperties replay)
     B.putByteString (replaySeparator replay)
     putTexts (replayEffects replay)
@@ -327,24 +319,19 @@ putReplay replay = do
     putActors (replayActors replay)
     B.putLazyByteString (replayOutro replay)
 
-putText :: T.Text -> B.Put
-putText text = do
-    B.putWord32le (fromIntegral (T.length text) + 1)
-    B.putByteString (BS.concat [T.encodeUtf8 text, "\NUL"])
-
-putTexts :: [T.Text] -> B.Put
+putTexts :: [PCString] -> B.Put
 putTexts texts = do
     B.putWord32le (fromIntegral (length texts))
-    mapM_ putText texts
+    mapM_ B.put texts
 
 putProperties :: Properties -> B.Put
 putProperties properties = do
     mapM_ putProperty (M.assocs properties)
-    putText "None"
+    B.put ("None" :: PCString)
 
-putProperty :: (T.Text, Property) -> B.Put
+putProperty :: (PCString, Property) -> B.Put
 putProperty (key, value) = do
-    putText key
+    B.put key
     case value of
         ArrayProperty _ _ -> putArrayProperty value
         FloatProperty _ _ -> putFloatProperty value
@@ -354,7 +341,7 @@ putProperty (key, value) = do
 
 putArrayProperty :: Property -> B.Put
 putArrayProperty (ArrayProperty size array) = do
-    putText "ArrayProperty"
+    B.put ("ArrayProperty" :: PCString)
     B.put size
     let otherSize = fromIntegral (length array)
     B.putWord32le otherSize
@@ -363,7 +350,7 @@ putArrayProperty _ = undefined
 
 putFloatProperty :: Property -> B.Put
 putFloatProperty (FloatProperty size float) = do
-    putText "FloatProperty"
+    B.put ("FloatProperty" :: PCString)
     B.put size
     case size of
         4 -> B.putFloat32le float
@@ -372,7 +359,7 @@ putFloatProperty _ = undefined
 
 putIntProperty :: Property -> B.Put
 putIntProperty (IntProperty size int) = do
-    putText "IntProperty"
+    B.put ("IntProperty" :: PCString)
     B.put size
     case size of
         4 -> B.put int
@@ -381,16 +368,16 @@ putIntProperty _ = undefined
 
 putNameProperty :: Property -> B.Put
 putNameProperty (NameProperty size name) = do
-    putText "NameProperty"
+    B.put ("NameProperty" :: PCString)
     B.put size
-    putText name
+    B.put name
 putNameProperty _ = undefined
 
 putStrProperty :: Property -> B.Put
 putStrProperty (StrProperty size string) = do
-    putText "StrProperty"
+    B.put ("StrProperty" :: PCString)
     B.put size
-    putText string
+    B.put string
 putStrProperty _ = undefined
 
 putKeyFrames :: KeyFrames -> B.Put
@@ -417,8 +404,8 @@ putMessages messages = do
 putMessage :: Message -> B.Put
 putMessage message = do
     B.put (messageFrame message)
-    putText (messageName message)
-    putText (messageContent message)
+    B.put (messageName message)
+    B.put (messageContent message)
 
 putGoals :: Goals -> B.Put
 putGoals goals = do
@@ -428,20 +415,20 @@ putGoals goals = do
 
 putGoal :: Goal -> B.Put
 putGoal goal = do
-    putText (case goalTeam goal of
-        Blue -> "Team0Goal"
+    B.put (case goalTeam goal of
+        Blue -> "Team0Goal" :: PCString
         Orange -> "Team1Goal")
     B.put (goalFrame goal)
 
 putPackages :: Packages -> B.Put
 putPackages packages = do
     B.putWord32le (fromIntegral (length packages))
-    mapM_ putText packages
+    mapM_ B.put packages
 
 putObjects :: Objects -> B.Put
 putObjects objects = do
     B.putWord32le (fromIntegral (length objects))
-    mapM_ putText objects
+    mapM_ B.put objects
 
 putActors :: Actors -> B.Put
 putActors actors = do
@@ -450,5 +437,5 @@ putActors actors = do
 
 putActor :: Actor -> B.Put
 putActor actor = do
-    putText (actorName actor)
+    B.put (actorName actor)
     B.put (actorValue actor)
