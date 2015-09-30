@@ -4,23 +4,21 @@ module Octane where
 
 import Octane.Types.Actor (Actor)
 import Octane.Types.Goal (Goal)
-import Octane.Types.Int32LE (Int32LE)
-import Octane.Types.Int64LE (Int64LE)
 import Octane.Types.KeyFrame (KeyFrame)
 import Octane.Types.List (List)
 import Octane.Types.Message (Message)
 import Octane.Types.PCString (PCString)
+import Octane.Types.Property (Property)
+import Octane.Types.Table (Table)
 
 import Control.Monad (replicateM)
 import System.Environment (getArgs)
 
 import qualified Data.Binary as B
 import qualified Data.Binary.Get as B
-import qualified Data.Binary.IEEE754 as B
 import qualified Data.Binary.Put as B
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import qualified Data.Map as M
 
 -- * High-level interface
 
@@ -58,15 +56,7 @@ instance B.Binary Replay where
     get = getReplay
     put = putReplay
 
-type Properties = M.Map PCString Property
-
-data Property
-    = ArrayProperty Int64LE [Properties]
-    | FloatProperty Int64LE Float
-    | IntProperty Int64LE Int32LE
-    | NameProperty Int64LE PCString
-    | StrProperty Int64LE PCString
-    deriving (Show)
+type Properties = Table Property
 
 type Effects = List Effect
 
@@ -96,7 +86,7 @@ getReplay :: B.Get Replay
 getReplay = do
     intro <- B.getByteString 16 -- TODO
     label <- B.get -- NOTE: Always "TAGame.Replay_Soccar_TA".
-    properties <- getProperties
+    properties <- B.get
     separator <- B.getByteString 8 -- TODO
     effects <- B.get
     keyFrames <- B.get
@@ -132,61 +122,6 @@ getTexts = do
     texts <- replicateM (fromIntegral size) B.get
     return texts
 
-getProperties :: B.Get Properties
-getProperties = do
-    key <- B.get
-    if key == "None"
-    then do
-        return M.empty
-    else do
-        value <- getProperty
-        let property = M.singleton key value
-        properties <- getProperties
-        return (M.union property properties)
-
-getProperty :: B.Get Property
-getProperty = do
-    kind <- B.get
-    size <- B.get
-    property <- case kind :: PCString of
-        "ArrayProperty" -> getArrayProperty size
-        "FloatProperty" -> getFloatProperty size
-        "IntProperty" -> getIntProperty size
-        "NameProperty" -> getNameProperty size
-        "StrProperty" -> getStrProperty size
-        _ -> fail ("unknown property type " ++ show kind)
-    return property
-
-getArrayProperty :: Int64LE -> B.Get Property
-getArrayProperty size = do
-    otherSize <- B.getWord32le
-    array <- replicateM (fromIntegral otherSize) getProperties
-    return (ArrayProperty size array)
-
-getFloatProperty :: Int64LE -> B.Get Property
-getFloatProperty size = do
-    float <- case size of
-        4 -> B.getFloat32le
-        _ -> fail ("unknown FloatProperty size " ++ show size)
-    return (FloatProperty size float)
-
-getIntProperty :: Int64LE -> B.Get Property
-getIntProperty size = do
-    int <- case size of
-        4 -> B.get
-        _ -> fail ("unknown IntProperty size " ++ show size)
-    return (IntProperty size int)
-
-getNameProperty :: Int64LE -> B.Get Property
-getNameProperty size = do
-    name <- B.get
-    return (NameProperty size name)
-
-getStrProperty :: Int64LE -> B.Get Property
-getStrProperty size = do
-    string <- B.get
-    return (StrProperty size string)
-
 getFrames :: B.Get Frames
 getFrames = do
     size <- B.getWord32le
@@ -206,7 +141,7 @@ putReplay :: Replay -> B.Put
 putReplay replay = do
     B.putByteString (replayIntro replay)
     B.put (replayLabel replay)
-    putProperties (replayProperties replay)
+    B.put (replayProperties replay)
     B.putByteString (replaySeparator replay)
     B.put (replayEffects replay)
     B.put (replayKeyFrames replay)
@@ -223,62 +158,6 @@ putTexts :: [PCString] -> B.Put
 putTexts texts = do
     B.putWord32le (fromIntegral (length texts))
     mapM_ B.put texts
-
-putProperties :: Properties -> B.Put
-putProperties properties = do
-    mapM_ putProperty (M.assocs properties)
-    B.put ("None" :: PCString)
-
-putProperty :: (PCString, Property) -> B.Put
-putProperty (key, value) = do
-    B.put key
-    case value of
-        ArrayProperty _ _ -> putArrayProperty value
-        FloatProperty _ _ -> putFloatProperty value
-        IntProperty _ _ -> putIntProperty value
-        NameProperty _ _ -> putNameProperty value
-        StrProperty _ _ -> putStrProperty value
-
-putArrayProperty :: Property -> B.Put
-putArrayProperty (ArrayProperty size array) = do
-    B.put ("ArrayProperty" :: PCString)
-    B.put size
-    let otherSize = fromIntegral (length array)
-    B.putWord32le otherSize
-    mapM_ putProperties array
-putArrayProperty _ = undefined
-
-putFloatProperty :: Property -> B.Put
-putFloatProperty (FloatProperty size float) = do
-    B.put ("FloatProperty" :: PCString)
-    B.put size
-    case size of
-        4 -> B.putFloat32le float
-        _ -> undefined
-putFloatProperty _ = undefined
-
-putIntProperty :: Property -> B.Put
-putIntProperty (IntProperty size int) = do
-    B.put ("IntProperty" :: PCString)
-    B.put size
-    case size of
-        4 -> B.put int
-        _ -> undefined
-putIntProperty _ = undefined
-
-putNameProperty :: Property -> B.Put
-putNameProperty (NameProperty size name) = do
-    B.put ("NameProperty" :: PCString)
-    B.put size
-    B.put name
-putNameProperty _ = undefined
-
-putStrProperty :: Property -> B.Put
-putStrProperty (StrProperty size string) = do
-    B.put ("StrProperty" :: PCString)
-    B.put size
-    B.put string
-putStrProperty _ = undefined
 
 putFrames :: Frames -> B.Put
 putFrames frames = do

@@ -30,6 +30,7 @@ library
         Octane.Types.List
         Octane.Types.Message
         Octane.Types.PCString
+        Octane.Types.Property
         Octane.Types.Table
         Octane.Types.Team
     build-depends:
