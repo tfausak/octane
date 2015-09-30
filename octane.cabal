@@ -31,6 +31,7 @@ library
         Octane.Types.Message
         Octane.Types.PCString
         Octane.Types.Property
+        Octane.Types.Replay
         Octane.Types.Table
         Octane.Types.Team
     build-depends:
