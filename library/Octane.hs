@@ -2,6 +2,8 @@
 
 module Octane where
 
+import Octane.Types.Int32LE (Int32LE)
+
 import Control.Monad (replicateM)
 import System.Environment (getArgs)
 
@@ -56,7 +58,7 @@ type Properties = M.Map T.Text Property
 data Property
     = ArrayProperty B.Word64 [Properties]
     | FloatProperty B.Word64 Float
-    | IntProperty B.Word64 Int
+    | IntProperty B.Word64 Int32LE
     | NameProperty B.Word64 T.Text
     | StrProperty B.Word64 T.Text
     deriving (Show)
@@ -69,8 +71,8 @@ type KeyFrames = [KeyFrame]
 
 data KeyFrame = NewKeyFrame
     { keyFrameTime :: Float
-    , keyFrameFrame :: Int
-    , keyFramePosition :: Int
+    , keyFrameFrame :: Int32LE
+    , keyFramePosition :: Int32LE
     } deriving (Show)
 
 type Frames = BS.ByteString
@@ -78,7 +80,7 @@ type Frames = BS.ByteString
 type Messages = [Message]
 
 data Message = NewMessage
-    { messageFrame :: Int
+    { messageFrame :: Int32LE
     , messageName :: T.Text
     , messageContent :: T.Text
     } deriving (Show)
@@ -87,7 +89,7 @@ type Goals = [Goal]
 
 data Goal = NewGoal
     { goalTeam :: Team
-    , goalFrame :: Int
+    , goalFrame :: Int32LE
     } deriving (Show)
 
 data Team
@@ -107,7 +109,7 @@ type Actors = [Actor]
 
 data Actor = NewActor
     { actorName :: T.Text
-    , actorValue :: Int
+    , actorValue :: Int32LE
     } deriving (Show)
 
 -- * Readers
@@ -199,11 +201,10 @@ getFloatProperty size = do
 
 getIntProperty :: B.Word64 -> B.Get Property
 getIntProperty size = do
-    word <- case size of
-        4 -> B.getWord32le
+    int <- case size of
+        4 -> B.get
         _ -> fail ("unknown IntProperty size " ++ show size)
-    let integer = fromIntegral word
-    return (IntProperty size integer)
+    return (IntProperty size int)
 
 getNameProperty :: B.Word64 -> B.Get Property
 getNameProperty size = do
@@ -224,12 +225,12 @@ getKeyFrames = do
 getKeyFrame :: B.Get KeyFrame
 getKeyFrame = do
     time <- B.getFloat32le
-    frame <- B.getWord32le
-    position <- B.getWord32le
+    frame <- B.get
+    position <- B.get
     return NewKeyFrame
         { keyFrameTime = time
-        , keyFrameFrame = fromIntegral frame
-        , keyFramePosition = fromIntegral position
+        , keyFrameFrame = frame
+        , keyFramePosition = position
         }
 
 getFrames :: B.Get Frames
@@ -246,11 +247,11 @@ getMessages = do
 
 getMessage :: B.Get Message
 getMessage = do
-    frame <- B.getWord32le
+    frame <- B.get
     name <- getText
     content <- getText
     return NewMessage
-        { messageFrame = fromIntegral frame
+        { messageFrame = frame
         , messageName = name
         , messageContent = content
         }
@@ -268,10 +269,10 @@ getGoal = do
         "Team0Goal" -> return Blue
         "Team1Goal" -> return Orange
         _ -> fail ("unknown goal type " ++ show kind)
-    frame <- B.getWord32le
+    frame <- B.get
     return NewGoal
             { goalTeam = team
-            , goalFrame = fromIntegral frame
+            , goalFrame = frame
             }
 
 getPackages :: B.Get Packages
@@ -300,10 +301,10 @@ getActors = do
 getActor :: B.Get Actor
 getActor = do
     name <- getText
-    value <- B.getWord32le
+    value <- B.get
     return NewActor
         { actorName = name
-        , actorValue = fromIntegral value
+        , actorValue = value
         }
 
 -- * Writers
@@ -369,11 +370,11 @@ putFloatProperty (FloatProperty size float) = do
 putFloatProperty _ = undefined
 
 putIntProperty :: Property -> B.Put
-putIntProperty (IntProperty size integer) = do
+putIntProperty (IntProperty size int) = do
     putText "IntProperty"
     B.putWord64le size
     case size of
-        4 -> B.putWord32le (fromIntegral integer)
+        4 -> B.put int
         _ -> undefined
 putIntProperty _ = undefined
 
@@ -399,8 +400,8 @@ putKeyFrames keyFrames = do
 putKeyFrame :: KeyFrame -> B.Put
 putKeyFrame keyFrame = do
     B.putFloat32le (keyFrameTime keyFrame)
-    B.putWord32le (fromIntegral (keyFrameFrame keyFrame))
-    B.putWord32le (fromIntegral (keyFramePosition keyFrame))
+    B.put (keyFrameFrame keyFrame)
+    B.put (keyFramePosition keyFrame)
 
 putFrames :: Frames -> B.Put
 putFrames frames = do
@@ -414,7 +415,7 @@ putMessages messages = do
 
 putMessage :: Message -> B.Put
 putMessage message = do
-    B.putWord32le (fromIntegral (messageFrame message))
+    B.put (messageFrame message)
     putText (messageName message)
     putText (messageContent message)
 
@@ -429,7 +430,7 @@ putGoal goal = do
     putText (case goalTeam goal of
         Blue -> "Team0Goal"
         Orange -> "Team1Goal")
-    B.putWord32le (fromIntegral (goalFrame goal))
+    B.put (goalFrame goal)
 
 putPackages :: Packages -> B.Put
 putPackages packages = do
@@ -449,4 +450,4 @@ putActors actors = do
 putActor :: Actor -> B.Put
 putActor actor = do
     putText (actorName actor)
-    B.putWord32le (fromIntegral (actorValue actor))
+    B.put (actorValue actor)
