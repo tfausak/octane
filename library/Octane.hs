@@ -43,7 +43,7 @@ data Replay = NewReplay
     , replayPackages :: Packages
     , replayObjects :: Objects
     , replayUnknown :: BS.ByteString
-    , replayEntities :: Entities
+    , replayActors :: Actors
     , replayOutro :: BSL.ByteString
     } deriving (Show)
 
@@ -103,11 +103,11 @@ type Objects = [Object]
 
 type Object = T.Text
 
-type Entities = [Entity]
+type Actors = [Actor]
 
-data Entity = NewEntity
-    { entityName :: T.Text
-    , entityValue :: Int
+data Actor = NewActor
+    { actorName :: T.Text
+    , actorValue :: Int
     } deriving (Show)
 
 -- * Readers
@@ -142,7 +142,7 @@ getReplay = do
     then return ()
     else fail ("unexpected value " ++ show unknown)
 
-    entities <- getEntities
+    actors <- getActors
 
     -- TODO: The meaning of these bytes is unclear.
     outro <- B.getRemainingLazyByteString
@@ -160,7 +160,7 @@ getReplay = do
         , replayPackages = packages
         , replayObjects = objects
         , replayUnknown = unknown
-        , replayEntities = entities
+        , replayActors = actors
         , replayOutro = outro
         }
 
@@ -314,19 +314,19 @@ getObject = do
     object <- getText
     return object
 
-getEntities :: B.Get Entities
-getEntities = do
+getActors :: B.Get Actors
+getActors = do
     size <- B.getWord32le
-    entities <- replicateM (fromIntegral size) getEntity
-    return entities
+    actors <- replicateM (fromIntegral size) getActor
+    return actors
 
-getEntity :: B.Get Entity
-getEntity = do
+getActor :: B.Get Actor
+getActor = do
     name <- getText
     value <- B.getWord32le
-    return NewEntity
-        { entityName = name
-        , entityValue = fromIntegral value
+    return NewActor
+        { actorName = name
+        , actorValue = fromIntegral value
         }
 
 -- * Writers
@@ -345,7 +345,7 @@ putReplay replay = do
     putPackages (replayPackages replay)
     putObjects (replayObjects replay)
     B.putByteString (replayUnknown replay)
-    putEntities (replayEntities replay)
+    putActors (replayActors replay)
     B.putLazyByteString (replayOutro replay)
 
 putText :: T.Text -> B.Put
@@ -479,12 +479,12 @@ putObject :: Object -> B.Put
 putObject object = do
     putText object
 
-putEntities :: Entities -> B.Put
-putEntities entities = do
-    B.putWord32le (fromIntegral (length entities))
-    mapM_ putEntity entities
+putActors :: Actors -> B.Put
+putActors actors = do
+    B.putWord32le (fromIntegral (length actors))
+    mapM_ putActor actors
 
-putEntity :: Entity -> B.Put
-putEntity entity = do
-    putText (entityName entity)
-    B.putWord32le (fromIntegral (entityValue entity))
+putActor :: Actor -> B.Put
+putActor actor = do
+    putText (actorName actor)
+    B.putWord32le (fromIntegral (actorValue actor))
