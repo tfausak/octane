@@ -295,24 +295,12 @@ getGoal = do
 getPackages :: B.Get Packages
 getPackages = do
     size <- B.getWord32le
-    packages <- replicateM (fromIntegral size) getPackage
-    return packages
-
-getPackage :: B.Get Package
-getPackage = do
-    package <- getText
-    return package
+    replicateM (fromIntegral size) getText
 
 getObjects :: B.Get Objects
 getObjects = do
     size <- B.getWord32le
-    objects <- replicateM (fromIntegral size) getObject
-    return objects
-
-getObject :: B.Get Object
-getObject = do
-    object <- getText
-    return object
+    replicateM (fromIntegral size) getText
 
 getActors :: B.Get Actors
 getActors = do
@@ -350,15 +338,12 @@ putReplay replay = do
 
 putText :: T.Text -> B.Put
 putText text = do
-    let size = fromIntegral (T.length text) + 1
-    B.putWord32le size
-    let bytes = BS.concat [T.encodeUtf8 text, "\NUL"]
-    B.putByteString bytes
+    B.putWord32le (fromIntegral (T.length text) + 1)
+    B.putByteString (BS.concat [T.encodeUtf8 text, "\NUL"])
 
 putTexts :: [T.Text] -> B.Put
 putTexts texts = do
-    let size = fromIntegral (length texts)
-    B.putWord32le size
+    B.putWord32le (fromIntegral (length texts))
     mapM_ putText texts
 
 putProperties :: Properties -> B.Put
@@ -419,8 +404,7 @@ putStrProperty _ = undefined
 
 putKeyFrames :: KeyFrames -> B.Put
 putKeyFrames keyFrames = do
-    let size = fromIntegral (length keyFrames)
-    B.putWord32le size
+    B.putWord32le (fromIntegral (length keyFrames))
     mapM_ putKeyFrame keyFrames
 
 putKeyFrame :: KeyFrame -> B.Put
@@ -431,14 +415,12 @@ putKeyFrame keyFrame = do
 
 putFrames :: Frames -> B.Put
 putFrames frames = do
-    let size = fromIntegral (BS.length frames)
-    B.putWord32le size
+    B.putWord32le (fromIntegral (BS.length frames))
     B.putByteString frames
 
 putMessages :: Messages -> B.Put
 putMessages messages = do
-    let size = fromIntegral (length messages)
-    B.putWord32le size
+    B.putWord32le (fromIntegral (length messages))
     mapM_ putMessage messages
 
 putMessage :: Message -> B.Put
@@ -455,29 +437,20 @@ putGoals goals = do
 
 putGoal :: Goal -> B.Put
 putGoal goal = do
-    let kind = case goalTeam goal of
-            Blue -> "Team0Goal"
-            Orange -> "Team1Goal"
-    putText kind
+    putText (case goalTeam goal of
+        Blue -> "Team0Goal"
+        Orange -> "Team1Goal")
     B.putWord32le (fromIntegral (goalFrame goal))
 
 putPackages :: Packages -> B.Put
 putPackages packages = do
     B.putWord32le (fromIntegral (length packages))
-    mapM_ putPackage packages
-
-putPackage :: Package -> B.Put
-putPackage package = do
-    putText package
+    mapM_ putText packages
 
 putObjects :: Objects -> B.Put
 putObjects objects = do
     B.putWord32le (fromIntegral (length objects))
-    mapM_ putObject objects
-
-putObject :: Object -> B.Put
-putObject object = do
-    putText object
+    mapM_ putText objects
 
 putActors :: Actors -> B.Put
 putActors actors = do
