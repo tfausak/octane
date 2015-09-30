@@ -19,7 +19,7 @@ instance (B.Binary a) => B.Binary (Table a) where
         else do
             value <- B.get
             let row = M.singleton key value
-            table <- B.get
+            NewTable table <- B.get
             return (NewTable (M.union row table))
 
     put (NewTable table) = do
