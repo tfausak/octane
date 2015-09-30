@@ -26,6 +26,7 @@ library
         Octane.Types.Int64LE
         Octane.Types.List
         Octane.Types.PCString
+        Octane.Types.Team
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,

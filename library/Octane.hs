@@ -7,6 +7,7 @@ import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.Int64LE (Int64LE)
 import Octane.Types.List (List)
 import Octane.Types.PCString (PCString)
+import Octane.Types.Team (Team)
 
 import Control.Monad (replicateM)
 import System.Environment (getArgs)
@@ -93,11 +94,6 @@ data Goal = NewGoal
     { goalTeam :: Team
     , goalFrame :: Int32LE
     } deriving (Show)
-
-data Team
-    = Blue
-    | Orange
-    deriving (Show)
 
 type Packages = List Package
 
@@ -254,11 +250,7 @@ getGoals = do
 
 getGoal :: B.Get Goal
 getGoal = do
-    kind <- B.get
-    team <- case kind :: PCString of
-        "Team0Goal" -> return Blue
-        "Team1Goal" -> return Orange
-        _ -> fail ("unknown goal type " ++ show kind)
+    team <- B.get
     frame <- B.get
     return NewGoal
             { goalTeam = team
@@ -387,7 +379,5 @@ putGoals goals = do
 
 putGoal :: Goal -> B.Put
 putGoal goal = do
-    B.put (case goalTeam goal of
-        Blue -> "Team0Goal" :: PCString
-        Orange -> "Team1Goal")
+    B.put (goalTeam goal)
     B.put (goalFrame goal)
