@@ -3,11 +3,11 @@
 module Octane where
 
 import Octane.Types.Actor (Actor)
+import Octane.Types.Goal (Goal)
 import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.Int64LE (Int64LE)
 import Octane.Types.List (List)
 import Octane.Types.PCString (PCString)
-import Octane.Types.Team (Team)
 
 import Control.Monad (replicateM)
 import System.Environment (getArgs)
@@ -88,12 +88,7 @@ data Message = NewMessage
     , messageContent :: PCString
     } deriving (Show)
 
-type Goals = [Goal]
-
-data Goal = NewGoal
-    { goalTeam :: Team
-    , goalFrame :: Int32LE
-    } deriving (Show)
+type Goals = List Goal
 
 type Packages = List Package
 
@@ -117,7 +112,7 @@ getReplay = do
     keyFrames <- getKeyFrames
     frames <- getFrames -- TODO
     messages <- getMessages
-    goals <- getGoals
+    goals <- B.get
     packages <- B.get
     objects <- B.get
     unknown <- getUnknown
@@ -242,21 +237,6 @@ getMessage = do
         , messageContent = content
         }
 
-getGoals :: B.Get Goals
-getGoals = do
-    size <- B.getWord32le
-    goals <- replicateM (fromIntegral size) getGoal
-    return goals
-
-getGoal :: B.Get Goal
-getGoal = do
-    team <- B.get
-    frame <- B.get
-    return NewGoal
-            { goalTeam = team
-            , goalFrame = frame
-            }
-
 getUnknown :: B.Get BS.ByteString
 getUnknown = do
     unknown <- B.getByteString 4
@@ -276,7 +256,7 @@ putReplay replay = do
     putKeyFrames (replayKeyFrames replay)
     putFrames (replayFrames replay)
     putMessages (replayMessages replay)
-    putGoals (replayGoals replay)
+    B.put (replayGoals replay)
     B.put (replayPackages replay)
     B.put (replayObjects replay)
     B.putByteString (replayUnknown replay)
@@ -370,14 +350,3 @@ putMessage message = do
     B.put (messageFrame message)
     B.put (messageName message)
     B.put (messageContent message)
-
-putGoals :: Goals -> B.Put
-putGoals goals = do
-    let size = fromIntegral (length goals)
-    B.putWord32le size
-    mapM_ putGoal goals
-
-putGoal :: Goal -> B.Put
-putGoal goal = do
-    B.put (goalTeam goal)
-    B.put (goalFrame goal)
