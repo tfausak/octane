@@ -114,38 +114,20 @@ data Actor = NewActor
 
 getReplay :: B.Get Replay
 getReplay = do
-    -- TODO: The meaning of these bytes is unclear.
-    intro <- B.getByteString 16
-
-    -- NOTE: This label appears to always be "TAGame.Replay_Soccar_TA".
-    label <- getText
-
+    intro <- B.getByteString 16 -- TODO
+    label <- getText -- NOTE: Always "TAGame.Replay_Soccar_TA".
     properties <- getProperties
-
-    -- TODO: The meaning of these bytes is also unclear.
-    separator <- B.getByteString 8
-
+    separator <- B.getByteString 8 -- TODO
     effects <- getTexts
     keyFrames <- getKeyFrames
-
-    -- TODO: Actually parse these frames.
-    frames <- getFrames
-
+    frames <- getFrames -- TODO
     messages <- getMessages
     goals <- getGoals
     packages <- getPackages
     objects <- getObjects
-
-    -- TODO: It is not clear what is in these bytes.
-    unknown <- B.getByteString 4
-    if unknown == "\NUL\NUL\NUL\NUL"
-    then return ()
-    else fail ("unexpected value " ++ show unknown)
-
+    unknown <- getUnknown
     actors <- getActors
-
-    -- TODO: The meaning of these bytes is unclear.
-    outro <- B.getRemainingLazyByteString
+    outro <- B.getRemainingLazyByteString -- TODO
 
     return NewReplay
         { replayIntro = intro
@@ -301,6 +283,13 @@ getObjects :: B.Get Objects
 getObjects = do
     size <- B.getWord32le
     replicateM (fromIntegral size) getText
+
+getUnknown :: B.Get BS.ByteString
+getUnknown = do
+    unknown <- B.getByteString 4
+    if unknown == "\NUL\NUL\NUL\NUL"
+    then return unknown
+    else fail ("unexpected value " ++ show unknown)
 
 getActors :: B.Get Actors
 getActors = do
