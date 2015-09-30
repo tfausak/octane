@@ -12,7 +12,7 @@ newtype Int64LE = NewInt64LE
 
 instance B.Binary Int64LE where
     get = do
-        word <- B.getWord32le
+        word <- B.getWord64le
         return (NewInt64LE (fromIntegral word))
 
     put (NewInt64LE int) = do
