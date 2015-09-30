@@ -3,6 +3,7 @@
 module Octane where
 
 import Octane.Types.Int32LE (Int32LE)
+import Octane.Types.Int64LE (Int64LE)
 
 import Control.Monad (replicateM)
 import System.Environment (getArgs)
@@ -56,11 +57,11 @@ instance B.Binary Replay where
 type Properties = M.Map T.Text Property
 
 data Property
-    = ArrayProperty B.Word64 [Properties]
-    | FloatProperty B.Word64 Float
-    | IntProperty B.Word64 Int32LE
-    | NameProperty B.Word64 T.Text
-    | StrProperty B.Word64 T.Text
+    = ArrayProperty Int64LE [Properties]
+    | FloatProperty Int64LE Float
+    | IntProperty Int64LE Int32LE
+    | NameProperty Int64LE T.Text
+    | StrProperty Int64LE T.Text
     deriving (Show)
 
 type Effects = [Effect]
@@ -176,7 +177,7 @@ getProperties = do
 getProperty :: B.Get Property
 getProperty = do
     kind <- getText
-    size <- B.getWord64le
+    size <- B.get
     property <- case kind of
         "ArrayProperty" -> getArrayProperty size
         "FloatProperty" -> getFloatProperty size
@@ -186,32 +187,32 @@ getProperty = do
         _ -> fail ("unknown property type " ++ show kind)
     return property
 
-getArrayProperty :: B.Word64 -> B.Get Property
+getArrayProperty :: Int64LE -> B.Get Property
 getArrayProperty size = do
     otherSize <- B.getWord32le
     array <- replicateM (fromIntegral otherSize) getProperties
     return (ArrayProperty size array)
 
-getFloatProperty :: B.Word64 -> B.Get Property
+getFloatProperty :: Int64LE -> B.Get Property
 getFloatProperty size = do
     float <- case size of
         4 -> B.getFloat32le
         _ -> fail ("unknown FloatProperty size " ++ show size)
     return (FloatProperty size float)
 
-getIntProperty :: B.Word64 -> B.Get Property
+getIntProperty :: Int64LE -> B.Get Property
 getIntProperty size = do
     int <- case size of
         4 -> B.get
         _ -> fail ("unknown IntProperty size " ++ show size)
     return (IntProperty size int)
 
-getNameProperty :: B.Word64 -> B.Get Property
+getNameProperty :: Int64LE -> B.Get Property
 getNameProperty size = do
     name <- getText
     return (NameProperty size name)
 
-getStrProperty :: B.Word64 -> B.Get Property
+getStrProperty :: Int64LE -> B.Get Property
 getStrProperty size = do
     string <- getText
     return (StrProperty size string)
@@ -354,7 +355,7 @@ putProperty (key, value) = do
 putArrayProperty :: Property -> B.Put
 putArrayProperty (ArrayProperty size array) = do
     putText "ArrayProperty"
-    B.putWord64le size
+    B.put size
     let otherSize = fromIntegral (length array)
     B.putWord32le otherSize
     mapM_ putProperties array
@@ -363,7 +364,7 @@ putArrayProperty _ = undefined
 putFloatProperty :: Property -> B.Put
 putFloatProperty (FloatProperty size float) = do
     putText "FloatProperty"
-    B.putWord64le size
+    B.put size
     case size of
         4 -> B.putFloat32le float
         _ -> undefined
@@ -372,7 +373,7 @@ putFloatProperty _ = undefined
 putIntProperty :: Property -> B.Put
 putIntProperty (IntProperty size int) = do
     putText "IntProperty"
-    B.putWord64le size
+    B.put size
     case size of
         4 -> B.put int
         _ -> undefined
@@ -381,14 +382,14 @@ putIntProperty _ = undefined
 putNameProperty :: Property -> B.Put
 putNameProperty (NameProperty size name) = do
     putText "NameProperty"
-    B.putWord64le size
+    B.put size
     putText name
 putNameProperty _ = undefined
 
 putStrProperty :: Property -> B.Put
 putStrProperty (StrProperty size string) = do
     putText "StrProperty"
-    B.putWord64le size
+    B.put size
     putText string
 putStrProperty _ = undefined
 

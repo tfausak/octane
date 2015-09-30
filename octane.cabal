@@ -22,6 +22,7 @@ library
     exposed-modules:
         Octane
         Octane.Types.Int32LE
+        Octane.Types.Int64LE
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,
