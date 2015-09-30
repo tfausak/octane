@@ -5,6 +5,7 @@ module Octane where
 import Octane.Types.Actor (Actor)
 import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.Int64LE (Int64LE)
+import Octane.Types.List (List)
 import Octane.Types.PCString (PCString)
 
 import Control.Monad (replicateM)
@@ -64,7 +65,7 @@ data Property
     | StrProperty Int64LE PCString
     deriving (Show)
 
-type Effects = [Effect]
+type Effects = List Effect
 
 type Effect = PCString
 
@@ -98,15 +99,15 @@ data Team
     | Orange
     deriving (Show)
 
-type Packages = [Package]
+type Packages = List Package
 
 type Package = PCString
 
-type Objects = [Object]
+type Objects = List Object
 
 type Object = PCString
 
-type Actors = [Actor]
+type Actors = List Actor
 
 -- * Readers
 
@@ -116,15 +117,15 @@ getReplay = do
     label <- B.get -- NOTE: Always "TAGame.Replay_Soccar_TA".
     properties <- getProperties
     separator <- B.getByteString 8 -- TODO
-    effects <- getTexts
+    effects <- B.get
     keyFrames <- getKeyFrames
     frames <- getFrames -- TODO
     messages <- getMessages
     goals <- getGoals
-    packages <- getPackages
-    objects <- getObjects
+    packages <- B.get
+    objects <- B.get
     unknown <- getUnknown
-    actors <- getActors
+    actors <- B.get
     outro <- B.getRemainingLazyByteString -- TODO
 
     return NewReplay
@@ -264,28 +265,12 @@ getGoal = do
             , goalFrame = frame
             }
 
-getPackages :: B.Get Packages
-getPackages = do
-    size <- B.getWord32le
-    replicateM (fromIntegral size) B.get
-
-getObjects :: B.Get Objects
-getObjects = do
-    size <- B.getWord32le
-    replicateM (fromIntegral size) B.get
-
 getUnknown :: B.Get BS.ByteString
 getUnknown = do
     unknown <- B.getByteString 4
     if unknown == "\NUL\NUL\NUL\NUL"
     then return unknown
     else fail ("unexpected value " ++ show unknown)
-
-getActors :: B.Get Actors
-getActors = do
-    size <- B.getWord32le
-    actors <- replicateM (fromIntegral size) B.get
-    return actors
 
 -- * Writers
 
@@ -295,15 +280,15 @@ putReplay replay = do
     B.put (replayLabel replay)
     putProperties (replayProperties replay)
     B.putByteString (replaySeparator replay)
-    putTexts (replayEffects replay)
+    B.put (replayEffects replay)
     putKeyFrames (replayKeyFrames replay)
     putFrames (replayFrames replay)
     putMessages (replayMessages replay)
     putGoals (replayGoals replay)
-    putPackages (replayPackages replay)
-    putObjects (replayObjects replay)
+    B.put (replayPackages replay)
+    B.put (replayObjects replay)
     B.putByteString (replayUnknown replay)
-    putActors (replayActors replay)
+    B.put (replayActors replay)
     B.putLazyByteString (replayOutro replay)
 
 putTexts :: [PCString] -> B.Put
@@ -406,18 +391,3 @@ putGoal goal = do
         Blue -> "Team0Goal" :: PCString
         Orange -> "Team1Goal")
     B.put (goalFrame goal)
-
-putPackages :: Packages -> B.Put
-putPackages packages = do
-    B.putWord32le (fromIntegral (length packages))
-    mapM_ B.put packages
-
-putObjects :: Objects -> B.Put
-putObjects objects = do
-    B.putWord32le (fromIntegral (length objects))
-    mapM_ B.put objects
-
-putActors :: Actors -> B.Put
-putActors actors = do
-    B.putWord32le (fromIntegral (length actors))
-    mapM_ B.put actors
