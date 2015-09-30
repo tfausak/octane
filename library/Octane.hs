@@ -2,6 +2,7 @@
 
 module Octane where
 
+import Octane.Types.Actor (Actor)
 import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.Int64LE (Int64LE)
 import Octane.Types.PCString (PCString)
@@ -106,11 +107,6 @@ type Objects = [Object]
 type Object = PCString
 
 type Actors = [Actor]
-
-data Actor = NewActor
-    { actorName :: PCString
-    , actorValue :: Int32LE
-    } deriving (Show)
 
 -- * Readers
 
@@ -288,17 +284,8 @@ getUnknown = do
 getActors :: B.Get Actors
 getActors = do
     size <- B.getWord32le
-    actors <- replicateM (fromIntegral size) getActor
+    actors <- replicateM (fromIntegral size) B.get
     return actors
-
-getActor :: B.Get Actor
-getActor = do
-    name <- B.get
-    value <- B.get
-    return NewActor
-        { actorName = name
-        , actorValue = value
-        }
 
 -- * Writers
 
@@ -433,9 +420,4 @@ putObjects objects = do
 putActors :: Actors -> B.Put
 putActors actors = do
     B.putWord32le (fromIntegral (length actors))
-    mapM_ putActor actors
-
-putActor :: Actor -> B.Put
-putActor actor = do
-    B.put (actorName actor)
-    B.put (actorValue actor)
+    mapM_ B.put actors

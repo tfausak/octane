@@ -21,6 +21,7 @@ source-repository head
 library
     exposed-modules:
         Octane
+        Octane.Types.Actor
         Octane.Types.Int32LE
         Octane.Types.Int64LE
         Octane.Types.PCString
