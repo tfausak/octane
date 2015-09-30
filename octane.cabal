@@ -21,6 +21,19 @@ source-repository head
 library
     exposed-modules:
         Octane
+        Octane.Types.Actor
+        Octane.Types.Float32LE
+        Octane.Types.Goal
+        Octane.Types.Int32LE
+        Octane.Types.Int64LE
+        Octane.Types.KeyFrame
+        Octane.Types.List
+        Octane.Types.Message
+        Octane.Types.PCString
+        Octane.Types.Property
+        Octane.Types.Replay
+        Octane.Types.Table
+        Octane.Types.Team
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,
