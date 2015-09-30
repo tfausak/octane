@@ -6,6 +6,7 @@ import Octane.Types.Actor (Actor)
 import Octane.Types.Goal (Goal)
 import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.Int64LE (Int64LE)
+import Octane.Types.KeyFrame (KeyFrame)
 import Octane.Types.List (List)
 import Octane.Types.Message (Message)
 import Octane.Types.PCString (PCString)
@@ -71,13 +72,7 @@ type Effects = List Effect
 
 type Effect = PCString
 
-type KeyFrames = [KeyFrame]
-
-data KeyFrame = NewKeyFrame
-    { keyFrameTime :: Float
-    , keyFrameFrame :: Int32LE
-    , keyFramePosition :: Int32LE
-    } deriving (Show)
+type KeyFrames = List KeyFrame
 
 type Frames = BS.ByteString
 
@@ -104,7 +99,7 @@ getReplay = do
     properties <- getProperties
     separator <- B.getByteString 8 -- TODO
     effects <- B.get
-    keyFrames <- getKeyFrames
+    keyFrames <- B.get
     frames <- getFrames -- TODO
     messages <- B.get
     goals <- B.get
@@ -192,23 +187,6 @@ getStrProperty size = do
     string <- B.get
     return (StrProperty size string)
 
-getKeyFrames :: B.Get KeyFrames
-getKeyFrames = do
-    size <- B.getWord32le
-    keyFrames <- replicateM (fromIntegral size) getKeyFrame
-    return keyFrames
-
-getKeyFrame :: B.Get KeyFrame
-getKeyFrame = do
-    time <- B.getFloat32le
-    frame <- B.get
-    position <- B.get
-    return NewKeyFrame
-        { keyFrameTime = time
-        , keyFrameFrame = frame
-        , keyFramePosition = position
-        }
-
 getFrames :: B.Get Frames
 getFrames = do
     size <- B.getWord32le
@@ -231,7 +209,7 @@ putReplay replay = do
     putProperties (replayProperties replay)
     B.putByteString (replaySeparator replay)
     B.put (replayEffects replay)
-    putKeyFrames (replayKeyFrames replay)
+    B.put (replayKeyFrames replay)
     putFrames (replayFrames replay)
     B.put (replayMessages replay)
     B.put (replayGoals replay)
@@ -301,17 +279,6 @@ putStrProperty (StrProperty size string) = do
     B.put size
     B.put string
 putStrProperty _ = undefined
-
-putKeyFrames :: KeyFrames -> B.Put
-putKeyFrames keyFrames = do
-    B.putWord32le (fromIntegral (length keyFrames))
-    mapM_ putKeyFrame keyFrames
-
-putKeyFrame :: KeyFrame -> B.Put
-putKeyFrame keyFrame = do
-    B.putFloat32le (keyFrameTime keyFrame)
-    B.put (keyFrameFrame keyFrame)
-    B.put (keyFramePosition keyFrame)
 
 putFrames :: Frames -> B.Put
 putFrames frames = do

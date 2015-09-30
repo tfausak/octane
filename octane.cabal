@@ -26,6 +26,7 @@ library
         Octane.Types.Goal
         Octane.Types.Int32LE
         Octane.Types.Int64LE
+        Octane.Types.KeyFrame
         Octane.Types.List
         Octane.Types.Message
         Octane.Types.PCString
