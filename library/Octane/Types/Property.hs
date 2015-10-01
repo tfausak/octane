@@ -25,47 +25,47 @@ instance B.Binary Property where
         size <- B.get
         case kind :: PCString of
             "ArrayProperty" -> do
-                array <- B.get
-                return (ArrayProperty size array)
+                value <- B.get
+                return (ArrayProperty size value)
             "FloatProperty" -> do
-                float <- case size of
+                value <- case size of
                     4 -> B.get
                     _ -> fail ("unknown FloatProperty size " ++ show size)
-                return (FloatProperty size float)
+                return (FloatProperty size value)
             "IntProperty" -> do
-                int <- case size of
+                value <- case size of
                     4 -> B.get
                     _ -> fail ("unknown IntProperty size " ++ show size)
-                return (IntProperty size int)
+                return (IntProperty size value)
             "NameProperty" -> do
-                name <- B.get
-                return (NameProperty size name)
+                value <- B.get
+                return (NameProperty size value)
             "StrProperty" -> do
-                string <- B.get
-                return (StrProperty size string)
+                value <- B.get
+                return (StrProperty size value)
             _ -> fail ("unknown property type " ++ show kind)
 
-    put (ArrayProperty size array) = do
+    put (ArrayProperty size value) = do
         B.put ("ArrayProperty" :: PCString)
         B.put size
-        B.put array
+        B.put value
 
-    put (FloatProperty size float) = do
+    put (FloatProperty size value) = do
         B.put ("FloatProperty" :: PCString)
         B.put size
-        B.put float
+        B.put value
 
-    put (IntProperty size int) = do
+    put (IntProperty size value) = do
         B.put ("IntProperty" :: PCString)
         B.put size
-        B.put int
+        B.put value
 
-    put (NameProperty size name) = do
+    put (NameProperty size value) = do
         B.put ("NameProperty" :: PCString)
         B.put size
-        B.put name
+        B.put value
 
-    put (StrProperty size string) = do
+    put (StrProperty size value) = do
         B.put ("StrProperty" :: PCString)
         B.put size
-        B.put string
+        B.put value
