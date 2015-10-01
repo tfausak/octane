@@ -10,6 +10,14 @@ data Frame = NewFrame
     } deriving (Show)
 
 instance B.Binary Frame where
-    get = undefined
+    get = do
+        time <- B.get
+        delta <- B.get
+        return NewFrame
+            { frameTime = time
+            , frameDelta = delta
+            }
 
-    put = undefined
+    put frame = do
+        B.put (frameTime frame)
+        B.put (frameDelta frame)
