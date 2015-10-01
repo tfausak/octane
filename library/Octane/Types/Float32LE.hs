@@ -8,9 +8,6 @@ newtype Float32LE = NewFloat32LE
     } deriving (Show)
 
 instance B.Binary Float32LE where
-    get = do
-        float <- B.getFloat32le
-        return (NewFloat32LE float)
+    get = NewFloat32LE <$> B.getFloat32le
 
-    put (NewFloat32LE float) = do
-        B.putFloat32le float
+    put (NewFloat32LE float) = B.putFloat32le float

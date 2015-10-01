@@ -11,13 +11,9 @@ data Goal = NewGoal
     } deriving (Show)
 
 instance B.Binary Goal where
-    get = do
-        team <- B.get
-        frame <- B.get
-        return NewGoal
-            { goalTeam = team
-            , goalFrame = frame
-            }
+    get = NewGoal
+        <$> B.get
+        <*> B.get
 
     put goal = do
         B.put (goalTeam goal)

@@ -37,38 +37,21 @@ data Replay = NewReplay
     } deriving (Show)
 
 instance B.Binary Replay where
-    get = do
-        intro <- B.getByteString 16 -- NOTE: xxxx0000xxxxxxxx6303000009000000
-        label <- B.get -- NOTE: Always "TAGame.Replay_Soccar_TA".
-        properties <- B.get
-        separator <- B.getByteString 8 -- NOTE: xxxxxx00xxxxxxxx
-        effects <- B.get
-        keyFrames <- B.get
-        frames <- getFrames -- TODO
-        messages <- B.get
-        goals <- B.get
-        packages <- B.get
-        objects <- B.get
-        unknown <- getUnknown
-        actors <- B.get
-        outro <- B.getRemainingLazyByteString -- TODO
-
-        return NewReplay
-            { replayIntro = intro
-            , replayLabel = label
-            , replayProperties = properties
-            , replaySeparator = separator
-            , replayEffects = effects
-            , replayKeyFrames = keyFrames
-            , replayFrames = frames
-            , replayMessages = messages
-            , replayGoals = goals
-            , replayPackages = packages
-            , replayObjects = objects
-            , replayUnknown = unknown
-            , replayActors = actors
-            , replayOutro = outro
-            }
+    get = NewReplay
+        <$> B.getByteString 16 -- NOTE: xxxx0000xxxxxxxx6303000009000000
+        <*> B.get -- NOTE: Always "TAGame.Replay_Soccar_TA".
+        <*> B.get
+        <*> B.getByteString 8 -- NOTE: xxxxxx00xxxxxxxx
+        <*> B.get
+        <*> B.get
+        <*> getFrames -- TODO
+        <*> B.get
+        <*> B.get
+        <*> B.get
+        <*> B.get
+        <*> getUnknown
+        <*> B.get
+        <*> B.getRemainingLazyByteString -- TODO
 
     put replay = do
         B.putByteString (replayIntro replay)

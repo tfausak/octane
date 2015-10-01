@@ -9,9 +9,6 @@ newtype Int32LE = NewInt32LE
     } deriving (Show)
 
 instance B.Binary Int32LE where
-    get = do
-        word <- B.getWord32le
-        return (NewInt32LE (fromIntegral word))
+    get = NewInt32LE <$> fmap fromIntegral B.getWord32le
 
-    put (NewInt32LE int) = do
-        B.putWord32le (fromIntegral int)
+    put (NewInt32LE int) = B.putWord32le (fromIntegral int)

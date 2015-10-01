@@ -11,9 +11,6 @@ newtype Int64LE = NewInt64LE
     } deriving (Eq, Num, Show)
 
 instance B.Binary Int64LE where
-    get = do
-        word <- B.getWord64le
-        return (NewInt64LE (fromIntegral word))
+    get = NewInt64LE <$> fmap fromIntegral B.getWord64le
 
-    put (NewInt64LE int) = do
-        B.putWord64le (fromIntegral int)
+    put (NewInt64LE int) = B.putWord64le (fromIntegral int)

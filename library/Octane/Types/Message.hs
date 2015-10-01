@@ -12,15 +12,10 @@ data Message = NewMessage
     } deriving (Show)
 
 instance B.Binary Message where
-    get = do
-        frame <- B.get
-        name <- B.get
-        content <- B.get
-        return NewMessage
-            { messageFrame = frame
-            , messageName = name
-            , messageContent = content
-            }
+    get = NewMessage
+        <$> B.get
+        <*> B.get
+        <*> B.get
 
     put message = do
         B.put (messageFrame message)

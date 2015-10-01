@@ -11,13 +11,9 @@ data Actor = NewActor
     } deriving (Show)
 
 instance B.Binary Actor where
-    get = do
-        name <- B.get
-        tag <- B.get
-        return NewActor
-            { actorName = name
-            , actorTag = tag
-            }
+    get = NewActor
+        <$> B.get
+        <*> B.get
 
     put actor = do
         B.put (actorName actor)

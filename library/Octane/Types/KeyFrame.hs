@@ -12,15 +12,10 @@ data KeyFrame = NewKeyFrame
     } deriving (Show)
 
 instance B.Binary KeyFrame where
-    get = do
-        time <- B.get
-        frame <- B.get
-        position <- B.get
-        return NewKeyFrame
-            { keyFrameTime = time
-            , keyFrameFrame = frame
-            , keyFramePosition = position
-            }
+    get = NewKeyFrame
+        <$> B.get
+        <*> B.get
+        <*> B.get
 
     put keyFrame = do
         B.put (keyFrameTime keyFrame)
