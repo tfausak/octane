@@ -29,7 +29,10 @@ debug (file, contents, result) = do
             let output = B.encode replay
             putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
 
-            let frame = B.runGet
-                    (Bit.runBitGet (Bit.getBits undefined))
-                    (BSL.fromStrict (replayFrames replay))
-            print (frame :: Frame)
+            let frames = BSL.fromStrict (replayFrames replay)
+            if BSL.null frames
+            then putStrLn "No frames!"
+            else do
+                let parser = Bit.runBitGet (Bit.getBits undefined)
+                let frame = B.runGet parser frames
+                print (frame :: Frame)
