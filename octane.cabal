@@ -26,6 +26,7 @@ library
         Octane.Types.CacheItem
         Octane.Types.CacheProperty
         Octane.Types.Float32LE
+        Octane.Types.Frame
         Octane.Types.Goal
         Octane.Types.Int32LE
         Octane.Types.Int64LE
