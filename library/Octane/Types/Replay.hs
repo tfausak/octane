@@ -18,12 +18,20 @@ import qualified Data.Binary.Put as B
 import qualified Data.ByteString as BS
 
 data Replay = NewReplay
+    -- NOTE: This always has the format "xxxx0000xxxxxxxx6303000009000000".
+    --   Apparently it contains a CRC check and a version number.
     { replayIntro :: BS.ByteString
+    -- NOTE: This is always "TAGame.Replay_Soccar_TA". It is unlikely to
+    --   change.
     , replayLabel :: PCString
     , replayProperties :: Table Property
+    -- NOTE: This always has the format "xxxxxx00xxxxxxxx". So far, nobody
+    --   has any idea what it is.
     , replaySeparator :: BS.ByteString
     , replayEffects :: List PCString
     , replayKeyFrames :: List KeyFrame
+    -- TODO: Actually parse the individual frames. This is hard work that
+    --   none of the other parsers have done yet.
     , replayFrames :: BS.ByteString
     , replayMessages :: List Message
     , replayGoals :: List Goal
@@ -36,20 +44,12 @@ data Replay = NewReplay
 
 instance B.Binary Replay where
     get = NewReplay
-        -- NOTE: This always has the format "xxxx0000xxxxxxxx6303000009000000".
-        --   Apparently it contains a CRC check and a version number.
         <$> B.getByteString 16
-        -- NOTE: This is always "TAGame.Replay_Soccar_TA". It is unlikely to
-        --   change.
         <*> B.get
         <*> B.get
-        -- NOTE: This always has the format "xxxxxx00xxxxxxxx". So far, nobody
-        --   has any idea what it is.
         <*> B.getByteString 8
         <*> B.get
         <*> B.get
-        -- TODO: Actually parse the individual frames. This is hard work that
-        --   none of the other parsers have done yet.
         <*> getFrames
         <*> B.get
         <*> B.get
