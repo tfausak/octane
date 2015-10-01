@@ -1,6 +1,6 @@
 module Octane where
 
-import Octane.Types.Replay
+import Octane.Types
 
 import System.Environment (getArgs)
 

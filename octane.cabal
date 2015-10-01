@@ -21,6 +21,7 @@ source-repository head
 library
     exposed-modules:
         Octane
+        Octane.Types
         Octane.Types.Actor
         Octane.Types.Float32LE
         Octane.Types.Goal
