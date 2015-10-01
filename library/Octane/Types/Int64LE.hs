@@ -16,4 +16,4 @@ instance B.Binary Int64LE where
         return (NewInt64LE (fromIntegral word))
 
     put (NewInt64LE int) = do
-        B.putWord32le (fromIntegral int)
+        B.putWord64le (fromIntegral int)
