@@ -18,21 +18,13 @@ import qualified Data.Binary.Put as B
 import qualified Data.ByteString as BS
 
 data Replay = NewReplay
-    -- NOTE: This always has the format "xxxx0000xxxxxxxx6303000009000000".
-    --   Apparently it contains a CRC check and a version number.
-    { replayIntro :: BS.ByteString
-    -- NOTE: This is always "TAGame.Replay_Soccar_TA". It is unlikely to
-    --   change.
+    { replayIntro :: BS.ByteString -- TODO: issue #3
     , replayLabel :: PCString
     , replayProperties :: Table Property
-    -- NOTE: This always has the format "xxxxxx00xxxxxxxx". So far, nobody
-    --   has any idea what it is.
-    , replaySeparator :: BS.ByteString
+    , replaySeparator :: BS.ByteString -- TODO: issue #2
     , replayEffects :: List PCString
     , replayKeyFrames :: List KeyFrame
-    -- TODO: Actually parse the individual frames. This is hard work that
-    --   none of the other parsers have done yet.
-    , replayFrames :: BS.ByteString
+    , replayFrames :: BS.ByteString -- TODO: issue #1
     , replayMessages :: List Message
     , replayGoals :: List Goal
     , replayPackages :: List PCString
