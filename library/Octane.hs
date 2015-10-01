@@ -26,5 +26,3 @@ debug (file, contents, result) = do
         Right replay -> do
             let output = B.encode replay
             putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
-
-            BS.writeFile (file ++ "-frames") (replayFrames replay)
