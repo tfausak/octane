@@ -11,8 +11,6 @@ import Octane.Types.PCString (PCString)
 import Octane.Types.Property (Property)
 import Octane.Types.Table (Table)
 
-import Control.Monad (replicateM)
-
 import qualified Data.Binary as B
 import qualified Data.Binary.Get as B
 import qualified Data.Binary.Put as B
@@ -31,7 +29,7 @@ data Replay = NewReplay
     , replayGoals :: List Goal
     , replayPackages :: List PCString
     , replayObjects :: List PCString
-    , replayUnknown :: BS.ByteString
+    , replayNames :: List PCString
     , replayActors :: List Actor
     , replayOutro :: BSL.ByteString
     } deriving (Show)
@@ -49,7 +47,7 @@ instance B.Binary Replay where
         <*> B.get
         <*> B.get
         <*> B.get
-        <*> getUnknown
+        <*> B.get
         <*> B.get
         <*> B.getRemainingLazyByteString -- TODO
 
@@ -65,37 +63,15 @@ instance B.Binary Replay where
         B.put (replayGoals replay)
         B.put (replayPackages replay)
         B.put (replayObjects replay)
-        B.putByteString (replayUnknown replay)
+        B.put (replayNames replay)
         B.put (replayActors replay)
         B.putLazyByteString (replayOutro replay)
-
--- * Readers
-
-getTexts :: B.Get [PCString]
-getTexts = do
-    size <- B.getWord32le
-    texts <- replicateM (fromIntegral size) B.get
-    return texts
 
 getFrames :: B.Get BS.ByteString
 getFrames = do
     size <- B.getWord32le
     frames <- B.getByteString (fromIntegral size)
     return frames
-
-getUnknown :: B.Get BS.ByteString
-getUnknown = do
-    unknown <- B.getByteString 4
-    if unknown == "\NUL\NUL\NUL\NUL"
-    then return unknown
-    else fail ("unexpected value " ++ show unknown)
-
--- * Writers
-
-putTexts :: [PCString] -> B.Put
-putTexts texts = do
-    B.putWord32le (fromIntegral (length texts))
-    mapM_ B.put texts
 
 putFrames :: BS.ByteString -> B.Put
 putFrames frames = do
