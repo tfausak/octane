@@ -38,10 +38,10 @@ data Replay = NewReplay
 
 instance B.Binary Replay where
     get = do
-        intro <- B.getByteString 16 -- TODO
+        intro <- B.getByteString 16 -- NOTE: xxxx0000xxxxxxxx6303000009000000
         label <- B.get -- NOTE: Always "TAGame.Replay_Soccar_TA".
         properties <- B.get
-        separator <- B.getByteString 8 -- TODO
+        separator <- B.getByteString 8 -- NOTE: xxxxxx00xxxxxxxx
         effects <- B.get
         keyFrames <- B.get
         frames <- getFrames -- TODO
