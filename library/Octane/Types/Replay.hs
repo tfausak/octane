@@ -36,20 +36,30 @@ data Replay = NewReplay
 
 instance B.Binary Replay where
     get = NewReplay
-        <$> B.getByteString 16 -- NOTE: xxxx0000xxxxxxxx6303000009000000
-        <*> B.get -- NOTE: Always "TAGame.Replay_Soccar_TA".
-        <*> B.get
-        <*> B.getByteString 8 -- NOTE: xxxxxx00xxxxxxxx
-        <*> B.get
-        <*> B.get
-        <*> getFrames -- TODO
+        -- NOTE: This always has the format "xxxx0000xxxxxxxx6303000009000000".
+        --   Apparently it contains a CRC check and a version number.
+        <$> B.getByteString 16
+        -- NOTE: This is always "TAGame.Replay_Soccar_TA". It is unlikely to
+        --   change.
         <*> B.get
         <*> B.get
+        -- NOTE: This always has the format "xxxxxx00xxxxxxxx". So far, nobody
+        --   has any idea what it is.
+        <*> B.getByteString 8
+        <*> B.get
+        <*> B.get
+        -- TODO: Actually parse the individual frames. This is hard work that
+        --   none of the other parsers have done yet.
+        <*> getFrames
         <*> B.get
         <*> B.get
         <*> B.get
         <*> B.get
-        <*> B.getRemainingLazyByteString -- TODO
+        <*> B.get
+        <*> B.get
+        -- TODO: Figure out what is in these bytes. It may be some kind of
+        --   network class cache.
+        <*> B.getRemainingLazyByteString
 
     put replay = do
         B.putByteString (replayIntro replay)
