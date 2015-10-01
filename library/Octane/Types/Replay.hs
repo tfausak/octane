@@ -5,6 +5,7 @@ module Octane.Types.Replay where
 import Octane.Types.Actor (Actor)
 import Octane.Types.CacheItem (CacheItem)
 import Octane.Types.Goal (Goal)
+import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.KeyFrame (KeyFrame)
 import Octane.Types.List (List)
 import Octane.Types.Message (Message)
@@ -18,7 +19,10 @@ import qualified Data.Binary.Put as B
 import qualified Data.ByteString as BS
 
 data Replay = NewReplay
-    { replayIntro :: BS.ByteString -- TODO: issue #3
+    { replayIntro :: Int32LE
+    , replayCRC :: BS.ByteString
+    , replayVersion1 :: Int32LE
+    , replayVersion2 :: Int32LE
     , replayLabel :: PCString
     , replayProperties :: Table Property
     , replaySeparator :: BS.ByteString -- TODO: issue #2
@@ -36,7 +40,10 @@ data Replay = NewReplay
 
 instance B.Binary Replay where
     get = NewReplay
-        <$> B.getByteString 16
+        <$> B.get
+        <*> B.getByteString 4
+        <*> B.get
+        <*> B.get
         <*> B.get
         <*> B.get
         <*> B.getByteString 8
@@ -52,7 +59,10 @@ instance B.Binary Replay where
         <*> B.get
 
     put replay = do
-        B.putByteString (replayIntro replay)
+        B.put (replayIntro replay)
+        B.putByteString (replayCRC replay)
+        B.put (replayVersion1 replay)
+        B.put (replayVersion2 replay)
         B.put (replayLabel replay)
         B.put (replayProperties replay)
         B.putByteString (replaySeparator replay)
