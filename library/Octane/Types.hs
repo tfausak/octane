@@ -2,6 +2,7 @@ module Octane.Types
     ( module Octane.Types.Actor
     , module Octane.Types.CacheItem
     , module Octane.Types.Float32LE
+    , module Octane.Types.Frame
     , module Octane.Types.Goal
     , module Octane.Types.Int32LE
     , module Octane.Types.Int64LE
@@ -18,6 +19,7 @@ module Octane.Types
 import Octane.Types.Actor
 import Octane.Types.CacheItem
 import Octane.Types.Float32LE
+import Octane.Types.Frame
 import Octane.Types.Goal
 import Octane.Types.Int32LE
 import Octane.Types.Int64LE

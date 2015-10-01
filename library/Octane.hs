@@ -5,6 +5,8 @@ import Octane.Types
 import System.Environment (getArgs)
 
 import qualified Data.Binary as B
+import qualified Data.Binary.Bits as Bit
+import qualified Data.Binary.Bits.Get as Bit
 import qualified Data.Binary.Get as B
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
@@ -27,4 +29,7 @@ debug (file, contents, result) = do
             let output = B.encode replay
             putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
 
-            BS.writeFile (file ++ "-frames") (replayFrames replay)
+            let frame = B.runGet
+                    (Bit.runBitGet (Bit.getBits undefined))
+                    (BSL.fromStrict (replayFrames replay))
+            print (frame :: Frame)
