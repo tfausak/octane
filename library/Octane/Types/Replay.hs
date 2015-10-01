@@ -3,6 +3,7 @@
 module Octane.Types.Replay where
 
 import Octane.Types.Actor (Actor)
+import Octane.Types.CacheItem (CacheItem)
 import Octane.Types.Goal (Goal)
 import Octane.Types.KeyFrame (KeyFrame)
 import Octane.Types.List (List)
@@ -15,7 +16,6 @@ import qualified Data.Binary as B
 import qualified Data.Binary.Get as B
 import qualified Data.Binary.Put as B
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as BSL
 
 data Replay = NewReplay
     { replayIntro :: BS.ByteString
@@ -31,7 +31,7 @@ data Replay = NewReplay
     , replayObjects :: List PCString
     , replayNames :: List PCString
     , replayActors :: List Actor
-    , replayOutro :: BSL.ByteString
+    , replayCacheItems :: List CacheItem
     } deriving (Show)
 
 instance B.Binary Replay where
@@ -57,9 +57,7 @@ instance B.Binary Replay where
         <*> B.get
         <*> B.get
         <*> B.get
-        -- TODO: Figure out what is in these bytes. It may be some kind of
-        --   network class cache.
-        <*> B.getRemainingLazyByteString
+        <*> B.get
 
     put replay = do
         B.putByteString (replayIntro replay)
@@ -75,7 +73,7 @@ instance B.Binary Replay where
         B.put (replayObjects replay)
         B.put (replayNames replay)
         B.put (replayActors replay)
-        B.putLazyByteString (replayOutro replay)
+        B.put (replayCacheItems replay)
 
 getFrames :: B.Get BS.ByteString
 getFrames = do
