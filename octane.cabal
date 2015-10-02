@@ -32,6 +32,7 @@ library
         Octane.Types.KeyFrame
         Octane.Types.List
         Octane.Types.Message
+        Octane.Types.ObjectMap
         Octane.Types.PCString
         Octane.Types.Property
         Octane.Types.Replay

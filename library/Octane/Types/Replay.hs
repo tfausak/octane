@@ -9,6 +9,7 @@ import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.KeyFrame (KeyFrame)
 import Octane.Types.List (List)
 import Octane.Types.Message (Message)
+import Octane.Types.ObjectMap (ObjectMap)
 import Octane.Types.PCString (PCString)
 import Octane.Types.Property (Property)
 import Octane.Types.Table (Table)
@@ -33,10 +34,7 @@ data Replay = NewReplay
     , replayMessages :: List Message
     , replayGoals :: List Goal
     , replayPackages :: List PCString
-    -- NOTE: These are usually looked up by position. Their position in the
-    --   list can be considered their ID.
-    -- NOTE: Objects with colons in their name are properties.
-    , replayObjects :: List PCString
+    , replayObjectMap :: ObjectMap
     , replayNames :: List PCString
     -- NOTE: This is a "class map".
     , replayActors :: List Actor
@@ -80,7 +78,7 @@ instance B.Binary Replay where
         B.put (replayMessages replay)
         B.put (replayGoals replay)
         B.put (replayPackages replay)
-        B.put (replayObjects replay)
+        B.put (replayObjectMap replay)
         B.put (replayNames replay)
         B.put (replayActors replay)
         B.put (replayCacheItems replay)
