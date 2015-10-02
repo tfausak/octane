@@ -38,7 +38,7 @@ debug (file, contents, result) = do
             if BSL.null frames
             then putStrLn "No frames!"
             else do
-                let parser = BB.runBitGet (BB.getBits undefined)
+                let parser = BB.runBitGet (BB.getBits (BS.length (replayFrames replay) * 8))
                 let frame = B.runGet parser frames
                 print (frame :: Frame)
             putStrLn ""
