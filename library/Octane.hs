@@ -33,24 +33,20 @@ debug (file, contents, result) = do
         Right replay -> do
             let output = B.encode replay
             putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
-
-            let frames = BSL.fromStrict (flipEndianness (replayFrames replay))
-            if BSL.null frames
-            then putStrLn "No frames!"
-            else do
-                let parser = BB.runBitGet (BB.getBits (BS.length (replayFrames replay) * 8))
-                let frame = B.runGet parser frames
-                print (frame :: Frame)
             putStrLn ""
 
             putStrLn "# BYTE-ALIGNED KEY FRAMES #\n"
+            let frames = flipEndianness (replayFrames replay)
             mapM_
                 (\ keyFrame -> do
                     let (q, r) = unInt32LE (keyFramePosition keyFrame) `quotRem` 8
-                    if r /= 0
-                    then return ()
-                    else do
-                        debugByteString (BS.take 32 (BS.drop (q + 8) (replayFrames replay))))
+                    if r /= 0 then return () else do
+                        let size = 32
+                        let otherFrames = BS.take size (BS.drop q frames)
+                        let parser = BB.runBitGet (BB.getBits size)
+                        let frame = B.runGet parser (BSL.fromStrict otherFrames)
+                        print (frame :: Frame)
+                        debugByteString otherFrames)
                 (unList (replayKeyFrames replay))
             putStrLn ""
 
