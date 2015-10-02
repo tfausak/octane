@@ -32,6 +32,17 @@ debug (file, contents, result) = do
             putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
             putStrLn ""
 
+            putStrLn "# BYTE-ALIGNED KEY FRAMES #\n"
+            mapM_
+                (\ keyFrame -> do
+                    let (q, r) = unInt32LE (keyFramePosition keyFrame) `quotRem` 8
+                    if r /= 0
+                    then return ()
+                    else do
+                        debugByteString (BS.take 32 (BS.drop (q + 8) (replayFrames replay))))
+                (unList (replayKeyFrames replay))
+            putStrLn ""
+
             putStrLn "# UNKNOWN (intro size?) #\n"
             print (unInt32LE (replayIntro replay))
             putStrLn ""
