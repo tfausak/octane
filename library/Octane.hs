@@ -46,7 +46,8 @@ debug (file, contents, result) = do
                         let parser = BB.runBitGet (BB.getBits size)
                         let frame = B.runGet parser (BSL.fromStrict otherFrames)
                         print (frame :: Frame)
-                        debugByteString otherFrames)
+                        debugByteString otherFrames
+                        putStrLn (toBinary (BS.take 16 (BS.drop 8 otherFrames))))
                 (unList (replayKeyFrames replay))
             putStrLn ""
 

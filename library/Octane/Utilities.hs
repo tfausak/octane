@@ -24,3 +24,24 @@ flipEndianness bytes = BS.map go bytes where
             (if g then flip setBit 1 else id) $
             (if h then flip setBit 0 else id) $
             zeroBits
+
+toBinary :: BS.ByteString -> String
+toBinary bytes = unwords (map go (BS.unpack bytes)) where
+    go byte =
+        let a = testBit byte 7
+            b = testBit byte 6
+            c = testBit byte 5
+            d = testBit byte 4
+            e = testBit byte 3
+            f = testBit byte 2
+            g = testBit byte 1
+            h = testBit byte 0
+        in  [ if a then '1' else '0'
+            , if b then '1' else '0'
+            , if c then '1' else '0'
+            , if d then '1' else '0'
+            , if e then '1' else '0'
+            , if f then '1' else '0'
+            , if g then '1' else '0'
+            , if h then '1' else '0'
+            ]
