@@ -7,7 +7,7 @@ import Octane.Types.List (List)
 import qualified Data.Binary as B
 
 data CacheItem = NewCacheItem
-    { cacheItemTag :: Int32LE
+    { cacheItemTag :: Int32LE -- this is the actor id
     -- TODO: These indexes should be offset by the cache item's position in the
     --   list. So if the cache item is at index 3 and the start index is 20,
     --   the start index is actually 23.
