@@ -4,10 +4,8 @@ import Octane.Types.Float32LE (Float32LE)
 import Octane.Utilities (flipEndianness)
 
 import qualified Data.Binary as B
-import qualified Data.Binary.Put as B
 import qualified Data.Binary.Bits as BB
 import qualified Data.Binary.Bits.Get as BB
-import qualified Data.Binary.Bits.Put as BB
 import qualified Data.ByteString.Lazy as BSL
 
 data Frame = NewFrame
@@ -27,10 +25,4 @@ instance BB.BinaryBit Frame where
             , frameBit = bit
             }
 
-    putBits _ frame = do
-        let timeBytes = flipEndianness (BSL.toStrict (B.encode (frameTime frame)))
-            deltaBytes = flipEndianness (BSL.toStrict (B.encode (frameDelta frame)))
-        BB.joinPut (do
-            B.putByteString timeBytes
-            B.putByteString deltaBytes)
-        BB.putBool (frameBit frame)
+    putBits _ _ = undefined
