@@ -1,6 +1,7 @@
 module Octane where
 
 import Octane.Types
+import Octane.Utilities
 
 import System.Environment (getArgs)
 
@@ -29,7 +30,7 @@ debug (file, contents, result) = do
             let output = B.encode replay
             putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
 
-            let frames = BSL.fromStrict (replayFrames replay)
+            let frames = BSL.fromStrict (flipEndianness (replayFrames replay))
             if BSL.null frames
             then putStrLn "No frames!"
             else do
