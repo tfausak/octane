@@ -25,7 +25,8 @@ data Replay = NewReplay
     , replayVersion2 :: Int32LE
     , replayLabel :: PCString
     , replayProperties :: Table Property
-    , replaySeparator :: BS.ByteString -- TODO: issue #2
+    , replaySize :: Int32LE
+    , replaySeparator :: BS.ByteString
     , replayEffects :: List PCString
     , replayKeyFrames :: List KeyFrame
     , replayFrames :: BS.ByteString -- TODO: issue #1
@@ -46,7 +47,8 @@ instance B.Binary Replay where
         <*> B.get
         <*> B.get
         <*> B.get
-        <*> B.getByteString 8
+        <*> B.get
+        <*> B.getByteString 4
         <*> B.get
         <*> B.get
         <*> getFrames
@@ -65,6 +67,7 @@ instance B.Binary Replay where
         B.put (replayVersion2 replay)
         B.put (replayLabel replay)
         B.put (replayProperties replay)
+        B.put (replaySize replay)
         B.putByteString (replaySeparator replay)
         B.put (replayEffects replay)
         B.put (replayKeyFrames replay)
