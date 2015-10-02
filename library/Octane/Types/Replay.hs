@@ -37,7 +37,6 @@ data Replay = NewReplay
     , replayObjectMap :: ObjectMap
     , replayNames :: List PCString
     , replayActorMap :: ActorMap
-    -- NOTE: This is a "class net cache".
     , replayCacheItems :: List CacheItem
     } deriving (Show)
 
