@@ -1,10 +1,13 @@
 module Octane where
 
 import Octane.Types
+import Octane.Utilities
 
 import System.Environment (getArgs)
 
 import qualified Data.Binary as B
+import qualified Data.Binary.Bits as BB
+import qualified Data.Binary.Bits.Get as BB
 import qualified Data.Binary.Get as B
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Builder as BSB
@@ -30,6 +33,14 @@ debug (file, contents, result) = do
         Right replay -> do
             let output = B.encode replay
             putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
+
+            let frames = BSL.fromStrict (flipEndianness (replayFrames replay))
+            if BSL.null frames
+            then putStrLn "No frames!"
+            else do
+                let parser = BB.runBitGet (BB.getBits (BS.length (replayFrames replay) * 8))
+                let frame = B.runGet parser frames
+                print (frame :: Frame)
             putStrLn ""
 
             putStrLn "# BYTE-ALIGNED KEY FRAMES #\n"

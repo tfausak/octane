@@ -4,6 +4,7 @@ module Octane.Types
     , module Octane.Types.CacheItem
     , module Octane.Types.CacheProperty
     , module Octane.Types.Float32LE
+    , module Octane.Types.Frame
     , module Octane.Types.Goal
     , module Octane.Types.Int32LE
     , module Octane.Types.Int64LE
@@ -23,6 +24,7 @@ import Octane.Types.ActorMap
 import Octane.Types.CacheItem
 import Octane.Types.CacheProperty
 import Octane.Types.Float32LE
+import Octane.Types.Frame
 import Octane.Types.Goal
 import Octane.Types.Int32LE
 import Octane.Types.Int64LE
