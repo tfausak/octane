@@ -23,6 +23,7 @@ library
         Octane
         Octane.Types
         Octane.Types.Actor
+        Octane.Types.ActorMap
         Octane.Types.CacheItem
         Octane.Types.CacheProperty
         Octane.Types.Float32LE
