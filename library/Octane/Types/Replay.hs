@@ -33,9 +33,14 @@ data Replay = NewReplay
     , replayMessages :: List Message
     , replayGoals :: List Goal
     , replayPackages :: List PCString
+    -- NOTE: These are usually looked up by position. Their position in the
+    --   list can be considered their ID.
+    -- NOTE: Objects with colons in their name are properties.
     , replayObjects :: List PCString
     , replayNames :: List PCString
+    -- NOTE: This is a "class map".
     , replayActors :: List Actor
+    -- NOTE: This is a "class net cache".
     , replayCacheItems :: List CacheItem
     } deriving (Show)
 
