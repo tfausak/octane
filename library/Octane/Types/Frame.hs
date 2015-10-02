@@ -15,6 +15,8 @@ data Frame = NewFrame
     , frameDelta :: Float32LE
     , frameHasActors :: Bool
     , frameActorID :: Maybe B.Word16
+    , frameChannelOpen :: Maybe Bool
+    , frameActorIsNew :: Maybe Bool
     } deriving (Show)
 
 instance BB.BinaryBit Frame where
@@ -22,22 +24,45 @@ instance BB.BinaryBit Frame where
         timeBytes <- BB.getByteString 4
         deltaBytes <- BB.getByteString 4
         hasActors <- BB.getBool
-        if hasActors
-        then do -- there is more to the frame
-            actorID <- getInt10LE
-            return NewFrame
-                { frameTime = B.decode (BSL.fromStrict (flipEndianness timeBytes))
-                , frameDelta = B.decode (BSL.fromStrict (flipEndianness deltaBytes))
-                , frameHasActors = hasActors
-                , frameActorID = Just actorID
-                }
-        else do -- this is the end of the frame
-            return NewFrame
+        let frame = NewFrame
                 { frameTime = B.decode (BSL.fromStrict (flipEndianness timeBytes))
                 , frameDelta = B.decode (BSL.fromStrict (flipEndianness deltaBytes))
                 , frameHasActors = hasActors
                 , frameActorID = Nothing
+                , frameChannelOpen = Nothing
+                , frameActorIsNew = Nothing
                 }
+
+        if not hasActors
+        then do -- this is the end of the frame
+            return frame
+        else do -- there is more to the frame
+            actorID <- getInt10LE
+            channelOpen <- BB.getBool
+            if not channelOpen
+            then do -- the channel is closed and the actor is destroyed
+                -- TODO: is there anything more to do here?
+                return frame
+                    { frameHasActors = hasActors
+                    , frameActorID = Just actorID
+                    , frameChannelOpen = Just channelOpen
+                    }
+            else do -- the channel is open
+                actorIsNew <- BB.getBool
+                if not actorIsNew
+                then do -- the actor already exists
+                    -- TODO: while readbit is true, read property
+                    return frame
+                        { frameActorID = Just actorID
+                        , frameChannelOpen = Just channelOpen
+                        , frameActorIsNew = Just actorIsNew
+                        }
+                else do -- the actor does not already exist
+                    return frame
+                        { frameActorID = Just actorID
+                        , frameChannelOpen = Just channelOpen
+                        , frameActorIsNew = Just actorIsNew
+                        }
 
     putBits _ _ = undefined
 
