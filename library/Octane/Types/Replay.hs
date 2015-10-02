@@ -2,13 +2,14 @@
 
 module Octane.Types.Replay where
 
-import Octane.Types.Actor (Actor)
+import Octane.Types.ActorMap (ActorMap)
 import Octane.Types.CacheItem (CacheItem)
 import Octane.Types.Goal (Goal)
 import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.KeyFrame (KeyFrame)
 import Octane.Types.List (List)
 import Octane.Types.Message (Message)
+import Octane.Types.ObjectMap (ObjectMap)
 import Octane.Types.PCString (PCString)
 import Octane.Types.Property (Property)
 import Octane.Types.Table (Table)
@@ -33,9 +34,9 @@ data Replay = NewReplay
     , replayMessages :: List Message
     , replayGoals :: List Goal
     , replayPackages :: List PCString
-    , replayObjects :: List PCString
+    , replayObjectMap :: ObjectMap
     , replayNames :: List PCString
-    , replayActors :: List Actor
+    , replayActorMap :: ActorMap
     , replayCacheItems :: List CacheItem
     } deriving (Show)
 
@@ -75,9 +76,9 @@ instance B.Binary Replay where
         B.put (replayMessages replay)
         B.put (replayGoals replay)
         B.put (replayPackages replay)
-        B.put (replayObjects replay)
+        B.put (replayObjectMap replay)
         B.put (replayNames replay)
-        B.put (replayActors replay)
+        B.put (replayActorMap replay)
         B.put (replayCacheItems replay)
 
 getFrames :: B.Get BS.ByteString

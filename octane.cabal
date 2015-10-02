@@ -23,6 +23,7 @@ library
         Octane
         Octane.Types
         Octane.Types.Actor
+        Octane.Types.ActorMap
         Octane.Types.CacheItem
         Octane.Types.CacheProperty
         Octane.Types.Float32LE
@@ -33,6 +34,7 @@ library
         Octane.Types.KeyFrame
         Octane.Types.List
         Octane.Types.Message
+        Octane.Types.ObjectMap
         Octane.Types.PCString
         Octane.Types.Property
         Octane.Types.Replay
