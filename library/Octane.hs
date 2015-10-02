@@ -5,8 +5,8 @@ import Octane.Types
 import System.Environment (getArgs)
 
 import qualified Data.Binary as B
-import qualified Data.Binary.Bits as Bit
-import qualified Data.Binary.Bits.Get as Bit
+import qualified Data.Binary.Bits as BB
+import qualified Data.Binary.Bits.Get as BB
 import qualified Data.Binary.Get as B
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
@@ -33,6 +33,6 @@ debug (file, contents, result) = do
             if BSL.null frames
             then putStrLn "No frames!"
             else do
-                let parser = Bit.runBitGet (Bit.getBits undefined)
+                let parser = BB.runBitGet (BB.getBits undefined)
                 let frame = B.runGet parser frames
                 print (frame :: Frame)
