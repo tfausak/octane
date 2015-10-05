@@ -58,6 +58,11 @@ instance BB.BinaryBit Frame where
                         , frameActorIsNew = Just actorIsNew
                         }
                 else do -- the actor does not already exist
+                    -- TODO: Next bit is always 0. It may be a static versus
+                    --   dynamic flag
+                    -- TODO: next 8? bits are actor type id?
+                    -- TODO: optional initial location vector?
+                    -- TODO: 3 bytes for pitch, yaw, and roll?
                     return frame
                         { frameActorID = Just actorID
                         , frameChannelOpen = Just channelOpen
