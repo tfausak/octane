@@ -61,8 +61,8 @@ debug (file, contents, result) = do
             print (unInt32LE (replaySize2 replay))
             putStrLn ""
 
-            putStrLn "# UNKNOWN (separator?) #\n"
-            debugByteString (replaySeparator replay)
+            putStrLn "# CRC 2 #\n"
+            debugByteString (replayCRC2 replay)
             putStrLn ""
 
             putStrLn "# EFFECTS #\n"

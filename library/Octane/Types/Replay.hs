@@ -27,7 +27,7 @@ data Replay = NewReplay
     , replayLabel :: PCString
     , replayProperties :: Table Property
     , replaySize2 :: Int32LE
-    , replaySeparator :: BS.ByteString
+    , replayCRC2 :: BS.ByteString
     , replayEffects :: List PCString
     , replayKeyFrames :: List KeyFrame
     , replayFrames :: BS.ByteString -- TODO: issue #1
@@ -69,7 +69,7 @@ instance B.Binary Replay where
         B.put (replayLabel replay)
         B.put (replayProperties replay)
         B.put (replaySize2 replay)
-        B.putByteString (replaySeparator replay)
+        B.putByteString (replayCRC2 replay)
         B.put (replayEffects replay)
         B.put (replayKeyFrames replay)
         putFrames (replayFrames replay)
