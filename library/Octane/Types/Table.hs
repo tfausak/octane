@@ -8,7 +8,7 @@ import qualified Data.Binary as B
 import qualified Data.Map as M
 
 newtype Table a = NewTable
-    { unTable :: M.Map PCString a
+    { getTable :: M.Map PCString a
     } deriving (Show)
 
 instance (B.Binary a) => B.Binary (Table a) where

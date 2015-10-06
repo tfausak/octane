@@ -7,7 +7,7 @@ import Control.Monad (replicateM)
 import qualified Data.Binary as B
 
 newtype List a = NewList
-    { unList :: [a]
+    { getList :: [a]
     } deriving (Show)
 
 instance (B.Binary a) => B.Binary (List a) where

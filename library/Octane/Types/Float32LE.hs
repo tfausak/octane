@@ -4,7 +4,7 @@ import qualified Data.Binary as B
 import qualified Data.Binary.IEEE754 as B
 
 newtype Float32LE = NewFloat32LE
-    { unFloat32LE :: Float
+    { getFloat32LE :: Float
     } deriving (Show)
 
 instance B.Binary Float32LE where

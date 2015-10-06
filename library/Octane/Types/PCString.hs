@@ -14,7 +14,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 
 newtype PCString = NewPCString
-    { unPCString :: T.Text
+    { getPCString :: T.Text
     } deriving (Eq , Ord , S.IsString , Show)
 
 instance B.Binary PCString where

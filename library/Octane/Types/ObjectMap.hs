@@ -7,7 +7,7 @@ import qualified Data.Binary as B
 import qualified Data.IntMap as M
 
 newtype ObjectMap = NewObjectMap
-    { unObjectMap :: M.IntMap PCString
+    { getObjectMap :: M.IntMap PCString
     } deriving (Show)
 
 instance B.Binary ObjectMap where

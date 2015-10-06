@@ -7,7 +7,7 @@ import qualified Data.Binary.Get as B
 import qualified Data.Binary.Put as B
 
 newtype Int64LE = NewInt64LE
-    { unInt64LE :: Int
+    { getInt64LE :: Int
     } deriving (Eq, Num, Show)
 
 instance B.Binary Int64LE where

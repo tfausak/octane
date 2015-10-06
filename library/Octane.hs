@@ -33,7 +33,7 @@ debug (file, contents, result) = do
             putStrLn ""
 
             putStrLn "# SIZE 1 #\n"
-            print (unInt32LE (replaySize1 replay))
+            print (getInt32LE (replaySize1 replay))
             putStrLn ""
 
             putStrLn "# CRC 1 #\n"
@@ -41,24 +41,24 @@ debug (file, contents, result) = do
             putStrLn ""
 
             putStrLn "# VERSION #\n"
-            print (unInt32LE (replayVersion1 replay))
-            print (unInt32LE (replayVersion2 replay))
+            print (getInt32LE (replayVersion1 replay))
+            print (getInt32LE (replayVersion2 replay))
             putStrLn ""
 
             putStrLn "# LABEL #\n"
-            print (unPCString (replayLabel replay))
+            print (getPCString (replayLabel replay))
             putStrLn ""
 
             putStrLn "# PROPERTIES #\n"
             mapM_
                 (\ (name, property) -> do
-                    putStr (show (unPCString name) ++ "\t=> ")
+                    putStr (show (getPCString name) ++ "\t=> ")
                     debugProperty property)
-                (M.assocs (unTable (replayProperties replay)))
+                (M.assocs (getTable (replayProperties replay)))
             putStrLn ""
 
             putStrLn "# SIZE 2 #\n"
-            print (unInt32LE (replaySize2 replay))
+            print (getInt32LE (replaySize2 replay))
             putStrLn ""
 
             putStrLn "# CRC 2 #\n"
@@ -68,15 +68,15 @@ debug (file, contents, result) = do
             putStrLn "# EFFECTS #\n"
             mapM_
                 (\ effect -> do
-                    print (unPCString effect))
-                (unList (replayEffects replay))
+                    print (getPCString effect))
+                (getList (replayEffects replay))
             putStrLn ""
 
             putStrLn "# KEY FRAMES #\n"
             mapM_
                 (\ keyFrame -> do
-                    putStrLn (show (unFloat32LE (keyFrameTime keyFrame)) ++ "s @ frame " ++ show (unInt32LE (keyFrameFrame keyFrame)) ++ " - bit " ++ show (unInt32LE (keyFramePosition keyFrame))))
-                (unList (replayKeyFrames replay))
+                    putStrLn (show (getFloat32LE (keyFrameTime keyFrame)) ++ "s @ frame " ++ show (getInt32LE (keyFrameFrame keyFrame)) ++ " - bit " ++ show (getInt32LE (keyFramePosition keyFrame))))
+                (getList (replayKeyFrames replay))
             putStrLn ""
 
             putStrLn "# FRAMES #\n"
@@ -86,58 +86,58 @@ debug (file, contents, result) = do
             putStrLn "# MESSAGES #\n"
             mapM_
                 (\ message -> do
-                    putStrLn (show (unPCString (messageName message)) ++ " @ frame " ++ show (unInt32LE (messageFrame message)) ++ ": " ++ show (unPCString (messageContent message))))
-                (unList (replayMessages replay))
+                    putStrLn (show (getPCString (messageName message)) ++ " @ frame " ++ show (getInt32LE (messageFrame message)) ++ ": " ++ show (getPCString (messageContent message))))
+                (getList (replayMessages replay))
             putStrLn ""
 
             putStrLn "# MARKS #\n"
             mapM_
                 (\ goal -> do
-                    putStrLn (show (unPCString (markLabel goal)) ++ " @ frame " ++ show (unInt32LE (markFrame goal))))
-                (unList (replayMarks replay))
+                    putStrLn (show (getPCString (markLabel goal)) ++ " @ frame " ++ show (getInt32LE (markFrame goal))))
+                (getList (replayMarks replay))
             putStrLn ""
 
             putStrLn "# PACKAGES #\n"
             mapM_
                 (\ package -> do
-                    print (unPCString package))
-                (unList (replayPackages replay))
+                    print (getPCString package))
+                (getList (replayPackages replay))
             putStrLn ""
 
             putStrLn "# OBJECTS #\n"
             mapM_
                 (\ (index, object) -> do
-                    putStrLn (show index ++ "\t=> " ++ show (unPCString object)))
-                (IM.assocs (unObjectMap (replayObjectMap replay)))
+                    putStrLn (show index ++ "\t=> " ++ show (getPCString object)))
+                (IM.assocs (getObjectMap (replayObjectMap replay)))
             putStrLn ""
 
             putStrLn "# NAMES #\n"
             mapM_
                 (\ name -> do
-                    print (unPCString name))
-                (unList (replayNames replay))
+                    print (getPCString name))
+                (getList (replayNames replay))
             putStrLn ""
 
             putStrLn "# ACTORS #\n"
             mapM_
                 (\ (index, actor) -> do
-                    putStrLn (show index ++ "\t=> " ++ show (unPCString actor)))
-                (IM.assocs (unActorMap (replayActorMap replay)))
+                    putStrLn (show index ++ "\t=> " ++ show (getPCString actor)))
+                (IM.assocs (getActorMap (replayActorMap replay)))
             putStrLn ""
 
             putStrLn "# CACHE #\n"
             mapM_
                 (\ cacheItem -> do
-                    putStrLn ("ID:\t" ++ show (unInt32LE (cacheItemTag cacheItem)))
-                    putStrLn ("Start:\t" ++ show (unInt32LE (cacheItemStart cacheItem)))
-                    putStrLn ("End:\t" ++ show (unInt32LE (cacheItemEnd cacheItem)))
+                    putStrLn ("ID:\t" ++ show (getInt32LE (cacheItemTag cacheItem)))
+                    putStrLn ("Start:\t" ++ show (getInt32LE (cacheItemStart cacheItem)))
+                    putStrLn ("End:\t" ++ show (getInt32LE (cacheItemEnd cacheItem)))
                     putStrLn "Properties:"
                     mapM_
                         (\ cacheProperty -> do
-                            putStrLn ("- " ++ show (unInt32LE (cachePropertyTag cacheProperty)) ++ "\t=> " ++ show (unInt32LE (cachePropertyIndex cacheProperty))))
-                        (unList (cacheItemCacheProperties cacheItem))
+                            putStrLn ("- " ++ show (getInt32LE (cachePropertyTag cacheProperty)) ++ "\t=> " ++ show (getInt32LE (cachePropertyIndex cacheProperty))))
+                        (getList (cacheItemCacheProperties cacheItem))
                     putStrLn "")
-                (unList (replayCacheItems replay))
+                (getList (replayCacheItems replay))
 
 debugByteString :: BS.ByteString -> IO ()
 debugByteString bytes = do
