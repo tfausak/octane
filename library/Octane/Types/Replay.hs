@@ -20,7 +20,7 @@ import qualified Data.Binary.Put as B
 import qualified Data.ByteString as BS
 
 data Replay = NewReplay
-    { replayIntro :: Int32LE
+    { replaySize1 :: Int32LE
     , replayCRC :: BS.ByteString
     , replayVersion1 :: Int32LE
     , replayVersion2 :: Int32LE
@@ -62,7 +62,7 @@ instance B.Binary Replay where
         <*> B.get
 
     put replay = do
-        B.put (replayIntro replay)
+        B.put (replaySize1 replay)
         B.putByteString (replayCRC replay)
         B.put (replayVersion1 replay)
         B.put (replayVersion2 replay)

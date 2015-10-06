@@ -32,8 +32,8 @@ debug (file, contents, result) = do
             putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
             putStrLn ""
 
-            putStrLn "# UNKNOWN (intro size?) #\n"
-            print (unInt32LE (replayIntro replay))
+            putStrLn "# SIZE 1 #\n"
+            print (unInt32LE (replaySize1 replay))
             putStrLn ""
 
             putStrLn "# CRC #\n"
