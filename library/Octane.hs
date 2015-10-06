@@ -81,8 +81,6 @@ debug (file, contents, result) = do
 
             putStrLn "# FRAMES #\n"
             putStrLn (show (BS.length (replayFrames replay)) ++ " bytes")
-            putStrLn (show (8 * BS.length (replayFrames replay)) ++ " bits")
-            debugByteString (BS.take 20 (replayFrames replay))
             putStrLn ""
 
             putStrLn "# MESSAGES #\n"
