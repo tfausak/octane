@@ -8,6 +8,7 @@ import qualified Data.Binary as B
 import qualified Data.Binary.Get as B
 import qualified Data.Binary.Put as B
 import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BS8
 import qualified Data.String as S
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -20,9 +21,12 @@ instance B.Binary PCString where
     get = do
         (NewInt32LE size) <- B.get
         bytes <- B.getByteString (fromIntegral size)
-        return (NewPCString (T.dropEnd 1 (T.decodeUtf8 bytes)))
+        return (NewPCString (T.dropEnd 1 (T.decodeLatin1 bytes)))
 
     put (NewPCString string) = do
-        let bytes = T.encodeUtf8 (T.snoc string '\NUL')
+        let bytes = encodeLatin1 (T.snoc string '\NUL')
         B.put (NewInt32LE (BS.length bytes))
         B.putByteString bytes
+
+encodeLatin1 :: T.Text -> BS.ByteString
+encodeLatin1 text = BS8.pack (T.unpack text)
