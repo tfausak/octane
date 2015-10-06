@@ -36,8 +36,8 @@ debug (file, contents, result) = do
             print (unInt32LE (replaySize1 replay))
             putStrLn ""
 
-            putStrLn "# CRC #\n"
-            debugByteString (replayCRC replay)
+            putStrLn "# CRC 1 #\n"
+            debugByteString (replayCRC1 replay)
             putStrLn ""
 
             putStrLn "# VERSION #\n"
