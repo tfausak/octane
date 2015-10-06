@@ -22,7 +22,8 @@ into discrete sections, but I do not yet know the meaning of each section.
 Here is an overview of what I know:
 
 1.  The first 4 bytes are an integral size of some kind. This is usually a
-    small number (less than 4,000 or so).
+    small number (less than 4,000 or so). This is equal to the byte size of the
+    properties section plus 36.
 
 2.  The next 4 bytes are a CRC.
 
