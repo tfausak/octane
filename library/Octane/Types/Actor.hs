@@ -1,20 +1,24 @@
 module Octane.Types.Actor where
 
-import Octane.Types.Int32LE (Int32LE)
-import Octane.Types.PCString (PCString)
+import qualified Data.Binary as Binary
+import Flow ((|>))
+import Octane.Types.Int32LE
+import Octane.Types.PCString
 
-import qualified Data.Binary as B
+data Actor = NewActor {
+    actorName :: PCString,
+    actorTag :: Int32LE
+} deriving (Show)
 
-data Actor = NewActor
-    { actorName :: PCString
-    , actorTag :: Int32LE
-    } deriving (Show)
-
-instance B.Binary Actor where
-    get = NewActor
-        <$> B.get
-        <*> B.get
+instance Binary.Binary Actor where
+    get = do
+        name <- Binary.get
+        tag <- Binary.get
+        return NewActor {
+            actorName = name,
+            actorTag = tag
+        }
 
     put actor = do
-        B.put (actorName actor)
-        B.put (actorTag actor)
+        actor |> actorName |> Binary.put
+        actor |> actorTag |> Binary.put
