@@ -28,18 +28,17 @@ library
         Octane.Types.CacheProperty
         Octane.Types.Float32LE
         Octane.Types.Frame
-        Octane.Types.Goal
         Octane.Types.Int32LE
         Octane.Types.Int64LE
         Octane.Types.KeyFrame
         Octane.Types.List
+        Octane.Types.Mark
         Octane.Types.Message
         Octane.Types.ObjectMap
         Octane.Types.PCString
         Octane.Types.Property
         Octane.Types.Replay
         Octane.Types.Table
-        Octane.Types.Team
         Octane.Utilities
     build-depends:
         base ==4.8.*,

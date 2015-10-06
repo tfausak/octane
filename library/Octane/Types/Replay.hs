@@ -4,10 +4,10 @@ module Octane.Types.Replay where
 
 import Octane.Types.ActorMap (ActorMap)
 import Octane.Types.CacheItem (CacheItem)
-import Octane.Types.Goal (Goal)
 import Octane.Types.Int32LE (Int32LE)
 import Octane.Types.KeyFrame (KeyFrame)
 import Octane.Types.List (List)
+import Octane.Types.Mark (Mark)
 import Octane.Types.Message (Message)
 import Octane.Types.ObjectMap (ObjectMap)
 import Octane.Types.PCString (PCString)
@@ -32,7 +32,7 @@ data Replay = NewReplay
     , replayKeyFrames :: List KeyFrame
     , replayFrames :: BS.ByteString -- TODO: issue #1
     , replayMessages :: List Message
-    , replayGoals :: List Goal
+    , replayMarks :: List Mark
     , replayPackages :: List PCString
     , replayObjectMap :: ObjectMap
     , replayNames :: List PCString
@@ -74,7 +74,7 @@ instance B.Binary Replay where
         B.put (replayKeyFrames replay)
         putFrames (replayFrames replay)
         B.put (replayMessages replay)
-        B.put (replayGoals replay)
+        B.put (replayMarks replay)
         B.put (replayPackages replay)
         B.put (replayObjectMap replay)
         B.put (replayNames replay)

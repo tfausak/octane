@@ -90,11 +90,11 @@ debug (file, contents, result) = do
                 (unList (replayMessages replay))
             putStrLn ""
 
-            putStrLn "# GOALS #\n"
+            putStrLn "# MARKS #\n"
             mapM_
                 (\ goal -> do
-                    putStrLn (show (goalTeam goal) ++ " @ frame " ++ show (unInt32LE (goalFrame goal))))
-                (unList (replayGoals replay))
+                    putStrLn (show (unPCString (markLabel goal)) ++ " @ frame " ++ show (unInt32LE (markFrame goal))))
+                (unList (replayMarks replay))
             putStrLn ""
 
             putStrLn "# PACKAGES #\n"
