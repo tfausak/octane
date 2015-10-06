@@ -57,8 +57,8 @@ debug (file, contents, result) = do
                 (M.assocs (unTable (replayProperties replay)))
             putStrLn ""
 
-            putStrLn "# UNKNOWN (size?) #\n"
-            print (unInt32LE (replaySize replay))
+            putStrLn "# SIZE 2 #\n"
+            print (unInt32LE (replaySize2 replay))
             putStrLn ""
 
             putStrLn "# UNKNOWN (separator?) #\n"

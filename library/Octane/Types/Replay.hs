@@ -26,7 +26,7 @@ data Replay = NewReplay
     , replayVersion2 :: Int32LE
     , replayLabel :: PCString
     , replayProperties :: Table Property
-    , replaySize :: Int32LE
+    , replaySize2 :: Int32LE
     , replaySeparator :: BS.ByteString
     , replayEffects :: List PCString
     , replayKeyFrames :: List KeyFrame
@@ -68,7 +68,7 @@ instance B.Binary Replay where
         B.put (replayVersion2 replay)
         B.put (replayLabel replay)
         B.put (replayProperties replay)
-        B.put (replaySize replay)
+        B.put (replaySize2 replay)
         B.putByteString (replaySeparator replay)
         B.put (replayEffects replay)
         B.put (replayKeyFrames replay)
