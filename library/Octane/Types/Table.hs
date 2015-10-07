@@ -2,26 +2,35 @@
 
 module Octane.Types.Table where
 
+import qualified Data.Binary as Binary
+import qualified Data.Map as Map
+import Flow ((|>))
 import Octane.Types.PCString (PCString)
 
-import qualified Data.Binary as B
-import qualified Data.Map as M
+newtype Table a = NewTable {
+    getTable :: Map.Map PCString a
+} deriving (Show)
 
-newtype Table a = NewTable
-    { getTable :: M.Map PCString a
-    } deriving (Show)
-
-instance (B.Binary a) => B.Binary (Table a) where
+instance (Binary.Binary a) => Binary.Binary (Table a) where
     get = do
-        key <- B.get
+        key <- Binary.get
         if key == "None"
-        then return (NewTable M.empty)
+        then do
+            return NewTable {
+                getTable = Map.empty
+            }
         else do
-            value <- B.get
-            let row = M.singleton key value
-            NewTable table <- B.get
-            return (NewTable (M.union row table))
+            value <- Binary.get
+            NewTable table <- Binary.get
+            return NewTable {
+                getTable = table |> Map.union (Map.singleton key value)
+            }
 
     put (NewTable table) = do
-        mapM_ (\ (key, value) -> B.put key >> B.put value) (M.assocs table)
-        B.put ("None" :: PCString)
+        table |> Map.assocs |> mapM_ putRow
+        ("None" :: PCString) |> Binary.put
+
+putRow :: (Binary.Binary a, Binary.Binary b) => (a, b) -> Binary.Put
+putRow (key, value) = do
+    key |> Binary.put
+    value |> Binary.put
