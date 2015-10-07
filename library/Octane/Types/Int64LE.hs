@@ -6,8 +6,8 @@ import qualified Data.Binary.Put as Binary
 import Flow ((|>))
 
 newtype Int64LE = NewInt64LE {
-    getInt64LE :: Int
-} deriving (Eq, Show)
+    getInt64LE :: Binary.Word64
+} deriving (Show)
 
 instance Binary.Binary Int64LE where
     get = do
