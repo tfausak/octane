@@ -150,7 +150,7 @@ debugProperty property = case property of
         mapM_
             (\ (NewTable table) -> mapM_
                 (\ (NewPCString k, v) -> do
-                    putStr (show k ++ "\t=> ")
+                    putStr ("\t" ++ show k ++ "\t=> ")
                     debugProperty v)
                 (Map.assocs table) >> putStrLn "")
             array
