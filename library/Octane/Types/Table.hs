@@ -13,24 +13,34 @@ newtype Table a = NewTable {
 
 instance (Binary.Binary a) => Binary.Binary (Table a) where
     get = do
-        key <- Binary.get
-        if key == NewPCString "None"
+        row <- getRow
+        if Map.null row
         then do
             return NewTable {
-                getTable = Map.empty
+                getTable = row
             }
         else do
-            value <- Binary.get
             NewTable table <- Binary.get
             return NewTable {
-                getTable = table |> Map.union (Map.singleton key value)
+                getTable = table |> Map.union row
             }
 
     put (NewTable table) = do
         table |> Map.assocs |> mapM_ putRow
         "None" |> NewPCString |> Binary.put
 
-putRow :: (Binary.Binary a, Binary.Binary b) => (a, b) -> Binary.Put
+getRow :: (Binary.Binary a) => Binary.Get (Map.Map PCString a)
+getRow = do
+    key <- Binary.get
+    if key == NewPCString "None"
+    then do
+        return Map.empty
+    else do
+        value <- Binary.get
+        return (Map.singleton key value)
+
+
+putRow :: (Binary.Binary a) => (PCString, a) -> Binary.Put
 putRow (key, value) = do
     key |> Binary.put
     value |> Binary.put
