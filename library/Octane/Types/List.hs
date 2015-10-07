@@ -12,11 +12,11 @@ newtype List a = NewList {
 instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
         (NewInt32LE size) <- Binary.get
-        elements <- Monad.replicateM size Binary.get
+        elements <- Monad.replicateM (fromIntegral size) Binary.get
         return NewList {
             getList = elements
         }
 
     put (NewList list) = do
-        list |> length |> NewInt32LE |> Binary.put
+        list |> length |> fromIntegral |> NewInt32LE |> Binary.put
         list |> mapM_ Binary.put

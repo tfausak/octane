@@ -104,10 +104,10 @@ instance Binary.Binary Replay where
 getFrames :: Binary.Get BS.ByteString
 getFrames = do
     NewInt32LE size <- Binary.get
-    frames <- Binary.getByteString size
+    frames <- Binary.getByteString (fromIntegral size)
     return frames
 
 putFrames :: BS.ByteString -> Binary.Put
 putFrames frames = do
-    frames |> BS.length |> NewInt32LE |> Binary.put
+    frames |> BS.length |> fromIntegral |> NewInt32LE |> Binary.put
     frames |> Binary.putByteString

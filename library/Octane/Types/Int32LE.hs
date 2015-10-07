@@ -6,7 +6,7 @@ import qualified Data.Binary.Put as Binary
 import Flow ((|>))
 
 newtype Int32LE = NewInt32LE {
-    getInt32LE :: Int
+    getInt32LE :: Binary.Word32
 } deriving (Show)
 
 instance Binary.Binary Int32LE where

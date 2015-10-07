@@ -23,7 +23,11 @@ instance Binary.Binary ActorMap where
         actorMap |> IntMap.assocs |> map fromTuple |> NewList |> Binary.put
 
 toTuple :: Actor -> (Int, PCString)
-toTuple actor = (actor |> actorTag |> getInt32LE, actor |> actorName)
+toTuple actor =
+    (actor |> actorTag |> getInt32LE |> fromIntegral, actor |> actorName)
 
 fromTuple :: (Int, PCString) -> Actor
-fromTuple (tag, name) = NewActor { actorName = name, actorTag = NewInt32LE tag }
+fromTuple (tag, name) = NewActor {
+    actorName = name,
+    actorTag = tag |> fromIntegral |> NewInt32LE
+}

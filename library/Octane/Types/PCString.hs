@@ -17,14 +17,14 @@ newtype PCString = NewPCString {
 instance Binary.Binary PCString where
     get = do
         (NewInt32LE size) <- Binary.get
-        bytes <- Binary.getByteString size
+        bytes <- Binary.getByteString (fromIntegral size)
         return NewPCString {
             getPCString = bytes |> Text.decodeLatin1 |> Text.dropEnd 1
         }
 
     put (NewPCString string) = do
         let bytes = string |> flip Text.snoc '\NUL' |> encodeLatin1
-        bytes |> BS.length |> NewInt32LE |> Binary.put
+        bytes |> BS.length |> fromIntegral |> NewInt32LE |> Binary.put
         bytes |> Binary.putByteString
 
 encodeLatin1 :: Text.Text -> BS.ByteString
