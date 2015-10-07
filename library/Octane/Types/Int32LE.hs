@@ -1,14 +1,20 @@
 module Octane.Types.Int32LE where
 
-import qualified Data.Binary as B
-import qualified Data.Binary.Get as B
-import qualified Data.Binary.Put as B
+import qualified Data.Binary as Binary
+import qualified Data.Binary.Get as Binary
+import qualified Data.Binary.Put as Binary
+import Flow ((|>))
 
-newtype Int32LE = NewInt32LE
-    { getInt32LE :: Int
-    } deriving (Show)
+newtype Int32LE = NewInt32LE {
+    getInt32LE :: Int
+} deriving (Show)
 
-instance B.Binary Int32LE where
-    get = NewInt32LE <$> fmap fromIntegral B.getWord32le
+instance Binary.Binary Int32LE where
+    get = do
+        word32LE <- Binary.getWord32le
+        return NewInt32LE {
+            getInt32LE = fromIntegral word32LE
+        }
 
-    put (NewInt32LE int) = B.putWord32le (fromIntegral int)
+    put (NewInt32LE int32LE) = do
+        int32LE |> fromIntegral |> Binary.putWord32le
