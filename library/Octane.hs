@@ -9,6 +9,7 @@ import qualified Data.ByteString.Builder as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
+import Flow ((|>))
 import qualified System.Environment as Env
 import qualified System.IO as IO
 
@@ -127,13 +128,17 @@ debug (file, contents, result) = do
             putStrLn "# CACHE #\n"
             mapM_
                 (\ cacheItem -> do
-                    putStrLn ("ID:\t" ++ show (getInt32LE (cacheItemTag cacheItem)))
+                    let a = cacheItem |> cacheItemTag |> getInt32LE |> fromIntegral
+                    let b = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup a |> fmap getPCString
+                    putStrLn ("ID:\t" ++ show a ++ " (" ++ show b ++ ")")
                     putStrLn ("Start:\t" ++ show (getInt32LE (cacheItemStart cacheItem)))
                     putStrLn ("End:\t" ++ show (getInt32LE (cacheItemEnd cacheItem)))
                     putStrLn "Properties:"
                     mapM_
                         (\ cacheProperty -> do
-                            putStrLn ("- " ++ show (getInt32LE (cachePropertyTag cacheProperty)) ++ "\t=> " ++ show (getInt32LE (cachePropertyIndex cacheProperty))))
+                            let c = cacheProperty |> cachePropertyIndex |> getInt32LE |> fromIntegral
+                            let d = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup c |> fmap getPCString
+                            putStrLn ("- " ++ show (getInt32LE (cachePropertyTag cacheProperty)) ++ "\t=> " ++ show c ++ " (" ++ show d ++ ")"))
                         (getList (cacheItemCacheProperties cacheItem))
                     putStrLn "")
                 (getList (replayCacheItems replay))
