@@ -2,14 +2,14 @@
 
 module Octane.Types.Property where
 
-import Octane.Types.Float32LE (Float32LE)
-import Octane.Types.Int32LE (Int32LE)
-import Octane.Types.Int64LE (Int64LE)
-import Octane.Types.List (List)
-import Octane.Types.PCString (PCString)
-import Octane.Types.Table (Table)
-
-import qualified Data.Binary as B
+import qualified Data.Binary as Binary
+import Flow ((|>))
+import Octane.Types.Float32LE
+import Octane.Types.Int32LE
+import Octane.Types.Int64LE
+import Octane.Types.List
+import Octane.Types.PCString
+import Octane.Types.Table
 
 data Property
     = ArrayProperty Int64LE (List (Table Property))
@@ -19,53 +19,54 @@ data Property
     | StrProperty Int64LE PCString
     deriving (Show)
 
-instance B.Binary Property where
+instance Binary.Binary Property where
     get = do
-        kind <- B.get
-        size <- B.get
+        kind <- Binary.get
+        size <- Binary.get
         case kind :: PCString of
             "ArrayProperty" -> do
-                value <- B.get
+                value <- Binary.get
                 return (ArrayProperty size value)
             "FloatProperty" -> do
                 value <- case size of
-                    4 -> B.get
+                    4 -> Binary.get
                     _ -> fail ("unknown FloatProperty size " ++ show size)
                 return (FloatProperty size value)
             "IntProperty" -> do
                 value <- case size of
-                    4 -> B.get
+                    4 -> Binary.get
                     _ -> fail ("unknown IntProperty size " ++ show size)
                 return (IntProperty size value)
             "NameProperty" -> do
-                value <- B.get
+                value <- Binary.get
                 return (NameProperty size value)
             "StrProperty" -> do
-                value <- B.get
+                value <- Binary.get
                 return (StrProperty size value)
             _ -> fail ("unknown property type " ++ show kind)
 
-    put (ArrayProperty size value) = do
-        B.put ("ArrayProperty" :: PCString)
-        B.put size
-        B.put value
+    put property = case property of
+        ArrayProperty size value -> do
+            ("ArrayProperty" :: PCString) |> Binary.put
+            size |> Binary.put
+            value |> Binary.put
 
-    put (FloatProperty size value) = do
-        B.put ("FloatProperty" :: PCString)
-        B.put size
-        B.put value
+        FloatProperty size value -> do
+            ("FloatProperty" :: PCString) |> Binary.put
+            size |> Binary.put
+            value |> Binary.put
 
-    put (IntProperty size value) = do
-        B.put ("IntProperty" :: PCString)
-        B.put size
-        B.put value
+        IntProperty size value -> do
+            ("IntProperty" :: PCString) |> Binary.put
+            size |> Binary.put
+            value |> Binary.put
 
-    put (NameProperty size value) = do
-        B.put ("NameProperty" :: PCString)
-        B.put size
-        B.put value
+        NameProperty size value -> do
+            ("NameProperty" :: PCString) |> Binary.put
+            size |> Binary.put
+            value |> Binary.put
 
-    put (StrProperty size value) = do
-        B.put ("StrProperty" :: PCString)
-        B.put size
-        B.put value
+        StrProperty size value -> do
+            ("StrProperty" :: PCString) |> Binary.put
+            size |> Binary.put
+            value |> Binary.put
