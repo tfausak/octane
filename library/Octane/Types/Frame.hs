@@ -63,7 +63,7 @@ instance Binary.BinaryBit Frame where
                 if not actorNew
                 then do -- the actor already exists
                     -- TODO: while readbit is true, read property?
-                    return frame
+                    error "don't know what to do with existing actors"
                 else do -- the actor does not already exist
                     actorStatic <- Binary.getBool
                     let frame = frame {
@@ -73,12 +73,12 @@ instance Binary.BinaryBit Frame where
                     if actorStatic
                     then do -- the actor is static
                         -- TODO
-                        return frame
+                        error "don't know what to do with static actors"
                     else do -- the actor is dynamic
                         -- TODO: next 8? bits are actor type id?
                         -- TODO: optional initial location vector?
                         -- TODO: 3 bytes for pitch, yaw, and roll?
-                        return frame
+                        error "don't know what to do with dynamic actors"
 
     putBits _ _ = undefined -- TODO
 
