@@ -14,9 +14,9 @@ newtype ActorMap = NewActorMap {
 
 instance Binary.Binary ActorMap where
     get = do
-        actors <- Binary.get
+        (NewList actors) <- Binary.get
         return NewActorMap {
-            getActorMap = actors |> getList |> map toTuple |> IntMap.fromList
+            getActorMap = actors |> map toTuple |> IntMap.fromList
         }
 
     put (NewActorMap actorMap) = do
