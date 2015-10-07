@@ -1,19 +1,21 @@
 module Octane.Types.ObjectMap where
 
-import Octane.Types.List (List (NewList))
-import Octane.Types.PCString (PCString)
+import qualified Data.Binary as Binary
+import qualified Data.IntMap as IntMap
+import Flow ((|>))
+import Octane.Types.List
+import Octane.Types.PCString
 
-import qualified Data.Binary as B
-import qualified Data.IntMap as M
+newtype ObjectMap = NewObjectMap {
+    getObjectMap :: IntMap.IntMap PCString
+} deriving (Show)
 
-newtype ObjectMap = NewObjectMap
-    { getObjectMap :: M.IntMap PCString
-    } deriving (Show)
-
-instance B.Binary ObjectMap where
+instance Binary.Binary ObjectMap where
     get = do
-        NewList list <- B.get
-        return (NewObjectMap (M.fromDistinctAscList (zip [0 ..] list)))
+        NewList objects <- Binary.get
+        return NewObjectMap {
+            getObjectMap = objects |> zip [0 ..] |> IntMap.fromDistinctAscList
+        }
 
     put (NewObjectMap objectMap) = do
-        B.put (NewList (M.elems objectMap))
+        objectMap |> IntMap.elems |> NewList |> Binary.put
