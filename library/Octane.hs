@@ -2,25 +2,24 @@ module Octane where
 
 import Octane.Types
 
-import System.Environment (getArgs)
-
-import qualified Data.Binary as B
-import qualified Data.Binary.Get as B
+import qualified Data.Binary as Binary
+import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Builder as BSB
+import qualified Data.ByteString.Builder as BS
 import qualified Data.ByteString.Lazy as BSL
-import qualified Data.IntMap as IM
-import qualified Data.Map as M
+import qualified Data.IntMap as IntMap
+import qualified Data.Map as Map
+import qualified System.Environment as Env
 import qualified System.IO as IO
 
 main :: IO ()
 main = do
-    files <- getArgs
+    files <- Env.getArgs
     contents <- mapM BS.readFile files
-    results <- mapM B.decodeFileOrFail files
+    results <- mapM Binary.decodeFileOrFail files
     mapM_ debug (zip3 files contents results)
 
-debug :: (String, BS.ByteString, Either (B.ByteOffset, String) Replay) -> IO ()
+debug :: (String, BS.ByteString, Either (Binary.ByteOffset, String) Replay) -> IO ()
 debug (file, contents, result) = do
     putStrLn file
     putStrLn ("input:\t" ++ show (BS.length contents) ++ " bytes")
@@ -28,7 +27,7 @@ debug (file, contents, result) = do
         Left (offset, message) -> do
             putStrLn ("error at byte " ++ show offset ++ ": " ++ message)
         Right replay -> do
-            let output = B.encode replay
+            let output = Binary.encode replay
             putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
             putStrLn ""
 
@@ -54,7 +53,7 @@ debug (file, contents, result) = do
                 (\ (name, property) -> do
                     putStr (show (getPCString name) ++ "\t=> ")
                     debugProperty property)
-                (M.assocs (getTable (replayProperties replay)))
+                (Map.assocs (getTable (replayProperties replay)))
             putStrLn ""
 
             putStrLn "# SIZE 2 #\n"
@@ -108,7 +107,7 @@ debug (file, contents, result) = do
             mapM_
                 (\ (index, object) -> do
                     putStrLn (show index ++ "\t=> " ++ show (getPCString object)))
-                (IM.assocs (getObjectMap (replayObjectMap replay)))
+                (IntMap.assocs (getObjectMap (replayObjectMap replay)))
             putStrLn ""
 
             putStrLn "# NAMES #\n"
@@ -122,7 +121,7 @@ debug (file, contents, result) = do
             mapM_
                 (\ (index, actor) -> do
                     putStrLn (show index ++ "\t=> " ++ show (getPCString actor)))
-                (IM.assocs (getActorMap (replayActorMap replay)))
+                (IntMap.assocs (getActorMap (replayActorMap replay)))
             putStrLn ""
 
             putStrLn "# CACHE #\n"
@@ -141,7 +140,7 @@ debug (file, contents, result) = do
 
 debugByteString :: BS.ByteString -> IO ()
 debugByteString bytes = do
-    BSB.hPutBuilder IO.stdout (BSB.byteStringHex bytes)
+    BS.hPutBuilder IO.stdout (BS.byteStringHex bytes)
     putStrLn ""
 
 debugProperty :: Property -> IO ()
@@ -153,7 +152,7 @@ debugProperty property = case property of
                 (\ (NewPCString k, v) -> do
                     putStr (show k ++ "\t=> ")
                     debugProperty v)
-                (M.assocs table) >> putStrLn "")
+                (Map.assocs table) >> putStrLn "")
             array
     FloatProperty _ (NewFloat32LE value) -> print value
     IntProperty _ (NewInt32LE value) -> print value
