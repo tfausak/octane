@@ -1,3 +1,6 @@
+{- |
+    A length-prefixed null-terminated string.
+-}
 module Octane.Types.PCString where
 
 import qualified Data.Binary as Binary

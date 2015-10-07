@@ -1,3 +1,6 @@
+{- |
+    A length-prefixed list of objects.
+-}
 module Octane.Types.List where
 
 import qualified Control.Monad as Monad
