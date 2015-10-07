@@ -3,8 +3,8 @@ module Octane.Types.PCString where
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
-import qualified Data.ByteString as ByteString
-import qualified Data.ByteString.Char8 as ByteString8
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import Flow ((|>))
@@ -24,8 +24,8 @@ instance Binary.Binary PCString where
 
     put (NewPCString string) = do
         let bytes = string |> flip Text.snoc '\NUL' |> encodeLatin1
-        bytes |> ByteString.length |> NewInt32LE |> Binary.put
+        bytes |> BS.length |> NewInt32LE |> Binary.put
         bytes |> Binary.putByteString
 
-encodeLatin1 :: Text.Text -> ByteString.ByteString
-encodeLatin1 text = text |> Text.unpack |> ByteString8.pack
+encodeLatin1 :: Text.Text -> BS.ByteString
+encodeLatin1 text = text |> Text.unpack |> BS8.pack

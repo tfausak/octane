@@ -1,99 +1,132 @@
+{-# OPTIONS_GHC -fno-warn-name-shadowing #-}
+
 module Octane.Types.Frame where
 
-import Octane.Types.Float32LE (Float32LE)
-import Octane.Utilities (flipEndianness)
-
-import Data.Bits (setBit, zeroBits)
-
-import qualified Data.Binary as B
-import qualified Data.Binary.Bits as BB
-import qualified Data.Binary.Bits.Get as BB
+import qualified Data.Binary as Binary
+import qualified Data.Binary.Bits as Binary
+import qualified Data.Binary.Bits.Get as Binary
+import qualified Data.Bits as Bits
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
+import Flow ((|>))
+import Octane.Types.Float32LE
 
-data Frame = NewFrame
-    { frameTime :: Float32LE
-    , frameDelta :: Float32LE
-    , frameHasActors :: Bool
-    , frameActorID :: Maybe B.Word16
-    , frameChannelOpen :: Maybe Bool
-    , frameActorIsNew :: Maybe Bool
-    } deriving (Show)
+data Frame = NewFrame {
+    frameTime :: Float32LE,
+    frameDelta :: Float32LE,
+    frameHasActors :: Bool,
+    frameActorID :: Maybe Binary.Word16,
+    frameChannelOpen :: Maybe Bool,
+    frameActorNew :: Maybe Bool,
+    frameActorStatic :: Maybe Bool
+} deriving (Show)
 
-instance BB.BinaryBit Frame where
+instance Binary.BinaryBit Frame where
     getBits _ = do
-        timeBytes <- BB.getByteString 4
-        deltaBytes <- BB.getByteString 4
-        hasActors <- BB.getBool
-        let frame = NewFrame
-                { frameTime = B.decode (BSL.fromStrict (flipEndianness timeBytes))
-                , frameDelta = B.decode (BSL.fromStrict (flipEndianness deltaBytes))
-                , frameHasActors = hasActors
-                , frameActorID = Nothing
-                , frameChannelOpen = Nothing
-                , frameActorIsNew = Nothing
-                }
+        timeBytes <- Binary.getByteString 4
+        let time = timeBytes |> flipEndian |> BSL.fromStrict |> Binary.decode
+
+        deltaBytes <- Binary.getByteString 4
+        let delta = deltaBytes |> flipEndian |> BSL.fromStrict |> Binary.decode
+
+        hasActors <- Binary.getBool
+        let frame = NewFrame {
+                frameTime = time,
+                frameDelta = delta,
+                frameHasActors = hasActors,
+                frameActorID = Nothing,
+                frameChannelOpen = Nothing,
+                frameActorNew = Nothing,
+                frameActorStatic = Nothing
+            }
 
         if not hasActors
         then do -- this is the end of the frame
             return frame
         else do -- there is more to the frame
             actorID <- getInt10LE
-            channelOpen <- BB.getBool
+            channelOpen <- Binary.getBool
+            let frame = frame {
+                    frameActorID = Just actorID,
+                    frameChannelOpen = Just channelOpen
+                }
+
             if not channelOpen
             then do -- the channel is closed and the actor is destroyed
-                -- TODO: is there anything more to do here?
                 return frame
-                    { frameHasActors = hasActors
-                    , frameActorID = Just actorID
-                    , frameChannelOpen = Just channelOpen
-                    }
             else do -- the channel is open
-                actorIsNew <- BB.getBool
-                if not actorIsNew
+                actorNew <- Binary.getBool
+                let frame = frame {
+                        frameActorNew = Just actorNew
+                    }
+
+                if not actorNew
                 then do -- the actor already exists
-                    -- TODO: while readbit is true, read property
+                    -- TODO: while readbit is true, read property?
                     return frame
-                        { frameActorID = Just actorID
-                        , frameChannelOpen = Just channelOpen
-                        , frameActorIsNew = Just actorIsNew
-                        }
                 else do -- the actor does not already exist
-                    -- TODO: Next bit is always 0. It may be a static versus
-                    --   dynamic flag
-                    -- TODO: next 8? bits are actor type id?
-                    -- TODO: optional initial location vector?
-                    -- TODO: 3 bytes for pitch, yaw, and roll?
-                    return frame
-                        { frameActorID = Just actorID
-                        , frameChannelOpen = Just channelOpen
-                        , frameActorIsNew = Just actorIsNew
+                    actorStatic <- Binary.getBool
+                    let frame = frame {
+                            frameActorStatic = Just actorStatic
                         }
 
-    putBits _ _ = undefined
+                    if actorStatic
+                    then do -- the actor is static
+                        -- TODO
+                        return frame
+                    else do -- the actor is dynamic
+                        -- TODO: next 8? bits are actor type id?
+                        -- TODO: optional initial location vector?
+                        -- TODO: 3 bytes for pitch, yaw, and roll?
+                        return frame
+
+    putBits _ _ = undefined -- TODO
 
 -- TODO: This is awful. But it's the easiest way to get a 10-bit little-endian
 --   integer from a frame.
-getInt10LE :: BB.BitGet B.Word16
+getInt10LE :: Binary.BitGet Binary.Word16
 getInt10LE = do
-    a <- BB.getBool
-    b <- BB.getBool
-    c <- BB.getBool
-    d <- BB.getBool
-    e <- BB.getBool
-    f <- BB.getBool
-    g <- BB.getBool
-    h <- BB.getBool
-    i <- BB.getBool
-    j <- BB.getBool
+    a <- Binary.getBool
+    b <- Binary.getBool
+    c <- Binary.getBool
+    d <- Binary.getBool
+    e <- Binary.getBool
+    f <- Binary.getBool
+    g <- Binary.getBool
+    h <- Binary.getBool
+    i <- Binary.getBool
+    j <- Binary.getBool
     return $
-        (if a then flip setBit 0 else id) $
-        (if b then flip setBit 1 else id) $
-        (if c then flip setBit 2 else id) $
-        (if d then flip setBit 3 else id) $
-        (if e then flip setBit 4 else id) $
-        (if f then flip setBit 5 else id) $
-        (if g then flip setBit 6 else id) $
-        (if h then flip setBit 7 else id) $
-        (if i then flip setBit 8 else id) $
-        (if j then flip setBit 9 else id) $
-        zeroBits
+        (if a then flip Bits.setBit 0 else id) $
+        (if b then flip Bits.setBit 1 else id) $
+        (if c then flip Bits.setBit 2 else id) $
+        (if d then flip Bits.setBit 3 else id) $
+        (if e then flip Bits.setBit 4 else id) $
+        (if f then flip Bits.setBit 5 else id) $
+        (if g then flip Bits.setBit 6 else id) $
+        (if h then flip Bits.setBit 7 else id) $
+        (if i then flip Bits.setBit 8 else id) $
+        (if j then flip Bits.setBit 9 else id) $
+        Bits.zeroBits
+
+-- TODO: There has got to be a better way.
+flipEndian :: BS.ByteString -> BS.ByteString
+flipEndian bytes = BS.map go bytes where
+    go byte =
+        let a = Bits.testBit byte 0
+            b = Bits.testBit byte 1
+            c = Bits.testBit byte 2
+            d = Bits.testBit byte 3
+            e = Bits.testBit byte 4
+            f = Bits.testBit byte 5
+            g = Bits.testBit byte 6
+            h = Bits.testBit byte 7
+        in  (if a then flip Bits.setBit 7 else id) $
+            (if b then flip Bits.setBit 6 else id) $
+            (if c then flip Bits.setBit 5 else id) $
+            (if d then flip Bits.setBit 4 else id) $
+            (if e then flip Bits.setBit 3 else id) $
+            (if f then flip Bits.setBit 2 else id) $
+            (if g then flip Bits.setBit 1 else id) $
+            (if h then flip Bits.setBit 0 else id) $
+            Bits.zeroBits

@@ -39,7 +39,6 @@ library
         Octane.Types.Property
         Octane.Types.Replay
         Octane.Types.Table
-        Octane.Utilities
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,

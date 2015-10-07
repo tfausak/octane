@@ -5,7 +5,7 @@ module Octane.Types.Replay where
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
-import qualified Data.ByteString as ByteString
+import qualified Data.ByteString as BS
 import Flow ((|>))
 import Octane.Types.ActorMap
 import Octane.Types.CacheItem
@@ -21,16 +21,16 @@ import Octane.Types.Table
 
 data Replay = NewReplay {
     replaySize1 :: Int32LE,
-    replayCRC1 :: ByteString.ByteString,
+    replayCRC1 :: BS.ByteString,
     replayVersion1 :: Int32LE,
     replayVersion2 :: Int32LE,
     replayLabel :: PCString,
     replayProperties :: Table Property,
     replaySize2 :: Int32LE,
-    replayCRC2 :: ByteString.ByteString,
+    replayCRC2 :: BS.ByteString,
     replayEffects :: List PCString,
     replayKeyFrames :: List KeyFrame,
-    replayFrames :: ByteString.ByteString,
+    replayFrames :: BS.ByteString,
     replayMessages :: List Message,
     replayMarks :: List Mark,
     replayPackages :: List PCString,
@@ -101,13 +101,13 @@ instance Binary.Binary Replay where
         replay |> replayActorMap |> Binary.put
         replay |> replayCacheItems |> Binary.put
 
-getFrames :: Binary.Get ByteString.ByteString
+getFrames :: Binary.Get BS.ByteString
 getFrames = do
     NewInt32LE size <- Binary.get
     frames <- Binary.getByteString size
     return frames
 
-putFrames :: ByteString.ByteString -> Binary.Put
+putFrames :: BS.ByteString -> Binary.Put
 putFrames frames = do
-    frames |> ByteString.length |> NewInt32LE |> Binary.put
+    frames |> BS.length |> NewInt32LE |> Binary.put
     frames |> Binary.putByteString
