@@ -1,21 +1,22 @@
 module Octane.Types.List where
 
-import Octane.Types.Int32LE (Int32LE (NewInt32LE))
+import qualified Control.Monad as Monad
+import qualified Data.Binary as Binary
+import Flow ((|>))
+import Octane.Types.Int32LE
 
-import Control.Monad (replicateM)
+newtype List a = NewList {
+    getList :: [a]
+} deriving (Show)
 
-import qualified Data.Binary as B
-
-newtype List a = NewList
-    { getList :: [a]
-    } deriving (Show)
-
-instance (B.Binary a) => B.Binary (List a) where
+instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
-        (NewInt32LE size) <- B.get
-        elements <- replicateM size B.get
-        return (NewList elements)
+        (NewInt32LE size) <- Binary.get
+        elements <- Monad.replicateM size Binary.get
+        return NewList {
+            getList = elements
+        }
 
     put (NewList list) = do
-        B.put (NewInt32LE (length list))
-        mapM_ B.put list
+        list |> length |> NewInt32LE |> Binary.put
+        list |> mapM_ Binary.put
