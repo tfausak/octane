@@ -21,13 +21,13 @@ import Octane.Types.Table
 
 data Replay = NewReplay {
     replaySize1 :: Int32LE,
-    replayCRC1 :: BS.ByteString,
+    replayCRC1 :: Int32LE,
     replayVersion1 :: Int32LE,
     replayVersion2 :: Int32LE,
     replayLabel :: PCString,
     replayProperties :: Table Property,
     replaySize2 :: Int32LE,
-    replayCRC2 :: BS.ByteString,
+    replayCRC2 :: Int32LE,
     replayEffects :: List PCString,
     replayKeyFrames :: List KeyFrame,
     replayFrames :: BS.ByteString,
@@ -43,13 +43,13 @@ data Replay = NewReplay {
 instance Binary.Binary Replay where
     get = do
         size1 <- Binary.get
-        crc1 <- Binary.getByteString 4
+        crc1 <- Binary.get
         version1 <- Binary.get
         version2 <- Binary.get
         label <- Binary.get
         properties <- Binary.get
         size2 <- Binary.get
-        crc2 <- Binary.getByteString 4
+        crc2 <- Binary.get
         effects <- Binary.get
         keyFrames <- Binary.get
         frames <- getFrames
@@ -83,13 +83,13 @@ instance Binary.Binary Replay where
 
     put replay = do
         replay |> replaySize1 |> Binary.put
-        replay |> replayCRC1 |> Binary.putByteString
+        replay |> replayCRC1 |> Binary.put
         replay |> replayVersion1 |> Binary.put
         replay |> replayVersion2 |> Binary.put
         replay |> replayLabel |> Binary.put
         replay |> replayProperties |> Binary.put
         replay |> replaySize2 |> Binary.put
-        replay |> replayCRC2 |> Binary.putByteString
+        replay |> replayCRC2 |> Binary.put
         replay |> replayEffects |> Binary.put
         replay |> replayKeyFrames |> Binary.put
         replay |> replayFrames |> putFrames

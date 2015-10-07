@@ -36,7 +36,7 @@ debug (file, contents, result) = do
             putStrLn ""
 
             putStrLn "# CRC 1 #\n"
-            debugByteString (replayCRC1 replay)
+            print (getInt32LE (replayCRC1 replay))
             putStrLn ""
 
             putStrLn "# VERSION #\n"
@@ -61,7 +61,7 @@ debug (file, contents, result) = do
             putStrLn ""
 
             putStrLn "# CRC 2 #\n"
-            debugByteString (replayCRC2 replay)
+            print (getInt32LE (replayCRC2 replay))
             putStrLn ""
 
             putStrLn "# EFFECTS #\n"
