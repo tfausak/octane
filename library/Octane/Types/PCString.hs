@@ -1,5 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-
 module Octane.Types.PCString where
 
 import qualified Data.Binary as Binary
@@ -7,7 +5,6 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Char8 as ByteString8
-import qualified Data.String as String
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import Flow ((|>))
@@ -15,7 +12,7 @@ import Octane.Types.Int32LE
 
 newtype PCString = NewPCString {
     getPCString :: Text.Text
-} deriving (Eq , Ord , String.IsString , Show)
+} deriving (Eq, Ord, Show)
 
 instance Binary.Binary PCString where
     get = do

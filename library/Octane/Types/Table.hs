@@ -5,7 +5,7 @@ module Octane.Types.Table where
 import qualified Data.Binary as Binary
 import qualified Data.Map as Map
 import Flow ((|>))
-import Octane.Types.PCString (PCString)
+import Octane.Types.PCString
 
 newtype Table a = NewTable {
     getTable :: Map.Map PCString a
@@ -14,7 +14,7 @@ newtype Table a = NewTable {
 instance (Binary.Binary a) => Binary.Binary (Table a) where
     get = do
         key <- Binary.get
-        if key == "None"
+        if key == NewPCString "None"
         then do
             return NewTable {
                 getTable = Map.empty
@@ -28,7 +28,7 @@ instance (Binary.Binary a) => Binary.Binary (Table a) where
 
     put (NewTable table) = do
         table |> Map.assocs |> mapM_ putRow
-        ("None" :: PCString) |> Binary.put
+        "None" |> NewPCString |> Binary.put
 
 putRow :: (Binary.Binary a, Binary.Binary b) => (a, b) -> Binary.Put
 putRow (key, value) = do

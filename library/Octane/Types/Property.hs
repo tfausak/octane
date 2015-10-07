@@ -24,49 +24,49 @@ instance Binary.Binary Property where
         kind <- Binary.get
         size <- Binary.get
         case kind :: PCString of
-            "ArrayProperty" -> do
+            NewPCString "ArrayProperty" -> do
                 value <- Binary.get
                 return (ArrayProperty size value)
-            "FloatProperty" -> do
+            NewPCString "FloatProperty" -> do
                 value <- case size of
-                    4 -> Binary.get
+                    NewInt64LE 4 -> Binary.get
                     _ -> fail ("unknown FloatProperty size " ++ show size)
                 return (FloatProperty size value)
-            "IntProperty" -> do
+            NewPCString "IntProperty" -> do
                 value <- case size of
-                    4 -> Binary.get
+                    NewInt64LE 4 -> Binary.get
                     _ -> fail ("unknown IntProperty size " ++ show size)
                 return (IntProperty size value)
-            "NameProperty" -> do
+            NewPCString "NameProperty" -> do
                 value <- Binary.get
                 return (NameProperty size value)
-            "StrProperty" -> do
+            NewPCString "StrProperty" -> do
                 value <- Binary.get
                 return (StrProperty size value)
             _ -> fail ("unknown property type " ++ show kind)
 
     put property = case property of
         ArrayProperty size value -> do
-            ("ArrayProperty" :: PCString) |> Binary.put
+            "ArrayProperty" |> NewPCString |> Binary.put
             size |> Binary.put
             value |> Binary.put
 
         FloatProperty size value -> do
-            ("FloatProperty" :: PCString) |> Binary.put
+            "FloatProperty" |> NewPCString |> Binary.put
             size |> Binary.put
             value |> Binary.put
 
         IntProperty size value -> do
-            ("IntProperty" :: PCString) |> Binary.put
+            "IntProperty" |> NewPCString |> Binary.put
             size |> Binary.put
             value |> Binary.put
 
         NameProperty size value -> do
-            ("NameProperty" :: PCString) |> Binary.put
+            "NameProperty" |> NewPCString |> Binary.put
             size |> Binary.put
             value |> Binary.put
 
         StrProperty size value -> do
-            ("StrProperty" :: PCString) |> Binary.put
+            "StrProperty" |> NewPCString |> Binary.put
             size |> Binary.put
             value |> Binary.put

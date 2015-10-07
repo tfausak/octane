@@ -1,5 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-
 module Octane.Types.Int64LE where
 
 import qualified Data.Binary as Binary
@@ -9,7 +7,7 @@ import Flow ((|>))
 
 newtype Int64LE = NewInt64LE {
     getInt64LE :: Int
-} deriving (Eq, Num, Show)
+} deriving (Eq, Show)
 
 instance Binary.Binary Int64LE where
     get = do
