@@ -1,30 +1,33 @@
 module Octane.Types.CacheItem where
 
-import Octane.Types.CacheProperty (CacheProperty)
-import Octane.Types.Int32LE (Int32LE)
-import Octane.Types.List (List)
+import qualified Data.Binary as Binary
+import Flow ((|>))
+import Octane.Types.CacheProperty
+import Octane.Types.Int32LE
+import Octane.Types.List
 
-import qualified Data.Binary as B
+data CacheItem = NewCacheItem {
+    cacheItemTag :: Int32LE,
+    cacheItemStart :: Int32LE,
+    cacheItemEnd :: Int32LE,
+    cacheItemCacheProperties :: List CacheProperty
+} deriving (Show)
 
-data CacheItem = NewCacheItem
-    { cacheItemTag :: Int32LE -- this is the actor id
-    -- TODO: These indexes should be offset by the cache item's position in the
-    --   list. So if the cache item is at index 3 and the start index is 20,
-    --   the start index is actually 23.
-    , cacheItemStart :: Int32LE
-    , cacheItemEnd :: Int32LE
-    , cacheItemCacheProperties :: List CacheProperty
-    } deriving (Show)
-
-instance B.Binary CacheItem where
-    get = NewCacheItem
-        <$> B.get
-        <*> B.get
-        <*> B.get
-        <*> B.get
+instance Binary.Binary CacheItem where
+    get = do
+        tag <- Binary.get
+        start <- Binary.get
+        end <- Binary.get
+        cacheProperties <- Binary.get
+        return NewCacheItem {
+            cacheItemTag = tag,
+            cacheItemStart = start,
+            cacheItemEnd = end,
+            cacheItemCacheProperties = cacheProperties
+        }
 
     put cacheItem = do
-        B.put (cacheItemTag cacheItem)
-        B.put (cacheItemStart cacheItem)
-        B.put (cacheItemEnd cacheItem)
-        B.put (cacheItemCacheProperties cacheItem)
+        cacheItem |> cacheItemTag |> Binary.put
+        cacheItem |> cacheItemStart |> Binary.put
+        cacheItem |> cacheItemEnd |> Binary.put
+        cacheItem |> cacheItemCacheProperties |> Binary.put
