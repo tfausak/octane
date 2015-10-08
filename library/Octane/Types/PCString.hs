@@ -8,6 +8,7 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BS8
+import qualified Data.Char as Char
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import Flow ((|>))
@@ -33,9 +34,15 @@ instance Binary.Binary PCString where
         }
 
     put (NewPCString string) = do
-        let bytes = string |> flip Text.snoc '\NUL' |> encodeLatin1
-        bytes |> BS.length |> fromIntegral |> NewInt32LE |> Binary.put
-        bytes |> Binary.putByteString
+        let cString = Text.snoc string '\NUL'
+        let size = cString |> Text.length |> fromIntegral
+        if Text.all Char.isLatin1 cString
+        then do
+            size |> NewInt32LE |> Binary.put
+            cString |> encodeLatin1 |> Binary.putByteString
+        else do
+            size |> negate |> NewInt32LE |> Binary.put
+            cString |> Text.encodeUtf16LE |> Binary.putByteString
 
 encodeLatin1 :: Text.Text -> BS.ByteString
 encodeLatin1 text = text |> Text.unpack |> BS8.pack
