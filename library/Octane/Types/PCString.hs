@@ -20,9 +20,16 @@ newtype PCString = NewPCString {
 instance Binary.Binary PCString where
     get = do
         (NewInt32LE size) <- Binary.get
-        bytes <- Binary.getByteString (fromIntegral size)
+        string <- if size < 0
+            then do
+                let actualSize = 2 * negate size
+                bytes <- Binary.getByteString (fromIntegral actualSize)
+                bytes |> Text.decodeUtf16LE |> return
+            else do
+                bytes <- Binary.getByteString (fromIntegral size)
+                bytes |> Text.decodeLatin1 |> return
         return NewPCString {
-            getPCString = bytes |> Text.decodeLatin1 |> Text.dropEnd 1
+            getPCString = string |> Text.dropEnd 1
         }
 
     put (NewPCString string) = do
