@@ -26,9 +26,15 @@ debug (file, contents, result) = case result of
         (file ++ " @ byte " ++ show offset ++ " - " ++ message)
     Right replay -> do
         putStrLn file
-        putStrLn ("input:\t" ++ show (BS.length contents) ++ " bytes")
-        let output = Binary.encode replay
-        putStrLn ("output:\t" ++ show (BSL.length output) ++ " bytes")
+
+        let inputSize = contents |> BS.length |> fromIntegral
+        let outputSize = replay |> Binary.encode |> BSL.length
+        if inputSize == outputSize then return () else IO.hPutStrLn IO.stderr
+            ( "input size ("
+            ++ show inputSize
+            ++ ") not equal to output size ("
+            ++ show outputSize ++ ")!"
+            )
         putStrLn ""
 
         putStrLn "# SIZE 1 #\n"
