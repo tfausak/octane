@@ -2,6 +2,7 @@
 
 module Octane.Parser.Types.Replay where
 
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
@@ -39,6 +40,9 @@ data Replay = NewReplay {
     replayActorMap :: ActorMap,
     replayCacheItems :: List CacheItem
 } deriving (Show)
+
+instance Aeson.ToJSON Replay where
+    toJSON _ = Aeson.object [] -- TODO
 
 instance Binary.Binary Replay where
     get = do
