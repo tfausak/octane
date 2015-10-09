@@ -1,9 +1,9 @@
-module Octane.Types.Mark where
+module Octane.Parser.Types.Mark where
 
 import qualified Data.Binary as Binary
 import Flow ((|>))
-import Octane.Types.Int32LE
-import Octane.Types.PCString
+import Octane.Parser.Types.Int32LE
+import Octane.Parser.Types.PCString
 
 data Mark = NewMark {
     markLabel :: PCString,

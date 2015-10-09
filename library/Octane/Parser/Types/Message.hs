@@ -1,9 +1,9 @@
-module Octane.Types.Message where
+module Octane.Parser.Types.Message where
 
 import qualified Data.Binary as Binary
 import Flow ((|>))
-import Octane.Types.Int32LE
-import Octane.Types.PCString
+import Octane.Parser.Types.Int32LE
+import Octane.Parser.Types.PCString
 
 data Message = NewMessage {
     messageFrame :: Int32LE,

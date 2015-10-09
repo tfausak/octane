@@ -20,25 +20,25 @@ source-repository head
 
 library
     exposed-modules:
-        Octane
-        Octane.Types
-        Octane.Types.Actor
-        Octane.Types.ActorMap
-        Octane.Types.CacheItem
-        Octane.Types.CacheProperty
-        Octane.Types.Float32LE
-        Octane.Types.Frame
-        Octane.Types.Int32LE
-        Octane.Types.Int64LE
-        Octane.Types.KeyFrame
-        Octane.Types.List
-        Octane.Types.Mark
-        Octane.Types.Message
-        Octane.Types.ObjectMap
-        Octane.Types.PCString
-        Octane.Types.Property
-        Octane.Types.Replay
-        Octane.Types.Table
+        Octane.Parser
+        Octane.Parser.Types
+        Octane.Parser.Types.Actor
+        Octane.Parser.Types.ActorMap
+        Octane.Parser.Types.CacheItem
+        Octane.Parser.Types.CacheProperty
+        Octane.Parser.Types.Float32LE
+        Octane.Parser.Types.Frame
+        Octane.Parser.Types.Int32LE
+        Octane.Parser.Types.Int64LE
+        Octane.Parser.Types.KeyFrame
+        Octane.Parser.Types.List
+        Octane.Parser.Types.Mark
+        Octane.Parser.Types.Message
+        Octane.Parser.Types.ObjectMap
+        Octane.Parser.Types.PCString
+        Octane.Parser.Types.Property
+        Octane.Parser.Types.Replay
+        Octane.Parser.Types.Table
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,
@@ -52,8 +52,8 @@ library
     hs-source-dirs: library
     ghc-options: -Wall
 
-executable octane
-    main-is: Main.hs
+executable octane-parser
+    main-is: Parser.hs
     build-depends:
         base -any,
         octane -any

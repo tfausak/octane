@@ -1,7 +1,7 @@
 {- |
     A little-endian 32-bit float.
 -}
-module Octane.Types.Float32LE where
+module Octane.Parser.Types.Float32LE where
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.IEEE754 as Binary

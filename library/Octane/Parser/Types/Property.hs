@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Octane.Types.Property where
+module Octane.Parser.Types.Property where
 
 import qualified Data.Binary as Binary
 import Flow ((|>))
-import Octane.Types.Float32LE
-import Octane.Types.Int32LE
-import Octane.Types.Int64LE
-import Octane.Types.List
-import Octane.Types.PCString
-import Octane.Types.Table
+import Octane.Parser.Types.Float32LE
+import Octane.Parser.Types.Int32LE
+import Octane.Parser.Types.Int64LE
+import Octane.Parser.Types.List
+import Octane.Parser.Types.PCString
+import Octane.Parser.Types.Table
 
 data Property
     = ArrayProperty Int64LE (List (Table Property))

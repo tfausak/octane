@@ -1,9 +1,9 @@
-module Octane.Types.Actor where
+module Octane.Parser.Types.Actor where
 
 import qualified Data.Binary as Binary
 import Flow ((|>))
-import Octane.Types.Int32LE
-import Octane.Types.PCString
+import Octane.Parser.Types.Int32LE
+import Octane.Parser.Types.PCString
 
 data Actor = NewActor {
     actorName :: PCString,

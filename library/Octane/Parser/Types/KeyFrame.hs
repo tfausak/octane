@@ -1,9 +1,9 @@
-module Octane.Types.KeyFrame where
+module Octane.Parser.Types.KeyFrame where
 
 import qualified Data.Binary as Binary
 import Flow ((|>))
-import Octane.Types.Float32LE
-import Octane.Types.Int32LE
+import Octane.Parser.Types.Float32LE
+import Octane.Parser.Types.Int32LE
 
 data KeyFrame = NewKeyFrame {
     keyFrameTime :: Float32LE,

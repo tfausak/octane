@@ -1,12 +1,12 @@
-module Octane.Types.ActorMap where
+module Octane.Parser.Types.ActorMap where
 
 import qualified Data.Binary as Binary
 import qualified Data.IntMap as IntMap
 import Flow ((|>))
-import Octane.Types.Actor
-import Octane.Types.Int32LE
-import Octane.Types.List
-import Octane.Types.PCString
+import Octane.Parser.Types.Actor
+import Octane.Parser.Types.Int32LE
+import Octane.Parser.Types.List
+import Octane.Parser.Types.PCString
 
 newtype ActorMap = NewActorMap {
     getActorMap :: IntMap.IntMap PCString

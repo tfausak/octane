@@ -1,12 +1,12 @@
 {- |
     A length-prefixed list of objects.
 -}
-module Octane.Types.List where
+module Octane.Parser.Types.List where
 
 import qualified Control.Monad as Monad
 import qualified Data.Binary as Binary
 import Flow ((|>))
-import Octane.Types.Int32LE
+import Octane.Parser.Types.Int32LE
 
 newtype List a = NewList {
     getList :: [a]

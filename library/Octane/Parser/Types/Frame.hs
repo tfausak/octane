@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-name-shadowing #-}
 
-module Octane.Types.Frame where
+module Octane.Parser.Types.Frame where
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as Binary
@@ -9,7 +9,7 @@ import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Flow ((|>))
-import Octane.Types.Float32LE
+import Octane.Parser.Types.Float32LE
 
 data Frame = NewFrame {
     frameTime :: Float32LE,

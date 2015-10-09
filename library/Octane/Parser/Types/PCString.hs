@@ -1,7 +1,7 @@
 {- |
     A length-prefixed null-terminated string.
 -}
-module Octane.Types.PCString where
+module Octane.Parser.Types.PCString where
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
@@ -12,7 +12,7 @@ import qualified Data.Char as Char
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import Flow ((|>))
-import Octane.Types.Int32LE
+import Octane.Parser.Types.Int32LE
 
 newtype PCString = NewPCString {
     getPCString :: Text.Text

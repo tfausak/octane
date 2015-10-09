@@ -1,10 +1,10 @@
-module Octane.Types.CacheItem where
+module Octane.Parser.Types.CacheItem where
 
 import qualified Data.Binary as Binary
 import Flow ((|>))
-import Octane.Types.CacheProperty
-import Octane.Types.Int32LE
-import Octane.Types.List
+import Octane.Parser.Types.CacheProperty
+import Octane.Parser.Types.Int32LE
+import Octane.Parser.Types.List
 
 data CacheItem = NewCacheItem {
     cacheItemTag :: Int32LE,
