@@ -1,5 +1,6 @@
 module Octane.Parser.Types.ActorMap where
 
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.IntMap as IntMap
 import Flow ((|>))
@@ -11,6 +12,9 @@ import Octane.Parser.Types.PCString
 newtype ActorMap = NewActorMap {
     getActorMap :: IntMap.IntMap PCString
 } deriving (Show)
+
+instance Aeson.ToJSON ActorMap where
+    toJSON (NewActorMap actorMap) = Aeson.toJSON actorMap
 
 instance Binary.Binary ActorMap where
     get = do

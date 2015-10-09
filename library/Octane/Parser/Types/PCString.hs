@@ -3,6 +3,7 @@
 -}
 module Octane.Parser.Types.PCString where
 
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
@@ -17,6 +18,9 @@ import Octane.Parser.Types.Int32LE
 newtype PCString = NewPCString {
     getPCString :: Text.Text
 } deriving (Eq, Ord, Show)
+
+instance Aeson.ToJSON PCString where
+    toJSON (NewPCString string) = Aeson.toJSON string
 
 instance Binary.Binary PCString where
     get = do

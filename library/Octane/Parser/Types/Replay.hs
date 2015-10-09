@@ -3,6 +3,7 @@
 module Octane.Parser.Types.Replay where
 
 import qualified Data.Aeson as Aeson
+import Data.Aeson ((.=))
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
@@ -42,7 +43,26 @@ data Replay = NewReplay {
 } deriving (Show)
 
 instance Aeson.ToJSON Replay where
-    toJSON _ = Aeson.object [] -- TODO
+    toJSON replay = Aeson.object [
+        "size-1" .= replaySize1 replay,
+        "crc-1" .= replayCRC1 replay,
+        "version-1" .= replayVersion1 replay,
+        "version-2" .= replayVersion2 replay,
+        "label" .= replayLabel replay,
+        "properties" .= replayProperties replay,
+        "size-2" .= replaySize2 replay,
+        "crc-2" .= replayCRC2 replay,
+        "effects" .= replayEffects replay,
+        "key-frames" .= replayKeyFrames replay,
+        -- TODO: frames,
+        "messages" .= replayMessages replay,
+        "marks" .= replayMarks replay,
+        "packages" .= replayPackages replay,
+        "objects" .= replayObjectMap replay,
+        "names" .= replayNames replay,
+        "actors" .= replayActorMap replay,
+        "cache" .= replayCacheItems replay
+        ]
 
 instance Binary.Binary Replay where
     get = do

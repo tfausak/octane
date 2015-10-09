@@ -2,6 +2,7 @@
 
 module Octane.Parser.Types.Property where
 
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Flow ((|>))
 import Octane.Parser.Types.Float32LE
@@ -18,6 +19,14 @@ data Property
     | NameProperty Int64LE PCString
     | StrProperty Int64LE PCString
     deriving (Show)
+
+instance Aeson.ToJSON Property where
+    toJSON property = case property of
+        ArrayProperty _ value -> Aeson.toJSON value
+        FloatProperty _ value -> Aeson.toJSON value
+        IntProperty _ value -> Aeson.toJSON value
+        NameProperty _ value -> Aeson.toJSON value
+        StrProperty _ value -> Aeson.toJSON value
 
 instance Binary.Binary Property where
     get = do

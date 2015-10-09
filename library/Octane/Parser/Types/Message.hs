@@ -1,5 +1,9 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Octane.Parser.Types.Message where
 
+import qualified Data.Aeson as Aeson
+import Data.Aeson ((.=))
 import qualified Data.Binary as Binary
 import Flow ((|>))
 import Octane.Parser.Types.Int32LE
@@ -10,6 +14,13 @@ data Message = NewMessage {
     messageName :: PCString,
     messageContent :: PCString
 } deriving (Show)
+
+instance Aeson.ToJSON Message where
+    toJSON message = Aeson.object [
+        "frame" .= messageFrame message,
+        "name" .= messageName message,
+        "content" .= messageContent message
+        ]
 
 instance Binary.Binary Message where
     get = do
