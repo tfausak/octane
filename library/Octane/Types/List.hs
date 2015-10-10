@@ -16,9 +16,7 @@ instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
         (NewInt32LE size) <- Binary.get
         elements <- Monad.replicateM (fromIntegral size) Binary.get
-        return NewList {
-            getList = elements
-        }
+        elements |> NewList |> return
 
     put (NewList list) = do
         list |> length |> fromIntegral |> NewInt32LE |> Binary.put

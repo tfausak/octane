@@ -29,9 +29,7 @@ instance Binary.Binary PCString where
             else do
                 bytes <- Binary.getByteString (fromIntegral size)
                 bytes |> Text.decodeLatin1 |> return
-        return NewPCString {
-            getPCString = string |> Text.dropEnd 1
-        }
+        string |> Text.dropEnd 1 |> NewPCString |> return
 
     put (NewPCString string) = do
         let cString = Text.snoc string '\NUL'

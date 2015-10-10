@@ -15,10 +15,8 @@ newtype Int32LE = NewInt32LE {
 
 instance Binary.Binary Int32LE where
     get = do
-        word32LE <- Binary.getWord32le
-        return NewInt32LE {
-            getInt32LE = fromIntegral word32LE
-        }
+        int <- Binary.getWord32le
+        int |> fromIntegral |> NewInt32LE |> return
 
-    put (NewInt32LE int32LE) = do
-        int32LE |> fromIntegral |> Binary.putWord32le
+    put (NewInt32LE int) = do
+        int |> fromIntegral |> Binary.putWord32le

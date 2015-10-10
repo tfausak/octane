@@ -19,17 +19,13 @@ instance (Binary.Binary a) => Binary.Binary (Table a) where
         row <- getRow
         if Map.null row
         then do
-            return NewTable {
-                getTable = row
-            }
+            row |> NewTable |> return
         else do
-            NewTable table <- Binary.get
-            return NewTable {
-                getTable = table |> Map.union row
-            }
+            NewTable rows <- Binary.get
+            rows |> Map.union row |> NewTable |> return
 
-    put (NewTable table) = do
-        table |> Map.assocs |> mapM_ putRow
+    put (NewTable rows) = do
+        rows |> Map.assocs |> mapM_ putRow
         "None" |> NewPCString |> Binary.put
 
 getRow :: (Binary.Binary a) => Binary.Get (Map.Map PCString a)

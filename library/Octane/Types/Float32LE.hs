@@ -13,10 +13,8 @@ newtype Float32LE = NewFloat32LE {
 
 instance Binary.Binary Float32LE where
     get = do
-        float32LE <- Binary.getFloat32le
-        return NewFloat32LE {
-            getFloat32LE = float32LE
-        }
+        float <- Binary.getFloat32le
+        float |> NewFloat32LE |> return
 
-    put (NewFloat32LE float32LE) = do
-        float32LE |> Binary.putFloat32le
+    put (NewFloat32LE float) = do
+        float |> Binary.putFloat32le

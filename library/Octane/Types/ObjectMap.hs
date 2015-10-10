@@ -13,9 +13,7 @@ newtype ObjectMap = NewObjectMap {
 instance Binary.Binary ObjectMap where
     get = do
         NewList objects <- Binary.get
-        return NewObjectMap {
-            getObjectMap = objects |> zip [0 ..] |> IntMap.fromDistinctAscList
-        }
+        objects |> zip [0 ..] |> IntMap.fromList |> NewObjectMap |> return
 
-    put (NewObjectMap objectMap) = do
-        objectMap |> IntMap.elems |> NewList |> Binary.put
+    put (NewObjectMap objects) = do
+        objects |> IntMap.elems |> NewList |> Binary.put
