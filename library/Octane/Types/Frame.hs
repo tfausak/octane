@@ -80,7 +80,9 @@ instance Binary.BinaryBit Frame where
                         -- TODO: 3 bytes for pitch, yaw, and roll?
                         error "don't know what to do with dynamic actors"
 
-    putBits _ _ = undefined -- TODO
+    -- TODO
+    putBits _ _ = do
+        error "don't know how to serialize frames"
 
 getInt10LE :: Binary.BitGet Binary.Word16
 getInt10LE = do
