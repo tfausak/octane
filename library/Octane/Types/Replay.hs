@@ -52,7 +52,7 @@ instance Binary.Binary Replay where
         crc2 <- Binary.get
         effects <- Binary.get
         keyFrames <- Binary.get
-        frames <- getFrames
+        frames <- getFrameBytes
         messages <- Binary.get
         marks <- Binary.get
         packages <- Binary.get
@@ -92,7 +92,7 @@ instance Binary.Binary Replay where
         replay |> replayCRC2 |> Binary.put
         replay |> replayEffects |> Binary.put
         replay |> replayKeyFrames |> Binary.put
-        replay |> replayFrames |> putFrames
+        replay |> replayFrames |> putFrameBytes
         replay |> replayMessages |> Binary.put
         replay |> replayMarks |> Binary.put
         replay |> replayPackages |> Binary.put
@@ -101,13 +101,13 @@ instance Binary.Binary Replay where
         replay |> replayActorMap |> Binary.put
         replay |> replayCacheItems |> Binary.put
 
-getFrames :: Binary.Get BS.ByteString
-getFrames = do
+getFrameBytes :: Binary.Get BS.ByteString
+getFrameBytes = do
     NewInt32LE size <- Binary.get
     frames <- Binary.getByteString (fromIntegral size)
     return frames
 
-putFrames :: BS.ByteString -> Binary.Put
-putFrames frames = do
+putFrameBytes :: BS.ByteString -> Binary.Put
+putFrameBytes frames = do
     frames |> BS.length |> fromIntegral |> NewInt32LE |> Binary.put
     frames |> Binary.putByteString
