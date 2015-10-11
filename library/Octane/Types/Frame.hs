@@ -82,8 +82,6 @@ instance Binary.BinaryBit Frame where
 
     putBits _ _ = undefined -- TODO
 
--- TODO: This is awful. But it's the easiest way to get a 10-bit little-endian
---   integer from a frame.
 getInt10LE :: Binary.BitGet Binary.Word16
 getInt10LE = do
     a <- Binary.getBool
@@ -96,37 +94,32 @@ getInt10LE = do
     h <- Binary.getBool
     i <- Binary.getBool
     j <- Binary.getBool
-    return $
-        (if a then flip Bits.setBit 0 else id) $
-        (if b then flip Bits.setBit 1 else id) $
-        (if c then flip Bits.setBit 2 else id) $
-        (if d then flip Bits.setBit 3 else id) $
-        (if e then flip Bits.setBit 4 else id) $
-        (if f then flip Bits.setBit 5 else id) $
-        (if g then flip Bits.setBit 6 else id) $
-        (if h then flip Bits.setBit 7 else id) $
-        (if i then flip Bits.setBit 8 else id) $
-        (if j then flip Bits.setBit 9 else id) $
-        Bits.zeroBits
+    Bits.zeroBits
+        |> (if a then setBit 0 else id)
+        |> (if b then setBit 1 else id)
+        |> (if c then setBit 2 else id)
+        |> (if d then setBit 3 else id)
+        |> (if e then setBit 4 else id)
+        |> (if f then setBit 5 else id)
+        |> (if g then setBit 6 else id)
+        |> (if h then setBit 7 else id)
+        |> (if i then setBit 8 else id)
+        |> (if j then setBit 9 else id)
+        |> return
 
--- TODO: There has got to be a better way.
 flipEndian :: BS.ByteString -> BS.ByteString
-flipEndian bytes = BS.map go bytes where
-    go byte =
-        let a = Bits.testBit byte 0
-            b = Bits.testBit byte 1
-            c = Bits.testBit byte 2
-            d = Bits.testBit byte 3
-            e = Bits.testBit byte 4
-            f = Bits.testBit byte 5
-            g = Bits.testBit byte 6
-            h = Bits.testBit byte 7
-        in  (if a then flip Bits.setBit 7 else id) $
-            (if b then flip Bits.setBit 6 else id) $
-            (if c then flip Bits.setBit 5 else id) $
-            (if d then flip Bits.setBit 4 else id) $
-            (if e then flip Bits.setBit 3 else id) $
-            (if f then flip Bits.setBit 2 else id) $
-            (if g then flip Bits.setBit 1 else id) $
-            (if h then flip Bits.setBit 0 else id) $
-            Bits.zeroBits
+flipEndian bytes = BS.map flipByte bytes
+
+flipByte :: Binary.Word8 -> Binary.Word8
+flipByte byte = Bits.zeroBits
+    |> (if Bits.testBit byte 0 then setBit 7 else id)
+    |> (if Bits.testBit byte 1 then setBit 6 else id)
+    |> (if Bits.testBit byte 2 then setBit 5 else id)
+    |> (if Bits.testBit byte 3 then setBit 4 else id)
+    |> (if Bits.testBit byte 4 then setBit 3 else id)
+    |> (if Bits.testBit byte 5 then setBit 2 else id)
+    |> (if Bits.testBit byte 6 then setBit 1 else id)
+    |> (if Bits.testBit byte 7 then setBit 0 else id)
+
+setBit :: (Bits.Bits a) => Int -> a -> a
+setBit n x = Bits.setBit x n
