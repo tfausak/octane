@@ -185,7 +185,8 @@ type Frame = (
     Maybe T.Text, -- actor
     Int, -- archetype id
     Maybe T.Text, -- archetype
-    Maybe (Float, Float, Float)) -- rotator
+    Maybe (Float, Float, Float),-- rotator
+    Maybe Int) -- position
 type Frames = [Frame]
 
 getFrames :: Replay -> Frames
@@ -224,9 +225,44 @@ bitGetFrames replay = do
                                 y <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
                                 z <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
                                 return (Just (x, y, z))
-                            else trace ("no rotator for archetype: " ++ show archetype) (return Nothing)
+                            else return Nothing
                         Nothing -> return Nothing
-                    return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotator)]
+                    position <- case maybeArchetype of
+                        Just archetype -> if hasPosition archetype
+                            then do
+                                size <- fmap fromIntegral getWord4
+                                -- let bias = (2 :: Int) ^ size
+                                -- TODO: Read x, y, and z.
+                                -- x <- fmap reverseBits $ BB.getByteString (size + 2)
+                                -- let x' = byteStringToInt x - 2
+                                trace (show size) (return (Just size))
+                            else return Nothing
+                        Nothing -> return Nothing
+                    return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotator, position)]
+
+getWord4 :: BB.BitGet Binary.Word8
+getWord4 = do
+    a <- BB.getBool
+    b <- BB.getBool
+    c <- BB.getBool
+    d <- BB.getBool
+    Bits.zeroBits
+        |> (if a then setBit 3 else id)
+        |> (if b then setBit 2 else id)
+        |> (if c then setBit 1 else id)
+        |> (if d then setBit 0 else id)
+        |> return
+
+hasPosition :: T.Text -> Bool
+hasPosition archetype =
+    let archetypes = [
+            "Archetypes.CarComponents.CarComponent_Boost",
+            "Archetypes.CarComponents.CarComponent_Dodge",
+            "Archetypes.CarComponents.CarComponent_DoubleJump",
+            "Archetypes.CarComponents.CarComponent_FlipCar",
+            "Archetypes.CarComponents.CarComponent_Jump"
+            ]
+    in  elem archetype archetypes
 
 hasRotator :: T.Text -> Bool
 hasRotator archetype =
