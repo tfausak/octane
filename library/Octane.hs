@@ -14,6 +14,7 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
 import qualified Data.Text as T
+import Debug.Trace (trace)
 import Flow ((|>))
 import qualified System.Environment as Env
 import qualified System.IO as IO
@@ -203,7 +204,7 @@ bitGetFrames replay = do
         actorID <- case Map.lookup (NewPCString "MaxChannels") (getTable (replayProperties replay)) of
             Just (IntProperty _ (NewInt32LE x)) -> fmap fromIntegral (BB.getWord64be (log_2 x)) -- TODO: little endian
             x -> error ("unexpected max channel size: " ++ show x)
-        let actor = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup actorID |> fmap getPCString
+        let maybeActor = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup actorID |> fmap getPCString
         isOpen <- BB.getBool
         if not isOpen then error "channel closed" else do
             isNew <- BB.getBool
@@ -215,15 +216,40 @@ bitGetFrames replay = do
                         8 -> fmap (fromIntegral . flipWord8) (BB.getWord8 8)
                         9 -> fmap (fromIntegral . flipWord9) (BB.getWord16be 9)
                         x -> error ("unexpected size: " ++ show x)
-                    let archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
-                    -- NOTE: Not every archetype has a rotator. Which ones
-                    --   don't?
-                    rotator <- do
-                        x <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
-                        y <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
-                        z <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
-                        return (Just (x, y, z))
-                    return [(time, delta, actorID, actor, archetypeID, archetype, rotator)]
+                    let maybeArchetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
+                    rotator <- case maybeArchetype of
+                        Just archetype -> if hasRotator archetype
+                            then do
+                                x <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
+                                y <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
+                                z <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
+                                return (Just (x, y, z))
+                            else trace ("no rotator for archetype: " ++ show archetype) (return Nothing)
+                        Nothing -> return Nothing
+                    return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotator)]
+
+hasRotator :: T.Text -> Bool
+hasRotator archetype =
+    let archetypes = [
+            "Archetypes.CarComponents.CarComponent_Boost",
+            "Archetypes.CarComponents.CarComponent_Dodge",
+            "Archetypes.CarComponents.CarComponent_DoubleJump",
+            "Archetypes.CarComponents.CarComponent_FlipCar",
+            "Archetypes.CarComponents.CarComponent_Jump",
+            "Archetypes.Teams.Team0",
+            "Archetypes.Teams.Team1",
+            "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype",
+            "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype",
+            "TAGame.Default__PRI_TA"
+            ]
+        infixes = [
+            ".TheWorld:PersistentLevel.CrowdActor_TA_",
+            ".TheWorld:PersistentLevel.VehiclePickup_Boost_TA_"
+            ]
+    in  if elem archetype archetypes
+        then True
+        else any (\ x -> T.isInfixOf x archetype) infixes
+
 
 log_2 :: (Integral a, Integral b) => a -> b
 log_2 x = ceiling (log (fromIntegral x) / log (2 :: Float))
