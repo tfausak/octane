@@ -194,7 +194,7 @@ bitGetFrames replay = do
     hasActor <- BB.getBool
     if not hasActor then error "no actors" else do
         actorID <- case Map.lookup (NewPCString "MaxChannels") (getTable (replayProperties replay)) of
-            Just (IntProperty _ (NewInt32LE x)) -> fmap fromIntegral (BB.getWord64be (ceiling (log (fromIntegral x) / log (2 :: Float))))
+            Just (IntProperty _ (NewInt32LE x)) -> fmap fromIntegral (BB.getWord64be (ceiling (log (fromIntegral x) / log (2 :: Float)))) -- TODO: little endian
             x -> error ("unexpected max channel size: " ++ show x)
         let actor = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup actorID |> fmap getPCString
         isOpen <- BB.getBool
@@ -206,7 +206,7 @@ bitGetFrames replay = do
                     -- NOTE: This may not always be 8 bits. It may be the
                     --   log base 2 of the objects table, which ranges from
                     --   about 220 elements to 280.
-                    archetypeID <- fmap fromIntegral (BB.getWord8 8)
+                    archetypeID <- fmap (fromIntegral . flipByte) (BB.getWord8 8)
                     let archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
                     return [(time, delta, actorID, actor, archetypeID, archetype)]
 
