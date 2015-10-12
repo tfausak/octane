@@ -177,7 +177,14 @@ debugProperty property = case property of
 
 -- Frames
 
-type Frame = (Float, Float, Int, Maybe T.Text, Int, Maybe T.Text)
+type Frame = (
+    Float, -- time
+    Float, -- delta
+    Int, -- actor id
+    Maybe T.Text, -- actor
+    Int, -- archetype id
+    Maybe T.Text, -- archetype
+    Maybe (Float, Float, Float)) -- rotator
 type Frames = [Frame]
 
 getFrames :: Replay -> Frames
@@ -209,7 +216,14 @@ bitGetFrames replay = do
                         9 -> fmap (fromIntegral . flipWord9) (BB.getWord16be 9)
                         x -> error ("unexpected size: " ++ show x)
                     let archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
-                    return [(time, delta, actorID, actor, archetypeID, archetype)]
+                    -- NOTE: Not every archetype has a rotator. Which ones
+                    --   don't?
+                    rotator <- do
+                        x <- fmap ((/ 128) . fromIntegral . flipByte) (BB.getWord8 8)
+                        y <- fmap ((/ 128) . fromIntegral . flipByte) (BB.getWord8 8)
+                        z <- fmap ((/ 128) . fromIntegral . flipByte) (BB.getWord8 8)
+                        return (Just (x, y, z))
+                    return [(time, delta, actorID, actor, archetypeID, archetype, rotator)]
 
 log_2 :: (Integral a, Integral b) => a -> b
 log_2 x = ceiling (log (fromIntegral x) / log (2 :: Float))
