@@ -177,7 +177,7 @@ debugProperty property = case property of
 
 -- Frames
 
-type Frame = (Float, Float, Int, Int, Maybe T.Text)
+type Frame = (Float, Float, Int, Maybe T.Text, Int, Maybe T.Text)
 type Frames = [Frame]
 
 getFrames :: Replay -> Frames
@@ -196,6 +196,7 @@ bitGetFrames replay = do
         actorID <- case Map.lookup (NewPCString "MaxChannels") (getTable (replayProperties replay)) of
             Just (IntProperty _ (NewInt32LE x)) -> fmap fromIntegral (BB.getWord64be (ceiling (log (fromIntegral x) / log (2 :: Float))))
             x -> error ("unexpected max channel size: " ++ show x)
+        let actor = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup actorID |> fmap getPCString
         isOpen <- BB.getBool
         if not isOpen then error "channel closed" else do
             isNew <- BB.getBool
@@ -207,7 +208,7 @@ bitGetFrames replay = do
                     --   about 220 elements to 280.
                     archetypeID <- fmap fromIntegral (BB.getWord8 8)
                     let archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
-                    return [(time, delta, actorID, archetypeID, archetype)]
+                    return [(time, delta, actorID, actor, archetypeID, archetype)]
 
 flipEndian :: BS.ByteString -> BS.ByteString
 flipEndian bytes = BS.map flipByte bytes
