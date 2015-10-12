@@ -193,9 +193,9 @@ bitGetFrames replay = do
     let delta = deltaBytes |> flipEndian |> BSL.fromStrict |> Binary.decode |> getFloat32LE
     hasActor <- BB.getBool
     if not hasActor then error "no actors" else do
-        -- NOTE: This may not always be 10 bits. It's really the log base 2
-        --   of the "MaxChannels" property, which is almost always 1,023.
-        actorID <- fmap fromIntegral getInt10LE
+        actorID <- case Map.lookup (NewPCString "MaxChannels") (getTable (replayProperties replay)) of
+            Just (IntProperty _ (NewInt32LE x)) -> fmap fromIntegral (BB.getWord64be (ceiling (log (fromIntegral x) / log (2 :: Float))))
+            x -> error ("unexpected max channel size: " ++ show x)
         isOpen <- BB.getBool
         if not isOpen then error "channel closed" else do
             isNew <- BB.getBool
@@ -208,9 +208,6 @@ bitGetFrames replay = do
                     archetypeID <- fmap fromIntegral (BB.getWord8 8)
                     let archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
                     return [(time, delta, actorID, archetypeID, archetype)]
-
-getInt10LE :: BB.BitGet Binary.Word16
-getInt10LE = BB.getWord16be 10
 
 flipEndian :: BS.ByteString -> BS.ByteString
 flipEndian bytes = BS.map flipByte bytes
