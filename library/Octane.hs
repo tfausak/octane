@@ -186,6 +186,8 @@ getFrames replay = Binary.runGet
         let delta = deltaBytes |> flipEndian |> BSL.fromStrict |> Binary.decode |> getFloat32LE
         hasActor <- BB.getBool
         if not hasActor then error "no actors" else do
+            -- NOTE: This may not always be 10 bits. It's really the log base 2
+            --   of the "MaxChannels" property, which is almost always 1,023.
             actorID <- fmap fromIntegral getInt10LE
             isOpen <- BB.getBool
             if not isOpen then error "channel closed" else do
@@ -193,9 +195,12 @@ getFrames replay = Binary.runGet
                 if not isNew then error "existing actor" else do
                     isStatic <- BB.getBool
                     if isStatic then error "static actor" else do
-                        objectID <- fmap fromIntegral (BB.getWord8 8)
-                        let Just object = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup objectID |> fmap getPCString
-                        case object of
+                        -- NOTE: This may not always be 8 bits. It may be the
+                        --   log base 2 of the objects table, which ranges from
+                        --   about 220 elements to 280.
+                        archetypeID <- fmap fromIntegral (BB.getWord8 8)
+                        let Just archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
+                        case archetype of
                             "Archetypes.CarComponents.CarComponent_Boost" -> return ()
                             "Engine.Actor:bHardAttach" -> return ()
                             "Engine.GameReplicationInfo:bMatchHasBegun" -> return ()
@@ -279,8 +284,8 @@ getFrames replay = Binary.runGet
                             "TAGame.VehiclePickup_Boost_TA" -> return ()
                             "TAGame.VehiclePickup_TA" -> return ()
                             "trainstation_p.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_0" -> return ()
-                            _ -> error ("unknown object: " ++ show object)
-                        return [(time, delta, actorID, objectID, object)]))
+                            _ -> error ("unknown archetype: " ++ show archetype)
+                        return [(time, delta, actorID, archetypeID, archetype)]))
     (replay |> replayFrames |> flipEndian |> BSL.fromStrict)
 
 getInt10LE :: BB.BitGet Binary.Word16
