@@ -289,29 +289,7 @@ getFrames replay = Binary.runGet
     (replay |> replayFrames |> flipEndian |> BSL.fromStrict)
 
 getInt10LE :: BB.BitGet Binary.Word16
-getInt10LE = do
-    a <- BB.getBool
-    b <- BB.getBool
-    c <- BB.getBool
-    d <- BB.getBool
-    e <- BB.getBool
-    f <- BB.getBool
-    g <- BB.getBool
-    h <- BB.getBool
-    i <- BB.getBool
-    j <- BB.getBool
-    Bits.zeroBits
-        |> (if a then setBit 0 else id)
-        |> (if b then setBit 1 else id)
-        |> (if c then setBit 2 else id)
-        |> (if d then setBit 3 else id)
-        |> (if e then setBit 4 else id)
-        |> (if f then setBit 5 else id)
-        |> (if g then setBit 6 else id)
-        |> (if h then setBit 7 else id)
-        |> (if i then setBit 8 else id)
-        |> (if j then setBit 9 else id)
-        |> return
+getInt10LE = BB.getWord16be 10
 
 flipEndian :: BS.ByteString -> BS.ByteString
 flipEndian bytes = BS.map flipByte bytes
