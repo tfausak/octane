@@ -212,16 +212,16 @@ bitGetFrames replay = do
                 if isStatic then error "static actor" else do
                     -- TODO: Is this right? Maybe they're always 8 bits.
                     archetypeID <- case replay |> replayObjectMap |> getObjectMap |> IntMap.size |> log_2 |> (\ x -> x :: Int) of
-                        8 -> fmap (fromIntegral . flipByte) (BB.getWord8 8)
+                        8 -> fmap (fromIntegral . flipWord8) (BB.getWord8 8)
                         9 -> fmap (fromIntegral . flipWord9) (BB.getWord16be 9)
                         x -> error ("unexpected size: " ++ show x)
                     let archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
                     -- NOTE: Not every archetype has a rotator. Which ones
                     --   don't?
                     rotator <- do
-                        x <- fmap ((/ 128) . fromIntegral . flipByte) (BB.getWord8 8)
-                        y <- fmap ((/ 128) . fromIntegral . flipByte) (BB.getWord8 8)
-                        z <- fmap ((/ 128) . fromIntegral . flipByte) (BB.getWord8 8)
+                        x <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
+                        y <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
+                        z <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
                         return (Just (x, y, z))
                     return [(time, delta, actorID, actor, archetypeID, archetype, rotator)]
 
@@ -229,7 +229,7 @@ log_2 :: (Integral a, Integral b) => a -> b
 log_2 x = ceiling (log (fromIntegral x) / log (2 :: Float))
 
 flipEndian :: BS.ByteString -> BS.ByteString
-flipEndian bytes = BS.map flipByte bytes
+flipEndian bytes = BS.map flipWord8 bytes
 
 flipWord9 :: Binary.Word16 -> Binary.Word16
 flipWord9 x = Bits.zeroBits
@@ -243,8 +243,8 @@ flipWord9 x = Bits.zeroBits
     |> (if Bits.testBit x 7 then setBit 1 else id)
     |> (if Bits.testBit x 8 then setBit 0 else id)
 
-flipByte :: Binary.Word8 -> Binary.Word8
-flipByte byte = Bits.zeroBits
+flipWord8 :: Binary.Word8 -> Binary.Word8
+flipWord8 byte = Bits.zeroBits
     |> (if Bits.testBit byte 0 then setBit 7 else id)
     |> (if Bits.testBit byte 1 then setBit 6 else id)
     |> (if Bits.testBit byte 2 then setBit 5 else id)
