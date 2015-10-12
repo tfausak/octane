@@ -203,10 +203,11 @@ bitGetFrames replay = do
             if not isNew then error "existing actor" else do
                 isStatic <- BB.getBool
                 if isStatic then error "static actor" else do
-                    -- NOTE: This may not always be 8 bits. It may be the
-                    --   log base 2 of the objects table, which ranges from
-                    --   about 220 elements to 280.
-                    archetypeID <- fmap (fromIntegral . flipByte) (BB.getWord8 8)
+                    -- TODO: Is this right? Maybe they're always 8 bits.
+                    archetypeID <- case replay |> replayObjectMap |> getObjectMap |> IntMap.size |> log_2 |> (\ x -> x :: Int) of
+                        8 -> fmap (fromIntegral . flipByte) (BB.getWord8 8)
+                        9 -> fmap (fromIntegral . flipWord9) (BB.getWord16be 9)
+                        x -> error ("unexpected size: " ++ show x)
                     let archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
                     return [(time, delta, actorID, actor, archetypeID, archetype)]
 
@@ -215,6 +216,18 @@ log_2 x = ceiling (log (fromIntegral x) / log (2 :: Float))
 
 flipEndian :: BS.ByteString -> BS.ByteString
 flipEndian bytes = BS.map flipByte bytes
+
+flipWord9 :: Binary.Word16 -> Binary.Word16
+flipWord9 x = Bits.zeroBits
+    |> (if Bits.testBit x 0 then setBit 8 else id)
+    |> (if Bits.testBit x 1 then setBit 7 else id)
+    |> (if Bits.testBit x 2 then setBit 6 else id)
+    |> (if Bits.testBit x 3 then setBit 5 else id)
+    |> (if Bits.testBit x 4 then setBit 4 else id)
+    |> (if Bits.testBit x 5 then setBit 3 else id)
+    |> (if Bits.testBit x 6 then setBit 2 else id)
+    |> (if Bits.testBit x 7 then setBit 1 else id)
+    |> (if Bits.testBit x 8 then setBit 0 else id)
 
 flipByte :: Binary.Word8 -> Binary.Word8
 flipByte byte = Bits.zeroBits
