@@ -177,116 +177,37 @@ debugProperty property = case property of
 
 -- Frames
 
-getFrames :: Replay -> [(Float, Float, Int, Int, T.Text)]
+type Frame = (Float, Float, Int, Int, Maybe T.Text)
+type Frames = [Frame]
+
+getFrames :: Replay -> Frames
 getFrames replay = Binary.runGet
-    (BB.runBitGet (do
-        timeBytes <- BB.getByteString 4
-        let time = timeBytes |> flipEndian |> BSL.fromStrict |> Binary.decode |> getFloat32LE
-        deltaBytes <- BB.getByteString 4
-        let delta = deltaBytes |> flipEndian |> BSL.fromStrict |> Binary.decode |> getFloat32LE
-        hasActor <- BB.getBool
-        if not hasActor then error "no actors" else do
-            -- NOTE: This may not always be 10 bits. It's really the log base 2
-            --   of the "MaxChannels" property, which is almost always 1,023.
-            actorID <- fmap fromIntegral getInt10LE
-            isOpen <- BB.getBool
-            if not isOpen then error "channel closed" else do
-                isNew <- BB.getBool
-                if not isNew then error "existing actor" else do
-                    isStatic <- BB.getBool
-                    if isStatic then error "static actor" else do
-                        -- NOTE: This may not always be 8 bits. It may be the
-                        --   log base 2 of the objects table, which ranges from
-                        --   about 220 elements to 280.
-                        archetypeID <- fmap fromIntegral (BB.getWord8 8)
-                        let Just archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
-                        case archetype of
-                            "Archetypes.CarComponents.CarComponent_Boost" -> return ()
-                            "Engine.Actor:bHardAttach" -> return ()
-                            "Engine.GameReplicationInfo:bMatchHasBegun" -> return ()
-                            "Engine.GameReplicationInfo:GameClass" -> return ()
-                            "Engine.GameReplicationInfo:GoalScore" -> return ()
-                            "Engine.GameReplicationInfo:Winner" -> return ()
-                            "Engine.Info" -> return ()
-                            "Engine.Pawn:bCanSwatTurn" -> return ()
-                            "Engine.Pawn:bUsedByMatinee" -> return ()
-                            "Engine.PlayerReplicationInfo:bIsInactive" -> return ()
-                            "Engine.PlayerReplicationInfo:bIsSpectator" -> return ()
-                            "Engine.PlayerReplicationInfo:bOnlySpectator" -> return ()
-                            "Engine.PlayerReplicationInfo:bOutOfLives" -> return ()
-                            "Engine.PlayerReplicationInfo:bReadyToPlay" -> return ()
-                            "Engine.PlayerReplicationInfo:bWaitingPlayer" -> return ()
-                            "Engine.PlayerReplicationInfo:Deaths" -> return ()
-                            "Engine.PlayerReplicationInfo:Ping" -> return ()
-                            "Engine.PlayerReplicationInfo:PlayerID" -> return ()
-                            "Engine.PlayerReplicationInfo:PlayerName" -> return ()
-                            "Engine.PlayerReplicationInfo:Team" -> return ()
-                            "Engine.PlayerReplicationInfo" -> return ()
-                            "Engine.TeamInfo:TeamIndex" -> return ()
-                            "Engine.TeamInfo" -> return ()
-                            "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype" -> return ()
-                            "ProjectX.GRI_X:Reservations" -> return ()
-                            "ProjectX.Pawn_X" -> return ()
-                            "ProjectX.PRI_X" -> return ()
-                            "TAGame.Ball_TA:bEndOfGameHidden" -> return ()
-                            "TAGame.Ball_TA:GameEvent" -> return ()
-                            "TAGame.Ball_TA:HitTeamNum" -> return ()
-                            "TAGame.Ball_TA:ReplicatedExplosionData" -> return ()
-                            "TAGame.Car_TA:TeamPaint" -> return ()
-                            "TAGame.CarComponent_Boost_TA:bNoBoost" -> return ()
-                            "TAGame.CarComponent_Boost_TA:BoostModifier" -> return ()
-                            "TAGame.CarComponent_Boost_TA:bUnlimitedBoost" -> return ()
-                            "TAGame.CarComponent_Boost_TA:ClientFixBoostAmount" -> return ()
-                            "TAGame.CarComponent_Boost_TA:ClientGiveBoost" -> return ()
-                            "TAGame.CarComponent_Boost_TA:CurrentBoostAmount" -> return ()
-                            "TAGame.CarComponent_Boost_TA:ServerConfirmBoostAmount" -> return ()
-                            "TAGame.CarComponent_Boost_TA" -> return ()
-                            "TAGame.CarComponent_Dodge_TA:DodgeTorque" -> return ()
-                            "TAGame.CarComponent_FlipCar_TA:FlipCarTime" -> return ()
-                            "TAGame.CarComponent_Jump_TA" -> return ()
-                            "TAGame.CrowdActor_TA:GameEvent" -> return ()
-                            "TAGame.CrowdActor_TA:ModifiedNoise" -> return ()
-                            "TAGame.CrowdManager_TA:GameEvent" -> return ()
-                            "TAGame.GameEvent_TA" -> return ()
-                            "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam" -> return ()
-                            "TAGame.PRI_TA:bBusy" -> return ()
-                            "TAGame.PRI_TA:bIsInSplitScreen" -> return ()
-                            "TAGame.PRI_TA:bReady" -> return ()
-                            "TAGame.PRI_TA:bUsingFreecam" -> return ()
-                            "TAGame.PRI_TA:bUsingSecondaryCamera" -> return ()
-                            "TAGame.PRI_TA:CameraPitch" -> return ()
-                            "TAGame.PRI_TA:CameraSettings" -> return ()
-                            "TAGame.PRI_TA:CameraYaw" -> return ()
-                            "TAGame.PRI_TA:ClientLoadout" -> return ()
-                            "TAGame.PRI_TA:MatchAssists" -> return ()
-                            "TAGame.PRI_TA:MatchSaves" -> return ()
-                            "TAGame.PRI_TA:MatchShots" -> return ()
-                            "TAGame.PRI_TA:PartyLeader" -> return ()
-                            "TAGame.PRI_TA:ReplicatedGameEvent" -> return ()
-                            "TAGame.PRI_TA:RespawnTimeRemaining" -> return ()
-                            "TAGame.PRI_TA:ServerChangeTeam" -> return ()
-                            "TAGame.PRI_TA:ServerSetCameraRotation" -> return ()
-                            "TAGame.PRI_TA:ServerSetCameraSettings" -> return ()
-                            "TAGame.PRI_TA:ServerSetTotalXP" -> return ()
-                            "TAGame.PRI_TA:ServerSetUsingBehindView" -> return ()
-                            "TAGame.PRI_TA:ServerSetUsingFreecam" -> return ()
-                            "TAGame.PRI_TA:ServerSetUsingSecondaryCamera" -> return ()
-                            "TAGame.PRI_TA:ServerSpectate" -> return ()
-                            "TAGame.PRI_TA:ServerVoteToForfeit" -> return ()
-                            "TAGame.PRI_TA:TotalXP" -> return ()
-                            "TAGame.PRI_TA" -> return ()
-                            "TAGame.Team_Soccar_TA" -> return ()
-                            "TAGame.Team_TA:CustomTeamName" -> return ()
-                            "TAGame.Team_TA" -> return ()
-                            "TAGame.Vehicle_TA:bReplicatedHandbrake" -> return ()
-                            "TAGame.Vehicle_TA:ReplicatedSteer" -> return ()
-                            "TAGame.Vehicle_TA:ReplicatedThrottle" -> return ()
-                            "TAGame.VehiclePickup_Boost_TA" -> return ()
-                            "TAGame.VehiclePickup_TA" -> return ()
-                            "trainstation_p.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_0" -> return ()
-                            _ -> error ("unknown archetype: " ++ show archetype)
-                        return [(time, delta, actorID, archetypeID, archetype)]))
+    (BB.runBitGet (bitGetFrames replay))
     (replay |> replayFrames |> flipEndian |> BSL.fromStrict)
+
+bitGetFrames :: Replay -> BB.BitGet Frames
+bitGetFrames replay = do
+    timeBytes <- BB.getByteString 4
+    let time = timeBytes |> flipEndian |> BSL.fromStrict |> Binary.decode |> getFloat32LE
+    deltaBytes <- BB.getByteString 4
+    let delta = deltaBytes |> flipEndian |> BSL.fromStrict |> Binary.decode |> getFloat32LE
+    hasActor <- BB.getBool
+    if not hasActor then error "no actors" else do
+        -- NOTE: This may not always be 10 bits. It's really the log base 2
+        --   of the "MaxChannels" property, which is almost always 1,023.
+        actorID <- fmap fromIntegral getInt10LE
+        isOpen <- BB.getBool
+        if not isOpen then error "channel closed" else do
+            isNew <- BB.getBool
+            if not isNew then error "existing actor" else do
+                isStatic <- BB.getBool
+                if isStatic then error "static actor" else do
+                    -- NOTE: This may not always be 8 bits. It may be the
+                    --   log base 2 of the objects table, which ranges from
+                    --   about 220 elements to 280.
+                    archetypeID <- fmap fromIntegral (BB.getWord8 8)
+                    let archetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
+                    return [(time, delta, actorID, archetypeID, archetype)]
 
 getInt10LE :: BB.BitGet Binary.Word16
 getInt10LE = BB.getWord16be 10
