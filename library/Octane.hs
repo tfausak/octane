@@ -203,7 +203,7 @@ bitGetFrames replay = do
     hasActor <- BB.getBool
     if not hasActor then error "no actors" else do
         actorID <- case Map.lookup (NewPCString "MaxChannels") (getTable (replayProperties replay)) of
-            Just (IntProperty _ (NewInt32LE x)) -> fmap fromIntegral (BB.getWord64be (log_2 x)) -- TODO: little endian
+            Just (IntProperty _ (NewInt32LE x)) -> getInt (log_2 x)
             x -> error ("unexpected max channel size: " ++ show x)
         let maybeActor = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup actorID |> fmap getPCString
         isOpen <- BB.getBool
@@ -213,15 +213,12 @@ bitGetFrames replay = do
                 isStatic <- BB.getBool
                 if isStatic then error "static actor" else do
                     -- TODO: Is this right? Maybe they're always 8 bits.
-                    archetypeID <- case replay |> replayObjectMap |> getObjectMap |> IntMap.size |> log_2 |> (\ x -> x :: Int) of
-                        8 -> fmap (fromIntegral . flipWord8) (BB.getWord8 8)
-                        9 -> fmap (fromIntegral . flipWord9) (BB.getWord16be 9)
-                        x -> error ("unexpected size: " ++ show x)
+                    archetypeID <- replay |> replayObjectMap |> getObjectMap |> IntMap.size |> log_2 |> getInt
                     let maybeArchetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
                     rotation <- case maybeArchetype of
                         Just archetype -> if hasRotation archetype
                             then do
-                                let getRotation = fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
+                                let getRotation = fmap ((/ 128) . fromIntegral) (getInt 8)
                                 x <- getRotation
                                 y <- getRotation
                                 z <- getRotation
@@ -244,7 +241,7 @@ bitGetFrames replay = do
                     orientation <- case maybeArchetype of
                         Just archetype -> if hasOrientation archetype
                             then do
-                                let getOrientation p = if p then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
+                                let getOrientation p = if p then fmap (Just . fromIntegral) (getInt 8) else return Nothing
                                 hasPitch <- BB.getBool
                                 pitch <- getOrientation hasPitch
                                 hasYaw <- BB.getBool
@@ -266,19 +263,6 @@ getInt x = do
         |> foldl
             (\ int (position, bit) -> if bit then setBit position int else int)
             Bits.zeroBits
-        |> return
-
-getWord4 :: BB.BitGet Binary.Word8
-getWord4 = do
-    a <- BB.getBool
-    b <- BB.getBool
-    c <- BB.getBool
-    d <- BB.getBool
-    Bits.zeroBits
-        |> (if a then setBit 3 else id)
-        |> (if b then setBit 2 else id)
-        |> (if c then setBit 1 else id)
-        |> (if d then setBit 0 else id)
         |> return
 
 hasOrientation :: T.Text -> Bool
@@ -324,35 +308,21 @@ hasRotation archetype =
         then True
         else any (\ x -> T.isInfixOf x archetype) infixes
 
-
 log_2 :: (Integral a, Integral b) => a -> b
 log_2 x = ceiling (log (fromIntegral x) / log (2 :: Float))
 
 flipEndian :: BS.ByteString -> BS.ByteString
-flipEndian bytes = BS.map flipWord8 bytes
-
-flipWord9 :: Binary.Word16 -> Binary.Word16
-flipWord9 x = Bits.zeroBits
-    |> (if Bits.testBit x 0 then setBit 8 else id)
-    |> (if Bits.testBit x 1 then setBit 7 else id)
-    |> (if Bits.testBit x 2 then setBit 6 else id)
-    |> (if Bits.testBit x 3 then setBit 5 else id)
-    |> (if Bits.testBit x 4 then setBit 4 else id)
-    |> (if Bits.testBit x 5 then setBit 3 else id)
-    |> (if Bits.testBit x 6 then setBit 2 else id)
-    |> (if Bits.testBit x 7 then setBit 1 else id)
-    |> (if Bits.testBit x 8 then setBit 0 else id)
-
-flipWord8 :: Binary.Word8 -> Binary.Word8
-flipWord8 byte = Bits.zeroBits
-    |> (if Bits.testBit byte 0 then setBit 7 else id)
-    |> (if Bits.testBit byte 1 then setBit 6 else id)
-    |> (if Bits.testBit byte 2 then setBit 5 else id)
-    |> (if Bits.testBit byte 3 then setBit 4 else id)
-    |> (if Bits.testBit byte 4 then setBit 3 else id)
-    |> (if Bits.testBit byte 5 then setBit 2 else id)
-    |> (if Bits.testBit byte 6 then setBit 1 else id)
-    |> (if Bits.testBit byte 7 then setBit 0 else id)
+flipEndian bytes =
+    let flipByte byte = Bits.zeroBits
+            |> (if Bits.testBit byte 0 then setBit 7 else id)
+            |> (if Bits.testBit byte 1 then setBit 6 else id)
+            |> (if Bits.testBit byte 2 then setBit 5 else id)
+            |> (if Bits.testBit byte 3 then setBit 4 else id)
+            |> (if Bits.testBit byte 4 then setBit 3 else id)
+            |> (if Bits.testBit byte 5 then setBit 2 else id)
+            |> (if Bits.testBit byte 6 then setBit 1 else id)
+            |> (if Bits.testBit byte 7 then setBit 0 else id)
+    in  BS.map flipByte bytes
 
 setBit :: (Bits.Bits a) => Int -> a -> a
 setBit n x = Bits.setBit x n
