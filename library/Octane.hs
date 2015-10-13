@@ -184,9 +184,9 @@ type Frame = (
     Maybe T.Text, -- actor
     Int, -- archetype id
     Maybe T.Text, -- archetype
-    Maybe (Float, Float, Float),-- rotator
+    Maybe (Float, Float, Float),-- rotation
     Maybe (Int, Int, Int, Int), -- position
-    (Maybe Int, Maybe Int, Maybe Int)) -- orientation
+    (Maybe (Maybe Int, Maybe Int, Maybe Int))) -- orientation
 type Frames = [Frame]
 
 getFrames :: Replay -> Frames
@@ -218,12 +218,13 @@ bitGetFrames replay = do
                         9 -> fmap (fromIntegral . flipWord9) (BB.getWord16be 9)
                         x -> error ("unexpected size: " ++ show x)
                     let maybeArchetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
-                    rotator <- case maybeArchetype of
-                        Just archetype -> if hasRotator archetype
+                    rotation <- case maybeArchetype of
+                        Just archetype -> if hasRotation archetype
                             then do
-                                x <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
-                                y <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
-                                z <- fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
+                                let getRotation = fmap ((/ 128) . fromIntegral . flipWord8) (BB.getWord8 8)
+                                x <- getRotation
+                                y <- getRotation
+                                z <- getRotation
                                 return (Just (x, y, z))
                             else return Nothing
                         Nothing -> return Nothing
@@ -233,25 +234,27 @@ bitGetFrames replay = do
                                 -- TODO: Is this right?
                                 size <- getInt 4
                                 let bias = (2 :: Int) ^ (size + 1)
-                                x <- fmap (subtract bias) (getInt (size + 2))
-                                y <- fmap (subtract bias) (getInt (size + 2))
-                                z <- fmap (subtract bias) (getInt (size + 2))
+                                let getPosition = fmap (subtract bias) (getInt (size + 2))
+                                x <- getPosition
+                                y <- getPosition
+                                z <- getPosition
                                 return (Just (size, x, y, z))
                             else return Nothing
                         Nothing -> return Nothing
                     orientation <- case maybeArchetype of
                         Just archetype -> if hasOrientation archetype
                             then do
+                                let getOrientation p = if p then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
                                 hasPitch <- BB.getBool
-                                pitch <- if hasPitch then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
+                                pitch <- getOrientation hasPitch
                                 hasYaw <- BB.getBool
-                                yaw <- if hasYaw then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
+                                yaw <- getOrientation hasYaw
                                 hasRoll <- BB.getBool
-                                roll <- if hasRoll then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
-                                return (pitch, yaw, roll)
-                            else return (Nothing, Nothing, Nothing)
-                        Nothing -> return (Nothing, Nothing, Nothing)
-                    return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotator, position, orientation)]
+                                roll <- getOrientation hasRoll
+                                return (Just (pitch, yaw, roll))
+                            else return Nothing
+                        Nothing -> return Nothing
+                    return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotation, position, orientation)]
 
 -- Read an arbitrary number of bits as a little-endian integer.
 getInt :: Int -> BB.BitGet Int
@@ -299,8 +302,8 @@ hasPosition archetype =
             ]
     in  elem archetype archetypes
 
-hasRotator :: T.Text -> Bool
-hasRotator archetype =
+hasRotation :: T.Text -> Bool
+hasRotation archetype =
     let archetypes = [
             "Archetypes.CarComponents.CarComponent_Boost",
             "Archetypes.CarComponents.CarComponent_Dodge",
