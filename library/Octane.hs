@@ -186,7 +186,8 @@ type Frame = (
     Int, -- archetype id
     Maybe T.Text, -- archetype
     Maybe (Float, Float, Float),-- rotator
-    Maybe (Int, Int, Int, Int)) -- position
+    Maybe (Int, Int, Int, Int), -- position
+    (Maybe Int, Maybe Int, Maybe Int)) -- orientation
 type Frames = [Frame]
 
 getFrames :: Replay -> Frames
@@ -236,10 +237,22 @@ bitGetFrames replay = do
                                 x <- fmap (subtract bias) (getInt (size + 2))
                                 y <- fmap (subtract bias) (getInt (size + 2))
                                 z <- fmap (subtract bias) (getInt (size + 2))
-                                trace (show (size, x, y, z)) (return (Just (size, x, y, z)))
+                                return (Just (size, x, y, z))
                             else return Nothing
                         Nothing -> return Nothing
-                    return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotator, position)]
+                    orientation <- case maybeArchetype of
+                        Just archetype -> if hasOrientation archetype
+                            then do
+                                hasPitch <- BB.getBool
+                                pitch <- if hasPitch then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
+                                hasYaw <- BB.getBool
+                                yaw <- if hasYaw then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
+                                hasRoll <- BB.getBool
+                                roll <- if hasRoll then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
+                                trace (show (pitch, yaw, roll)) (return (pitch, yaw, roll))
+                            else return (Nothing, Nothing, Nothing)
+                        Nothing -> return (Nothing, Nothing, Nothing)
+                    return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotator, position, orientation)]
 
 -- Read an arbitrary number of bits as a little-endian integer.
 getInt :: Int -> BB.BitGet Int
@@ -266,9 +279,19 @@ getWord4 = do
         |> (if d then setBit 0 else id)
         |> return
 
+hasOrientation :: T.Text -> Bool
+hasOrientation archetype =
+    let archetypes = [
+            "Archetypes.Ball.Ball_Default",
+            "Archetypes.Car.Car_Default"
+            ]
+    in  elem archetype archetypes
+
 hasPosition :: T.Text -> Bool
 hasPosition archetype =
     let archetypes = [
+            "Archetypes.Ball.Ball_Default",
+            "Archetypes.Car.Car_Default",
             "Archetypes.CarComponents.CarComponent_Boost",
             "Archetypes.CarComponents.CarComponent_Dodge",
             "Archetypes.CarComponents.CarComponent_DoubleJump",
