@@ -14,7 +14,6 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
 import qualified Data.Text as T
-import Debug.Trace (trace)
 import Flow ((|>))
 import qualified System.Environment as Env
 import qualified System.IO as IO
@@ -249,7 +248,7 @@ bitGetFrames replay = do
                                 yaw <- if hasYaw then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
                                 hasRoll <- BB.getBool
                                 roll <- if hasRoll then fmap (Just . fromIntegral . flipWord8) (BB.getWord8 8) else return Nothing
-                                trace (show (pitch, yaw, roll)) (return (pitch, yaw, roll))
+                                return (pitch, yaw, roll)
                             else return (Nothing, Nothing, Nothing)
                         Nothing -> return (Nothing, Nothing, Nothing)
                     return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotator, position, orientation)]
