@@ -186,7 +186,7 @@ type Frame = (
     Int, -- archetype id
     Maybe T.Text, -- archetype
     Maybe (Float, Float, Float),-- rotator
-    Maybe Int) -- position
+    Maybe (Int, Int, Int, Int)) -- position
 type Frames = [Frame]
 
 getFrames :: Replay -> Frames
@@ -230,15 +230,28 @@ bitGetFrames replay = do
                     position <- case maybeArchetype of
                         Just archetype -> if hasPosition archetype
                             then do
-                                size <- fmap fromIntegral getWord4
-                                -- let bias = (2 :: Int) ^ size
-                                -- TODO: Read x, y, and z.
-                                -- x <- fmap reverseBits $ BB.getByteString (size + 2)
-                                -- let x' = byteStringToInt x - 2
-                                trace (show size) (return (Just size))
+                                -- TODO: Is this right?
+                                size <- getInt 4
+                                let bias = (2 :: Int) ^ (size + 1)
+                                x <- fmap (subtract bias) (getInt (size + 2))
+                                y <- fmap (subtract bias) (getInt (size + 2))
+                                z <- fmap (subtract bias) (getInt (size + 2))
+                                trace (show (size, x, y, z)) (return (Just (size, x, y, z)))
                             else return Nothing
                         Nothing -> return Nothing
                     return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotator, position)]
+
+-- Read an arbitrary number of bits as a little-endian integer.
+getInt :: Int -> BB.BitGet Int
+getInt x = do
+    let positions = [x - 1, x - 2 .. 0]
+    bits <- mapM (const BB.getBool) positions
+    bits
+        |> zip positions
+        |> foldl
+            (\ int (position, bit) -> if bit then setBit position int else int)
+            Bits.zeroBits
+        |> return
 
 getWord4 :: BB.BitGet Binary.Word8
 getWord4 = do
