@@ -18,6 +18,7 @@ data Property
     | FloatProperty Int64LE Float32LE
     | IntProperty Int64LE Int32LE
     | NameProperty Int64LE PCString
+    | QWordProperty Int64LE Int64LE
     | StrProperty Int64LE PCString
     deriving (Show)
 
@@ -28,6 +29,7 @@ instance Aeson.ToJSON Property where
         FloatProperty _ value -> Aeson.toJSON value
         IntProperty _ value -> Aeson.toJSON value
         NameProperty _ value -> Aeson.toJSON value
+        QWordProperty _ value -> Aeson.toJSON value
         StrProperty _ value -> Aeson.toJSON value
 
 instance Binary.Binary Property where
@@ -58,6 +60,11 @@ instance Binary.Binary Property where
             NewPCString "StrProperty" -> do
                 value <- Binary.get
                 return (StrProperty size value)
+            NewPCString "QWordProperty" -> do
+                -- TODO: This isn't correct. The `size` contains the number of
+                --   bytes to read. It just usually happens to be 8.
+                value <- Binary.get
+                return (QWordProperty size value)
             _ -> fail ("unknown property type " ++ show kind)
 
     put property = case property of
@@ -84,6 +91,11 @@ instance Binary.Binary Property where
 
         NameProperty size value -> do
             "NameProperty" |> NewPCString |> Binary.put
+            size |> Binary.put
+            value |> Binary.put
+
+        QWordProperty size value -> do
+            "QWordProperty" |> NewPCString |> Binary.put
             size |> Binary.put
             value |> Binary.put
 

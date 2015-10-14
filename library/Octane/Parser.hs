@@ -168,4 +168,5 @@ debugProperty property = case property of
     FloatProperty _ (NewFloat32LE value) -> print value
     IntProperty _ (NewInt32LE value) -> print value
     NameProperty _ (NewPCString value) -> putStrLn (show value ++ " [name]")
+    QWordProperty _ (NewInt64LE value) -> print value
     StrProperty _ (NewPCString value) -> print value
