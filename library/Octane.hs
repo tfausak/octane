@@ -5,15 +5,12 @@ module Octane where
 import Octane.Types
 
 import qualified Data.Binary as Binary
-import qualified Data.Binary.Bits.Get as BB
 import qualified Data.Binary.Get as Binary
-import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Builder as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
-import qualified Data.Text as T
 import Flow ((|>))
 import qualified System.Environment as Env
 import qualified System.IO as IO
@@ -91,7 +88,6 @@ debug (file, contents, result) = case result of
 
         putStrLn "# FRAMES #\n"
         putStrLn (show (BS.length (replayFrames replay)) ++ " bytes")
-        mapM_ (\ frame -> print frame) (getFrames replay)
         putStrLn ""
 
         putStrLn "# MESSAGES #\n"
@@ -174,155 +170,3 @@ debugProperty property = case property of
     IntProperty _ (NewInt32LE value) -> print value
     NameProperty _ (NewPCString value) -> putStrLn (show value ++ " [name]")
     StrProperty _ (NewPCString value) -> print value
-
--- Frames
-
-type Frame = (
-    Float, -- time
-    Float, -- delta
-    Int, -- actor id
-    Maybe T.Text, -- actor
-    Int, -- archetype id
-    Maybe T.Text, -- archetype
-    Maybe (Float, Float, Float),-- rotation
-    Maybe (Int, Int, Int, Int), -- position
-    (Maybe (Maybe Int, Maybe Int, Maybe Int))) -- orientation
-type Frames = [Frame]
-
-getFrames :: Replay -> Frames
-getFrames replay = Binary.runGet
-    (BB.runBitGet (bitGetFrames replay))
-    (replay |> replayFrames |> flipEndian |> BSL.fromStrict)
-
-bitGetFrames :: Replay -> BB.BitGet Frames
-bitGetFrames replay = do
-    timeBytes <- BB.getByteString 4
-    let time = timeBytes |> flipEndian |> BSL.fromStrict |> Binary.decode |> getFloat32LE
-    deltaBytes <- BB.getByteString 4
-    let delta = deltaBytes |> flipEndian |> BSL.fromStrict |> Binary.decode |> getFloat32LE
-    hasActor <- BB.getBool
-    if not hasActor then error "no actors" else do
-        actorID <- case Map.lookup (NewPCString "MaxChannels") (getTable (replayProperties replay)) of
-            Just (IntProperty _ (NewInt32LE x)) -> getInt (log_2 x)
-            x -> error ("unexpected max channel size: " ++ show x)
-        let maybeActor = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup actorID |> fmap getPCString
-        isOpen <- BB.getBool
-        if not isOpen then error "channel closed" else do
-            isNew <- BB.getBool
-            if not isNew then error "existing actor" else do
-                isStatic <- BB.getBool
-                if isStatic then error "static actor" else do
-                    -- TODO: Is this right? Maybe they're always 8 bits.
-                    archetypeID <- replay |> replayObjectMap |> getObjectMap |> IntMap.size |> log_2 |> getInt
-                    let maybeArchetype = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup archetypeID |> fmap getPCString
-                    rotation <- case maybeArchetype of
-                        Just archetype -> if hasRotation archetype
-                            then do
-                                let getRotation = fmap ((/ 128) . fromIntegral) (getInt 8)
-                                x <- getRotation
-                                y <- getRotation
-                                z <- getRotation
-                                return (Just (x, y, z))
-                            else return Nothing
-                        Nothing -> return Nothing
-                    position <- case maybeArchetype of
-                        Just archetype -> if hasPosition archetype
-                            then do
-                                -- TODO: Is this right?
-                                size <- getInt 4
-                                let bias = (2 :: Int) ^ (size + 1)
-                                let getPosition = fmap (subtract bias) (getInt (size + 2))
-                                x <- getPosition
-                                y <- getPosition
-                                z <- getPosition
-                                return (Just (size, x, y, z))
-                            else return Nothing
-                        Nothing -> return Nothing
-                    orientation <- case maybeArchetype of
-                        Just archetype -> if hasOrientation archetype
-                            then do
-                                let getOrientation p = if p then fmap (Just . fromIntegral) (getInt 8) else return Nothing
-                                hasPitch <- BB.getBool
-                                pitch <- getOrientation hasPitch
-                                hasYaw <- BB.getBool
-                                yaw <- getOrientation hasYaw
-                                hasRoll <- BB.getBool
-                                roll <- getOrientation hasRoll
-                                return (Just (pitch, yaw, roll))
-                            else return Nothing
-                        Nothing -> return Nothing
-                    return [(time, delta, actorID, maybeActor, archetypeID, maybeArchetype, rotation, position, orientation)]
-
--- Read an arbitrary number of bits as a little-endian integer.
-getInt :: Int -> BB.BitGet Int
-getInt x = do
-    let positions = [x - 1, x - 2 .. 0]
-    bits <- mapM (const BB.getBool) positions
-    bits
-        |> zip positions
-        |> foldl
-            (\ int (position, bit) -> if bit then setBit position int else int)
-            Bits.zeroBits
-        |> return
-
-hasOrientation :: T.Text -> Bool
-hasOrientation archetype =
-    let archetypes = [
-            "Archetypes.Ball.Ball_Default",
-            "Archetypes.Car.Car_Default"
-            ]
-    in  elem archetype archetypes
-
-hasPosition :: T.Text -> Bool
-hasPosition archetype =
-    let archetypes = [
-            "Archetypes.Ball.Ball_Default",
-            "Archetypes.Car.Car_Default",
-            "Archetypes.CarComponents.CarComponent_Boost",
-            "Archetypes.CarComponents.CarComponent_Dodge",
-            "Archetypes.CarComponents.CarComponent_DoubleJump",
-            "Archetypes.CarComponents.CarComponent_FlipCar",
-            "Archetypes.CarComponents.CarComponent_Jump"
-            ]
-    in  elem archetype archetypes
-
-hasRotation :: T.Text -> Bool
-hasRotation archetype =
-    let archetypes = [
-            "Archetypes.CarComponents.CarComponent_Boost",
-            "Archetypes.CarComponents.CarComponent_Dodge",
-            "Archetypes.CarComponents.CarComponent_DoubleJump",
-            "Archetypes.CarComponents.CarComponent_FlipCar",
-            "Archetypes.CarComponents.CarComponent_Jump",
-            "Archetypes.Teams.Team0",
-            "Archetypes.Teams.Team1",
-            "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype",
-            "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype",
-            "TAGame.Default__PRI_TA"
-            ]
-        infixes = [
-            ".TheWorld:PersistentLevel.CrowdActor_TA_",
-            ".TheWorld:PersistentLevel.VehiclePickup_Boost_TA_"
-            ]
-    in  if elem archetype archetypes
-        then True
-        else any (\ x -> T.isInfixOf x archetype) infixes
-
-log_2 :: (Integral a, Integral b) => a -> b
-log_2 x = ceiling (log (fromIntegral x) / log (2 :: Float))
-
-flipEndian :: BS.ByteString -> BS.ByteString
-flipEndian bytes =
-    let flipByte byte = Bits.zeroBits
-            |> (if Bits.testBit byte 0 then setBit 7 else id)
-            |> (if Bits.testBit byte 1 then setBit 6 else id)
-            |> (if Bits.testBit byte 2 then setBit 5 else id)
-            |> (if Bits.testBit byte 3 then setBit 4 else id)
-            |> (if Bits.testBit byte 4 then setBit 3 else id)
-            |> (if Bits.testBit byte 5 then setBit 2 else id)
-            |> (if Bits.testBit byte 6 then setBit 1 else id)
-            |> (if Bits.testBit byte 7 then setBit 0 else id)
-    in  BS.map flipByte bytes
-
-setBit :: (Bits.Bits a) => Int -> a -> a
-setBit n x = Bits.setBit x n
