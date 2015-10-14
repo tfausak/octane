@@ -67,9 +67,9 @@ instance Binary.Binary Property where
                 value <- Binary.get
                 return (StrProperty size value)
             "QWordProperty" -> do
-                -- TODO: This isn't correct. The `size` contains the number of
-                --   bytes to read. It just usually happens to be 8.
-                value <- Binary.get
+                value <- case size of
+                    NewInt64LE 8 -> Binary.get
+                    _ -> fail ("unknown QWordProperty size " ++ show size)
                 return (QWordProperty size value)
             _ -> fail ("unknown property type " ++ show kind)
 
