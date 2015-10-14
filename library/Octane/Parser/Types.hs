@@ -4,7 +4,6 @@ module Octane.Parser.Types
     , module Octane.Parser.Types.CacheItem
     , module Octane.Parser.Types.CacheProperty
     , module Octane.Parser.Types.Float32LE
-    , module Octane.Parser.Types.Frame
     , module Octane.Parser.Types.Int32LE
     , module Octane.Parser.Types.Int64LE
     , module Octane.Parser.Types.KeyFrame
@@ -23,7 +22,6 @@ import Octane.Parser.Types.ActorMap
 import Octane.Parser.Types.CacheItem
 import Octane.Parser.Types.CacheProperty
 import Octane.Parser.Types.Float32LE
-import Octane.Parser.Types.Frame
 import Octane.Parser.Types.Int32LE
 import Octane.Parser.Types.Int64LE
 import Octane.Parser.Types.KeyFrame

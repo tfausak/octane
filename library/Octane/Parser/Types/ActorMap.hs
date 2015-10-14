@@ -19,12 +19,10 @@ instance Aeson.ToJSON ActorMap where
 instance Binary.Binary ActorMap where
     get = do
         (NewList actors) <- Binary.get
-        return NewActorMap {
-            getActorMap = actors |> map toTuple |> IntMap.fromList
-        }
+        actors |> map toTuple |> IntMap.fromList |> NewActorMap |> return
 
-    put (NewActorMap actorMap) = do
-        actorMap |> IntMap.assocs |> map fromTuple |> NewList |> Binary.put
+    put (NewActorMap actors) = do
+        actors |> IntMap.assocs |> map fromTuple |> NewList |> Binary.put
 
 toTuple :: Actor -> (Int, PCString)
 toTuple actor =
