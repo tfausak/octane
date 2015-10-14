@@ -1,8 +1,9 @@
 {- |
     A length-prefixed null-terminated string.
 -}
-module Octane.Types.PCString where
+module Octane.Parser.Types.PCString where
 
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
@@ -12,11 +13,14 @@ import qualified Data.Char as Char
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import Flow ((|>))
-import Octane.Types.Int32LE
+import Octane.Parser.Types.Int32LE
 
 newtype PCString = NewPCString {
     getPCString :: Text.Text
 } deriving (Eq, Ord, Show)
+
+instance Aeson.ToJSON PCString where
+    toJSON (NewPCString string) = Aeson.toJSON string
 
 instance Binary.Binary PCString where
     get = do

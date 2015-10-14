@@ -20,38 +20,55 @@ source-repository head
 
 library
     exposed-modules:
-        Octane
-        Octane.Types
-        Octane.Types.Actor
-        Octane.Types.ActorMap
-        Octane.Types.CacheItem
-        Octane.Types.CacheProperty
-        Octane.Types.Float32LE
-        Octane.Types.Int32LE
-        Octane.Types.Int64LE
-        Octane.Types.KeyFrame
-        Octane.Types.List
-        Octane.Types.Mark
-        Octane.Types.Message
-        Octane.Types.ObjectMap
-        Octane.Types.PCString
-        Octane.Types.Property
-        Octane.Types.Replay
-        Octane.Types.Table
+        Octane.API
+        Octane.Parser
+        Octane.Parser.Types
+        Octane.Parser.Types.Actor
+        Octane.Parser.Types.ActorMap
+        Octane.Parser.Types.CacheItem
+        Octane.Parser.Types.CacheProperty
+        Octane.Parser.Types.Float32LE
+        Octane.Parser.Types.Int32LE
+        Octane.Parser.Types.Int64LE
+        Octane.Parser.Types.KeyFrame
+        Octane.Parser.Types.List
+        Octane.Parser.Types.Mark
+        Octane.Parser.Types.Message
+        Octane.Parser.Types.ObjectMap
+        Octane.Parser.Types.PCString
+        Octane.Parser.Types.Property
+        Octane.Parser.Types.Replay
+        Octane.Parser.Types.Table
+        Octane.Server
     build-depends:
+        aeson ==0.8.*,
         base ==4.8.*,
         binary ==0.7.*,
         bytestring ==0.10.*,
         containers ==0.5.*,
         data-binary-ieee754 ==0.4.*,
+        either ==4.4.*,
         flow ==1.0.*,
-        text ==1.2.*
+        servant ==0.4.*,
+        servant-server ==0.4.*,
+        text ==1.2.*,
+        wai ==3.0.*,
+        warp ==3.1.*
     default-language: Haskell2010
     hs-source-dirs: library
     ghc-options: -Wall
 
-executable octane
-    main-is: Main.hs
+executable octane-parser
+    main-is: Parser.hs
+    build-depends:
+        base -any,
+        octane -any
+    default-language: Haskell2010
+    hs-source-dirs: executable
+    ghc-options: -threaded -Wall
+
+executable octane-server
+    main-is: Server.hs
     build-depends:
         base -any,
         octane -any

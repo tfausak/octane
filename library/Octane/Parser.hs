@@ -1,8 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
+module Octane.Parser where
 
-module Octane where
-
-import Octane.Types
+import Octane.Parser.Types
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary

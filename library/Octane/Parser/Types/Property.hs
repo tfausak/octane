@@ -1,15 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Octane.Types.Property where
+module Octane.Parser.Types.Property where
 
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Flow ((|>))
-import Octane.Types.Float32LE
-import Octane.Types.Int32LE
-import Octane.Types.Int64LE
-import Octane.Types.List
-import Octane.Types.PCString
-import Octane.Types.Table
+import Octane.Parser.Types.Float32LE
+import Octane.Parser.Types.Int32LE
+import Octane.Parser.Types.Int64LE
+import Octane.Parser.Types.List
+import Octane.Parser.Types.PCString
+import Octane.Parser.Types.Table
 
 data Property
     = ArrayProperty Int64LE (List (Table Property))
@@ -18,6 +19,14 @@ data Property
     | NameProperty Int64LE PCString
     | StrProperty Int64LE PCString
     deriving (Show)
+
+instance Aeson.ToJSON Property where
+    toJSON property = case property of
+        ArrayProperty _ value -> Aeson.toJSON value
+        FloatProperty _ value -> Aeson.toJSON value
+        IntProperty _ value -> Aeson.toJSON value
+        NameProperty _ value -> Aeson.toJSON value
+        StrProperty _ value -> Aeson.toJSON value
 
 instance Binary.Binary Property where
     get = do

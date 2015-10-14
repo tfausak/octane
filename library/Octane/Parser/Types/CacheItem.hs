@@ -1,10 +1,14 @@
-module Octane.Types.CacheItem where
+{-# LANGUAGE OverloadedStrings #-}
 
+module Octane.Parser.Types.CacheItem where
+
+import qualified Data.Aeson as Aeson
+import Data.Aeson ((.=))
 import qualified Data.Binary as Binary
 import Flow ((|>))
-import Octane.Types.CacheProperty
-import Octane.Types.Int32LE
-import Octane.Types.List
+import Octane.Parser.Types.CacheProperty
+import Octane.Parser.Types.Int32LE
+import Octane.Parser.Types.List
 
 data CacheItem = NewCacheItem {
     cacheItemTag :: Int32LE,
@@ -12,6 +16,14 @@ data CacheItem = NewCacheItem {
     cacheItemEnd :: Int32LE,
     cacheItemCacheProperties :: List CacheProperty
 } deriving (Show)
+
+instance Aeson.ToJSON CacheItem where
+    toJSON cacheItem = Aeson.object [
+        "id" .= cacheItemTag cacheItem,
+        "start" .= cacheItemStart cacheItem,
+        "end" .= cacheItemEnd cacheItem,
+        "properties" .= cacheItemCacheProperties cacheItem
+        ]
 
 instance Binary.Binary CacheItem where
     get = do

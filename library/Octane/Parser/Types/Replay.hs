@@ -1,23 +1,25 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Octane.Types.Replay where
+module Octane.Parser.Types.Replay where
 
+import qualified Data.Aeson as Aeson
+import Data.Aeson ((.=))
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString as BS
 import Flow ((|>))
-import Octane.Types.ActorMap
-import Octane.Types.CacheItem
-import Octane.Types.Int32LE
-import Octane.Types.KeyFrame
-import Octane.Types.List
-import Octane.Types.Mark
-import Octane.Types.Message
-import Octane.Types.ObjectMap
-import Octane.Types.PCString
-import Octane.Types.Property
-import Octane.Types.Table
+import Octane.Parser.Types.ActorMap
+import Octane.Parser.Types.CacheItem
+import Octane.Parser.Types.Int32LE
+import Octane.Parser.Types.KeyFrame
+import Octane.Parser.Types.List
+import Octane.Parser.Types.Mark
+import Octane.Parser.Types.Message
+import Octane.Parser.Types.ObjectMap
+import Octane.Parser.Types.PCString
+import Octane.Parser.Types.Property
+import Octane.Parser.Types.Table
 
 data Replay = NewReplay {
     replaySize1 :: Int32LE,
@@ -39,6 +41,28 @@ data Replay = NewReplay {
     replayActorMap :: ActorMap,
     replayCacheItems :: List CacheItem
 } deriving (Show)
+
+instance Aeson.ToJSON Replay where
+    toJSON replay = Aeson.object [
+        "size-1" .= replaySize1 replay,
+        "crc-1" .= replayCRC1 replay,
+        "version-1" .= replayVersion1 replay,
+        "version-2" .= replayVersion2 replay,
+        "label" .= replayLabel replay,
+        "properties" .= replayProperties replay,
+        "size-2" .= replaySize2 replay,
+        "crc-2" .= replayCRC2 replay,
+        "effects" .= replayEffects replay,
+        "key-frames" .= replayKeyFrames replay,
+        -- TODO: frames,
+        "messages" .= replayMessages replay,
+        "marks" .= replayMarks replay,
+        "packages" .= replayPackages replay,
+        "objects" .= replayObjectMap replay,
+        "names" .= replayNames replay,
+        "actors" .= replayActorMap replay,
+        "cache" .= replayCacheItems replay
+        ]
 
 instance Binary.Binary Replay where
     get = do

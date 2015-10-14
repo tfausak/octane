@@ -3,16 +3,20 @@
 {- |
     A table of objects with string keys.
 -}
-module Octane.Types.Table where
+module Octane.Parser.Types.Table where
 
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Map as Map
 import Flow ((|>))
-import Octane.Types.PCString
+import Octane.Parser.Types.PCString
 
 newtype Table a = NewTable {
     getTable :: Map.Map PCString a
 } deriving (Show)
+
+instance (Aeson.ToJSON a) => Aeson.ToJSON (Table a) where
+    toJSON (NewTable table) = Aeson.toJSON (Map.mapKeys getPCString table)
 
 instance (Binary.Binary a) => Binary.Binary (Table a) where
     get = do
