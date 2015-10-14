@@ -39,34 +39,34 @@ instance Binary.Binary Property where
     get = do
         kind <- Binary.get
         size <- Binary.get
-        case kind :: PCString of
-            NewPCString "ArrayProperty" -> do
+        case (getPCString kind) of
+            "ArrayProperty" -> do
                 value <- Binary.get
                 return (ArrayProperty size value)
-            NewPCString "BoolProperty" -> do
+            "BoolProperty" -> do
                 value <- Binary.get
                 return (BoolProperty size value)
-            NewPCString "ByteProperty" -> do
+            "ByteProperty" -> do
                 key <- Binary.get
                 value <- Binary.get
                 return (ByteProperty size (key, value))
-            NewPCString "FloatProperty" -> do
+            "FloatProperty" -> do
                 value <- case size of
                     NewInt64LE 4 -> Binary.get
                     _ -> fail ("unknown FloatProperty size " ++ show size)
                 return (FloatProperty size value)
-            NewPCString "IntProperty" -> do
+            "IntProperty" -> do
                 value <- case size of
                     NewInt64LE 4 -> Binary.get
                     _ -> fail ("unknown IntProperty size " ++ show size)
                 return (IntProperty size value)
-            NewPCString "NameProperty" -> do
+            "NameProperty" -> do
                 value <- Binary.get
                 return (NameProperty size value)
-            NewPCString "StrProperty" -> do
+            "StrProperty" -> do
                 value <- Binary.get
                 return (StrProperty size value)
-            NewPCString "QWordProperty" -> do
+            "QWordProperty" -> do
                 -- TODO: This isn't correct. The `size` contains the number of
                 --   bytes to read. It just usually happens to be 8.
                 value <- Binary.get
