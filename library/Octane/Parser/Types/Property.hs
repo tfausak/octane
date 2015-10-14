@@ -14,6 +14,7 @@ import Octane.Parser.Types.Table
 
 data Property
     = ArrayProperty Int64LE (List (Table Property))
+    | ByteProperty Int64LE (PCString, PCString)
     | FloatProperty Int64LE Float32LE
     | IntProperty Int64LE Int32LE
     | NameProperty Int64LE PCString
@@ -23,6 +24,7 @@ data Property
 instance Aeson.ToJSON Property where
     toJSON property = case property of
         ArrayProperty _ value -> Aeson.toJSON value
+        ByteProperty _ value -> Aeson.toJSON value
         FloatProperty _ value -> Aeson.toJSON value
         IntProperty _ value -> Aeson.toJSON value
         NameProperty _ value -> Aeson.toJSON value
@@ -36,6 +38,10 @@ instance Binary.Binary Property where
             NewPCString "ArrayProperty" -> do
                 value <- Binary.get
                 return (ArrayProperty size value)
+            NewPCString "ByteProperty" -> do
+                key <- Binary.get
+                value <- Binary.get
+                return (ByteProperty size (key, value))
             NewPCString "FloatProperty" -> do
                 value <- case size of
                     NewInt64LE 4 -> Binary.get
@@ -58,6 +64,12 @@ instance Binary.Binary Property where
         ArrayProperty size value -> do
             "ArrayProperty" |> NewPCString |> Binary.put
             size |> Binary.put
+            value |> Binary.put
+
+        ByteProperty size (key, value) -> do
+            "ByteProperty" |> NewPCString |> Binary.put
+            size |> Binary.put
+            key |> Binary.put
             value |> Binary.put
 
         FloatProperty size value -> do
