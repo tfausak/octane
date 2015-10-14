@@ -164,6 +164,7 @@ debugProperty property = case property of
                     debugProperty v)
                 (Map.assocs table) >> putStrLn "")
             array
+    BoolProperty _ (NewBoolean value) -> print value
     ByteProperty _ (NewPCString key, NewPCString value) -> putStrLn (show key ++ ": " ++ show value)
     FloatProperty _ (NewFloat32LE value) -> print value
     IntProperty _ (NewInt32LE value) -> print value

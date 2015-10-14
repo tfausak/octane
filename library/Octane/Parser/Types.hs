@@ -1,6 +1,7 @@
 module Octane.Parser.Types
     ( module Octane.Parser.Types.Actor
     , module Octane.Parser.Types.ActorMap
+    , module Octane.Parser.Types.Boolean
     , module Octane.Parser.Types.CacheItem
     , module Octane.Parser.Types.CacheProperty
     , module Octane.Parser.Types.Float32LE
@@ -19,6 +20,7 @@ module Octane.Parser.Types
 
 import Octane.Parser.Types.Actor
 import Octane.Parser.Types.ActorMap
+import Octane.Parser.Types.Boolean
 import Octane.Parser.Types.CacheItem
 import Octane.Parser.Types.CacheProperty
 import Octane.Parser.Types.Float32LE

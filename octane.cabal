@@ -25,6 +25,7 @@ library
         Octane.Parser.Types
         Octane.Parser.Types.Actor
         Octane.Parser.Types.ActorMap
+        Octane.Parser.Types.Boolean
         Octane.Parser.Types.CacheItem
         Octane.Parser.Types.CacheProperty
         Octane.Parser.Types.Float32LE

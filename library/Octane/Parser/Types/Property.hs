@@ -5,6 +5,7 @@ module Octane.Parser.Types.Property where
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Flow ((|>))
+import Octane.Parser.Types.Boolean
 import Octane.Parser.Types.Float32LE
 import Octane.Parser.Types.Int32LE
 import Octane.Parser.Types.Int64LE
@@ -14,6 +15,7 @@ import Octane.Parser.Types.Table
 
 data Property
     = ArrayProperty Int64LE (List (Table Property))
+    | BoolProperty Int64LE Boolean
     | ByteProperty Int64LE (PCString, PCString)
     | FloatProperty Int64LE Float32LE
     | IntProperty Int64LE Int32LE
@@ -25,6 +27,7 @@ data Property
 instance Aeson.ToJSON Property where
     toJSON property = case property of
         ArrayProperty _ value -> Aeson.toJSON value
+        BoolProperty _ value -> Aeson.toJSON value
         ByteProperty _ value -> Aeson.toJSON value
         FloatProperty _ value -> Aeson.toJSON value
         IntProperty _ value -> Aeson.toJSON value
@@ -40,6 +43,9 @@ instance Binary.Binary Property where
             NewPCString "ArrayProperty" -> do
                 value <- Binary.get
                 return (ArrayProperty size value)
+            NewPCString "BoolProperty" -> do
+                value <- Binary.get
+                return (BoolProperty size value)
             NewPCString "ByteProperty" -> do
                 key <- Binary.get
                 value <- Binary.get
@@ -70,6 +76,11 @@ instance Binary.Binary Property where
     put property = case property of
         ArrayProperty size value -> do
             "ArrayProperty" |> NewPCString |> Binary.put
+            size |> Binary.put
+            value |> Binary.put
+
+        BoolProperty size value -> do
+            "BoolProperty" |> NewPCString |> Binary.put
             size |> Binary.put
             value |> Binary.put
 
