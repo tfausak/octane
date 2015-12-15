@@ -52,8 +52,8 @@ library
     hs-source-dirs: library
     ghc-options: -Wall
 
-executable octane-parser
-    main-is: Parser.hs
+executable octane
+    main-is: Main.hs
     build-depends:
         base -any,
         octane -any
