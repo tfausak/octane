@@ -1,6 +1,3 @@
-{- |
-    A little-endian 64-bit integer.
--}
 module Octane.Parser.Types.Int64LE where
 
 import qualified Data.Binary as Binary

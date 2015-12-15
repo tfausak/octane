@@ -1,8 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-{- |
-    A table of objects with string keys.
--}
 module Octane.Parser.Types.Table where
 
 import qualified Data.Binary as Binary

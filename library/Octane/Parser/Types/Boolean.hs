@@ -1,6 +1,3 @@
-{- |
-    A boolean stored as a byte.
--}
 module Octane.Parser.Types.Boolean where
 
 import qualified Data.Binary as Binary

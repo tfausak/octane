@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Octane.Parser.Types.Message where
 
 import qualified Data.Binary as Binary
