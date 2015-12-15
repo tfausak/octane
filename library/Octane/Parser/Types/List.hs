@@ -4,7 +4,6 @@
 module Octane.Parser.Types.List where
 
 import qualified Control.Monad as Monad
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
 import Octane.Parser.Types.Int32LE
@@ -12,9 +11,6 @@ import Octane.Parser.Types.Int32LE
 newtype List a = NewList {
     getList :: [a]
 } deriving (Show)
-
-instance (Aeson.ToJSON a) => Aeson.ToJSON (List a) where
-    toJSON (NewList list) = Aeson.toJSON list
 
 instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do

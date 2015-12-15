@@ -3,16 +3,12 @@
 -}
 module Octane.Parser.Types.Boolean where
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
 
 newtype Boolean = NewBoolean {
     getBoolean :: Bool
 } deriving (Show)
-
-instance Aeson.ToJSON Boolean where
-    toJSON (NewBoolean boolean) = Aeson.toJSON boolean
 
 instance Binary.Binary Boolean where
     get = do

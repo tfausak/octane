@@ -3,7 +3,6 @@
 -}
 module Octane.Parser.Types.Int64LE where
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
@@ -13,9 +12,6 @@ import qualified Data.Int as Int
 newtype Int64LE = NewInt64LE {
     getInt64LE :: Int.Int64
 } deriving (Show)
-
-instance Aeson.ToJSON Int64LE where
-    toJSON (NewInt64LE int64LE) = Aeson.toJSON int64LE
 
 instance Binary.Binary Int64LE where
     get = do

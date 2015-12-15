@@ -2,7 +2,6 @@
 
 module Octane.Parser.Types.Property where
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
 import Octane.Parser.Types.Boolean
@@ -23,17 +22,6 @@ data Property
     | QWordProperty Int64LE Int64LE
     | StrProperty Int64LE PCString
     deriving (Show)
-
-instance Aeson.ToJSON Property where
-    toJSON property = case property of
-        ArrayProperty _ value -> Aeson.toJSON value
-        BoolProperty _ value -> Aeson.toJSON value
-        ByteProperty _ value -> Aeson.toJSON value
-        FloatProperty _ value -> Aeson.toJSON value
-        IntProperty _ value -> Aeson.toJSON value
-        NameProperty _ value -> Aeson.toJSON value
-        QWordProperty _ value -> Aeson.toJSON value
-        StrProperty _ value -> Aeson.toJSON value
 
 instance Binary.Binary Property where
     get = do

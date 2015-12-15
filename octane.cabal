@@ -41,7 +41,6 @@ library
         Octane.Parser.Types.Replay
         Octane.Parser.Types.Table
     build-depends:
-        aeson ==0.9.*,
         base ==4.8.*,
         binary ==0.7.*,
         bytestring ==0.10.*,
