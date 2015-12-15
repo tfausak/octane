@@ -3,7 +3,7 @@
 module Octane.Types.Property where
 
 import qualified Data.Binary as Binary
-import Data.Function ((&))
+import Octane.Core
 import Octane.Types.Boolean
 import Octane.Types.Float32LE
 import Octane.Types.Int32LE

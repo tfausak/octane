@@ -1,7 +1,7 @@
 module Octane.Types.Boolean where
 
 import qualified Data.Binary as Binary
-import Data.Function ((&))
+import Octane.Core
 
 newtype Boolean = NewBoolean {
     getBoolean :: Bool

@@ -1,8 +1,8 @@
 module Octane.Types.ObjectMap where
 
 import qualified Data.Binary as Binary
-import Data.Function ((&))
 import qualified Data.IntMap as IntMap
+import Octane.Core
 import Octane.Types.List
 import Octane.Types.PCString
 

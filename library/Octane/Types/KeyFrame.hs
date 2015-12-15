@@ -1,7 +1,7 @@
 module Octane.Types.KeyFrame where
 
 import qualified Data.Binary as Binary
-import Data.Function ((&))
+import Octane.Core
 import Octane.Types.Float32LE
 import Octane.Types.Int32LE
 

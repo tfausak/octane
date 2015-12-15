@@ -6,9 +6,9 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Char as Char
-import Data.Function ((&))
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
+import Octane.Core
 import Octane.Types.Int32LE
 
 newtype PCString = NewPCString {

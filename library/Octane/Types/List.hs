@@ -2,7 +2,7 @@ module Octane.Types.List where
 
 import qualified Control.Monad as Monad
 import qualified Data.Binary as Binary
-import Data.Function ((&))
+import Octane.Core
 import Octane.Types.Int32LE
 
 newtype List a = NewList {

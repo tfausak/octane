@@ -3,8 +3,8 @@
 module Octane.Types.Table where
 
 import qualified Data.Binary as Binary
-import Data.Function ((&))
 import qualified Data.Map as Map
+import Octane.Core
 import Octane.Types.PCString
 
 newtype Table a = NewTable {

@@ -4,7 +4,7 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString as BS
-import Data.Function ((&))
+import Octane.Core
 import Octane.Types.ActorMap
 import Octane.Types.CacheItem
 import Octane.Types.Int32LE

@@ -1,8 +1,8 @@
 module Octane.Types.ActorMap where
 
 import qualified Data.Binary as Binary
-import Data.Function ((&))
 import qualified Data.IntMap as IntMap
+import Octane.Core
 import Octane.Types.Actor
 import Octane.Types.Int32LE
 import Octane.Types.List

@@ -3,8 +3,8 @@ module Octane.Types.Int64LE where
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
-import Data.Function ((&))
 import qualified Data.Int as Int
+import Octane.Core
 
 newtype Int64LE = NewInt64LE {
     getInt64LE :: Int.Int64

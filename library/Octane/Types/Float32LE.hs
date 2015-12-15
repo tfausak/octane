@@ -2,7 +2,7 @@ module Octane.Types.Float32LE where
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.IEEE754 as Binary
-import Data.Function ((&))
+import Octane.Core
 
 newtype Float32LE = NewFloat32LE {
     getFloat32LE :: Float
