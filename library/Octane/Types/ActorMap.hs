@@ -1,6 +1,5 @@
 module Octane.Types.ActorMap where
 
-import qualified Data.Binary as Binary
 import qualified Data.IntMap as IntMap
 import Octane.Core
 import Octane.Types.Actor
@@ -12,13 +11,13 @@ newtype ActorMap = NewActorMap {
     getActorMap :: IntMap.IntMap PCString
 } deriving (Show)
 
-instance Binary.Binary ActorMap where
+instance Binary ActorMap where
     get = do
-        (NewList actors) <- Binary.get
+        (NewList actors) <- get
         actors & map toTuple & IntMap.fromList & NewActorMap & return
 
     put (NewActorMap actors) = do
-        actors & IntMap.assocs & map fromTuple & NewList & Binary.put
+        actors & IntMap.assocs & map fromTuple & NewList & put
 
 toTuple :: Actor -> (Int, PCString)
 toTuple actor =

@@ -1,6 +1,5 @@
 module Octane.Types.KeyFrame where
 
-import qualified Data.Binary as Binary
 import Octane.Core
 import Octane.Types.Float32LE
 import Octane.Types.Int32LE
@@ -11,11 +10,11 @@ data KeyFrame = NewKeyFrame {
     keyFramePosition :: Int32LE
 } deriving (Show)
 
-instance Binary.Binary KeyFrame where
+instance Binary KeyFrame where
     get = do
-        time <- Binary.get
-        frame <- Binary.get
-        position <- Binary.get
+        time <- get
+        frame <- get
+        position <- get
         return NewKeyFrame {
             keyFrameTime = time,
             keyFrameFrame = frame,
@@ -23,6 +22,6 @@ instance Binary.Binary KeyFrame where
         }
 
     put keyFrame = do
-        keyFrame & keyFrameTime & Binary.put
-        keyFrame & keyFrameFrame & Binary.put
-        keyFrame & keyFramePosition & Binary.put
+        keyFrame & keyFrameTime & put
+        keyFrame & keyFrameFrame & put
+        keyFrame & keyFramePosition & put

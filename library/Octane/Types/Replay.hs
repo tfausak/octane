@@ -1,8 +1,5 @@
 module Octane.Types.Replay where
 
-import qualified Data.Binary as Binary
-import qualified Data.Binary.Get as Binary
-import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString as BS
 import Octane.Core
 import Octane.Types.ActorMap
@@ -28,7 +25,7 @@ data Replay = NewReplay {
     replayCRC2 :: Int32LE,
     replayEffects :: List PCString,
     replayKeyFrames :: List KeyFrame,
-    replayFrames :: BS.ByteString,
+    replayFrames :: ByteString,
     replayMessages :: List Message,
     replayMarks :: List Mark,
     replayPackages :: List PCString,
@@ -38,26 +35,26 @@ data Replay = NewReplay {
     replayCacheItems :: List CacheItem
 } deriving (Show)
 
-instance Binary.Binary Replay where
+instance Binary Replay where
     get = do
-        size1 <- Binary.get
-        crc1 <- Binary.get
-        version1 <- Binary.get
-        version2 <- Binary.get
-        label <- Binary.get
-        properties <- Binary.get
-        size2 <- Binary.get
-        crc2 <- Binary.get
-        effects <- Binary.get
-        keyFrames <- Binary.get
+        size1 <- get
+        crc1 <- get
+        version1 <- get
+        version2 <- get
+        label <- get
+        properties <- get
+        size2 <- get
+        crc2 <- get
+        effects <- get
+        keyFrames <- get
         frames <- getFrameBytes
-        messages <- Binary.get
-        marks <- Binary.get
-        packages <- Binary.get
-        objectMap <- Binary.get
-        names <- Binary.get
-        actorMap <- Binary.get
-        cacheItems <- Binary.get
+        messages <- get
+        marks <- get
+        packages <- get
+        objectMap <- get
+        names <- get
+        actorMap <- get
+        cacheItems <- get
         return NewReplay {
             replaySize1 = size1,
             replayCRC1 = crc1,
@@ -80,32 +77,32 @@ instance Binary.Binary Replay where
         }
 
     put replay = do
-        replay & replaySize1 & Binary.put
-        replay & replayCRC1 & Binary.put
-        replay & replayVersion1 & Binary.put
-        replay & replayVersion2 & Binary.put
-        replay & replayLabel & Binary.put
-        replay & replayProperties & Binary.put
-        replay & replaySize2 & Binary.put
-        replay & replayCRC2 & Binary.put
-        replay & replayEffects & Binary.put
-        replay & replayKeyFrames & Binary.put
+        replay & replaySize1 & put
+        replay & replayCRC1 & put
+        replay & replayVersion1 & put
+        replay & replayVersion2 & put
+        replay & replayLabel & put
+        replay & replayProperties & put
+        replay & replaySize2 & put
+        replay & replayCRC2 & put
+        replay & replayEffects & put
+        replay & replayKeyFrames & put
         replay & replayFrames & putFrameBytes
-        replay & replayMessages & Binary.put
-        replay & replayMarks & Binary.put
-        replay & replayPackages & Binary.put
-        replay & replayObjectMap & Binary.put
-        replay & replayNames & Binary.put
-        replay & replayActorMap & Binary.put
-        replay & replayCacheItems & Binary.put
+        replay & replayMessages & put
+        replay & replayMarks & put
+        replay & replayPackages & put
+        replay & replayObjectMap & put
+        replay & replayNames & put
+        replay & replayActorMap & put
+        replay & replayCacheItems & put
 
-getFrameBytes :: Binary.Get BS.ByteString
+getFrameBytes :: Get ByteString
 getFrameBytes = do
-    NewInt32LE size <- Binary.get
-    frames <- Binary.getByteString (fromIntegral size)
+    NewInt32LE size <- get
+    frames <- getByteString (fromIntegral size)
     return frames
 
-putFrameBytes :: BS.ByteString -> Binary.Put
+putFrameBytes :: ByteString -> Put
 putFrameBytes frames = do
-    frames & BS.length & fromIntegral & NewInt32LE & Binary.put
-    frames & Binary.putByteString
+    frames & BS.length & fromIntegral & NewInt32LE & put
+    frames & putByteString

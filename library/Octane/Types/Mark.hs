@@ -1,6 +1,5 @@
 module Octane.Types.Mark where
 
-import qualified Data.Binary as Binary
 import Octane.Core
 import Octane.Types.Int32LE
 import Octane.Types.PCString
@@ -10,15 +9,15 @@ data Mark = NewMark {
     markFrame :: Int32LE
 } deriving (Show)
 
-instance Binary.Binary Mark where
+instance Binary Mark where
     get = do
-        label <- Binary.get
-        frame <- Binary.get
+        label <- get
+        frame <- get
         return NewMark {
             markLabel = label,
             markFrame = frame
         }
 
     put mark = do
-        mark & markLabel & Binary.put
-        mark & markFrame & Binary.put
+        mark & markLabel & put
+        mark & markFrame & put

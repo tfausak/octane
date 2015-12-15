@@ -1,6 +1,5 @@
 module Octane.Types.Actor where
 
-import qualified Data.Binary as Binary
 import Octane.Core
 import Octane.Types.Int32LE
 import Octane.Types.PCString
@@ -10,15 +9,15 @@ data Actor = NewActor {
     actorTag :: Int32LE
 } deriving (Show)
 
-instance Binary.Binary Actor where
+instance Binary Actor where
     get = do
-        name <- Binary.get
-        tag <- Binary.get
+        name <- get
+        tag <- get
         return NewActor {
             actorName = name,
             actorTag = tag
         }
 
     put actor = do
-        actor & actorName & Binary.put
-        actor & actorTag & Binary.put
+        actor & actorName & put
+        actor & actorTag & put

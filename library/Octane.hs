@@ -1,35 +1,30 @@
 module Octane where
 
-import Octane.Types
-
-import qualified Data.Binary as Binary
-import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Builder as BS
+import qualified Data.ByteString.Builder as BSB
 import qualified Data.ByteString.Lazy as BSL
-import Data.Function ((&))
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
-import qualified System.Environment as Env
-import qualified System.IO as IO
+import Octane.Core
+import Octane.Types
 
 main :: IO ()
 main = do
-    files <- Env.getArgs
+    files <- getArgs
     contents <- mapM BS.readFile files
-    results <- mapM Binary.decodeFileOrFail files
+    results <- mapM decodeFileOrFail files
     mapM_ debug (zip3 files contents results)
 
-debug :: (String, BS.ByteString, Either (Binary.ByteOffset, String) Replay) -> IO ()
+debug :: (String, ByteString, Either (ByteOffset, String) Replay) -> IO ()
 debug (file, contents, result) = case result of
-    Left (offset, message) -> IO.hPutStrLn IO.stderr
+    Left (offset, message) -> hPutStrLn stderr
         (file ++ " @ byte " ++ show offset ++ " - " ++ message)
     Right replay -> do
         putStrLn file
 
         let inputSize = contents & BS.length & fromIntegral
-        let outputSize = replay & Binary.encode & BSL.length
-        if inputSize == outputSize then return () else IO.hPutStrLn IO.stderr
+        let outputSize = replay & encode & BSL.length
+        if inputSize == outputSize then return () else hPutStrLn stderr
             ( "input size ("
             ++ show inputSize
             ++ ") not equal to output size ("
@@ -148,9 +143,9 @@ debug (file, contents, result) = case result of
                 putStrLn "")
             (getList (replayCacheItems replay))
 
-debugByteString :: BS.ByteString -> IO ()
+debugByteString :: ByteString -> IO ()
 debugByteString bytes = do
-    BS.hPutBuilder IO.stdout (BS.byteStringHex bytes)
+    BSB.hPutBuilder stdout (BSB.byteStringHex bytes)
     putStrLn ""
 
 debugProperty :: Property -> IO ()

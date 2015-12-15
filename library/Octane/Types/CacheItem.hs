@@ -1,6 +1,5 @@
 module Octane.Types.CacheItem where
 
-import qualified Data.Binary as Binary
 import Octane.Core
 import Octane.Types.CacheProperty
 import Octane.Types.Int32LE
@@ -13,12 +12,12 @@ data CacheItem = NewCacheItem {
     cacheItemCacheProperties :: List CacheProperty
 } deriving (Show)
 
-instance Binary.Binary CacheItem where
+instance Binary CacheItem where
     get = do
-        tag <- Binary.get
-        start <- Binary.get
-        end <- Binary.get
-        cacheProperties <- Binary.get
+        tag <- get
+        start <- get
+        end <- get
+        cacheProperties <- get
         return NewCacheItem {
             cacheItemTag = tag,
             cacheItemStart = start,
@@ -27,7 +26,7 @@ instance Binary.Binary CacheItem where
         }
 
     put cacheItem = do
-        cacheItem & cacheItemTag & Binary.put
-        cacheItem & cacheItemStart & Binary.put
-        cacheItem & cacheItemEnd & Binary.put
-        cacheItem & cacheItemCacheProperties & Binary.put
+        cacheItem & cacheItemTag & put
+        cacheItem & cacheItemStart & put
+        cacheItem & cacheItemEnd & put
+        cacheItem & cacheItemCacheProperties & put

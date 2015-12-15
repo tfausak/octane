@@ -2,7 +2,6 @@
 
 module Octane.Types.Property where
 
-import qualified Data.Binary as Binary
 import Octane.Core
 import Octane.Types.Boolean
 import Octane.Types.Float32LE
@@ -23,82 +22,82 @@ data Property
     | StrProperty Int64LE PCString
     deriving (Show)
 
-instance Binary.Binary Property where
+instance Binary Property where
     get = do
-        kind <- Binary.get
-        size <- Binary.get
+        kind <- get
+        size <- get
         case (getPCString kind) of
             "ArrayProperty" -> do
-                value <- Binary.get
+                value <- get
                 return (ArrayProperty size value)
             "BoolProperty" -> do
-                value <- Binary.get
+                value <- get
                 return (BoolProperty size value)
             "ByteProperty" -> do
-                key <- Binary.get
-                value <- Binary.get
+                key <- get
+                value <- get
                 return (ByteProperty size (key, value))
             "FloatProperty" -> do
                 value <- case size of
-                    NewInt64LE 4 -> Binary.get
+                    NewInt64LE 4 -> get
                     _ -> fail ("unknown FloatProperty size " ++ show size)
                 return (FloatProperty size value)
             "IntProperty" -> do
                 value <- case size of
-                    NewInt64LE 4 -> Binary.get
+                    NewInt64LE 4 -> get
                     _ -> fail ("unknown IntProperty size " ++ show size)
                 return (IntProperty size value)
             "NameProperty" -> do
-                value <- Binary.get
+                value <- get
                 return (NameProperty size value)
             "StrProperty" -> do
-                value <- Binary.get
+                value <- get
                 return (StrProperty size value)
             "QWordProperty" -> do
                 value <- case size of
-                    NewInt64LE 8 -> Binary.get
+                    NewInt64LE 8 -> get
                     _ -> fail ("unknown QWordProperty size " ++ show size)
                 return (QWordProperty size value)
             _ -> fail ("unknown property type " ++ show kind)
 
     put property = case property of
         ArrayProperty size value -> do
-            "ArrayProperty" & NewPCString & Binary.put
-            size & Binary.put
-            value & Binary.put
+            "ArrayProperty" & NewPCString & put
+            size & put
+            value & put
 
         BoolProperty size value -> do
-            "BoolProperty" & NewPCString & Binary.put
-            size & Binary.put
-            value & Binary.put
+            "BoolProperty" & NewPCString & put
+            size & put
+            value & put
 
         ByteProperty size (key, value) -> do
-            "ByteProperty" & NewPCString & Binary.put
-            size & Binary.put
-            key & Binary.put
-            value & Binary.put
+            "ByteProperty" & NewPCString & put
+            size & put
+            key & put
+            value & put
 
         FloatProperty size value -> do
-            "FloatProperty" & NewPCString & Binary.put
-            size & Binary.put
-            value & Binary.put
+            "FloatProperty" & NewPCString & put
+            size & put
+            value & put
 
         IntProperty size value -> do
-            "IntProperty" & NewPCString & Binary.put
-            size & Binary.put
-            value & Binary.put
+            "IntProperty" & NewPCString & put
+            size & put
+            value & put
 
         NameProperty size value -> do
-            "NameProperty" & NewPCString & Binary.put
-            size & Binary.put
-            value & Binary.put
+            "NameProperty" & NewPCString & put
+            size & put
+            value & put
 
         QWordProperty size value -> do
-            "QWordProperty" & NewPCString & Binary.put
-            size & Binary.put
-            value & Binary.put
+            "QWordProperty" & NewPCString & put
+            size & put
+            value & put
 
         StrProperty size value -> do
-            "StrProperty" & NewPCString & Binary.put
-            size & Binary.put
-            value & Binary.put
+            "StrProperty" & NewPCString & put
+            size & put
+            value & put

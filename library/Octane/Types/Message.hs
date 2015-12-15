@@ -1,6 +1,5 @@
 module Octane.Types.Message where
 
-import qualified Data.Binary as Binary
 import Octane.Core
 import Octane.Types.Int32LE
 import Octane.Types.PCString
@@ -11,11 +10,11 @@ data Message = NewMessage {
     messageContent :: PCString
 } deriving (Show)
 
-instance Binary.Binary Message where
+instance Binary Message where
     get = do
-        frame <- Binary.get
-        name <- Binary.get
-        content <- Binary.get
+        frame <- get
+        name <- get
+        content <- get
         return NewMessage {
             messageFrame = frame,
             messageName = name,
@@ -23,6 +22,6 @@ instance Binary.Binary Message where
         }
 
     put message = do
-        message & messageFrame & Binary.put
-        message & messageName & Binary.put
-        message & messageContent & Binary.put
+        message & messageFrame & put
+        message & messageName & put
+        message & messageContent & put
