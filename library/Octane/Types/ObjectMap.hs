@@ -1,10 +1,10 @@
-module Octane.Parser.Types.ObjectMap where
+module Octane.Types.ObjectMap where
 
 import qualified Data.Binary as Binary
 import Data.Function ((&))
 import qualified Data.IntMap as IntMap
-import Octane.Parser.Types.List
-import Octane.Parser.Types.PCString
+import Octane.Types.List
+import Octane.Types.PCString
 
 newtype ObjectMap = NewObjectMap {
     getObjectMap :: IntMap.IntMap PCString

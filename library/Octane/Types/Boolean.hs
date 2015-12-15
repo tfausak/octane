@@ -1,4 +1,4 @@
-module Octane.Parser.Types.Boolean where
+module Octane.Types.Boolean where
 
 import qualified Data.Binary as Binary
 import Data.Function ((&))

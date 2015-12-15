@@ -1,6 +1,6 @@
-module Octane.Parser where
+module Octane where
 
-import Octane.Parser.Types
+import Octane.Types
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary

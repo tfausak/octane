@@ -1,8 +1,8 @@
-module Octane.Parser.Types.CacheProperty where
+module Octane.Types.CacheProperty where
 
 import qualified Data.Binary as Binary
 import Data.Function ((&))
-import Octane.Parser.Types.Int32LE
+import Octane.Types.Int32LE
 
 data CacheProperty = NewCacheProperty {
     cachePropertyIndex :: Int32LE,

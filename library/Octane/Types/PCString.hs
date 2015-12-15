@@ -1,4 +1,4 @@
-module Octane.Parser.Types.PCString where
+module Octane.Types.PCString where
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
@@ -9,7 +9,7 @@ import qualified Data.Char as Char
 import Data.Function ((&))
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-import Octane.Parser.Types.Int32LE
+import Octane.Types.Int32LE
 
 newtype PCString = NewPCString {
     getPCString :: Text.Text

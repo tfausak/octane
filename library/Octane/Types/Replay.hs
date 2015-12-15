@@ -1,21 +1,21 @@
-module Octane.Parser.Types.Replay where
+module Octane.Types.Replay where
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString as BS
 import Data.Function ((&))
-import Octane.Parser.Types.ActorMap
-import Octane.Parser.Types.CacheItem
-import Octane.Parser.Types.Int32LE
-import Octane.Parser.Types.KeyFrame
-import Octane.Parser.Types.List
-import Octane.Parser.Types.Mark
-import Octane.Parser.Types.Message
-import Octane.Parser.Types.ObjectMap
-import Octane.Parser.Types.PCString
-import Octane.Parser.Types.Property
-import Octane.Parser.Types.Table
+import Octane.Types.ActorMap
+import Octane.Types.CacheItem
+import Octane.Types.Int32LE
+import Octane.Types.KeyFrame
+import Octane.Types.List
+import Octane.Types.Mark
+import Octane.Types.Message
+import Octane.Types.ObjectMap
+import Octane.Types.PCString
+import Octane.Types.Property
+import Octane.Types.Table
 
 data Replay = NewReplay {
     replaySize1 :: Int32LE,

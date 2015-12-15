@@ -1,4 +1,4 @@
-module Octane.Parser.Types.Int64LE where
+module Octane.Types.Int64LE where
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary

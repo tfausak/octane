@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Octane.Parser.Types.Table where
+module Octane.Types.Table where
 
 import qualified Data.Binary as Binary
 import Data.Function ((&))
 import qualified Data.Map as Map
-import Octane.Parser.Types.PCString
+import Octane.Types.PCString
 
 newtype Table a = NewTable {
     getTable :: Map.Map PCString a

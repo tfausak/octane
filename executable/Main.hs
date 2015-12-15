@@ -1,1 +1,1 @@
-import Octane.Parser (main)
+import Octane (main)
