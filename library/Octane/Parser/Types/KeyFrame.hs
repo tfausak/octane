@@ -5,7 +5,7 @@ module Octane.Parser.Types.KeyFrame where
 import qualified Data.Aeson as Aeson
 import Data.Aeson ((.=))
 import qualified Data.Binary as Binary
-import Flow ((|>))
+import Data.Function ((&))
 import Octane.Parser.Types.Float32LE
 import Octane.Parser.Types.Int32LE
 
@@ -34,6 +34,6 @@ instance Binary.Binary KeyFrame where
         }
 
     put keyFrame = do
-        keyFrame |> keyFrameTime |> Binary.put
-        keyFrame |> keyFrameFrame |> Binary.put
-        keyFrame |> keyFramePosition |> Binary.put
+        keyFrame & keyFrameTime & Binary.put
+        keyFrame & keyFrameFrame & Binary.put
+        keyFrame & keyFramePosition & Binary.put

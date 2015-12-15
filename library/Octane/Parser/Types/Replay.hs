@@ -8,7 +8,7 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString as BS
-import Flow ((|>))
+import Data.Function ((&))
 import Octane.Parser.Types.ActorMap
 import Octane.Parser.Types.CacheItem
 import Octane.Parser.Types.Int32LE
@@ -106,24 +106,24 @@ instance Binary.Binary Replay where
         }
 
     put replay = do
-        replay |> replaySize1 |> Binary.put
-        replay |> replayCRC1 |> Binary.put
-        replay |> replayVersion1 |> Binary.put
-        replay |> replayVersion2 |> Binary.put
-        replay |> replayLabel |> Binary.put
-        replay |> replayProperties |> Binary.put
-        replay |> replaySize2 |> Binary.put
-        replay |> replayCRC2 |> Binary.put
-        replay |> replayEffects |> Binary.put
-        replay |> replayKeyFrames |> Binary.put
-        replay |> replayFrames |> putFrameBytes
-        replay |> replayMessages |> Binary.put
-        replay |> replayMarks |> Binary.put
-        replay |> replayPackages |> Binary.put
-        replay |> replayObjectMap |> Binary.put
-        replay |> replayNames |> Binary.put
-        replay |> replayActorMap |> Binary.put
-        replay |> replayCacheItems |> Binary.put
+        replay & replaySize1 & Binary.put
+        replay & replayCRC1 & Binary.put
+        replay & replayVersion1 & Binary.put
+        replay & replayVersion2 & Binary.put
+        replay & replayLabel & Binary.put
+        replay & replayProperties & Binary.put
+        replay & replaySize2 & Binary.put
+        replay & replayCRC2 & Binary.put
+        replay & replayEffects & Binary.put
+        replay & replayKeyFrames & Binary.put
+        replay & replayFrames & putFrameBytes
+        replay & replayMessages & Binary.put
+        replay & replayMarks & Binary.put
+        replay & replayPackages & Binary.put
+        replay & replayObjectMap & Binary.put
+        replay & replayNames & Binary.put
+        replay & replayActorMap & Binary.put
+        replay & replayCacheItems & Binary.put
 
 getFrameBytes :: Binary.Get BS.ByteString
 getFrameBytes = do
@@ -133,5 +133,5 @@ getFrameBytes = do
 
 putFrameBytes :: BS.ByteString -> Binary.Put
 putFrameBytes frames = do
-    frames |> BS.length |> fromIntegral |> NewInt32LE |> Binary.put
-    frames |> Binary.putByteString
+    frames & BS.length & fromIntegral & NewInt32LE & Binary.put
+    frames & Binary.putByteString

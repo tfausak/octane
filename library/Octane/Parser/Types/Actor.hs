@@ -1,7 +1,7 @@
 module Octane.Parser.Types.Actor where
 
 import qualified Data.Binary as Binary
-import Flow ((|>))
+import Data.Function ((&))
 import Octane.Parser.Types.Int32LE
 import Octane.Parser.Types.PCString
 
@@ -20,5 +20,5 @@ instance Binary.Binary Actor where
         }
 
     put actor = do
-        actor |> actorName |> Binary.put
-        actor |> actorTag |> Binary.put
+        actor & actorName & Binary.put
+        actor & actorTag & Binary.put

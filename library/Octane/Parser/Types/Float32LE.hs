@@ -6,7 +6,7 @@ module Octane.Parser.Types.Float32LE where
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.IEEE754 as Binary
-import Flow ((|>))
+import Data.Function ((&))
 
 newtype Float32LE = NewFloat32LE {
     getFloat32LE :: Float
@@ -18,7 +18,7 @@ instance Aeson.ToJSON Float32LE where
 instance Binary.Binary Float32LE where
     get = do
         float <- Binary.getFloat32le
-        float |> NewFloat32LE |> return
+        float & NewFloat32LE & return
 
     put (NewFloat32LE float) = do
-        float |> Binary.putFloat32le
+        float & Binary.putFloat32le

@@ -5,7 +5,7 @@ module Octane.Parser.Types.Boolean where
 
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import Flow ((|>))
+import Data.Function ((&))
 
 newtype Boolean = NewBoolean {
     getBoolean :: Bool
@@ -17,7 +17,7 @@ instance Aeson.ToJSON Boolean where
 instance Binary.Binary Boolean where
     get = do
         boolean <- Binary.getWord8
-        boolean |> fromIntegral |> toEnum |> NewBoolean |> return
+        boolean & fromIntegral & toEnum & NewBoolean & return
 
     put (NewBoolean boolean) = do
-        boolean |> fromEnum |> fromIntegral |> Binary.putWord8
+        boolean & fromEnum & fromIntegral & Binary.putWord8

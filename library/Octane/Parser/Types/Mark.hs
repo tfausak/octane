@@ -5,7 +5,7 @@ module Octane.Parser.Types.Mark where
 import qualified Data.Aeson as Aeson
 import Data.Aeson ((.=))
 import qualified Data.Binary as Binary
-import Flow ((|>))
+import Data.Function ((&))
 import Octane.Parser.Types.Int32LE
 import Octane.Parser.Types.PCString
 
@@ -30,5 +30,5 @@ instance Binary.Binary Mark where
         }
 
     put mark = do
-        mark |> markLabel |> Binary.put
-        mark |> markFrame |> Binary.put
+        mark & markLabel & Binary.put
+        mark & markFrame & Binary.put

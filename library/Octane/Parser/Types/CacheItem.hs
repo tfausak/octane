@@ -5,7 +5,7 @@ module Octane.Parser.Types.CacheItem where
 import qualified Data.Aeson as Aeson
 import Data.Aeson ((.=))
 import qualified Data.Binary as Binary
-import Flow ((|>))
+import Data.Function ((&))
 import Octane.Parser.Types.CacheProperty
 import Octane.Parser.Types.Int32LE
 import Octane.Parser.Types.List
@@ -39,7 +39,7 @@ instance Binary.Binary CacheItem where
         }
 
     put cacheItem = do
-        cacheItem |> cacheItemTag |> Binary.put
-        cacheItem |> cacheItemStart |> Binary.put
-        cacheItem |> cacheItemEnd |> Binary.put
-        cacheItem |> cacheItemCacheProperties |> Binary.put
+        cacheItem & cacheItemTag & Binary.put
+        cacheItem & cacheItemStart & Binary.put
+        cacheItem & cacheItemEnd & Binary.put
+        cacheItem & cacheItemCacheProperties & Binary.put

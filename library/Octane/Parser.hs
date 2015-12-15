@@ -7,9 +7,9 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Builder as BS
 import qualified Data.ByteString.Lazy as BSL
+import Data.Function ((&))
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
-import Flow ((|>))
 import qualified System.Environment as Env
 import qualified System.IO as IO
 
@@ -27,8 +27,8 @@ debug (file, contents, result) = case result of
     Right replay -> do
         putStrLn file
 
-        let inputSize = contents |> BS.length |> fromIntegral
-        let outputSize = replay |> Binary.encode |> BSL.length
+        let inputSize = contents & BS.length & fromIntegral
+        let outputSize = replay & Binary.encode & BSL.length
         if inputSize == outputSize then return () else IO.hPutStrLn IO.stderr
             ( "input size ("
             ++ show inputSize
@@ -133,16 +133,16 @@ debug (file, contents, result) = case result of
         putStrLn "# CACHE #\n"
         mapM_
             (\ cacheItem -> do
-                let a = cacheItem |> cacheItemTag |> getInt32LE |> fromIntegral
-                let b = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup a |> fmap getPCString
+                let a = cacheItem & cacheItemTag & getInt32LE & fromIntegral
+                let b = replay & replayObjectMap & getObjectMap & IntMap.lookup a & fmap getPCString
                 putStrLn ("ID:\t" ++ show a ++ " (" ++ show b ++ ")")
                 putStrLn ("Start:\t" ++ show (getInt32LE (cacheItemStart cacheItem)))
                 putStrLn ("End:\t" ++ show (getInt32LE (cacheItemEnd cacheItem)))
                 putStrLn "Properties:"
                 mapM_
                     (\ cacheProperty -> do
-                        let c = cacheProperty |> cachePropertyIndex |> getInt32LE |> fromIntegral
-                        let d = replay |> replayObjectMap |> getObjectMap |> IntMap.lookup c |> fmap getPCString
+                        let c = cacheProperty & cachePropertyIndex & getInt32LE & fromIntegral
+                        let d = replay & replayObjectMap & getObjectMap & IntMap.lookup c & fmap getPCString
                         putStrLn ("- " ++ show (getInt32LE (cachePropertyTag cacheProperty)) ++ "\t=> " ++ show c ++ " (" ++ show d ++ ")"))
                     (getList (cacheItemCacheProperties cacheItem))
                 putStrLn "")

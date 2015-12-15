@@ -5,7 +5,7 @@ module Octane.Parser.Types.CacheProperty where
 import qualified Data.Aeson as Aeson
 import Data.Aeson ((.=))
 import qualified Data.Binary as Binary
-import Flow ((|>))
+import Data.Function ((&))
 import Octane.Parser.Types.Int32LE
 
 data CacheProperty = NewCacheProperty {
@@ -29,5 +29,5 @@ instance Binary.Binary CacheProperty where
         }
 
     put cacheProperty = do
-        cacheProperty |> cachePropertyIndex |> Binary.put
-        cacheProperty |> cachePropertyTag |> Binary.put
+        cacheProperty & cachePropertyIndex & Binary.put
+        cacheProperty & cachePropertyTag & Binary.put

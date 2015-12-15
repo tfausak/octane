@@ -7,8 +7,8 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
+import Data.Function ((&))
 import qualified Data.Int as Int
-import Flow ((|>))
 
 newtype Int64LE = NewInt64LE {
     getInt64LE :: Int.Int64
@@ -20,7 +20,7 @@ instance Aeson.ToJSON Int64LE where
 instance Binary.Binary Int64LE where
     get = do
         int <- Binary.getWord64le
-        int |> fromIntegral |> NewInt64LE |> return
+        int & fromIntegral & NewInt64LE & return
 
     put (NewInt64LE int) = do
-        int |> fromIntegral |> Binary.putWord64le
+        int & fromIntegral & Binary.putWord64le

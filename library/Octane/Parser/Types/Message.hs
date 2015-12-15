@@ -5,7 +5,7 @@ module Octane.Parser.Types.Message where
 import qualified Data.Aeson as Aeson
 import Data.Aeson ((.=))
 import qualified Data.Binary as Binary
-import Flow ((|>))
+import Data.Function ((&))
 import Octane.Parser.Types.Int32LE
 import Octane.Parser.Types.PCString
 
@@ -34,6 +34,6 @@ instance Binary.Binary Message where
         }
 
     put message = do
-        message |> messageFrame |> Binary.put
-        message |> messageName |> Binary.put
-        message |> messageContent |> Binary.put
+        message & messageFrame & Binary.put
+        message & messageName & Binary.put
+        message & messageContent & Binary.put

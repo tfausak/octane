@@ -4,7 +4,7 @@ module Octane.Parser.Types.Property where
 
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import Flow ((|>))
+import Data.Function ((&))
 import Octane.Parser.Types.Boolean
 import Octane.Parser.Types.Float32LE
 import Octane.Parser.Types.Int32LE
@@ -75,42 +75,42 @@ instance Binary.Binary Property where
 
     put property = case property of
         ArrayProperty size value -> do
-            "ArrayProperty" |> NewPCString |> Binary.put
-            size |> Binary.put
-            value |> Binary.put
+            "ArrayProperty" & NewPCString & Binary.put
+            size & Binary.put
+            value & Binary.put
 
         BoolProperty size value -> do
-            "BoolProperty" |> NewPCString |> Binary.put
-            size |> Binary.put
-            value |> Binary.put
+            "BoolProperty" & NewPCString & Binary.put
+            size & Binary.put
+            value & Binary.put
 
         ByteProperty size (key, value) -> do
-            "ByteProperty" |> NewPCString |> Binary.put
-            size |> Binary.put
-            key |> Binary.put
-            value |> Binary.put
+            "ByteProperty" & NewPCString & Binary.put
+            size & Binary.put
+            key & Binary.put
+            value & Binary.put
 
         FloatProperty size value -> do
-            "FloatProperty" |> NewPCString |> Binary.put
-            size |> Binary.put
-            value |> Binary.put
+            "FloatProperty" & NewPCString & Binary.put
+            size & Binary.put
+            value & Binary.put
 
         IntProperty size value -> do
-            "IntProperty" |> NewPCString |> Binary.put
-            size |> Binary.put
-            value |> Binary.put
+            "IntProperty" & NewPCString & Binary.put
+            size & Binary.put
+            value & Binary.put
 
         NameProperty size value -> do
-            "NameProperty" |> NewPCString |> Binary.put
-            size |> Binary.put
-            value |> Binary.put
+            "NameProperty" & NewPCString & Binary.put
+            size & Binary.put
+            value & Binary.put
 
         QWordProperty size value -> do
-            "QWordProperty" |> NewPCString |> Binary.put
-            size |> Binary.put
-            value |> Binary.put
+            "QWordProperty" & NewPCString & Binary.put
+            size & Binary.put
+            value & Binary.put
 
         StrProperty size value -> do
-            "StrProperty" |> NewPCString |> Binary.put
-            size |> Binary.put
-            value |> Binary.put
+            "StrProperty" & NewPCString & Binary.put
+            size & Binary.put
+            value & Binary.put
