@@ -85,4 +85,4 @@ Here is an overview of what I know:
 17. Cache. List of cache items, which are 3 ints and a list of cache
     properties. Each cache property is 2 ints.
 
-[octane]: https://gitlab.com/taylorfausak/octane
+[octane]: https://github.com/tfausak/octane

@@ -5,7 +5,7 @@ build-type: Simple
 license: MIT
 license-file: LICENSE.md
 maintainer: Taylor Fausak
-homepage: https://gitlab.com/taylorfausak/octane
+homepage: https://github.com/tfausak/octane
 synopsis: A Rocket Leage replay parser.
 description:
     Octane parses Rocket League replays.
@@ -16,7 +16,7 @@ extra-source-files:
 
 source-repository head
     type: git
-    location: git@gitlab.com:taylorfausak/octane.git
+    location: https://github.com/tfausak/octane
 
 library
     exposed-modules:
