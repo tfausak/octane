@@ -1,4 +1,4 @@
 extra-deps:
 - binary-bits-0.5
 packages: [.]
-resolver: lts-3.8
+resolver: nightly-2015-12-14

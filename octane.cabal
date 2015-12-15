@@ -13,6 +13,7 @@ category: Game
 extra-source-files:
     CHANGELOG.md
     README.md
+    stack.yaml
 
 source-repository head
     type: git
@@ -40,7 +41,7 @@ library
         Octane.Parser.Types.Replay
         Octane.Parser.Types.Table
     build-depends:
-        aeson ==0.8.*,
+        aeson ==0.9.*,
         base ==4.8.*,
         binary ==0.7.*,
         bytestring ==0.10.*,
