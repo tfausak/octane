@@ -2,9 +2,9 @@ module Octane.Types.Int64LE where
 
 import Octane.Core
 
-newtype Int64LE = NewInt64LE {
-    getInt64LE :: Int64
-} deriving (Show)
+newtype Int64LE = NewInt64LE
+    { getInt64LE :: Int64
+    } deriving (Show)
 
 instance Binary Int64LE where
     get = do

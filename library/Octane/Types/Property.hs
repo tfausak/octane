@@ -26,38 +26,38 @@ instance Binary Property where
     get = do
         kind <- get
         size <- get
-        case (getPCString kind) of
+        case getPCString kind of
             "ArrayProperty" -> do
                 value <- get
-                return (ArrayProperty size value)
+                ArrayProperty size value & return
             "BoolProperty" -> do
                 value <- get
-                return (BoolProperty size value)
+                BoolProperty size value & return
             "ByteProperty" -> do
                 key <- get
                 value <- get
-                return (ByteProperty size (key, value))
+                ByteProperty size (key, value) & return
             "FloatProperty" -> do
                 value <- case size of
                     NewInt64LE 4 -> get
                     _ -> fail ("unknown FloatProperty size " ++ show size)
-                return (FloatProperty size value)
+                FloatProperty size value & return
             "IntProperty" -> do
                 value <- case size of
                     NewInt64LE 4 -> get
                     _ -> fail ("unknown IntProperty size " ++ show size)
-                return (IntProperty size value)
+                IntProperty size value & return
             "NameProperty" -> do
                 value <- get
-                return (NameProperty size value)
+                NameProperty size value & return
             "StrProperty" -> do
                 value <- get
-                return (StrProperty size value)
+                StrProperty size value & return
             "QWordProperty" -> do
                 value <- case size of
                     NewInt64LE 8 -> get
                     _ -> fail ("unknown QWordProperty size " ++ show size)
-                return (QWordProperty size value)
+                QWordProperty size value & return
             _ -> fail ("unknown property type " ++ show kind)
 
     put property = case property of

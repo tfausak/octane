@@ -6,9 +6,9 @@ import qualified Data.Map as Map
 import Octane.Core
 import Octane.Types.PCString
 
-newtype Table a = NewTable {
-    getTable :: Map PCString a
-} deriving (Show)
+newtype Table a = NewTable
+    { getTable :: Map PCString a
+    } deriving (Show)
 
 instance (Binary a) => Binary (Table a) where
     get = do

@@ -5,12 +5,12 @@ import Octane.Types.CacheProperty
 import Octane.Types.Int32LE
 import Octane.Types.List
 
-data CacheItem = NewCacheItem {
-    cacheItemTag :: Int32LE,
-    cacheItemStart :: Int32LE,
-    cacheItemEnd :: Int32LE,
-    cacheItemCacheProperties :: List CacheProperty
-} deriving (Show)
+data CacheItem = NewCacheItem
+    { cacheItemTag :: Int32LE
+    , cacheItemStart :: Int32LE
+    , cacheItemEnd :: Int32LE
+    , cacheItemCacheProperties :: List CacheProperty
+    } deriving (Show)
 
 instance Binary CacheItem where
     get = do
@@ -18,12 +18,12 @@ instance Binary CacheItem where
         start <- get
         end <- get
         cacheProperties <- get
-        return NewCacheItem {
-            cacheItemTag = tag,
-            cacheItemStart = start,
-            cacheItemEnd = end,
-            cacheItemCacheProperties = cacheProperties
-        }
+        return NewCacheItem
+            { cacheItemTag = tag
+            , cacheItemStart = start
+            , cacheItemEnd = end
+            , cacheItemCacheProperties = cacheProperties
+            }
 
     put cacheItem = do
         cacheItem & cacheItemTag & put

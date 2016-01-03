@@ -3,9 +3,9 @@ module Octane.Types.List where
 import Octane.Core
 import Octane.Types.Int32LE
 
-newtype List a = NewList {
-    getList :: [a]
-} deriving (Show)
+newtype List a = NewList
+    { getList :: [a]
+    } deriving (Show)
 
 instance (Binary a) => Binary (List a) where
     get = do

@@ -2,9 +2,9 @@ module Octane.Types.Boolean where
 
 import Octane.Core
 
-newtype Boolean = NewBoolean {
-    getBoolean :: Bool
-} deriving (Show)
+newtype Boolean = NewBoolean
+    { getBoolean :: Bool
+    } deriving (Show)
 
 instance Binary Boolean where
     get = do

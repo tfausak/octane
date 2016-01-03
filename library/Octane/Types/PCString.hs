@@ -5,9 +5,9 @@ import qualified Data.Text as Text
 import Octane.Core
 import Octane.Types.Int32LE
 
-newtype PCString = NewPCString {
-    getPCString :: Text
-} deriving (Eq, Ord, Show)
+newtype PCString = NewPCString
+    { getPCString :: Text
+    } deriving (Eq, Ord, Show)
 
 instance Binary PCString where
     get = do

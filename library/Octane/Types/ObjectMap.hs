@@ -5,9 +5,9 @@ import Octane.Core
 import Octane.Types.List
 import Octane.Types.PCString
 
-newtype ObjectMap = NewObjectMap {
-    getObjectMap :: IntMap PCString
-} deriving (Show)
+newtype ObjectMap = NewObjectMap
+    { getObjectMap :: IntMap PCString
+    } deriving (Show)
 
 instance Binary ObjectMap where
     get = do

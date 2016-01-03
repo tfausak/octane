@@ -14,26 +14,26 @@ import Octane.Types.PCString
 import Octane.Types.Property
 import Octane.Types.Table
 
-data Replay = NewReplay {
-    replaySize1 :: Int32LE,
-    replayCRC1 :: Int32LE,
-    replayVersion1 :: Int32LE,
-    replayVersion2 :: Int32LE,
-    replayLabel :: PCString,
-    replayProperties :: Table Property,
-    replaySize2 :: Int32LE,
-    replayCRC2 :: Int32LE,
-    replayEffects :: List PCString,
-    replayKeyFrames :: List KeyFrame,
-    replayFrames :: ByteString,
-    replayMessages :: List Message,
-    replayMarks :: List Mark,
-    replayPackages :: List PCString,
-    replayObjectMap :: ObjectMap,
-    replayNames :: List PCString,
-    replayActorMap :: ActorMap,
-    replayCacheItems :: List CacheItem
-} deriving (Show)
+data Replay = NewReplay
+    { replaySize1 :: Int32LE
+    , replayCRC1 :: Int32LE
+    , replayVersion1 :: Int32LE
+    , replayVersion2 :: Int32LE
+    , replayLabel :: PCString
+    , replayProperties :: Table Property
+    , replaySize2 :: Int32LE
+    , replayCRC2 :: Int32LE
+    , replayEffects :: List PCString
+    , replayKeyFrames :: List KeyFrame
+    , replayFrames :: ByteString
+    , replayMessages :: List Message
+    , replayMarks :: List Mark
+    , replayPackages :: List PCString
+    , replayObjectMap :: ObjectMap
+    , replayNames :: List PCString
+    , replayActorMap :: ActorMap
+    , replayCacheItems :: List CacheItem
+    } deriving (Show)
 
 instance Binary Replay where
     get = do
@@ -55,26 +55,26 @@ instance Binary Replay where
         names <- get
         actorMap <- get
         cacheItems <- get
-        return NewReplay {
-            replaySize1 = size1,
-            replayCRC1 = crc1,
-            replayVersion1 = version1,
-            replayVersion2 = version2,
-            replayLabel = label,
-            replayProperties = properties,
-            replaySize2 = size2,
-            replayCRC2 = crc2,
-            replayEffects = effects,
-            replayKeyFrames = keyFrames,
-            replayFrames = frames,
-            replayMessages = messages,
-            replayMarks = marks,
-            replayPackages = packages,
-            replayObjectMap = objectMap,
-            replayNames = names,
-            replayActorMap = actorMap,
-            replayCacheItems = cacheItems
-        }
+        return NewReplay
+            { replaySize1 = size1
+            , replayCRC1 = crc1
+            , replayVersion1 = version1
+            , replayVersion2 = version2
+            , replayLabel = label
+            , replayProperties = properties
+            , replaySize2 = size2
+            , replayCRC2 = crc2
+            , replayEffects = effects
+            , replayKeyFrames = keyFrames
+            , replayFrames = frames
+            , replayMessages = messages
+            , replayMarks = marks
+            , replayPackages = packages
+            , replayObjectMap = objectMap
+            , replayNames = names
+            , replayActorMap = actorMap
+            , replayCacheItems = cacheItems
+            }
 
     put replay = do
         replay & replaySize1 & put

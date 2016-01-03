@@ -7,9 +7,9 @@ import Octane.Types.Int32LE
 import Octane.Types.List
 import Octane.Types.PCString
 
-newtype ActorMap = NewActorMap {
-    getActorMap :: IntMap.IntMap PCString
-} deriving (Show)
+newtype ActorMap = NewActorMap
+    { getActorMap :: IntMap.IntMap PCString
+    } deriving (Show)
 
 instance Binary ActorMap where
     get = do
@@ -21,10 +21,12 @@ instance Binary ActorMap where
 
 toTuple :: Actor -> (Int, PCString)
 toTuple actor =
-    (actor & actorTag & getInt32LE & fromIntegral, actor & actorName)
+    ( actor & actorTag & getInt32LE & fromIntegral
+    , actor & actorName
+    )
 
 fromTuple :: (Int, PCString) -> Actor
-fromTuple (tag, name) = NewActor {
-    actorName = name,
-    actorTag = tag & fromIntegral & NewInt32LE
-}
+fromTuple (tag, name) = NewActor
+    { actorName = name
+    , actorTag = tag & fromIntegral & NewInt32LE
+    }
