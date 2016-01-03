@@ -1,1 +1,4 @@
-import Octane (main)
+import qualified Octane
+
+main :: IO ()
+main = Octane.main

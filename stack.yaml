@@ -1,4 +1,5 @@
 extra-deps:
 - binary-bits-0.5
+install-ghc: true
 packages: [.]
-resolver: nightly-2015-12-14
+resolver: nightly-2016-01-02

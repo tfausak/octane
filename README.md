@@ -4,22 +4,12 @@ Octane parses [Rocket League][] replays.
 
 ## Usage
 
-To install Octane, start off by installing [Stack][]. Then you can build Octane
-with:
+1.  Install [Stack][].
 
-``` sh
-> stack build --install-ghc
-```
+2.  Install Octane with `stack build`.
 
-That may take a while. When it finishes, you can parse replays with:
-
-``` sh
-> stack exec -- octane path/to/the.replay
-```
-
-If you need some replays to play with, check out [Rocket League Replays][].
+3.  Parse a replay with `stack exec octane example.replay`.
 
 [octane]: https://github.com/tfausak/octane
 [rocket league]: http://rocketleague.psyonix.com
 [stack]: http://haskellstack.org
-[rocket league replays]: http://www.rocketleaguereplays.com
