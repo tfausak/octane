@@ -65,38 +65,31 @@ instance Binary Property where
             "ArrayProperty" & NewPCString & put
             size & put
             value & put
-
         BoolProperty size value -> do
             "BoolProperty" & NewPCString & put
             size & put
             value & put
-
         ByteProperty size (key, value) -> do
             "ByteProperty" & NewPCString & put
             size & put
             key & put
             value & put
-
         FloatProperty size value -> do
             "FloatProperty" & NewPCString & put
             size & put
             value & put
-
         IntProperty size value -> do
             "IntProperty" & NewPCString & put
             size & put
             value & put
-
         NameProperty size value -> do
             "NameProperty" & NewPCString & put
             size & put
             value & put
-
         QWordProperty size value -> do
             "QWordProperty" & NewPCString & put
             size & put
             value & put
-
         StrProperty size value -> do
             "StrProperty" & NewPCString & put
             size & put

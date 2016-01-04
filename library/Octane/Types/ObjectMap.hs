@@ -12,7 +12,7 @@ newtype ObjectMap = NewObjectMap
 instance Binary ObjectMap where
     get = do
         NewList objects <- get
-        objects & zip [0 ..] & IntMap.fromList & NewObjectMap & return
+        objects & zip [0 ..] & IntMap.fromAscList & NewObjectMap & return
 
     put (NewObjectMap objects) = do
         objects & IntMap.elems & NewList & put
