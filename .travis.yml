@@ -14,4 +14,4 @@ before_install:
 - stack install hscolour
 script:
 - stack --no-terminal test --haddock
-- stack exec cabal check
+- stack sdist
