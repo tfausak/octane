@@ -15,3 +15,9 @@ before_install:
 script:
 - stack --no-terminal test --haddock --pedantic
 - stack sdist
+after_success:
+- >-
+  test $TRAVIS_TAG &&
+  mkdir -p ~/.stack/upload &&
+  echo "{ \"username\": \"$HACKAGE_USERNAME\" , \"password\": \"$HACKAGE_PASSWORD\" }" > ~/.stack/upload/credentials.json &&
+  stack upload .
