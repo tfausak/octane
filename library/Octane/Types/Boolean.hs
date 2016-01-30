@@ -4,12 +4,14 @@ import Octane.Core
 
 newtype Boolean = NewBoolean
     { getBoolean :: Bool
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance Binary Boolean where
     get = do
         boolean <- getWord8
-        boolean & fromIntegral & toEnum & NewBoolean & return
+        if boolean > 1
+        then fail "out of bounds"
+        else boolean & fromIntegral & toEnum & NewBoolean & return
 
     put (NewBoolean boolean) = do
         boolean & fromEnum & fromIntegral & putWord8
