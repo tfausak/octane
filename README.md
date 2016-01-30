@@ -1,5 +1,7 @@
 # [Octane][]
 
+[![Build badge]][build status]
+
 Octane parses [Rocket League][] replays.
 
 ## Usage
@@ -11,5 +13,7 @@ Octane parses [Rocket League][] replays.
 3.  Parse a replay with `stack exec octane example.replay`.
 
 [octane]: https://github.com/tfausak/octane
+[build badge]: https://img.shields.io/travis/tfausak/octane/main.svg
+[build status]: https://travis-ci.org/tfausak/octane
 [rocket league]: http://rocketleague.psyonix.com
 [stack]: http://haskellstack.org
