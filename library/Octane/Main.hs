@@ -23,12 +23,13 @@ debug (file, contents, result) = case result of
 
         let inputSize = contents & BS.length & fromIntegral
         let outputSize = replay & encode & BSL.length
-        if inputSize == outputSize then return () else hPutStrLn stderr
-            ( "input size ("
-            ++ show inputSize
-            ++ ") not equal to output size ("
-            ++ show outputSize ++ ")!"
-            )
+        when (inputSize /= outputSize) $ do
+            hPutStrLn stderr
+                ( "input size ("
+                ++ show inputSize
+                ++ ") not equal to output size ("
+                ++ show outputSize ++ ")!"
+                )
         putStrLn ""
 
         putStrLn "# SIZE 1 #\n"

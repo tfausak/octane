@@ -1,6 +1,6 @@
 module Octane.Core (module Octane.Core) where
 
-import Control.Monad as Octane.Core (replicateM)
+import Control.Monad as Octane.Core (replicateM, when)
 import Data.Binary as Octane.Core (Binary, Get, Put, decodeFileOrFail, encode, get, getWord8, put, putWord8)
 import Data.Binary.Get as Octane.Core (ByteOffset, getByteString, getWord32le, getWord64le)
 import Data.Binary.IEEE754 as Octane.Core (getFloat32le, putFloat32le)
