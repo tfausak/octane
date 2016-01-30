@@ -10,7 +10,7 @@ Octane parses [Rocket League][] replays.
 
 2.  Install Octane with `stack build`.
 
-3.  Parse a replay with `stack exec octane example.replay`.
+3.  Parse a replay with `stack exec octane path/to/the.replay`.
 
 [octane]: https://github.com/tfausak/octane
 [build badge]: https://img.shields.io/travis/tfausak/octane/main.svg

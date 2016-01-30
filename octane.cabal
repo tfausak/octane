@@ -22,7 +22,6 @@ source-repository head
 library
     exposed-modules:
         Octane
-        Octane.Core
         Octane.Main
         Octane.Types
         Octane.Types.Actor
@@ -42,6 +41,8 @@ library
         Octane.Types.Property
         Octane.Types.Replay
         Octane.Types.Table
+    other-modules:
+        Octane.Core
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,
@@ -54,7 +55,7 @@ library
     ghc-options: -Wall
 
 executable octane
-    main-is: Main.hs
+    main-is: Executable.hs
     build-depends:
         base -any,
         octane -any
@@ -62,3 +63,35 @@ executable octane
     hs-source-dirs: executable
     ghc-options: -threaded -Wall
 
+test-suite octane-test-suite
+    type: exitcode-stdio-1.0
+    main-is: TestSuite.hs
+    build-depends:
+        base -any,
+        octane -any,
+        tasty ==0.11.*,
+        tasty-hspec ==1.1.*
+    default-language: Haskell2010
+    hs-source-dirs: test-suite
+    ghc-options: -threaded -Wall -Werror
+    other-modules:
+        OctaneSpec
+        Octane.MainSpec
+        Octane.TypesSpec
+        Octane.Types.ActorSpec
+        Octane.Types.ActorMapSpec
+        Octane.Types.BooleanSpec
+        Octane.Types.CacheItemSpec
+        Octane.Types.CachePropertySpec
+        Octane.Types.Float32LESpec
+        Octane.Types.Int32LESpec
+        Octane.Types.Int64LESpec
+        Octane.Types.KeyFrameSpec
+        Octane.Types.ListSpec
+        Octane.Types.MarkSpec
+        Octane.Types.MessageSpec
+        Octane.Types.ObjectMapSpec
+        Octane.Types.PCStringSpec
+        Octane.Types.PropertySpec
+        Octane.Types.ReplaySpec
+        Octane.Types.TableSpec
