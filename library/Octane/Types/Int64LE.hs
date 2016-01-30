@@ -4,7 +4,7 @@ import Octane.Core
 
 newtype Int64LE = NewInt64LE
     { getInt64LE :: Int64
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance Binary Int64LE where
     get = do

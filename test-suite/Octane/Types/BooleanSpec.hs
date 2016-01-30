@@ -16,8 +16,6 @@ spec = describe "Boolean" $ do
     it "can be encoded" $ do
         Binary.encode (Octane.NewBoolean False) `shouldBe` "\0"
         Binary.encode (Octane.NewBoolean True) `shouldBe` "\1"
-    it "handles extra data when decoding" $ do
-        decodeBoolean "\0extra" `shouldBe` Right ("extra", 1, Octane.NewBoolean False)
     it "does not raise a runtime error when decoding garbage" $ do
         decodeBoolean "garbage" `shouldBe` Left ("arbage", 1, "out of bounds")
 
