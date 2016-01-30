@@ -1,4 +1,4 @@
-module Octane.Types.Actor where
+module Octane.Types.Actor (Actor(..)) where
 
 import Octane.Core
 import Octane.Types.Int32LE

@@ -1,4 +1,4 @@
-module Octane.Types.Replay where
+module Octane.Types.Replay (Replay(..)) where
 
 import qualified Data.ByteString as BS
 import Octane.Core

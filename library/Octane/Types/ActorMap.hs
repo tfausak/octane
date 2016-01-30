@@ -1,4 +1,4 @@
-module Octane.Types.ActorMap where
+module Octane.Types.ActorMap (ActorMap(..)) where
 
 import qualified Data.IntMap as IntMap
 import Octane.Core

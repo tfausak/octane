@@ -1,4 +1,4 @@
-module Octane.Types.Mark where
+module Octane.Types.Mark (Mark(..)) where
 
 import Octane.Core
 import Octane.Types.Int32LE

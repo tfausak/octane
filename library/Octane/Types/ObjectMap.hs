@@ -1,4 +1,4 @@
-module Octane.Types.ObjectMap where
+module Octane.Types.ObjectMap (ObjectMap(..)) where
 
 import qualified Data.IntMap as IntMap
 import Octane.Core

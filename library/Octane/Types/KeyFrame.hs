@@ -1,4 +1,4 @@
-module Octane.Types.KeyFrame where
+module Octane.Types.KeyFrame (KeyFrame(..)) where
 
 import Octane.Core
 import Octane.Types.Float32LE

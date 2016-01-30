@@ -1,4 +1,4 @@
-module Octane.Types.List where
+module Octane.Types.List (List(..)) where
 
 import Octane.Core
 import Octane.Types.Int32LE

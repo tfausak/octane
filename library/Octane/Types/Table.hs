@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Octane.Types.Table where
+module Octane.Types.Table (Table(..)) where
 
 import qualified Data.Map as Map
 import Octane.Core

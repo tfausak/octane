@@ -1,4 +1,4 @@
-module Octane.Types.Boolean where
+module Octane.Types.Boolean (Boolean(..)) where
 
 import Octane.Core
 

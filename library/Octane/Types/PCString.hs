@@ -1,4 +1,4 @@
-module Octane.Types.PCString where
+module Octane.Types.PCString (PCString(..)) where
 
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Text as Text

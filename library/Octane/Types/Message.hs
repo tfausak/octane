@@ -1,4 +1,4 @@
-module Octane.Types.Message where
+module Octane.Types.Message (Message(..)) where
 
 import Octane.Core
 import Octane.Types.Int32LE

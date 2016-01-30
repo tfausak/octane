@@ -1,7 +1,6 @@
-module Octane.Main where
+module Octane.Main (main) where
 
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Builder as BSB
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
@@ -142,11 +141,6 @@ debug (file, contents, result) = case result of
                     (getList (cacheItemCacheProperties cacheItem))
                 putStrLn "")
             (getList (replayCacheItems replay))
-
-debugByteString :: ByteString -> IO ()
-debugByteString bytes = do
-    BSB.hPutBuilder stdout (BSB.byteStringHex bytes)
-    putStrLn ""
 
 debugProperty :: Property -> IO ()
 debugProperty property = case property of

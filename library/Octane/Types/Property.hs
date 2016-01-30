@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Octane.Types.Property where
+module Octane.Types.Property (Property(..)) where
 
 import Octane.Core
 import Octane.Types.Boolean

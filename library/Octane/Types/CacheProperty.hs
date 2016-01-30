@@ -1,4 +1,4 @@
-module Octane.Types.CacheProperty where
+module Octane.Types.CacheProperty (CacheProperty(..)) where
 
 import Octane.Core
 import Octane.Types.Int32LE

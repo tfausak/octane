@@ -1,4 +1,4 @@
-module Octane.Types.CacheItem where
+module Octane.Types.CacheItem (CacheItem(..)) where
 
 import Octane.Core
 import Octane.Types.CacheProperty
