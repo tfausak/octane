@@ -3,12 +3,12 @@
 module Octane.Type.Property (Property(..)) where
 
 import Octane.Core
-import Octane.Type.Int64LE
 import Octane.Type.List
 import Octane.Type.PCString
 import Octane.Type.Primitive.Boolean
 import Octane.Type.Primitive.Float32LE
 import Octane.Type.Primitive.Int32LE
+import Octane.Type.Primitive.Int64LE
 import Octane.Type.Table
 
 data Property
