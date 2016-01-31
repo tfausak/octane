@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Octane.Type.BooleanSpec (spec) where
+module Octane.Type.Primitive.BooleanSpec (spec) where
 
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary

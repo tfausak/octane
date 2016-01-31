@@ -26,7 +26,6 @@ library
         Octane.Type
         Octane.Type.Actor
         Octane.Type.ActorMap
-        Octane.Type.Boolean
         Octane.Type.CacheItem
         Octane.Type.CacheProperty
         Octane.Type.Float32LE
@@ -38,6 +37,8 @@ library
         Octane.Type.Message
         Octane.Type.ObjectMap
         Octane.Type.PCString
+        Octane.Type.Primitive
+        Octane.Type.Primitive.Boolean
         Octane.Type.Property
         Octane.Type.Replay
         Octane.Type.Table
@@ -81,7 +82,6 @@ test-suite octane-test-suite
         Octane.TypeSpec
         Octane.Type.ActorSpec
         Octane.Type.ActorMapSpec
-        Octane.Type.BooleanSpec
         Octane.Type.CacheItemSpec
         Octane.Type.CachePropertySpec
         Octane.Type.Float32LESpec
@@ -93,6 +93,8 @@ test-suite octane-test-suite
         Octane.Type.MessageSpec
         Octane.Type.ObjectMapSpec
         Octane.Type.PCStringSpec
+        Octane.Type.PrimitiveSpec
+        Octane.Type.Primitive.BooleanSpec
         Octane.Type.PropertySpec
         Octane.Type.ReplaySpec
         Octane.Type.TableSpec
