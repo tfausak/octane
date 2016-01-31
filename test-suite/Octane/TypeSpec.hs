@@ -4,7 +4,6 @@ import qualified Octane.Type.ActorSpec as ActorSpec
 import qualified Octane.Type.ActorMapSpec as ActorMapSpec
 import qualified Octane.Type.CacheItemSpec as CacheItemSpec
 import qualified Octane.Type.CachePropertySpec as CachePropertySpec
-import qualified Octane.Type.Int32LESpec as Int32LESpec
 import qualified Octane.Type.Int64LESpec as Int64LESpec
 import qualified Octane.Type.KeyFrameSpec as KeyFrameSpec
 import qualified Octane.Type.ListSpec as ListSpec
@@ -24,7 +23,6 @@ spec = describe "Type" $ do
     ActorMapSpec.spec
     CacheItemSpec.spec
     CachePropertySpec.spec
-    Int32LESpec.spec
     Int64LESpec.spec
     KeyFrameSpec.spec
     ListSpec.spec

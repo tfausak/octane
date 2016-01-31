@@ -4,7 +4,6 @@ import Octane.Type.Actor as Octane.Type
 import Octane.Type.ActorMap as Octane.Type
 import Octane.Type.CacheItem as Octane.Type
 import Octane.Type.CacheProperty as Octane.Type
-import Octane.Type.Int32LE as Octane.Type
 import Octane.Type.Int64LE as Octane.Type
 import Octane.Type.KeyFrame as Octane.Type
 import Octane.Type.List as Octane.Type

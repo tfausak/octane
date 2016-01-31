@@ -1,4 +1,4 @@
-module Octane.Type.Int32LE (Int32LE(..)) where
+module Octane.Type.Primitive.Int32LE (Int32LE(..)) where
 
 import Octane.Core
 

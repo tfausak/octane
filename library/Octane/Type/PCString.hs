@@ -3,7 +3,7 @@ module Octane.Type.PCString (PCString(..)) where
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Text as Text
 import Octane.Core
-import Octane.Type.Int32LE
+import Octane.Type.Primitive.Int32LE
 
 newtype PCString = NewPCString
     { getPCString :: Text

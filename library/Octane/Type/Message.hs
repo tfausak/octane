@@ -1,8 +1,8 @@
 module Octane.Type.Message (Message(..)) where
 
 import Octane.Core
-import Octane.Type.Int32LE
 import Octane.Type.PCString
+import Octane.Type.Primitive.Int32LE
 
 data Message = NewMessage
     { messageFrame :: Int32LE

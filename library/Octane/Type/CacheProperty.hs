@@ -1,7 +1,7 @@
 module Octane.Type.CacheProperty (CacheProperty(..)) where
 
 import Octane.Core
-import Octane.Type.Int32LE
+import Octane.Type.Primitive.Int32LE
 
 data CacheProperty = NewCacheProperty
     { cachePropertyIndex :: Int32LE

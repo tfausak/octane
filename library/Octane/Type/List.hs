@@ -1,7 +1,7 @@
 module Octane.Type.List (List(..)) where
 
 import Octane.Core
-import Octane.Type.Int32LE
+import Octane.Type.Primitive.Int32LE
 
 newtype List a = NewList
     { getList :: [a]
