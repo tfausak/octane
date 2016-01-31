@@ -14,7 +14,7 @@ Octane parses [Rocket League][] replays.
 3.  Parse a replay with `stack exec octane path/to/the.replay`.
 
 [Octane]: https://github.com/tfausak/octane
-[Version badge]: https://www.stackage.org/package/octane/badge/nightly
+[Version badge]: https://www.stackage.org/package/octane/badge/nightly?label
 [package version]: https://www.stackage.org/package/octane
 [Build badge]: https://travis-ci.org/tfausak/octane.svg?branch=main
 [build status]: https://travis-ci.org/tfausak/octane
