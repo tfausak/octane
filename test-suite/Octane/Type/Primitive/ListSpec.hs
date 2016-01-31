@@ -1,4 +1,4 @@
-module Octane.Type.ListSpec (spec) where
+module Octane.Type.Primitive.ListSpec (spec) where
 
 import Test.Tasty.Hspec
 

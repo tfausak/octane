@@ -2,8 +2,8 @@ module Octane.Type.CacheItem (CacheItem(..)) where
 
 import Octane.Core
 import Octane.Type.CacheProperty
-import Octane.Type.List
 import Octane.Type.Primitive.Int32LE
+import Octane.Type.Primitive.List
 
 data CacheItem = NewCacheItem
     { cacheItemTag :: Int32LE

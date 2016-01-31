@@ -29,7 +29,6 @@ library
         Octane.Type.CacheItem
         Octane.Type.CacheProperty
         Octane.Type.KeyFrame
-        Octane.Type.List
         Octane.Type.Mark
         Octane.Type.Message
         Octane.Type.ObjectMap
@@ -39,6 +38,7 @@ library
         Octane.Type.Primitive.Float32LE
         Octane.Type.Primitive.Int32LE
         Octane.Type.Primitive.Int64LE
+        Octane.Type.Primitive.List
         Octane.Type.Property
         Octane.Type.Replay
         Octane.Type.Table
@@ -85,7 +85,6 @@ test-suite octane-test-suite
         Octane.Type.CacheItemSpec
         Octane.Type.CachePropertySpec
         Octane.Type.KeyFrameSpec
-        Octane.Type.ListSpec
         Octane.Type.MarkSpec
         Octane.Type.MessageSpec
         Octane.Type.ObjectMapSpec
@@ -95,6 +94,7 @@ test-suite octane-test-suite
         Octane.Type.Primitive.Float32LESpec
         Octane.Type.Primitive.Int32LESpec
         Octane.Type.Primitive.Int64LESpec
+        Octane.Type.Primitive.ListSpec
         Octane.Type.PropertySpec
         Octane.Type.ReplaySpec
         Octane.Type.TableSpec
