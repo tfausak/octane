@@ -32,13 +32,13 @@ library
         Octane.Type.Mark
         Octane.Type.Message
         Octane.Type.ObjectMap
-        Octane.Type.PCString
         Octane.Type.Primitive
         Octane.Type.Primitive.Boolean
         Octane.Type.Primitive.Float32LE
         Octane.Type.Primitive.Int32LE
         Octane.Type.Primitive.Int64LE
         Octane.Type.Primitive.List
+        Octane.Type.Primitive.PCString
         Octane.Type.Property
         Octane.Type.Replay
         Octane.Type.Table
@@ -88,13 +88,13 @@ test-suite octane-test-suite
         Octane.Type.MarkSpec
         Octane.Type.MessageSpec
         Octane.Type.ObjectMapSpec
-        Octane.Type.PCStringSpec
         Octane.Type.PrimitiveSpec
         Octane.Type.Primitive.BooleanSpec
         Octane.Type.Primitive.Float32LESpec
         Octane.Type.Primitive.Int32LESpec
         Octane.Type.Primitive.Int64LESpec
         Octane.Type.Primitive.ListSpec
+        Octane.Type.Primitive.PCStringSpec
         Octane.Type.PropertySpec
         Octane.Type.ReplaySpec
         Octane.Type.TableSpec

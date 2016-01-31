@@ -1,4 +1,4 @@
-module Octane.Type.PCStringSpec (spec) where
+module Octane.Type.Primitive.PCStringSpec (spec) where
 
 import Test.Tasty.Hspec
 

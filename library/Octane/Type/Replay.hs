@@ -8,7 +8,7 @@ import Octane.Type.KeyFrame
 import Octane.Type.Mark
 import Octane.Type.Message
 import Octane.Type.ObjectMap
-import Octane.Type.PCString
+import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.List
 import Octane.Type.Property

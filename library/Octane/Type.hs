@@ -8,7 +8,6 @@ import Octane.Type.KeyFrame as Octane.Type
 import Octane.Type.Mark as Octane.Type
 import Octane.Type.Message as Octane.Type
 import Octane.Type.ObjectMap as Octane.Type
-import Octane.Type.PCString as Octane.Type
 import Octane.Type.Primitive as Octane.Type
 import Octane.Type.Property as Octane.Type
 import Octane.Type.Replay as Octane.Type

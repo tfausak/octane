@@ -4,7 +4,7 @@ module Octane.Type.Table (Table(..)) where
 
 import qualified Data.Map as Map
 import Octane.Core
-import Octane.Type.PCString
+import Octane.Type.Primitive.PCString
 
 newtype Table a = NewTable
     { getTable :: Map PCString a

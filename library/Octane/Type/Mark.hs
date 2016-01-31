@@ -1,7 +1,7 @@
 module Octane.Type.Mark (Mark(..)) where
 
 import Octane.Core
-import Octane.Type.PCString
+import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 
 data Mark = NewMark

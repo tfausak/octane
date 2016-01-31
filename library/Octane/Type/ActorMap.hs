@@ -3,7 +3,7 @@ module Octane.Type.ActorMap (ActorMap(..)) where
 import qualified Data.IntMap as IntMap
 import Octane.Core
 import Octane.Type.Actor
-import Octane.Type.PCString
+import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.List
 

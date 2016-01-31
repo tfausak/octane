@@ -2,7 +2,7 @@ module Octane.Type.ObjectMap (ObjectMap(..)) where
 
 import qualified Data.IntMap as IntMap
 import Octane.Core
-import Octane.Type.PCString
+import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.List
 
 newtype ObjectMap = NewObjectMap

@@ -8,7 +8,6 @@ import qualified Octane.Type.KeyFrameSpec as KeyFrameSpec
 import qualified Octane.Type.MarkSpec as MarkSpec
 import qualified Octane.Type.MessageSpec as MessageSpec
 import qualified Octane.Type.ObjectMapSpec as ObjectMapSpec
-import qualified Octane.Type.PCStringSpec as PCStringSpec
 import qualified Octane.Type.PrimitiveSpec as PrimitiveSpec
 import qualified Octane.Type.PropertySpec as PropertySpec
 import qualified Octane.Type.ReplaySpec as ReplaySpec
@@ -25,7 +24,6 @@ spec = describe "Type" $ do
     MarkSpec.spec
     MessageSpec.spec
     ObjectMapSpec.spec
-    PCStringSpec.spec
     PrimitiveSpec.spec
     PropertySpec.spec
     ReplaySpec.spec
