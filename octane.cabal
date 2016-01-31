@@ -111,7 +111,14 @@ benchmark octane-benchmark
     hs-source-dirs: benchmark
     other-modules:
         OctaneBench
+        Octane.MainBench
         Octane.TypeBench
+        Octane.Type.ActorBench
+        Octane.Type.CacheItemBench
+        Octane.Type.CachePropertyBench
+        Octane.Type.KeyFrameBench
+        Octane.Type.MarkBench
+        Octane.Type.MessageBench
         Octane.Type.PrimitiveBench
         Octane.Type.Primitive.BooleanBench
         Octane.Type.Primitive.DictionaryBench
@@ -120,4 +127,6 @@ benchmark octane-benchmark
         Octane.Type.Primitive.Int64LEBench
         Octane.Type.Primitive.ListBench
         Octane.Type.Primitive.PCStringBench
+        Octane.Type.PropertyBench
+        Octane.Type.ReplayBench
     ghc-options: -threaded -Wall
