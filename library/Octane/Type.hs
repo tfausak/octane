@@ -6,7 +6,6 @@ module Octane.Type
     , module Octane.Type.KeyFrame
     , module Octane.Type.Mark
     , module Octane.Type.Message
-    , module Octane.Type.ObjectMap
     , module Octane.Type.Primitive
     , module Octane.Type.Property
     , module Octane.Type.Replay
@@ -19,7 +18,6 @@ import Octane.Type.CacheProperty
 import Octane.Type.KeyFrame
 import Octane.Type.Mark
 import Octane.Type.Message
-import Octane.Type.ObjectMap
 import Octane.Type.Primitive
 import Octane.Type.Property
 import Octane.Type.Replay

@@ -7,7 +7,6 @@ import Octane.Type.CacheItem
 import Octane.Type.KeyFrame
 import Octane.Type.Mark
 import Octane.Type.Message
-import Octane.Type.ObjectMap
 import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.List
@@ -29,7 +28,7 @@ data Replay = NewReplay
     , replayMessages :: List Message
     , replayMarks :: List Mark
     , replayPackages :: List PCString
-    , replayObjectMap :: ObjectMap
+    , replayObjects :: List PCString
     , replayNames :: List PCString
     , replayActorMap :: ActorMap
     , replayCacheItems :: List CacheItem
@@ -51,7 +50,7 @@ instance Binary Replay where
         messages <- get
         marks <- get
         packages <- get
-        objectMap <- get
+        objects <- get
         names <- get
         actorMap <- get
         cacheItems <- get
@@ -70,7 +69,7 @@ instance Binary Replay where
             , replayMessages = messages
             , replayMarks = marks
             , replayPackages = packages
-            , replayObjectMap = objectMap
+            , replayObjects = objects
             , replayNames = names
             , replayActorMap = actorMap
             , replayCacheItems = cacheItems
@@ -91,7 +90,7 @@ instance Binary Replay where
         replay & replayMessages & put
         replay & replayMarks & put
         replay & replayPackages & put
-        replay & replayObjectMap & put
+        replay & replayObjects & put
         replay & replayNames & put
         replay & replayActorMap & put
         replay & replayCacheItems & put

@@ -105,11 +105,6 @@ debug (file, contents, result) = case result of
         putStrLn ""
 
         putStrLn "# OBJECTS #\n"
-        mapM_
-            (\ (index, object) -> do
-                putStrLn (show index ++ "\t=> " ++ show (getPCString object)))
-            (IntMap.assocs (getObjectMap (replayObjectMap replay)))
-        putStrLn ""
 
         putStrLn "# NAMES #\n"
         mapM_
@@ -126,22 +121,6 @@ debug (file, contents, result) = case result of
         putStrLn ""
 
         putStrLn "# CACHE #\n"
-        mapM_
-            (\ cacheItem -> do
-                let a = cacheItem & cacheItemTag & getInt32LE & fromIntegral
-                let b = replay & replayObjectMap & getObjectMap & IntMap.lookup a & fmap getPCString
-                putStrLn ("ID:\t" ++ show a ++ " (" ++ show b ++ ")")
-                putStrLn ("Start:\t" ++ show (getInt32LE (cacheItemStart cacheItem)))
-                putStrLn ("End:\t" ++ show (getInt32LE (cacheItemEnd cacheItem)))
-                putStrLn "Properties:"
-                mapM_
-                    (\ cacheProperty -> do
-                        let c = cacheProperty & cachePropertyIndex & getInt32LE & fromIntegral
-                        let d = replay & replayObjectMap & getObjectMap & IntMap.lookup c & fmap getPCString
-                        putStrLn ("- " ++ show (getInt32LE (cachePropertyTag cacheProperty)) ++ "\t=> " ++ show c ++ " (" ++ show d ++ ")"))
-                    (getList (cacheItemCacheProperties cacheItem))
-                putStrLn "")
-            (getList (replayCacheItems replay))
 
 debugProperty :: Property -> IO ()
 debugProperty property = case property of

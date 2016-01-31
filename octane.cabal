@@ -31,7 +31,6 @@ library
         Octane.Type.KeyFrame
         Octane.Type.Mark
         Octane.Type.Message
-        Octane.Type.ObjectMap
         Octane.Type.Primitive
         Octane.Type.Primitive.Boolean
         Octane.Type.Primitive.Float32LE
@@ -88,7 +87,6 @@ test-suite octane-test-suite
         Octane.Type.KeyFrameSpec
         Octane.Type.MarkSpec
         Octane.Type.MessageSpec
-        Octane.Type.ObjectMapSpec
         Octane.Type.PrimitiveSpec
         Octane.Type.Primitive.BooleanSpec
         Octane.Type.Primitive.Float32LESpec
