@@ -1,4 +1,4 @@
-module Octane.Type.Float32LESpec (spec) where
+module Octane.Type.Primitive.Float32LESpec (spec) where
 
 import Test.Tasty.Hspec
 

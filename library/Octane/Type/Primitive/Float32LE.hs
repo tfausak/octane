@@ -1,4 +1,4 @@
-module Octane.Type.Float32LE (Float32LE(..)) where
+module Octane.Type.Primitive.Float32LE (Float32LE(..)) where
 
 import Octane.Core
 

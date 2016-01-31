@@ -1,8 +1,8 @@
 module Octane.Type.KeyFrame (KeyFrame(..)) where
 
 import Octane.Core
-import Octane.Type.Float32LE
 import Octane.Type.Int32LE
+import Octane.Type.Primitive.Float32LE
 
 data KeyFrame = NewKeyFrame
     { keyFrameTime :: Float32LE
