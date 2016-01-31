@@ -5,7 +5,7 @@ import Octane.Type.Primitive.Int32LE
 
 newtype List a = NewList
     { getList :: [a]
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance (Binary a) => Binary (List a) where
     get = do
