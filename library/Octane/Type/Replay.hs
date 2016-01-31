@@ -12,7 +12,7 @@ import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.List
 import Octane.Type.Property
-import Octane.Type.Primitive.Table
+import Octane.Type.Primitive.Dictionary
 
 data Replay = NewReplay
     { replaySize1 :: Int32LE
@@ -20,7 +20,7 @@ data Replay = NewReplay
     , replayVersion1 :: Int32LE
     , replayVersion2 :: Int32LE
     , replayLabel :: PCString
-    , replayProperties :: Table Property
+    , replayProperties :: Dictionary Property
     , replaySize2 :: Int32LE
     , replayCRC2 :: Int32LE
     , replayEffects :: List PCString

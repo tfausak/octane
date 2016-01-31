@@ -6,7 +6,7 @@ import qualified Octane.Type.Primitive.Int32LESpec as Int32LESpec
 import qualified Octane.Type.Primitive.Int64LESpec as Int64LESpec
 import qualified Octane.Type.Primitive.ListSpec as ListSpec
 import qualified Octane.Type.Primitive.PCStringSpec as PCStringSpec
-import qualified Octane.Type.Primitive.TableSpec as TableSpec
+import qualified Octane.Type.Primitive.DictionarySpec as DictionarySpec
 import Test.Tasty.Hspec
 
 spec :: Spec
@@ -17,4 +17,4 @@ spec = describe "Primitive" $ do
     Int64LESpec.spec
     ListSpec.spec
     PCStringSpec.spec
-    TableSpec.spec
+    DictionarySpec.spec

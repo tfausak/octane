@@ -54,7 +54,7 @@ debug (file, contents, result) = case result of
             (\ (name, property) -> do
                 putStr (show (getPCString name) ++ "\t=> ")
                 debugProperty property)
-            (Map.assocs (getTable (replayProperties replay)))
+            (Map.assocs (getDictionary (replayProperties replay)))
         putStrLn ""
 
         putStrLn "# SIZE 2 #\n"
@@ -148,11 +148,11 @@ debugProperty property = case property of
     ArrayProperty _ (NewList array) -> do
         putStrLn "[array]"
         mapM_
-            (\ (NewTable table) -> mapM_
+            (\ (NewDictionary dictionary) -> mapM_
                 (\ (NewPCString k, v) -> do
                     putStr ("\t" ++ show k ++ "\t=> ")
                     debugProperty v)
-                (Map.assocs table) >> putStrLn "")
+                (Map.assocs dictionary) >> putStrLn "")
             array
     BoolProperty _ (NewBoolean value) -> print value
     ByteProperty _ (NewPCString key, NewPCString value) -> putStrLn (show key ++ ": " ++ show value)

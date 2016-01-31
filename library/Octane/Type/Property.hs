@@ -9,10 +9,10 @@ import Octane.Type.Primitive.Float32LE
 import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.Int64LE
 import Octane.Type.Primitive.List
-import Octane.Type.Primitive.Table
+import Octane.Type.Primitive.Dictionary
 
 data Property
-    = ArrayProperty Int64LE (List (Table Property))
+    = ArrayProperty Int64LE (List (Dictionary Property))
     | BoolProperty Int64LE Boolean
     | ByteProperty Int64LE (PCString, PCString)
     | FloatProperty Int64LE Float32LE

@@ -1,26 +1,26 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Octane.Type.Primitive.Table (Table(..)) where
+module Octane.Type.Primitive.Dictionary (Dictionary(..)) where
 
 import qualified Data.Map as Map
 import Octane.Core
 import Octane.Type.Primitive.PCString
 
-newtype Table a = NewTable
-    { getTable :: Map PCString a
+newtype Dictionary a = NewDictionary
+    { getDictionary :: Map PCString a
     } deriving (Show)
 
-instance (Binary a) => Binary (Table a) where
+instance (Binary a) => Binary (Dictionary a) where
     get = do
         row <- getRow
         if Map.null row
         then do
-            row & NewTable & return
+            row & NewDictionary & return
         else do
-            NewTable rows <- get
-            rows & Map.union row & NewTable & return
+            NewDictionary rows <- get
+            rows & Map.union row & NewDictionary & return
 
-    put (NewTable rows) = do
+    put (NewDictionary rows) = do
         rows & Map.assocs & mapM_ putRow
         "None" & NewPCString & put
 
