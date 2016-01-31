@@ -4,7 +4,7 @@ import Octane.Core
 
 newtype Float32LE = NewFloat32LE
     { getFloat32LE :: Float
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance Binary Float32LE where
     get = do
