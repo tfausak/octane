@@ -8,7 +8,7 @@ import Octane.Type.Primitive.PCString
 
 newtype Dictionary a = NewDictionary
     { getDictionary :: Map PCString a
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance (Binary a) => Binary (Dictionary a) where
     get = do
