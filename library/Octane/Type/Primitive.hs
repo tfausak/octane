@@ -1,9 +1,17 @@
-module Octane.Type.Primitive (module Octane.Type.Primitive) where
+module Octane.Type.Primitive
+    ( module Octane.Type.Primitive.Boolean
+    , module Octane.Type.Primitive.Float32LE
+    , module Octane.Type.Primitive.Int32LE
+    , module Octane.Type.Primitive.Int64LE
+    , module Octane.Type.Primitive.List
+    , module Octane.Type.Primitive.PCString
+    , module Octane.Type.Primitive.Dictionary
+    ) where
 
-import Octane.Type.Primitive.Boolean as Octane.Type.Primitive
-import Octane.Type.Primitive.Float32LE as Octane.Type.Primitive
-import Octane.Type.Primitive.Int32LE as Octane.Type.Primitive
-import Octane.Type.Primitive.Int64LE as Octane.Type.Primitive
-import Octane.Type.Primitive.List as Octane.Type.Primitive
-import Octane.Type.Primitive.PCString as Octane.Type.Primitive
-import Octane.Type.Primitive.Dictionary as Octane.Type.Primitive
+import Octane.Type.Primitive.Boolean
+import Octane.Type.Primitive.Float32LE
+import Octane.Type.Primitive.Int32LE
+import Octane.Type.Primitive.Int64LE
+import Octane.Type.Primitive.List
+import Octane.Type.Primitive.PCString
+import Octane.Type.Primitive.Dictionary

@@ -1,28 +1,28 @@
 module Octane.TypeSpec (spec) where
 
-import qualified Octane.Type.ActorSpec as ActorSpec
-import qualified Octane.Type.ActorMapSpec as ActorMapSpec
-import qualified Octane.Type.CacheItemSpec as CacheItemSpec
-import qualified Octane.Type.CachePropertySpec as CachePropertySpec
-import qualified Octane.Type.KeyFrameSpec as KeyFrameSpec
-import qualified Octane.Type.MarkSpec as MarkSpec
-import qualified Octane.Type.MessageSpec as MessageSpec
-import qualified Octane.Type.ObjectMapSpec as ObjectMapSpec
-import qualified Octane.Type.PrimitiveSpec as PrimitiveSpec
-import qualified Octane.Type.PropertySpec as PropertySpec
-import qualified Octane.Type.ReplaySpec as ReplaySpec
+import qualified Octane.Type.ActorSpec
+import qualified Octane.Type.ActorMapSpec
+import qualified Octane.Type.CacheItemSpec
+import qualified Octane.Type.CachePropertySpec
+import qualified Octane.Type.KeyFrameSpec
+import qualified Octane.Type.MarkSpec
+import qualified Octane.Type.MessageSpec
+import qualified Octane.Type.ObjectMapSpec
+import qualified Octane.Type.PrimitiveSpec
+import qualified Octane.Type.PropertySpec
+import qualified Octane.Type.ReplaySpec
 import Test.Tasty.Hspec
 
 spec :: Spec
 spec = describe "Type" $ do
-    ActorSpec.spec
-    ActorMapSpec.spec
-    CacheItemSpec.spec
-    CachePropertySpec.spec
-    KeyFrameSpec.spec
-    MarkSpec.spec
-    MessageSpec.spec
-    ObjectMapSpec.spec
-    PrimitiveSpec.spec
-    PropertySpec.spec
-    ReplaySpec.spec
+    Octane.Type.ActorSpec.spec
+    Octane.Type.ActorMapSpec.spec
+    Octane.Type.CacheItemSpec.spec
+    Octane.Type.CachePropertySpec.spec
+    Octane.Type.KeyFrameSpec.spec
+    Octane.Type.MarkSpec.spec
+    Octane.Type.MessageSpec.spec
+    Octane.Type.ObjectMapSpec.spec
+    Octane.Type.PrimitiveSpec.spec
+    Octane.Type.PropertySpec.spec
+    Octane.Type.ReplaySpec.spec

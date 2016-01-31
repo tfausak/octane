@@ -1,4 +1,7 @@
-module Octane (module Octane) where
+module Octane
+    ( module Octane.Main
+    , module Octane.Type
+    ) where
 
-import Octane.Main as Octane
-import Octane.Type as Octane
+import Octane.Main
+import Octane.Type

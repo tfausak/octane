@@ -1,4 +1,4 @@
-import qualified OctaneSpec as OctaneSpec
+import qualified OctaneSpec
 import qualified Test.Tasty
 import Test.Tasty.Hspec
 

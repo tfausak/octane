@@ -1,20 +1,20 @@
 module Octane.Type.PrimitiveSpec (spec) where
 
-import qualified Octane.Type.Primitive.BooleanSpec as BooleanSpec
-import qualified Octane.Type.Primitive.Float32LESpec as Float32LESpec
-import qualified Octane.Type.Primitive.Int32LESpec as Int32LESpec
-import qualified Octane.Type.Primitive.Int64LESpec as Int64LESpec
-import qualified Octane.Type.Primitive.ListSpec as ListSpec
-import qualified Octane.Type.Primitive.PCStringSpec as PCStringSpec
-import qualified Octane.Type.Primitive.DictionarySpec as DictionarySpec
+import qualified Octane.Type.Primitive.BooleanSpec
+import qualified Octane.Type.Primitive.Float32LESpec
+import qualified Octane.Type.Primitive.Int32LESpec
+import qualified Octane.Type.Primitive.Int64LESpec
+import qualified Octane.Type.Primitive.ListSpec
+import qualified Octane.Type.Primitive.PCStringSpec
+import qualified Octane.Type.Primitive.DictionarySpec
 import Test.Tasty.Hspec
 
 spec :: Spec
 spec = describe "Primitive" $ do
-    BooleanSpec.spec
-    Float32LESpec.spec
-    Int32LESpec.spec
-    Int64LESpec.spec
-    ListSpec.spec
-    PCStringSpec.spec
-    DictionarySpec.spec
+    Octane.Type.Primitive.BooleanSpec.spec
+    Octane.Type.Primitive.Float32LESpec.spec
+    Octane.Type.Primitive.Int32LESpec.spec
+    Octane.Type.Primitive.Int64LESpec.spec
+    Octane.Type.Primitive.ListSpec.spec
+    Octane.Type.Primitive.PCStringSpec.spec
+    Octane.Type.Primitive.DictionarySpec.spec
