@@ -116,4 +116,5 @@ benchmark octane-benchmark
         Octane.Type.Primitive.Float32LEBench
         Octane.Type.Primitive.Int32LEBench
         Octane.Type.Primitive.Int64LEBench
+        Octane.Type.Primitive.PCStringBench
     ghc-options: -threaded -Wall
