@@ -12,7 +12,9 @@ newtype PCString = NewPCString
 instance Binary PCString where
     get = do
         (NewInt32LE size) <- get
-        string <- if size < 0
+        string <- if size == 0
+            then fail "invalid size"
+            else if size < 0
             then do
                 let actualSize = 2 * negate size
                 bytes <- getByteString (fromIntegral actualSize)
