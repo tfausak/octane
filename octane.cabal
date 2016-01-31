@@ -23,24 +23,24 @@ library
     exposed-modules:
         Octane
         Octane.Main
-        Octane.Types
-        Octane.Types.Actor
-        Octane.Types.ActorMap
-        Octane.Types.Boolean
-        Octane.Types.CacheItem
-        Octane.Types.CacheProperty
-        Octane.Types.Float32LE
-        Octane.Types.Int32LE
-        Octane.Types.Int64LE
-        Octane.Types.KeyFrame
-        Octane.Types.List
-        Octane.Types.Mark
-        Octane.Types.Message
-        Octane.Types.ObjectMap
-        Octane.Types.PCString
-        Octane.Types.Property
-        Octane.Types.Replay
-        Octane.Types.Table
+        Octane.Type
+        Octane.Type.Actor
+        Octane.Type.ActorMap
+        Octane.Type.Boolean
+        Octane.Type.CacheItem
+        Octane.Type.CacheProperty
+        Octane.Type.Float32LE
+        Octane.Type.Int32LE
+        Octane.Type.Int64LE
+        Octane.Type.KeyFrame
+        Octane.Type.List
+        Octane.Type.Mark
+        Octane.Type.Message
+        Octane.Type.ObjectMap
+        Octane.Type.PCString
+        Octane.Type.Property
+        Octane.Type.Replay
+        Octane.Type.Table
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,
@@ -78,22 +78,22 @@ test-suite octane-test-suite
     other-modules:
         OctaneSpec
         Octane.MainSpec
-        Octane.TypesSpec
-        Octane.Types.ActorSpec
-        Octane.Types.ActorMapSpec
-        Octane.Types.BooleanSpec
-        Octane.Types.CacheItemSpec
-        Octane.Types.CachePropertySpec
-        Octane.Types.Float32LESpec
-        Octane.Types.Int32LESpec
-        Octane.Types.Int64LESpec
-        Octane.Types.KeyFrameSpec
-        Octane.Types.ListSpec
-        Octane.Types.MarkSpec
-        Octane.Types.MessageSpec
-        Octane.Types.ObjectMapSpec
-        Octane.Types.PCStringSpec
-        Octane.Types.PropertySpec
-        Octane.Types.ReplaySpec
-        Octane.Types.TableSpec
+        Octane.TypeSpec
+        Octane.Type.ActorSpec
+        Octane.Type.ActorMapSpec
+        Octane.Type.BooleanSpec
+        Octane.Type.CacheItemSpec
+        Octane.Type.CachePropertySpec
+        Octane.Type.Float32LESpec
+        Octane.Type.Int32LESpec
+        Octane.Type.Int64LESpec
+        Octane.Type.KeyFrameSpec
+        Octane.Type.ListSpec
+        Octane.Type.MarkSpec
+        Octane.Type.MessageSpec
+        Octane.Type.ObjectMapSpec
+        Octane.Type.PCStringSpec
+        Octane.Type.PropertySpec
+        Octane.Type.ReplaySpec
+        Octane.Type.TableSpec
     ghc-options: -threaded -Wall

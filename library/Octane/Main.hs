@@ -5,7 +5,7 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
 import Octane.Core
-import Octane.Types
+import Octane.Type
 
 main :: IO ()
 main = do
