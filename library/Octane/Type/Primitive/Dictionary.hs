@@ -12,20 +12,20 @@ newtype Dictionary a = NewDictionary
 
 instance (Binary a) => Binary (Dictionary a) where
     get = do
-        row <- getRow
-        if Map.null row
+        element <- getElement
+        if Map.null element
         then do
-            row & NewDictionary & return
+            element & NewDictionary & return
         else do
-            NewDictionary rows <- get
-            rows & Map.union row & NewDictionary & return
+            NewDictionary elements <- get
+            elements & Map.union element & NewDictionary & return
 
-    put (NewDictionary rows) = do
-        rows & Map.assocs & mapM_ putRow
+    put (NewDictionary elements) = do
+        elements & Map.assocs & mapM_ putElement
         "None" & NewPCString & put
 
-getRow :: (Binary a) => Get (Map PCString a)
-getRow = do
+getElement :: (Binary a) => Get (Map PCString a)
+getElement = do
     key <- get
     if key == NewPCString "None"
     then do
@@ -35,7 +35,7 @@ getRow = do
         return (Map.singleton key value)
 
 
-putRow :: (Binary a) => (PCString, a) -> Put
-putRow (key, value) = do
+putElement :: (Binary a) => (PCString, a) -> Put
+putElement (key, value) = do
     key & put
     value & put
