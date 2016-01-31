@@ -2,7 +2,6 @@ module Octane.Main (main) where
 
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
 import Octane.Core
 import Octane.Type
@@ -114,11 +113,6 @@ debug (file, contents, result) = case result of
         putStrLn ""
 
         putStrLn "# ACTORS #\n"
-        mapM_
-            (\ (index, actor) -> do
-                putStrLn (show index ++ "\t=> " ++ show (getPCString actor)))
-            (IntMap.assocs (getActorMap (replayActorMap replay)))
-        putStrLn ""
 
         putStrLn "# CACHE #\n"
 

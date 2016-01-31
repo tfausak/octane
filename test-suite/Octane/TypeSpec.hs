@@ -1,7 +1,6 @@
 module Octane.TypeSpec (spec) where
 
 import qualified Octane.Type.ActorSpec
-import qualified Octane.Type.ActorMapSpec
 import qualified Octane.Type.CacheItemSpec
 import qualified Octane.Type.CachePropertySpec
 import qualified Octane.Type.KeyFrameSpec
@@ -15,7 +14,6 @@ import Test.Tasty.Hspec
 spec :: Spec
 spec = describe "Type" $ do
     Octane.Type.ActorSpec.spec
-    Octane.Type.ActorMapSpec.spec
     Octane.Type.CacheItemSpec.spec
     Octane.Type.CachePropertySpec.spec
     Octane.Type.KeyFrameSpec.spec

@@ -25,7 +25,6 @@ library
         Octane.Main
         Octane.Type
         Octane.Type.Actor
-        Octane.Type.ActorMap
         Octane.Type.CacheItem
         Octane.Type.CacheProperty
         Octane.Type.KeyFrame
@@ -81,7 +80,6 @@ test-suite octane-test-suite
         Octane.MainSpec
         Octane.TypeSpec
         Octane.Type.ActorSpec
-        Octane.Type.ActorMapSpec
         Octane.Type.CacheItemSpec
         Octane.Type.CachePropertySpec
         Octane.Type.KeyFrameSpec

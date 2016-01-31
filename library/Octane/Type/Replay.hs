@@ -2,7 +2,7 @@ module Octane.Type.Replay (Replay(..)) where
 
 import qualified Data.ByteString as BS
 import Octane.Core
-import Octane.Type.ActorMap
+import Octane.Type.Actor
 import Octane.Type.CacheItem
 import Octane.Type.KeyFrame
 import Octane.Type.Mark
@@ -30,7 +30,7 @@ data Replay = NewReplay
     , replayPackages :: List PCString
     , replayObjects :: List PCString
     , replayNames :: List PCString
-    , replayActorMap :: ActorMap
+    , replayActors :: List Actor
     , replayCacheItems :: List CacheItem
     } deriving (Show)
 
@@ -52,7 +52,7 @@ instance Binary Replay where
         packages <- get
         objects <- get
         names <- get
-        actorMap <- get
+        actors <- get
         cacheItems <- get
         return NewReplay
             { replaySize1 = size1
@@ -71,7 +71,7 @@ instance Binary Replay where
             , replayPackages = packages
             , replayObjects = objects
             , replayNames = names
-            , replayActorMap = actorMap
+            , replayActors = actors
             , replayCacheItems = cacheItems
             }
 
@@ -92,7 +92,7 @@ instance Binary Replay where
         replay & replayPackages & put
         replay & replayObjects & put
         replay & replayNames & put
-        replay & replayActorMap & put
+        replay & replayActors & put
         replay & replayCacheItems & put
 
 getFrameBytes :: Get ByteString
