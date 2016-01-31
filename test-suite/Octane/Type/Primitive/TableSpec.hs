@@ -1,4 +1,4 @@
-module Octane.Type.TableSpec (spec) where
+module Octane.Type.Primitive.TableSpec (spec) where
 
 import Test.Tasty.Hspec
 

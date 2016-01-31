@@ -39,9 +39,9 @@ library
         Octane.Type.Primitive.Int64LE
         Octane.Type.Primitive.List
         Octane.Type.Primitive.PCString
+        Octane.Type.Primitive.Table
         Octane.Type.Property
         Octane.Type.Replay
-        Octane.Type.Table
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,
@@ -95,7 +95,7 @@ test-suite octane-test-suite
         Octane.Type.Primitive.Int64LESpec
         Octane.Type.Primitive.ListSpec
         Octane.Type.Primitive.PCStringSpec
+        Octane.Type.Primitive.TableSpec
         Octane.Type.PropertySpec
         Octane.Type.ReplaySpec
-        Octane.Type.TableSpec
     ghc-options: -threaded -Wall

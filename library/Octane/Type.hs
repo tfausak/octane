@@ -11,4 +11,3 @@ import Octane.Type.ObjectMap as Octane.Type
 import Octane.Type.Primitive as Octane.Type
 import Octane.Type.Property as Octane.Type
 import Octane.Type.Replay as Octane.Type
-import Octane.Type.Table as Octane.Type

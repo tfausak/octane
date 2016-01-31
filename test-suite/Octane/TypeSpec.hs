@@ -11,7 +11,6 @@ import qualified Octane.Type.ObjectMapSpec as ObjectMapSpec
 import qualified Octane.Type.PrimitiveSpec as PrimitiveSpec
 import qualified Octane.Type.PropertySpec as PropertySpec
 import qualified Octane.Type.ReplaySpec as ReplaySpec
-import qualified Octane.Type.TableSpec as TableSpec
 import Test.Tasty.Hspec
 
 spec :: Spec
@@ -27,4 +26,3 @@ spec = describe "Type" $ do
     PrimitiveSpec.spec
     PropertySpec.spec
     ReplaySpec.spec
-    TableSpec.spec

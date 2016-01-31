@@ -12,7 +12,7 @@ import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.List
 import Octane.Type.Property
-import Octane.Type.Table
+import Octane.Type.Primitive.Table
 
 data Replay = NewReplay
     { replaySize1 :: Int32LE

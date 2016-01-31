@@ -9,7 +9,7 @@ import Octane.Type.Primitive.Float32LE
 import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.Int64LE
 import Octane.Type.Primitive.List
-import Octane.Type.Table
+import Octane.Type.Primitive.Table
 
 data Property
     = ArrayProperty Int64LE (List (Table Property))
