@@ -41,6 +41,7 @@ library
         Octane.Type.Primitive.Dictionary
         Octane.Type.Property
         Octane.Type.Replay
+        Octane.Type.Stream
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,
@@ -98,6 +99,7 @@ test-suite octane-test-suite
         Octane.Type.Primitive.DictionarySpec
         Octane.Type.PropertySpec
         Octane.Type.ReplaySpec
+        Octane.Type.StreamSpec
     ghc-options: -threaded -Wall
 
 benchmark octane-benchmark
@@ -133,4 +135,5 @@ benchmark octane-benchmark
         Octane.Type.Primitive.PCStringBench
         Octane.Type.PropertyBench
         Octane.Type.ReplayBench
+        Octane.Type.StreamBench
     ghc-options: -threaded -Wall
