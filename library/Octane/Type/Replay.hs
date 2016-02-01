@@ -3,7 +3,6 @@
 
 module Octane.Type.Replay (Replay(..)) where
 
-import qualified Data.ByteString as BS
 import Octane.Core
 import Octane.Type.Actor
 import Octane.Type.CacheItem
@@ -15,6 +14,7 @@ import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.List
 import Octane.Type.Property
 import Octane.Type.Primitive.Dictionary
+import Octane.Type.Stream
 
 data Replay = Replay
     { replaySize1 :: Int32LE
@@ -27,7 +27,7 @@ data Replay = Replay
     , replayCRC2 :: Int32LE
     , replayEffects :: List PCString
     , replayKeyFrames :: List KeyFrame
-    , replayFrames :: ByteString
+    , replayStream :: Stream
     , replayMessages :: List Message
     , replayMarks :: List Mark
     , replayPackages :: List PCString
@@ -49,7 +49,7 @@ instance Binary Replay where
         crc2 <- get
         effects <- get
         keyFrames <- get
-        frames <- getFrameBytes
+        stream <- get
         messages <- get
         marks <- get
         packages <- get
@@ -68,7 +68,7 @@ instance Binary Replay where
             , replayCRC2 = crc2
             , replayEffects = effects
             , replayKeyFrames = keyFrames
-            , replayFrames = frames
+            , replayStream = stream
             , replayMessages = messages
             , replayMarks = marks
             , replayPackages = packages
@@ -89,7 +89,7 @@ instance Binary Replay where
         replay & replayCRC2 & put
         replay & replayEffects & put
         replay & replayKeyFrames & put
-        replay & replayFrames & putFrameBytes
+        replay & replayStream & put
         replay & replayMessages & put
         replay & replayMarks & put
         replay & replayPackages & put
@@ -97,14 +97,3 @@ instance Binary Replay where
         replay & replayNames & put
         replay & replayActors & put
         replay & replayCacheItems & put
-
-getFrameBytes :: Get ByteString
-getFrameBytes = do
-    Int32LE size <- get
-    frames <- getByteString (fromIntegral size)
-    return frames
-
-putFrameBytes :: ByteString -> Put
-putFrameBytes frames = do
-    frames & BS.length & fromIntegral & Int32LE & put
-    frames & putByteString

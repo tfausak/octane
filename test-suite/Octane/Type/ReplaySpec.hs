@@ -44,7 +44,7 @@ spec = describe "Replay" $ do
                 (Int32LE 0)
                 (List [])
                 (List [])
-                ""
+                (Stream (Int32LE 0) "")
                 (List [])
                 (List [])
                 (List [])
@@ -65,7 +65,7 @@ spec = describe "Replay" $ do
                 (Int32LE 0)
                 (List [])
                 (List [])
-                ""
+                (Stream (Int32LE 0) "")
                 (List [])
                 (List [])
                 (List [])
