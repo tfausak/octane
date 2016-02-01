@@ -10,8 +10,8 @@ import Octane
 
 benchmarks :: Benchmark
 benchmarks = bgroup "PCString"
-    [ bench "decode basic" (whnf decodePCString "\1\0\0\0\0")
-    , bench "encode basic" (whnf Binary.encode (NewPCString ""))
+    [ bench "decode basic" (nf decodePCString "\1\0\0\0\0")
+    , bench "encode basic" (nf Binary.encode (NewPCString ""))
     ]
 
 decodePCString :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, PCString)

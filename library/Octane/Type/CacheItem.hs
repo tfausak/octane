@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Octane.Type.CacheItem (CacheItem(..)) where
 
 import Octane.Core
@@ -10,7 +13,7 @@ data CacheItem = NewCacheItem
     , cacheItemStart :: Int32LE
     , cacheItemEnd :: Int32LE
     , cacheItemCacheProperties :: List CacheProperty
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance Binary CacheItem where
     get = do

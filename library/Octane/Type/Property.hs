@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Octane.Type.Property (Property(..)) where
@@ -20,7 +22,7 @@ data Property
     | NameProperty Int64LE PCString
     | QWordProperty Int64LE Int64LE
     | StrProperty Int64LE PCString
-    deriving (Eq, Show)
+    deriving (Eq, Generic, NFData, Show)
 
 instance Binary Property where
     get = do

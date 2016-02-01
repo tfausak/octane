@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Octane.Type.Primitive.Dictionary (Dictionary(..)) where
@@ -8,7 +10,7 @@ import Octane.Type.Primitive.PCString
 
 newtype Dictionary a = NewDictionary
     { getDictionary :: Map PCString a
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance (Binary a) => Binary (Dictionary a) where
     get = do

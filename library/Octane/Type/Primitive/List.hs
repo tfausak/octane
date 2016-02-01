@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Octane.Type.Primitive.List (List(..)) where
 
 import Octane.Core
@@ -5,7 +8,7 @@ import Octane.Type.Primitive.Int32LE
 
 newtype List a = NewList
     { getList :: [a]
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance (Binary a) => Binary (List a) where
     get = do

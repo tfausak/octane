@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Octane.Type.Message (Message(..)) where
 
 import Octane.Core
@@ -8,7 +11,7 @@ data Message = NewMessage
     { messageFrame :: Int32LE
     , messageName :: PCString
     , messageContent :: PCString
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Message where
     get = do

@@ -11,8 +11,8 @@ import Octane
 
 benchmarks :: Benchmark
 benchmarks = bgroup "Dictionary"
-    [ bench "decode basic" (whnf decodeBooleanDictionary "\5\0\0\0None\0")
-    , bench "encode basic" (whnf Binary.encode (NewDictionary Map.empty :: Dictionary Boolean))
+    [ bench "decode basic" (nf decodeBooleanDictionary "\5\0\0\0None\0")
+    , bench "encode basic" (nf Binary.encode (NewDictionary Map.empty :: Dictionary Boolean))
     ]
 
 decodeDictionary :: (Binary.Binary a) => BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Dictionary a)

@@ -10,8 +10,8 @@ import Octane
 
 benchmarks :: Benchmark
 benchmarks = bgroup "KeyFrame"
-    [ bench "decode basic" (whnf decodeKeyFrame "\0\0\0\0\0\0\0\0\0\0\0\0")
-    , bench "encode basic" (whnf Binary.encode (NewKeyFrame (NewFloat32LE 0.0) (NewInt32LE 0) (NewInt32LE 0)))
+    [ bench "decode basic" (nf decodeKeyFrame "\0\0\0\0\0\0\0\0\0\0\0\0")
+    , bench "encode basic" (nf Binary.encode (NewKeyFrame (NewFloat32LE 0.0) (NewInt32LE 0) (NewInt32LE 0)))
     ]
 
 decodeKeyFrame :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, KeyFrame)

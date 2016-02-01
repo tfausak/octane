@@ -1,10 +1,13 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Octane.Type.Primitive.Int64LE (Int64LE(..)) where
 
 import Octane.Core
 
 newtype Int64LE = NewInt64LE
     { getInt64LE :: Int64
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Int64LE where
     get = do

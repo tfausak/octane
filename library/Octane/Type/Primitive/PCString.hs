@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Octane.Type.Primitive.PCString (PCString(..)) where
 
 import qualified Data.ByteString.Char8 as BS8
@@ -7,7 +10,7 @@ import Octane.Type.Primitive.Int32LE
 
 newtype PCString = NewPCString
     { getPCString :: Text
-    } deriving (Eq, Ord, Show)
+    } deriving (Eq, Generic, NFData, Ord, Show)
 
 instance Binary PCString where
     get = do

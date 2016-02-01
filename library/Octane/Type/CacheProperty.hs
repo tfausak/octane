@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Octane.Type.CacheProperty (CacheProperty(..)) where
 
 import Octane.Core
@@ -6,7 +9,7 @@ import Octane.Type.Primitive.Int32LE
 data CacheProperty = NewCacheProperty
     { cachePropertyIndex :: Int32LE
     , cachePropertyTag :: Int32LE
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance Binary CacheProperty where
     get = do

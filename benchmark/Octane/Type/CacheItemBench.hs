@@ -10,8 +10,8 @@ import Octane
 
 benchmarks :: Benchmark
 benchmarks = bgroup "CacheItem"
-    [ bench "decode basic" (whnf decodeCacheItem "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
-    , bench "encode basic" (whnf Binary.encode (NewCacheItem (NewInt32LE 0) (NewInt32LE 0) (NewInt32LE 0) (NewList [])))
+    [ bench "decode basic" (nf decodeCacheItem "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
+    , bench "encode basic" (nf Binary.encode (NewCacheItem (NewInt32LE 0) (NewInt32LE 0) (NewInt32LE 0) (NewList [])))
     ]
 
 decodeCacheItem :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, CacheItem)

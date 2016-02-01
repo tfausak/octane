@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Octane.Type.Actor (Actor(..)) where
 
 import Octane.Core
@@ -7,7 +10,7 @@ import Octane.Type.Primitive.Int32LE
 data Actor = NewActor
     { actorName :: PCString
     , actorTag :: Int32LE
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Actor where
     get = do

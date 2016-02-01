@@ -1,10 +1,13 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Octane.Type.Primitive.Boolean (Boolean(..)) where
 
 import Octane.Core
 
 newtype Boolean = NewBoolean
     { getBoolean :: Bool
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Boolean where
     get = do

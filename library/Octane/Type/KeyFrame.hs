@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Octane.Type.KeyFrame (KeyFrame(..)) where
 
 import Octane.Core
@@ -8,7 +11,7 @@ data KeyFrame = NewKeyFrame
     { keyFrameTime :: Float32LE
     , keyFrameFrame :: Int32LE
     , keyFramePosition :: Int32LE
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance Binary KeyFrame where
     get = do

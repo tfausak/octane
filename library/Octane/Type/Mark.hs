@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Octane.Type.Mark (Mark(..)) where
 
 import Octane.Core
@@ -7,7 +10,7 @@ import Octane.Type.Primitive.Int32LE
 data Mark = NewMark
     { markLabel :: PCString
     , markFrame :: Int32LE
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Mark where
     get = do
