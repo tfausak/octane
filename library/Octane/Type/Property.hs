@@ -20,7 +20,7 @@ data Property
     | NameProperty Int64LE PCString
     | QWordProperty Int64LE Int64LE
     | StrProperty Int64LE PCString
-    deriving (Show)
+    deriving (Eq, Show)
 
 instance Binary Property where
     get = do
@@ -38,27 +38,27 @@ instance Binary Property where
                 value <- get
                 ByteProperty size (key, value) & return
             "FloatProperty" -> do
-                value <- case size of
-                    NewInt64LE 4 -> get
-                    _ -> fail ("unknown FloatProperty size " ++ show size)
+                value <- case getInt64LE size of
+                    4 -> get
+                    x -> fail ("unknown FloatProperty size " ++ show x)
                 FloatProperty size value & return
             "IntProperty" -> do
-                value <- case size of
-                    NewInt64LE 4 -> get
-                    _ -> fail ("unknown IntProperty size " ++ show size)
+                value <- case getInt64LE size of
+                    4 -> get
+                    x -> fail ("unknown IntProperty size " ++ show x)
                 IntProperty size value & return
             "NameProperty" -> do
                 value <- get
                 NameProperty size value & return
+            "QWordProperty" -> do
+                value <- case getInt64LE size of
+                    8 -> get
+                    x -> fail ("unknown QWordProperty size " ++ show x)
+                QWordProperty size value & return
             "StrProperty" -> do
                 value <- get
                 StrProperty size value & return
-            "QWordProperty" -> do
-                value <- case size of
-                    NewInt64LE 8 -> get
-                    _ -> fail ("unknown QWordProperty size " ++ show size)
-                QWordProperty size value & return
-            _ -> fail ("unknown property type " ++ show kind)
+            x -> fail ("unknown property type " ++ show x)
 
     put property = case property of
         ArrayProperty size value -> do
