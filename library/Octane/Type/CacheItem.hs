@@ -10,7 +10,7 @@ data CacheItem = NewCacheItem
     , cacheItemStart :: Int32LE
     , cacheItemEnd :: Int32LE
     , cacheItemCacheProperties :: List CacheProperty
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance Binary CacheItem where
     get = do
