@@ -6,7 +6,6 @@ import Criterion
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString.Lazy as BSL
-import qualified Data.Map as Map
 import Octane
 
 benchmarks :: Benchmark
