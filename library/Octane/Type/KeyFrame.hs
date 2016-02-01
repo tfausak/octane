@@ -8,7 +8,7 @@ data KeyFrame = NewKeyFrame
     { keyFrameTime :: Float32LE
     , keyFrameFrame :: Int32LE
     , keyFramePosition :: Int32LE
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance Binary KeyFrame where
     get = do
