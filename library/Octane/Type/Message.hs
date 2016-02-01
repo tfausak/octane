@@ -8,7 +8,7 @@ data Message = NewMessage
     { messageFrame :: Int32LE
     , messageName :: PCString
     , messageContent :: PCString
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance Binary Message where
     get = do
