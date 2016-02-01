@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Octane.Type.Replay (Replay(..)) where
 
 import qualified Data.ByteString as BS
@@ -32,7 +35,7 @@ data Replay = NewReplay
     , replayNames :: List PCString
     , replayActors :: List Actor
     , replayCacheItems :: List CacheItem
-    } deriving (Eq, Show)
+    } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Replay where
     get = do
