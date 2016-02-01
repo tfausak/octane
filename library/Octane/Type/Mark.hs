@@ -7,7 +7,7 @@ import Octane.Type.Primitive.Int32LE
 data Mark = NewMark
     { markLabel :: PCString
     , markFrame :: Int32LE
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance Binary Mark where
     get = do
