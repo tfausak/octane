@@ -14,10 +14,10 @@ data Frame = Frame
 instance Binary Frame where
     get = do
         time <- get
-        frame <- get
+        delta <- get
         return Frame
             { frameTime = time
-            , frameDelta = frame
+            , frameDelta = delta
             }
 
     put frame = do
