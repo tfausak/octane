@@ -22,7 +22,7 @@ data Replay = NewReplay
     , replayProperties :: Dictionary Property
     , replaySize2 :: Int32LE
     , replayCRC2 :: Int32LE
-    , replayLevels :: List PCString
+    , replayEffects :: List PCString
     , replayKeyFrames :: List KeyFrame
     , replayFrames :: ByteString
     , replayMessages :: List Message
@@ -44,7 +44,7 @@ instance Binary Replay where
         properties <- get
         size2 <- get
         crc2 <- get
-        levels <- get
+        effects <- get
         keyFrames <- get
         frames <- getFrameBytes
         messages <- get
@@ -63,7 +63,7 @@ instance Binary Replay where
             , replayProperties = properties
             , replaySize2 = size2
             , replayCRC2 = crc2
-            , replayLevels = levels
+            , replayEffects = effects
             , replayKeyFrames = keyFrames
             , replayFrames = frames
             , replayMessages = messages
@@ -84,7 +84,7 @@ instance Binary Replay where
         replay & replayProperties & put
         replay & replaySize2 & put
         replay & replayCRC2 & put
-        replay & replayLevels & put
+        replay & replayEffects & put
         replay & replayKeyFrames & put
         replay & replayFrames & putFrameBytes
         replay & replayMessages & put
