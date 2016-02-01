@@ -7,7 +7,7 @@ import Octane.Core
 import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 
-data Actor = NewActor
+data Actor = Actor
     { actorName :: PCString
     , actorTag :: Int32LE
     } deriving (Eq, Generic, NFData, Show)
@@ -16,7 +16,7 @@ instance Binary Actor where
     get = do
         name <- get
         tag <- get
-        return NewActor
+        return Actor
             { actorName = name
             , actorTag = tag
             }

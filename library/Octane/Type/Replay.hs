@@ -16,7 +16,7 @@ import Octane.Type.Primitive.List
 import Octane.Type.Property
 import Octane.Type.Primitive.Dictionary
 
-data Replay = NewReplay
+data Replay = Replay
     { replaySize1 :: Int32LE
     , replayCRC1 :: Int32LE
     , replayVersion1 :: Int32LE
@@ -57,7 +57,7 @@ instance Binary Replay where
         names <- get
         actors <- get
         cacheItems <- get
-        return NewReplay
+        return Replay
             { replaySize1 = size1
             , replayCRC1 = crc1
             , replayVersion1 = version1
@@ -100,11 +100,11 @@ instance Binary Replay where
 
 getFrameBytes :: Get ByteString
 getFrameBytes = do
-    NewInt32LE size <- get
+    Int32LE size <- get
     frames <- getByteString (fromIntegral size)
     return frames
 
 putFrameBytes :: ByteString -> Put
 putFrameBytes frames = do
-    frames & BS.length & fromIntegral & NewInt32LE & put
+    frames & BS.length & fromIntegral & Int32LE & put
     frames & putByteString

@@ -8,7 +8,7 @@ import Octane.Type.CacheProperty
 import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.List
 
-data CacheItem = NewCacheItem
+data CacheItem = CacheItem
     { cacheItemTag :: Int32LE
     , cacheItemStart :: Int32LE
     , cacheItemEnd :: Int32LE
@@ -21,7 +21,7 @@ instance Binary CacheItem where
         start <- get
         end <- get
         cacheProperties <- get
-        return NewCacheItem
+        return CacheItem
             { cacheItemTag = tag
             , cacheItemStart = start
             , cacheItemEnd = end

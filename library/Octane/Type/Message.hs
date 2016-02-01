@@ -7,7 +7,7 @@ import Octane.Core
 import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 
-data Message = NewMessage
+data Message = Message
     { messageFrame :: Int32LE
     , messageName :: PCString
     , messageContent :: PCString
@@ -18,7 +18,7 @@ instance Binary Message where
         frame <- get
         name <- get
         content <- get
-        return NewMessage
+        return Message
             { messageFrame = frame
             , messageName = name
             , messageContent = content

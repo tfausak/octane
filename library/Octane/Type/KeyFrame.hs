@@ -7,7 +7,7 @@ import Octane.Core
 import Octane.Type.Primitive.Float32LE
 import Octane.Type.Primitive.Int32LE
 
-data KeyFrame = NewKeyFrame
+data KeyFrame = KeyFrame
     { keyFrameTime :: Float32LE
     , keyFrameFrame :: Int32LE
     , keyFramePosition :: Int32LE
@@ -18,7 +18,7 @@ instance Binary KeyFrame where
         time <- get
         frame <- get
         position <- get
-        return NewKeyFrame
+        return KeyFrame
             { keyFrameTime = time
             , keyFrameFrame = frame
             , keyFramePosition = position

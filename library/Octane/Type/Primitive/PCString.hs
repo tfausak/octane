@@ -8,13 +8,13 @@ import qualified Data.Text as Text
 import Octane.Core
 import Octane.Type.Primitive.Int32LE
 
-newtype PCString = NewPCString
+newtype PCString = PCString
     { getPCString :: Text
     } deriving (Eq, Generic, NFData, Ord, Show)
 
 instance Binary PCString where
     get = do
-        (NewInt32LE size) <- get
+        (Int32LE size) <- get
         string <- if size == 0
             then fail "invalid size"
             else if size < 0
@@ -25,17 +25,17 @@ instance Binary PCString where
             else do
                 bytes <- getByteString (fromIntegral size)
                 bytes & decodeLatin1 & return
-        string & Text.dropEnd 1 & NewPCString & return
+        string & Text.dropEnd 1 & PCString & return
 
-    put (NewPCString string) = do
+    put (PCString string) = do
         let cString = Text.snoc string '\NUL'
         let size = cString & Text.length & fromIntegral
         if Text.all isLatin1 cString
         then do
-            size & NewInt32LE & put
+            size & Int32LE & put
             cString & encodeLatin1 & putByteString
         else do
-            size & negate & NewInt32LE & put
+            size & negate & Int32LE & put
             cString & encodeUtf16LE & putByteString
 
 encodeLatin1 :: Text -> ByteString

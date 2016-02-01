@@ -11,11 +11,11 @@ import Test.Tasty.Hspec
 spec :: Spec
 spec = describe "Boolean" $ do
     it "can be decoded" $ do
-        decodeBoolean "\0" `shouldBe` Right ("", 1, NewBoolean False)
-        decodeBoolean "\1" `shouldBe` Right ("", 1, NewBoolean True)
+        decodeBoolean "\0" `shouldBe` Right ("", 1, Boolean False)
+        decodeBoolean "\1" `shouldBe` Right ("", 1, Boolean True)
     it "can be encoded" $ do
-        Binary.encode (NewBoolean False) `shouldBe` "\0"
-        Binary.encode (NewBoolean True) `shouldBe` "\1"
+        Binary.encode (Boolean False) `shouldBe` "\0"
+        Binary.encode (Boolean True) `shouldBe` "\1"
     it "does not raise a runtime error when decoding garbage" $ do
         decodeBoolean "garbage" `shouldBe` Left ("arbage", 1, "out of bounds")
 

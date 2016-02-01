@@ -64,35 +64,35 @@ instance Binary Property where
 
     put property = case property of
         ArrayProperty size value -> do
-            "ArrayProperty" & NewPCString & put
+            "ArrayProperty" & PCString & put
             size & put
             value & put
         BoolProperty size value -> do
-            "BoolProperty" & NewPCString & put
+            "BoolProperty" & PCString & put
             size & put
             value & put
         ByteProperty size (key, value) -> do
-            "ByteProperty" & NewPCString & put
+            "ByteProperty" & PCString & put
             size & put
             key & put
             value & put
         FloatProperty size value -> do
-            "FloatProperty" & NewPCString & put
+            "FloatProperty" & PCString & put
             size & put
             value & put
         IntProperty size value -> do
-            "IntProperty" & NewPCString & put
+            "IntProperty" & PCString & put
             size & put
             value & put
         NameProperty size value -> do
-            "NameProperty" & NewPCString & put
+            "NameProperty" & PCString & put
             size & put
             value & put
         QWordProperty size value -> do
-            "QWordProperty" & NewPCString & put
+            "QWordProperty" & PCString & put
             size & put
             value & put
         StrProperty size value -> do
-            "StrProperty" & NewPCString & put
+            "StrProperty" & PCString & put
             size & put
             value & put

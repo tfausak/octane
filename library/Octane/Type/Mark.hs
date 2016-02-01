@@ -7,7 +7,7 @@ import Octane.Core
 import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 
-data Mark = NewMark
+data Mark = Mark
     { markLabel :: PCString
     , markFrame :: Int32LE
     } deriving (Eq, Generic, NFData, Show)
@@ -16,7 +16,7 @@ instance Binary Mark where
     get = do
         label <- get
         frame <- get
-        return NewMark
+        return Mark
             { markLabel = label
             , markFrame = frame
             }

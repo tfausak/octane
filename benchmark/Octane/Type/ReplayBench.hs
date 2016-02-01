@@ -31,25 +31,25 @@ benchmarks = bgroup "Replay"
         \\0\0\0\0\
         \\0\0\0\0\
         \")
-    , bench "encode basic" (nf Binary.encode (NewReplay
-        (NewInt32LE 0)
-        (NewInt32LE 0)
-        (NewInt32LE 0)
-        (NewInt32LE 0)
-        (NewPCString "")
-        (NewDictionary Map.empty)
-        (NewInt32LE 0)
-        (NewInt32LE 0)
-        (NewList [])
-        (NewList [])
+    , bench "encode basic" (nf Binary.encode (Replay
+        (Int32LE 0)
+        (Int32LE 0)
+        (Int32LE 0)
+        (Int32LE 0)
+        (PCString "")
+        (Dictionary Map.empty)
+        (Int32LE 0)
+        (Int32LE 0)
+        (List [])
+        (List [])
         ""
-        (NewList [])
-        (NewList [])
-        (NewList [])
-        (NewList [])
-        (NewList [])
-        (NewList [])
-        (NewList [])))
+        (List [])
+        (List [])
+        (List [])
+        (List [])
+        (List [])
+        (List [])
+        (List [])))
     ]
 
 decodeReplay :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Replay)

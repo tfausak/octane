@@ -8,7 +8,7 @@ import qualified Data.Map as Map
 import Octane.Core
 import Octane.Type.Primitive.PCString
 
-newtype Dictionary a = NewDictionary
+newtype Dictionary a = Dictionary
     { getDictionary :: Map PCString a
     } deriving (Eq, Generic, NFData, Show)
 
@@ -17,19 +17,19 @@ instance (Binary a) => Binary (Dictionary a) where
         element <- getElement
         if Map.null element
         then do
-            element & NewDictionary & return
+            element & Dictionary & return
         else do
-            NewDictionary elements <- get
-            elements & Map.union element & NewDictionary & return
+            Dictionary elements <- get
+            elements & Map.union element & Dictionary & return
 
-    put (NewDictionary elements) = do
+    put (Dictionary elements) = do
         elements & Map.assocs & mapM_ putElement
-        "None" & NewPCString & put
+        "None" & PCString & put
 
 getElement :: (Binary a) => Get (Map PCString a)
 getElement = do
     key <- get
-    if key == NewPCString "None"
+    if key == PCString "None"
     then do
         return Map.empty
     else do
