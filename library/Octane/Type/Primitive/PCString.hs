@@ -8,6 +8,7 @@ import qualified Data.Text as Text
 import Octane.Core
 import Octane.Type.Primitive.Int32LE
 
+-- | A length-prefixed null-terminated string.
 newtype PCString = PCString
     { getPCString :: Text
     } deriving (Eq, Generic, NFData, Ord, Show)

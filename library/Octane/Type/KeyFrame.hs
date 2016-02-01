@@ -7,6 +7,9 @@ import Octane.Core
 import Octane.Type.Primitive.Float32LE
 import Octane.Type.Primitive.Int32LE
 
+-- | A key frame. Each key frame has the time since the beginning of the match,
+-- | the frame it corresponds to, and that frame's bit position in the network
+-- | stream.
 data KeyFrame = KeyFrame
     { keyFrameTime :: Float32LE
     , keyFrameFrame :: Int32LE

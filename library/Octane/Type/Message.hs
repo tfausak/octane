@@ -7,6 +7,7 @@ import Octane.Core
 import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 
+-- | A debugging message. Replays do not have any of these anymore.
 data Message = Message
     { messageFrame :: Int32LE
     , messageName :: PCString

@@ -5,6 +5,7 @@ module Octane.Type.Primitive.Float32LE (Float32LE(..)) where
 
 import Octane.Core
 
+-- | A 32-bit little-endian float.
 newtype Float32LE = Float32LE
     { getFloat32LE :: Float
     } deriving (Eq, Generic, NFData, Show)

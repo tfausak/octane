@@ -8,6 +8,8 @@ import qualified Data.Map as Map
 import Octane.Core
 import Octane.Type.Primitive.PCString
 
+-- | A dictionary that maps strings to values. The dictionary is terminated by
+-- | the key "None".
 newtype Dictionary a = Dictionary
     { getDictionary :: Map PCString a
     } deriving (Eq, Generic, NFData, Show)

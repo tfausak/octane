@@ -5,6 +5,7 @@ module Octane.Type.Primitive.Int32LE (Int32LE(..)) where
 
 import Octane.Core
 
+-- | A 32-bit little-endian integer.
 newtype Int32LE = Int32LE
     { getInt32LE :: Int32
     } deriving (Eq, Generic, NFData, Show)

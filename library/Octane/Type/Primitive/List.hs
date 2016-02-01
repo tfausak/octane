@@ -6,6 +6,7 @@ module Octane.Type.Primitive.List (List(..)) where
 import Octane.Core
 import Octane.Type.Primitive.Int32LE
 
+-- | A length-prefixed list.
 newtype List a = List
     { getList :: [a]
     } deriving (Eq, Generic, NFData, Show)

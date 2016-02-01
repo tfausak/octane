@@ -7,6 +7,8 @@ import Octane.Core
 import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Int32LE
 
+-- | A tick mark on the replay. The only thing that creates tick marks are
+-- | goals.
 data Mark = Mark
     { markLabel :: PCString
     , markFrame :: Int32LE
