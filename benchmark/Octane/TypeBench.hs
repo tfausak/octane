@@ -14,12 +14,12 @@ import qualified Octane.Type.ReplayBench
 benchmarks :: Benchmark
 benchmarks = bgroup "Type"
     [ Octane.Type.ActorBench.benchmarks
-    -- , Octane.Type.CacheItemBench.benchmarks
-    -- , Octane.Type.CachePropertyBench.benchmarks
-    -- , Octane.Type.KeyFrameBench.benchmarks
-    -- , Octane.Type.MarkBench.benchmarks
-    -- , Octane.Type.MessageBench.benchmarks
-    -- , Octane.Type.PrimitiveBench.benchmarks
+    , Octane.Type.CacheItemBench.benchmarks
+    , Octane.Type.CachePropertyBench.benchmarks
+    , Octane.Type.KeyFrameBench.benchmarks
+    , Octane.Type.MarkBench.benchmarks
+    , Octane.Type.MessageBench.benchmarks
+    , Octane.Type.PrimitiveBench.benchmarks
     , Octane.Type.PropertyBench.benchmarks
-    -- , Octane.Type.ReplayBench.benchmarks
+    , Octane.Type.ReplayBench.benchmarks
     ]
