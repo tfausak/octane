@@ -32,7 +32,7 @@ data Replay = NewReplay
     , replayNames :: List PCString
     , replayActors :: List Actor
     , replayCacheItems :: List CacheItem
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance Binary Replay where
     get = do
