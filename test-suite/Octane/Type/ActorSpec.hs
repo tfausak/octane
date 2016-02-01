@@ -11,11 +11,39 @@ import Test.Tasty.Hspec
 spec :: Spec
 spec = describe "Actor" $ do
     it "can be decoded" $ do
-        decodeActor "\1\0\0\0\0\0\0\0\0" `shouldBe` Right ("", 9, Actor (PCString "") (Int32LE 0))
-        decodeActor "\2\0\0\0a\0\2\0\0\0" `shouldBe` Right ("", 10, Actor (PCString "a") (Int32LE 2))
+        shouldBe
+            (decodeActor "\
+                \\1\0\0\0\0\
+                \\0\0\0\0\
+                \")
+            (Right ("", 9, Actor
+                (PCString "")
+                (Int32LE 0)))
+        shouldBe
+            (decodeActor "\
+                \\2\0\0\0a\0\
+                \\2\0\0\0\
+                \")
+            (Right ("", 10, Actor
+                (PCString "a")
+                (Int32LE 2)))
     it "can be encoded" $ do
-        Binary.encode (Actor (PCString "") (Int32LE 0)) `shouldBe` "\1\0\0\0\0\0\0\0\0"
-        Binary.encode (Actor (PCString "a") (Int32LE 2)) `shouldBe` "\2\0\0\0a\0\2\0\0\0"
+        shouldBe
+            (Binary.encode (Actor
+                (PCString "")
+                (Int32LE 0)))
+            "\
+                \\1\0\0\0\0\
+                \\0\0\0\0\
+                \"
+        shouldBe
+            (Binary.encode (Actor
+                (PCString "a")
+                (Int32LE 2)))
+            "\
+                \\2\0\0\0a\0\
+                \\2\0\0\0\
+                \"
 
 decodeActor :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Actor)
 decodeActor = Binary.decodeOrFail
