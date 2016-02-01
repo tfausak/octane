@@ -27,6 +27,7 @@ library
         Octane.Type.Actor
         Octane.Type.CacheItem
         Octane.Type.CacheProperty
+        Octane.Type.Frame
         Octane.Type.KeyFrame
         Octane.Type.Mark
         Octane.Type.Message
@@ -83,6 +84,7 @@ test-suite octane-test-suite
         Octane.Type.ActorSpec
         Octane.Type.CacheItemSpec
         Octane.Type.CachePropertySpec
+        Octane.Type.FrameSpec
         Octane.Type.KeyFrameSpec
         Octane.Type.MarkSpec
         Octane.Type.MessageSpec
@@ -117,6 +119,7 @@ benchmark octane-benchmark
         Octane.Type.ActorBench
         Octane.Type.CacheItemBench
         Octane.Type.CachePropertyBench
+        Octane.Type.FrameBench
         Octane.Type.KeyFrameBench
         Octane.Type.MarkBench
         Octane.Type.MessageBench

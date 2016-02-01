@@ -2,6 +2,7 @@ module Octane.Type
     ( module Octane.Type.Actor
     , module Octane.Type.CacheItem
     , module Octane.Type.CacheProperty
+    , module Octane.Type.Frame
     , module Octane.Type.KeyFrame
     , module Octane.Type.Mark
     , module Octane.Type.Message
@@ -13,6 +14,7 @@ module Octane.Type
 import Octane.Type.Actor
 import Octane.Type.CacheItem
 import Octane.Type.CacheProperty
+import Octane.Type.Frame
 import Octane.Type.KeyFrame
 import Octane.Type.Mark
 import Octane.Type.Message

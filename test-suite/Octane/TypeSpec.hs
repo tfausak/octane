@@ -3,6 +3,7 @@ module Octane.TypeSpec (spec) where
 import qualified Octane.Type.ActorSpec
 import qualified Octane.Type.CacheItemSpec
 import qualified Octane.Type.CachePropertySpec
+import qualified Octane.Type.FrameSpec
 import qualified Octane.Type.KeyFrameSpec
 import qualified Octane.Type.MarkSpec
 import qualified Octane.Type.MessageSpec
@@ -16,6 +17,7 @@ spec = describe "Type" $ do
     Octane.Type.ActorSpec.spec
     Octane.Type.CacheItemSpec.spec
     Octane.Type.CachePropertySpec.spec
+    Octane.Type.FrameSpec.spec
     Octane.Type.KeyFrameSpec.spec
     Octane.Type.MarkSpec.spec
     Octane.Type.MessageSpec.spec
