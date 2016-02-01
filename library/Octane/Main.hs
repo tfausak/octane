@@ -64,11 +64,11 @@ debug (file, contents, result) = case result of
         print (getInt32LE (replayCRC2 replay))
         putStrLn ""
 
-        putStrLn "# EFFECTS #\n"
+        putStrLn "# LEVELS #\n"
         mapM_
-            (\ effect -> do
-                print (getPCString effect))
-            (getList (replayEffects replay))
+            (\ level -> do
+                print (getPCString level))
+            (getList (replayLevels replay))
         putStrLn ""
 
         putStrLn "# KEY FRAMES #\n"
