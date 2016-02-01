@@ -6,7 +6,7 @@ import Octane.Type.Primitive.Int32LE
 data CacheProperty = NewCacheProperty
     { cachePropertyIndex :: Int32LE
     , cachePropertyTag :: Int32LE
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 instance Binary CacheProperty where
     get = do
