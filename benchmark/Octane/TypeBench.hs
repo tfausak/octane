@@ -11,7 +11,6 @@ import qualified Octane.Type.MessageBench
 import qualified Octane.Type.PrimitiveBench
 import qualified Octane.Type.PropertyBench
 import qualified Octane.Type.ReplayBench
-import qualified Octane.Type.StreamBench
 
 benchmarks :: Benchmark
 benchmarks = bgroup "Type"
@@ -25,5 +24,4 @@ benchmarks = bgroup "Type"
     , Octane.Type.PrimitiveBench.benchmarks
     , Octane.Type.PropertyBench.benchmarks
     , Octane.Type.ReplayBench.benchmarks
-    , Octane.Type.StreamBench.benchmarks
     ]

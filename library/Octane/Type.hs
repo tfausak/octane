@@ -9,7 +9,6 @@ module Octane.Type
     , module Octane.Type.Primitive
     , module Octane.Type.Property
     , module Octane.Type.Replay
-    , module Octane.Type.Stream
     ) where
 
 import Octane.Type.Actor
@@ -22,4 +21,3 @@ import Octane.Type.Message
 import Octane.Type.Primitive
 import Octane.Type.Property
 import Octane.Type.Replay
-import Octane.Type.Stream

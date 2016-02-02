@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Octane.Type.Stream (Stream(..)) where
+module Octane.Type.Primitive.Stream (Stream(..)) where
 
 import qualified Data.ByteString as BS
 import Octane.Core

@@ -14,7 +14,7 @@ import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.List
 import Octane.Type.Property
 import Octane.Type.Primitive.Dictionary
-import Octane.Type.Stream
+import Octane.Type.Primitive.Stream
 
 data Replay = Replay
     { replaySize1 :: Int32LE

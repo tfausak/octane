@@ -10,7 +10,6 @@ import qualified Octane.Type.MessageSpec
 import qualified Octane.Type.PrimitiveSpec
 import qualified Octane.Type.PropertySpec
 import qualified Octane.Type.ReplaySpec
-import qualified Octane.Type.StreamSpec
 import Test.Tasty.Hspec
 
 spec :: Spec
@@ -25,4 +24,3 @@ spec = describe "Type" $ do
     Octane.Type.PrimitiveSpec.spec
     Octane.Type.PropertySpec.spec
     Octane.Type.ReplaySpec.spec
-    Octane.Type.StreamSpec.spec
