@@ -11,59 +11,341 @@ import Test.Tasty.Hspec
 
 spec :: Spec
 spec = describe "Property" $ do
-    it "can decode arrays" $ do
-        decodeProperty "\14\0\0\0ArrayProperty\0\0\0\0\0\0\0\0\0\0\0\0\0" `shouldBe` Right ("", 30, ArrayProperty (Int64LE 0) (List []))
-        decodeProperty "\14\0\0\0ArrayProperty\0\1\0\0\0\0\0\0\0\1\0\0\0\1\0\0\0\0\13\0\0\0BoolProperty\0\0\0\0\0\0\0\0\0\0\5\0\0\0None\0" `shouldBe` Right ("", 70, ArrayProperty (Int64LE 1) (List [Dictionary (Map.singleton (PCString "") (BoolProperty (Int64LE 0) (Boolean False)))]))
-    it "can decode booleans" $ do
-        decodeProperty "\13\0\0\0BoolProperty\0\0\0\0\0\0\0\0\0\0" `shouldBe` Right ("", 26, BoolProperty (Int64LE 0) (Boolean False))
-        decodeProperty "\13\0\0\0BoolProperty\0\1\0\0\0\0\0\0\0\1" `shouldBe` Right ("", 26, BoolProperty (Int64LE 1) (Boolean True))
-    it "can decode bytes" $ do
-        decodeProperty "\13\0\0\0ByteProperty\0\0\0\0\0\0\0\0\0\1\0\0\0\0\1\0\0\0\0" `shouldBe` Right ("", 35, ByteProperty (Int64LE 0) (PCString "", PCString ""))
-        decodeProperty "\13\0\0\0ByteProperty\0\1\0\0\0\0\0\0\0\2\0\0\0a\0\2\0\0\0b\0" `shouldBe` Right ("", 37, ByteProperty (Int64LE 1) (PCString "a", PCString "b"))
-    it "can decode floats" $ do
-        decodeProperty "\14\0\0\0FloatProperty\0\4\0\0\0\0\0\0\0\0\0\0\0" `shouldBe` Right ("", 30, FloatProperty (Int64LE 4) (Float32LE 0.0))
-        decodeProperty "\14\0\0\0FloatProperty\0\4\0\0\0\0\0\0\0\0\0\128\63" `shouldBe` Right ("", 30, FloatProperty (Int64LE 4) (Float32LE 1.0))
-    it "can decode integers" $ do
-        decodeProperty "\12\0\0\0IntProperty\0\4\0\0\0\0\0\0\0\0\0\0\0" `shouldBe` Right ("", 28, IntProperty (Int64LE 4) (Int32LE 0))
-        decodeProperty "\12\0\0\0IntProperty\0\4\0\0\0\0\0\0\0\1\0\0\0" `shouldBe` Right ("", 28, IntProperty (Int64LE 4) (Int32LE 1))
-    it "can decode names" $ do
-        decodeProperty "\13\0\0\0NameProperty\0\0\0\0\0\0\0\0\0\1\0\0\0\0" `shouldBe` Right ("", 30, NameProperty (Int64LE 0) (PCString ""))
-        decodeProperty "\13\0\0\0NameProperty\0\1\0\0\0\0\0\0\0\2\0\0\0a\0" `shouldBe` Right ("", 31, NameProperty (Int64LE 1) (PCString "a"))
-    it "can decode qwords" $ do
-        decodeProperty "\14\0\0\0QWordProperty\0\8\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" `shouldBe` Right ("", 34, QWordProperty (Int64LE 8) (Int64LE 0))
-        decodeProperty "\14\0\0\0QWordProperty\0\8\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0" `shouldBe` Right ("", 34, QWordProperty (Int64LE 8) (Int64LE 2))
-    it "can decode strings" $ do
-        decodeProperty "\12\0\0\0StrProperty\0\0\0\0\0\0\0\0\0\1\0\0\0\0" `shouldBe` Right ("", 29, StrProperty (Int64LE 0) (PCString ""))
-        decodeProperty "\12\0\0\0StrProperty\0\1\0\0\0\0\0\0\0\2\0\0\0a\0" `shouldBe` Right ("", 30, StrProperty (Int64LE 1) (PCString "a"))
-    it "can encode arrays" $ do
-        Binary.encode (ArrayProperty (Int64LE 0) (List [])) `shouldBe` "\14\0\0\0ArrayProperty\0\0\0\0\0\0\0\0\0\0\0\0\0"
-        Binary.encode (ArrayProperty (Int64LE 1) (List [Dictionary (Map.singleton (PCString "a") (BoolProperty (Int64LE 2) (Boolean True)))])) `shouldBe` "\14\0\0\0ArrayProperty\0\1\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0a\0\13\0\0\0BoolProperty\0\2\0\0\0\0\0\0\0\1\5\0\0\0None\0"
-    it "can encode booleans" $ do
-        Binary.encode (BoolProperty (Int64LE 0) (Boolean False)) `shouldBe` "\13\0\0\0BoolProperty\0\0\0\0\0\0\0\0\0\0"
-        Binary.encode (BoolProperty (Int64LE 1) (Boolean True)) `shouldBe` "\13\0\0\0BoolProperty\0\1\0\0\0\0\0\0\0\1"
-    it "can encode bytes" $ do
-        Binary.encode (ByteProperty (Int64LE 0) (PCString "", PCString "")) `shouldBe` "\13\0\0\0ByteProperty\0\0\0\0\0\0\0\0\0\1\0\0\0\0\1\0\0\0\0"
-        Binary.encode (ByteProperty (Int64LE 1) (PCString "a", PCString "b")) `shouldBe` "\13\0\0\0ByteProperty\0\1\0\0\0\0\0\0\0\2\0\0\0a\0\2\0\0\0b\0"
-    it "can encode floats" $ do
-        Binary.encode (FloatProperty (Int64LE 4) (Float32LE 0.0)) `shouldBe` "\14\0\0\0FloatProperty\0\4\0\0\0\0\0\0\0\0\0\0\0"
-        Binary.encode (FloatProperty (Int64LE 4) (Float32LE 1.0)) `shouldBe` "\14\0\0\0FloatProperty\0\4\0\0\0\0\0\0\0\0\0\128\63"
-    it "can encode integers" $ do
-        Binary.encode (IntProperty (Int64LE 4) (Int32LE 0)) `shouldBe` "\12\0\0\0IntProperty\0\4\0\0\0\0\0\0\0\0\0\0\0"
-        Binary.encode (IntProperty (Int64LE 4) (Int32LE 1)) `shouldBe` "\12\0\0\0IntProperty\0\4\0\0\0\0\0\0\0\1\0\0\0"
-    it "can encode names" $ do
-        Binary.encode (NameProperty (Int64LE 0) (PCString "")) `shouldBe` "\13\0\0\0NameProperty\0\0\0\0\0\0\0\0\0\1\0\0\0\0"
-        Binary.encode (NameProperty (Int64LE 1) (PCString "a")) `shouldBe` "\13\0\0\0NameProperty\0\1\0\0\0\0\0\0\0\2\0\0\0a\0"
-    it "can encode qwords" $ do
-        Binary.encode (QWordProperty (Int64LE 8) (Int64LE 0)) `shouldBe` "\14\0\0\0QWordProperty\0\8\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-        Binary.encode (QWordProperty (Int64LE 8) (Int64LE 2)) `shouldBe` "\14\0\0\0QWordProperty\0\8\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0"
-    it "can encode strings" $ do
-        Binary.encode (StrProperty (Int64LE 0) (PCString "")) `shouldBe` "\12\0\0\0StrProperty\0\0\0\0\0\0\0\0\0\1\0\0\0\0"
-        Binary.encode (StrProperty (Int64LE 1) (PCString "a")) `shouldBe` "\12\0\0\0StrProperty\0\1\0\0\0\0\0\0\0\2\0\0\0a\0"
+    describe "Array" $ do
+        it "can be decoded" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\14\0\0\0ArrayProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\0\0\0\0\
+                    \")
+                (Right ("", 30, ArrayProperty
+                    (Int64LE 0)
+                    (List [])))
+            shouldBe
+                (decodeProperty "\
+                    \\14\0\0\0ArrayProperty\0\
+                    \\1\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0a\0\13\0\0\0BoolProperty\0\2\0\0\0\0\0\0\0\1\5\0\0\0None\0\
+                    \")
+                (Right ("", 71, ArrayProperty
+                    (Int64LE 1)
+                    (List [Dictionary (Map.singleton (PCString "a") (BoolProperty (Int64LE 2) (Boolean True)))])))
+        it "can be encoded" $ do
+            shouldBe
+                (Binary.encode (ArrayProperty
+                    (Int64LE 0)
+                    (List [])))
+                "\
+                    \\14\0\0\0ArrayProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\0\0\0\0\
+                    \"
+            shouldBe
+                (Binary.encode (ArrayProperty
+                    (Int64LE 1)
+                    (List [Dictionary (Map.singleton (PCString "a") (BoolProperty (Int64LE 2) (Boolean True)))])))
+                "\
+                    \\14\0\0\0ArrayProperty\0\
+                    \\1\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0a\0\13\0\0\0BoolProperty\0\2\0\0\0\0\0\0\0\1\5\0\0\0None\0\
+                    \"
+    describe "Bool" $ do
+        it "can be decoded" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\13\0\0\0BoolProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\0\
+                    \")
+                (Right ("", 26, BoolProperty
+                    (Int64LE 0)
+                    (Boolean False)))
+            shouldBe
+                (decodeProperty "\
+                    \\13\0\0\0BoolProperty\0\
+                    \\1\0\0\0\0\0\0\0\
+                    \\1\
+                    \")
+                (Right ("", 26, BoolProperty
+                    (Int64LE 1)
+                    (Boolean True)))
+        it "can be encoded" $ do
+            shouldBe
+                (Binary.encode (BoolProperty
+                    (Int64LE 0)
+                    (Boolean False)))
+                "\
+                    \\13\0\0\0BoolProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\0\
+                    \"
+            shouldBe
+                (Binary.encode (BoolProperty
+                    (Int64LE 1)
+                    (Boolean True)))
+                "\
+                    \\13\0\0\0BoolProperty\0\
+                    \\1\0\0\0\0\0\0\0\
+                    \\1\
+                    \"
+    describe "Byte" $ do
+        it "can be decoded" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\13\0\0\0ByteProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\1\0\0\0\0\1\0\0\0\0\
+                    \")
+                (Right ("", 35, ByteProperty
+                    (Int64LE 0)
+                    (PCString "", PCString "")))
+            shouldBe
+                (decodeProperty "\
+                    \\13\0\0\0ByteProperty\0\
+                    \\1\0\0\0\0\0\0\0\
+                    \\2\0\0\0a\0\2\0\0\0b\0\
+                    \")
+                (Right ("", 37, ByteProperty
+                    (Int64LE 1)
+                    (PCString "a", PCString "b")))
+        it "can be encoded" $ do
+            shouldBe
+                (Binary.encode (ByteProperty
+                    (Int64LE 0)
+                    (PCString "", PCString "")))
+                "\
+                    \\13\0\0\0ByteProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\1\0\0\0\0\1\0\0\0\0\
+                    \"
+            shouldBe
+                (Binary.encode (ByteProperty
+                    (Int64LE 1)
+                    (PCString "a", PCString "b")))
+                "\
+                    \\13\0\0\0ByteProperty\0\
+                    \\1\0\0\0\0\0\0\0\
+                    \\2\0\0\0a\0\2\0\0\0b\0\
+                    \"
+    describe "Float" $ do
+        it "can be decoded" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\14\0\0\0FloatProperty\0\
+                    \\4\0\0\0\0\0\0\0\
+                    \\0\0\0\0\
+                    \")
+                (Right ("", 30, FloatProperty
+                    (Int64LE 4)
+                    (Float32LE 0.0)))
+            shouldBe
+                (decodeProperty "\
+                    \\14\0\0\0FloatProperty\0\
+                    \\4\0\0\0\0\0\0\0\
+                    \\0\0\128\63\
+                    \")
+                (Right ("", 30, FloatProperty
+                    (Int64LE 4)
+                    (Float32LE 1.0)))
+        it "can be encoded" $ do
+            shouldBe
+                (Binary.encode (FloatProperty
+                    (Int64LE 4)
+                    (Float32LE 0.0)))
+                "\
+                    \\14\0\0\0FloatProperty\0\
+                    \\4\0\0\0\0\0\0\0\
+                    \\0\0\0\0\
+                    \"
+            shouldBe
+                (Binary.encode (FloatProperty
+                    (Int64LE 4)
+                    (Float32LE 1.0)))
+                "\
+                    \\14\0\0\0FloatProperty\0\
+                    \\4\0\0\0\0\0\0\0\
+                    \\0\0\128\63\
+                    \"
+        it "does not raise a runtime error when decoding garbage" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\14\0\0\0FloatProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \")
+                (Left ("", 26, "unknown FloatProperty size 0"))
+    describe "Int" $ do
+        it "can be decoded" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\12\0\0\0IntProperty\0\
+                    \\4\0\0\0\0\0\0\0\
+                    \\0\0\0\0\
+                    \")
+                (Right ("", 28, IntProperty
+                    (Int64LE 4)
+                    (Int32LE 0)))
+            shouldBe
+                (decodeProperty "\
+                    \\12\0\0\0IntProperty\0\
+                    \\4\0\0\0\0\0\0\0\
+                    \\1\0\0\0\
+                    \")
+                (Right ("", 28, IntProperty
+                    (Int64LE 4)
+                    (Int32LE 1)))
+        it "can be encoded" $ do
+            shouldBe
+                (Binary.encode (IntProperty
+                    (Int64LE 4)
+                    (Int32LE 0)))
+                "\
+                    \\12\0\0\0IntProperty\0\
+                    \\4\0\0\0\0\0\0\0\
+                    \\0\0\0\0\
+                    \"
+            shouldBe
+                (Binary.encode (IntProperty
+                    (Int64LE 4)
+                    (Int32LE 1)))
+                "\
+                    \\12\0\0\0IntProperty\0\
+                    \\4\0\0\0\0\0\0\0\
+                    \\1\0\0\0\
+                    \"
+        it "does not raise a runtime error when decoding garbage" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\12\0\0\0IntProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \")
+                (Left ("", 24, "unknown IntProperty size 0"))
+    describe "Name" $ do
+        it "can be decoded" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\13\0\0\0NameProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\1\0\0\0\0\
+                    \")
+                (Right ("", 30, NameProperty
+                    (Int64LE 0)
+                    (PCString "")))
+            shouldBe
+                (decodeProperty "\
+                    \\13\0\0\0NameProperty\0\
+                    \\1\0\0\0\0\0\0\0\
+                    \\2\0\0\0a\0\
+                    \")
+                (Right ("", 31, NameProperty
+                    (Int64LE 1)
+                    (PCString "a")))
+        it "can be encoded" $ do
+            shouldBe
+                (Binary.encode (NameProperty
+                    (Int64LE 0)
+                    (PCString "")))
+                "\
+                    \\13\0\0\0NameProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\1\0\0\0\0\
+                    \"
+            shouldBe
+                (Binary.encode (NameProperty
+                    (Int64LE 1)
+                    (PCString "a")))
+                "\
+                    \\13\0\0\0NameProperty\0\
+                    \\1\0\0\0\0\0\0\0\
+                    \\2\0\0\0a\0\
+                    \"
+    describe "QWord" $ do
+        it "can be decoded" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\14\0\0\0QWordProperty\0\
+                    \\8\0\0\0\0\0\0\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \")
+                (Right ("", 34, QWordProperty
+                    (Int64LE 8)
+                    (Int64LE 0)))
+            shouldBe
+                (decodeProperty "\
+                    \\14\0\0\0QWordProperty\0\
+                    \\8\0\0\0\0\0\0\0\
+                    \\2\0\0\0\0\0\0\0\
+                    \")
+                (Right ("", 34, QWordProperty
+                    (Int64LE 8)
+                    (Int64LE 2)))
+        it "can be encoded" $ do
+            shouldBe
+                (Binary.encode (QWordProperty
+                    (Int64LE 8)
+                    (Int64LE 0)))
+                "\
+                    \\14\0\0\0QWordProperty\0\
+                    \\8\0\0\0\0\0\0\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \"
+            shouldBe
+                (Binary.encode (QWordProperty
+                    (Int64LE 8)
+                    (Int64LE 2)))
+                "\
+                    \\14\0\0\0QWordProperty\0\
+                    \\8\0\0\0\0\0\0\0\
+                    \\2\0\0\0\0\0\0\0\
+                    \"
+        it "does not raise a runtime error when decoding garbage" $ do
+            shouldBe
+                (decodeProperty "\14\0\0\0QWordProperty\0\0\0\0\0\0\0\0\0")
+                (Left ("", 26, "unknown QWordProperty size 0"))
+    describe "Str" $ do
+        it "can be decoded" $ do
+            shouldBe
+                (decodeProperty "\
+                    \\12\0\0\0StrProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\1\0\0\0\0\
+                    \")
+                (Right ("", 29, StrProperty
+                    (Int64LE 0)
+                    (PCString "")))
+            shouldBe
+                (decodeProperty "\
+                    \\12\0\0\0StrProperty\0\
+                    \\1\0\0\0\0\0\0\0\
+                    \\2\0\0\0a\0\
+                    \")
+                (Right ("", 30, StrProperty
+                    (Int64LE 1)
+                    (PCString "a")))
+        it "can be encoded" $ do
+            shouldBe
+                (Binary.encode (StrProperty
+                    (Int64LE 0)
+                    (PCString "")))
+                "\
+                    \\12\0\0\0StrProperty\0\
+                    \\0\0\0\0\0\0\0\0\
+                    \\1\0\0\0\0\
+                    \"
+            shouldBe
+                (Binary.encode (StrProperty
+                    (Int64LE 1)
+                    (PCString "a")))
+                "\
+                    \\12\0\0\0StrProperty\0\
+                    \\1\0\0\0\0\0\0\0\
+                    \\2\0\0\0a\0\
+                    \"
     it "does not raise a runtime error when decoding garbage" $ do
-        decodeProperty "\14\0\0\0OtherProperty\0\0\0\0\0\0\0\0\0" `shouldBe` Left ("", 26, "unknown property type \"OtherProperty\"")
-        decodeProperty "\14\0\0\0FloatProperty\0\0\0\0\0\0\0\0\0" `shouldBe` Left ("", 26, "unknown FloatProperty size 0")
-        decodeProperty "\12\0\0\0IntProperty\0\0\0\0\0\0\0\0\0" `shouldBe` Left ("", 24, "unknown IntProperty size 0")
-        decodeProperty "\14\0\0\0QWordProperty\0\0\0\0\0\0\0\0\0" `shouldBe` Left ("", 26, "unknown QWordProperty size 0")
+        shouldBe
+            (decodeProperty "\
+                \\14\0\0\0OtherProperty\0\
+                \\0\0\0\0\0\0\0\0\
+                \")
+            (Left ("", 26, "unknown property type \"OtherProperty\""))
 
 decodeProperty :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Property)
 decodeProperty = Binary.decodeOrFail
