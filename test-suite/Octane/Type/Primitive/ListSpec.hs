@@ -11,13 +11,25 @@ import Test.Tasty.Hspec
 spec :: Spec
 spec = describe "List" $ do
     it "can be decoded" $ do
-        decodeList "\0\0\0\0" `shouldBe` Right ("", 4, List [] :: List Boolean)
-        decodeList "\1\0\0\0\0\0\0\0" `shouldBe` Right ("", 8, List [Int32LE 0])
-        decodeList "\2\0\0\0\0\1" `shouldBe` Right ("", 6, List [Boolean False, Boolean True])
+        shouldBe
+            (decodeList "\0\0\0\0")
+            (Right ("", 4, List [] :: List Boolean))
+        shouldBe
+            (decodeList "\1\0\0\0\0\0\0\0")
+            (Right ("", 8, List [Int32LE 0]))
+        shouldBe
+            (decodeList "\2\0\0\0\0\1")
+            (Right ("", 6, List [Boolean False, Boolean True]))
     it "can be encoded" $ do
-        Binary.encode (List [] :: List Boolean) `shouldBe` "\0\0\0\0"
-        Binary.encode (List [Int32LE 0]) `shouldBe` "\1\0\0\0\0\0\0\0"
-        Binary.encode (List [Boolean False, Boolean True]) `shouldBe` "\2\0\0\0\0\1"
+        shouldBe
+            (Binary.encode (List [] :: List Boolean))
+            "\0\0\0\0"
+        shouldBe
+            (Binary.encode (List [Int32LE 0]))
+            "\1\0\0\0\0\0\0\0"
+        shouldBe
+            (Binary.encode (List [Boolean False, Boolean True]))
+            "\2\0\0\0\0\1"
 
 decodeList :: (Binary.Binary a) => BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, List a)
 decodeList = Binary.decodeOrFail
