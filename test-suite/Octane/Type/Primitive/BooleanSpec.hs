@@ -27,7 +27,7 @@ spec = describe "Boolean" $ do
     it "does not raise a runtime error when decoding garbage" $ do
         shouldBe
             (decodeBoolean "garbage")
-            (Left ("arbage", 1, "out of bounds"))
+            (Left ("arbage", 1, "invalid Boolean value 103"))
 
 decodeBoolean :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Boolean)
 decodeBoolean = Binary.decodeOrFail

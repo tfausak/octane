@@ -14,7 +14,7 @@ instance Binary Boolean where
     get = do
         boolean <- getWord8
         if boolean > 1
-        then fail "out of bounds"
+        then fail ("invalid Boolean value " ++ show boolean)
         else boolean & fromIntegral & toEnum & Boolean & return
 
     put (Boolean boolean) = do
