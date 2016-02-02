@@ -33,7 +33,7 @@ spec = describe "PCString" $ do
     it "does not decode strings of length 0" $ do
         shouldBe
             (decodePCString "\0\0\0\0")
-            (Left ("", 4, "invalid size"))
+            (Left ("", 4, "invalid PCString size 0"))
 
 decodePCString :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, PCString)
 decodePCString = Binary.decodeOrFail

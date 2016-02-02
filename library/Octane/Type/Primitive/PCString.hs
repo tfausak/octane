@@ -17,7 +17,7 @@ instance Binary PCString where
     get = do
         (Int32LE size) <- get
         string <- if size == 0
-            then fail "invalid size"
+            then fail ("invalid PCString size " ++ show size)
             else if size < 0
             then do
                 let actualSize = 2 * negate size
