@@ -343,9 +343,8 @@ spec = describe "Property" $ do
         shouldBe
             (decodeProperty "\
                 \\14\0\0\0OtherProperty\0\
-                \\0\0\0\0\0\0\0\0\
                 \")
-            (Left ("", 26, "unknown property type \"OtherProperty\""))
+            (Left ("", 18, "unknown property type \"OtherProperty\""))
 
 decodeProperty :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Property)
 decodeProperty = Binary.decodeOrFail

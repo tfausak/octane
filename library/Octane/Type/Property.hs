@@ -27,37 +27,44 @@ data Property
 instance Binary Property where
     get = do
         kind <- get
-        size <- get
         case getPCString kind of
             "ArrayProperty" -> do
+                size <- get
                 value <- get
                 ArrayProperty size value & return
             "BoolProperty" -> do
+                size <- get
                 value <- get
                 BoolProperty size value & return
             "ByteProperty" -> do
+                size <- get
                 key <- get
                 value <- get
                 ByteProperty size (key, value) & return
             "FloatProperty" -> do
+                size <- get
                 value <- case getInt64LE size of
                     4 -> get
                     x -> fail ("unknown FloatProperty size " ++ show x)
                 FloatProperty size value & return
             "IntProperty" -> do
+                size <- get
                 value <- case getInt64LE size of
                     4 -> get
                     x -> fail ("unknown IntProperty size " ++ show x)
                 IntProperty size value & return
             "NameProperty" -> do
+                size <- get
                 value <- get
                 NameProperty size value & return
             "QWordProperty" -> do
+                size <- get
                 value <- case getInt64LE size of
                     8 -> get
                     x -> fail ("unknown QWordProperty size " ++ show x)
                 QWordProperty size value & return
             "StrProperty" -> do
+                size <- get
                 value <- get
                 StrProperty size value & return
             x -> fail ("unknown property type " ++ show x)
