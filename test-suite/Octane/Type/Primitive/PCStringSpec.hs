@@ -11,15 +11,29 @@ import Test.Tasty.Hspec
 spec :: Spec
 spec = describe "PCString" $ do
     it "can be decoded" $ do
-        decodePCString "\1\0\0\0\0" `shouldBe` Right ("", 5, PCString "")
-        decodePCString "\6\0\0\0ascii\0" `shouldBe` Right ("", 10, PCString "ascii")
-        decodePCString "\8\0\0\0\251\241\239\231\248d\233\0" `shouldBe` Right ("", 12, PCString "ûñïçødé")
+        shouldBe
+            (decodePCString "\1\0\0\0\0")
+            (Right ("", 5, PCString ""))
+        shouldBe
+            (decodePCString "\6\0\0\0ascii\0")
+            (Right ("", 10, PCString "ascii"))
+        shouldBe
+            (decodePCString "\8\0\0\0\251\241\239\231\248d\233\0")
+            (Right ("", 12, PCString "ûñïçødé"))
     it "can be encoded" $ do
-        Binary.encode (PCString "") `shouldBe` "\1\0\0\0\0"
-        Binary.encode (PCString "ascii") `shouldBe` "\6\0\0\0ascii\0"
-        Binary.encode (PCString "ûñïçødé") `shouldBe` "\8\0\0\0\251\241\239\231\248d\233\0"
+        shouldBe
+            (Binary.encode (PCString ""))
+            "\1\0\0\0\0"
+        shouldBe
+            (Binary.encode (PCString "ascii"))
+            "\6\0\0\0ascii\0"
+        shouldBe
+            (Binary.encode (PCString "ûñïçødé"))
+            "\8\0\0\0\251\241\239\231\248d\233\0"
     it "does not decode strings of length 0" $ do
-        decodePCString "\0\0\0\0" `shouldBe` Left ("", 4, "invalid size")
+        shouldBe
+            (decodePCString "\0\0\0\0")
+            (Left ("", 4, "invalid size"))
 
 decodePCString :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, PCString)
 decodePCString = Binary.decodeOrFail
