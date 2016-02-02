@@ -41,7 +41,7 @@ benchmarks = bgroup "Replay"
         (Int32LE 0)
         (List [])
         (List [])
-        (Stream (Int32LE 0) "")
+        (Stream "")
         (List [])
         (List [])
         (List [])

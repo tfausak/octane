@@ -12,18 +12,12 @@ spec :: Spec
 spec = describe "Stream" $ do
     it "can be decoded" $ do
         shouldBe
-            (decodeStream "\
-                \\0\0\0\0")
-            (Right ("", 4, Stream
-                (Int32LE 0)
-                ""))
+            (decodeStream "\0\0\0\0")
+            (Right ("", 4, Stream ""))
     it "can be encoded" $ do
         shouldBe
-            (Binary.encode (Stream
-                (Int32LE 0)
-                ""))
-            "\
-                \\0\0\0\0"
+            (Binary.encode (Stream ""))
+            "\0\0\0\0"
 
 decodeStream :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Stream)
 decodeStream = Binary.decodeOrFail
