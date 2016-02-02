@@ -12,8 +12,7 @@ benchmarks :: Benchmark
 benchmarks = bgroup "Frame"
     [ bench "decode basic" (nf decodeFrame "\
         \\0\0\0\0\
-        \\0\0\0\0\
-        \")
+        \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (Frame
         (Float32LE 0.0)
         (Float32LE 0.0)))

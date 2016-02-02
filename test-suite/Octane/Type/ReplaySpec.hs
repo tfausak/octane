@@ -31,8 +31,7 @@ spec = describe "Replay" $ do
                 \\0\0\0\0\
                 \\0\0\0\0\
                 \\0\0\0\0\
-                \\0\0\0\0\
-                \")
+                \\0\0\0\0")
             (Right ("", 78, Replay
                 (Int32LE 0)
                 (Int32LE 0)
@@ -91,8 +90,7 @@ spec = describe "Replay" $ do
                 \\0\0\0\0\
                 \\0\0\0\0\
                 \\0\0\0\0\
-                \\0\0\0\0\
-                \"
+                \\0\0\0\0"
 
 decodeReplay :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Replay)
 decodeReplay = Binary.decodeOrFail

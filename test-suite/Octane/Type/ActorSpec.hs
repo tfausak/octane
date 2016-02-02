@@ -14,16 +14,14 @@ spec = describe "Actor" $ do
         shouldBe
             (decodeActor "\
                 \\1\0\0\0\0\
-                \\0\0\0\0\
-                \")
+                \\0\0\0\0")
             (Right ("", 9, Actor
                 (PCString "")
                 (Int32LE 0)))
         shouldBe
             (decodeActor "\
                 \\2\0\0\0a\0\
-                \\2\0\0\0\
-                \")
+                \\2\0\0\0")
             (Right ("", 10, Actor
                 (PCString "a")
                 (Int32LE 2)))
@@ -34,16 +32,14 @@ spec = describe "Actor" $ do
                 (Int32LE 0)))
             "\
                 \\1\0\0\0\0\
-                \\0\0\0\0\
-                \"
+                \\0\0\0\0"
         shouldBe
             (Binary.encode (Actor
                 (PCString "a")
                 (Int32LE 2)))
             "\
                 \\2\0\0\0a\0\
-                \\2\0\0\0\
-                \"
+                \\2\0\0\0"
 
 decodeActor :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Actor)
 decodeActor = Binary.decodeOrFail

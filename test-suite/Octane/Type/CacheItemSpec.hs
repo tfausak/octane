@@ -16,8 +16,7 @@ spec = describe "CacheItem" $ do
                 \\0\0\0\0\
                 \\0\0\0\0\
                 \\0\0\0\0\
-                \\0\0\0\0\
-                \")
+                \\0\0\0\0")
             (Right ("", 16, CacheItem
                 (Int32LE 0)
                 (Int32LE 0)
@@ -29,8 +28,7 @@ spec = describe "CacheItem" $ do
                 \\2\0\0\0\
                 \\3\0\0\0\
                 \\1\0\0\0\
-                \\4\0\0\0\5\0\0\0\
-                \")
+                \\4\0\0\0\5\0\0\0")
             (Right ("", 24, CacheItem
                 (Int32LE 1)
                 (Int32LE 2)
@@ -47,8 +45,7 @@ spec = describe "CacheItem" $ do
                 \\0\0\0\0\
                 \\0\0\0\0\
                 \\0\0\0\0\
-                \\0\0\0\0\
-                \"
+                \\0\0\0\0"
         shouldBe
             (Binary.encode (CacheItem
                 (Int32LE 1)
@@ -60,8 +57,7 @@ spec = describe "CacheItem" $ do
                 \\2\0\0\0\
                 \\3\0\0\0\
                 \\1\0\0\0\
-                \\4\0\0\0\5\0\0\0\
-                \"
+                \\4\0\0\0\5\0\0\0"
 
 decodeCacheItem :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, CacheItem)
 decodeCacheItem = Binary.decodeOrFail

@@ -15,8 +15,7 @@ spec = describe "KeyFrame" $ do
             (decodeKeyFrame "\
                 \\0\0\0\0\
                 \\0\0\0\0\
-                \\0\0\0\0\
-                \")
+                \\0\0\0\0")
             (Right ("", 12, KeyFrame
                 (Float32LE 0.0)
                 (Int32LE 0)
@@ -25,8 +24,7 @@ spec = describe "KeyFrame" $ do
             (decodeKeyFrame "\
                 \\0\0\128\63\
                 \\2\0\0\0\
-                \\3\0\0\0\
-                \")
+                \\3\0\0\0")
             (Right ("", 12, KeyFrame
                 (Float32LE 1.0)
                 (Int32LE 2)
@@ -40,8 +38,7 @@ spec = describe "KeyFrame" $ do
             "\
                 \\0\0\0\0\
                 \\0\0\0\0\
-                \\0\0\0\0\
-                \"
+                \\0\0\0\0"
         shouldBe
             (Binary.encode (KeyFrame
                 (Float32LE 1.0)
@@ -50,8 +47,7 @@ spec = describe "KeyFrame" $ do
             "\
                 \\0\0\128\63\
                 \\2\0\0\0\
-                \\3\0\0\0\
-                \"
+                \\3\0\0\0"
 
 decodeKeyFrame :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, KeyFrame)
 decodeKeyFrame = Binary.decodeOrFail

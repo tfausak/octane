@@ -29,8 +29,7 @@ benchmarks = bgroup "Replay"
         \\0\0\0\0\
         \\0\0\0\0\
         \\0\0\0\0\
-        \\0\0\0\0\
-        \")
+        \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (Replay
         (Int32LE 0)
         (Int32LE 0)

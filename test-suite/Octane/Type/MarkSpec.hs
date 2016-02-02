@@ -14,16 +14,14 @@ spec = describe "Mark" $ do
         shouldBe
             (decodeMark "\
                 \\1\0\0\0\0\
-                \\0\0\0\0\
-                \")
+                \\0\0\0\0")
             (Right ("", 9, Mark
                 (PCString "")
                 (Int32LE 0)))
         shouldBe
             (decodeMark "\
                 \\2\0\0\0a\0\
-                \\1\0\0\0\
-                \")
+                \\1\0\0\0")
             (Right ("", 10, Mark
                 (PCString "a")
                 (Int32LE 1)))
@@ -34,16 +32,14 @@ spec = describe "Mark" $ do
                 (Int32LE 0)))
             "\
                 \\1\0\0\0\0\
-                \\0\0\0\0\
-                \"
+                \\0\0\0\0"
         shouldBe
             (Binary.encode (Mark
                 (PCString "a")
                 (Int32LE 1)))
             "\
                 \\2\0\0\0a\0\
-                \\1\0\0\0\
-                \"
+                \\1\0\0\0"
 
 decodeMark :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Mark)
 decodeMark = Binary.decodeOrFail

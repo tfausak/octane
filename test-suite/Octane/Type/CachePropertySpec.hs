@@ -14,16 +14,14 @@ spec = describe "CacheProperty" $ do
         shouldBe
             (decodeCacheProperty "\
                 \\0\0\0\0\
-                \\0\0\0\0\
-                \")
+                \\0\0\0\0")
             (Right ("", 8, CacheProperty
                 (Int32LE 0)
                 (Int32LE 0)))
         shouldBe
             (decodeCacheProperty "\
                 \\1\0\0\0\
-                \\2\0\0\0\
-                \")
+                \\2\0\0\0")
             (Right ("", 8, CacheProperty
                 (Int32LE 1)
                 (Int32LE 2)))
@@ -34,16 +32,14 @@ spec = describe "CacheProperty" $ do
                 (Int32LE 0)))
             "\
                 \\0\0\0\0\
-                \\0\0\0\0\
-                \"
+                \\0\0\0\0"
         shouldBe
             (Binary.encode (CacheProperty
-                (Int32LE 1) 
+                (Int32LE 1)
                 (Int32LE 2)))
             "\
                 \\1\0\0\0\
-                \\2\0\0\0\
-                \"
+                \\2\0\0\0"
 
 decodeCacheProperty :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, CacheProperty)
 decodeCacheProperty = Binary.decodeOrFail

@@ -17,16 +17,14 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\14\0\0\0ArrayProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\0\0\0\0\
-                    \")
+                    \\0\0\0\0")
                 (Right ("", 30, ArrayProperty
                     (Int64LE 0)
                     (List [])))
             shouldBe
                 (decodeProperty "\
                     \\14\0\0\0ArrayProperty\0\
-                    \\1\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0a\0\13\0\0\0BoolProperty\0\2\0\0\0\0\0\0\0\1\5\0\0\0None\0\
-                    \")
+                    \\1\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0a\0\13\0\0\0BoolProperty\0\2\0\0\0\0\0\0\0\1\5\0\0\0None\0")
                 (Right ("", 71, ArrayProperty
                     (Int64LE 1)
                     (List [Dictionary (Map.singleton (PCString "a") (BoolProperty (Int64LE 2) (Boolean True)))])))
@@ -38,24 +36,21 @@ spec = describe "Property" $ do
                 "\
                     \\14\0\0\0ArrayProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\0\0\0\0\
-                    \"
+                    \\0\0\0\0"
             shouldBe
                 (Binary.encode (ArrayProperty
                     (Int64LE 1)
                     (List [Dictionary (Map.singleton (PCString "a") (BoolProperty (Int64LE 2) (Boolean True)))])))
                 "\
                     \\14\0\0\0ArrayProperty\0\
-                    \\1\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0a\0\13\0\0\0BoolProperty\0\2\0\0\0\0\0\0\0\1\5\0\0\0None\0\
-                    \"
+                    \\1\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0a\0\13\0\0\0BoolProperty\0\2\0\0\0\0\0\0\0\1\5\0\0\0None\0"
     describe "Bool" $ do
         it "can be decoded" $ do
             shouldBe
                 (decodeProperty "\
                     \\13\0\0\0BoolProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\0\
-                    \")
+                    \\0")
                 (Right ("", 26, BoolProperty
                     (Int64LE 0)
                     (Boolean False)))
@@ -63,8 +58,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\13\0\0\0BoolProperty\0\
                     \\1\0\0\0\0\0\0\0\
-                    \\1\
-                    \")
+                    \\1")
                 (Right ("", 26, BoolProperty
                     (Int64LE 1)
                     (Boolean True)))
@@ -76,8 +70,7 @@ spec = describe "Property" $ do
                 "\
                     \\13\0\0\0BoolProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\0\
-                    \"
+                    \\0"
             shouldBe
                 (Binary.encode (BoolProperty
                     (Int64LE 1)
@@ -85,16 +78,14 @@ spec = describe "Property" $ do
                 "\
                     \\13\0\0\0BoolProperty\0\
                     \\1\0\0\0\0\0\0\0\
-                    \\1\
-                    \"
+                    \\1"
     describe "Byte" $ do
         it "can be decoded" $ do
             shouldBe
                 (decodeProperty "\
                     \\13\0\0\0ByteProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\1\0\0\0\0\1\0\0\0\0\
-                    \")
+                    \\1\0\0\0\0\1\0\0\0\0")
                 (Right ("", 35, ByteProperty
                     (Int64LE 0)
                     (PCString "", PCString "")))
@@ -102,8 +93,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\13\0\0\0ByteProperty\0\
                     \\1\0\0\0\0\0\0\0\
-                    \\2\0\0\0a\0\2\0\0\0b\0\
-                    \")
+                    \\2\0\0\0a\0\2\0\0\0b\0")
                 (Right ("", 37, ByteProperty
                     (Int64LE 1)
                     (PCString "a", PCString "b")))
@@ -115,8 +105,7 @@ spec = describe "Property" $ do
                 "\
                     \\13\0\0\0ByteProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\1\0\0\0\0\1\0\0\0\0\
-                    \"
+                    \\1\0\0\0\0\1\0\0\0\0"
             shouldBe
                 (Binary.encode (ByteProperty
                     (Int64LE 1)
@@ -124,16 +113,14 @@ spec = describe "Property" $ do
                 "\
                     \\13\0\0\0ByteProperty\0\
                     \\1\0\0\0\0\0\0\0\
-                    \\2\0\0\0a\0\2\0\0\0b\0\
-                    \"
+                    \\2\0\0\0a\0\2\0\0\0b\0"
     describe "Float" $ do
         it "can be decoded" $ do
             shouldBe
                 (decodeProperty "\
                     \\14\0\0\0FloatProperty\0\
                     \\4\0\0\0\0\0\0\0\
-                    \\0\0\0\0\
-                    \")
+                    \\0\0\0\0")
                 (Right ("", 30, FloatProperty
                     (Int64LE 4)
                     (Float32LE 0.0)))
@@ -141,8 +128,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\14\0\0\0FloatProperty\0\
                     \\4\0\0\0\0\0\0\0\
-                    \\0\0\128\63\
-                    \")
+                    \\0\0\128\63")
                 (Right ("", 30, FloatProperty
                     (Int64LE 4)
                     (Float32LE 1.0)))
@@ -154,8 +140,7 @@ spec = describe "Property" $ do
                 "\
                     \\14\0\0\0FloatProperty\0\
                     \\4\0\0\0\0\0\0\0\
-                    \\0\0\0\0\
-                    \"
+                    \\0\0\0\0"
             shouldBe
                 (Binary.encode (FloatProperty
                     (Int64LE 4)
@@ -163,14 +148,12 @@ spec = describe "Property" $ do
                 "\
                     \\14\0\0\0FloatProperty\0\
                     \\4\0\0\0\0\0\0\0\
-                    \\0\0\128\63\
-                    \"
+                    \\0\0\128\63"
         it "does not raise a runtime error when decoding garbage" $ do
             shouldBe
                 (decodeProperty "\
                     \\14\0\0\0FloatProperty\0\
-                    \\0\0\0\0\0\0\0\0\
-                    \")
+                    \\0\0\0\0\0\0\0\0")
                 (Left ("", 26, "unknown FloatProperty size 0"))
     describe "Int" $ do
         it "can be decoded" $ do
@@ -178,8 +161,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\12\0\0\0IntProperty\0\
                     \\4\0\0\0\0\0\0\0\
-                    \\0\0\0\0\
-                    \")
+                    \\0\0\0\0")
                 (Right ("", 28, IntProperty
                     (Int64LE 4)
                     (Int32LE 0)))
@@ -187,8 +169,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\12\0\0\0IntProperty\0\
                     \\4\0\0\0\0\0\0\0\
-                    \\1\0\0\0\
-                    \")
+                    \\1\0\0\0")
                 (Right ("", 28, IntProperty
                     (Int64LE 4)
                     (Int32LE 1)))
@@ -200,8 +181,7 @@ spec = describe "Property" $ do
                 "\
                     \\12\0\0\0IntProperty\0\
                     \\4\0\0\0\0\0\0\0\
-                    \\0\0\0\0\
-                    \"
+                    \\0\0\0\0"
             shouldBe
                 (Binary.encode (IntProperty
                     (Int64LE 4)
@@ -209,14 +189,12 @@ spec = describe "Property" $ do
                 "\
                     \\12\0\0\0IntProperty\0\
                     \\4\0\0\0\0\0\0\0\
-                    \\1\0\0\0\
-                    \"
+                    \\1\0\0\0"
         it "does not raise a runtime error when decoding garbage" $ do
             shouldBe
                 (decodeProperty "\
                     \\12\0\0\0IntProperty\0\
-                    \\0\0\0\0\0\0\0\0\
-                    \")
+                    \\0\0\0\0\0\0\0\0")
                 (Left ("", 24, "unknown IntProperty size 0"))
     describe "Name" $ do
         it "can be decoded" $ do
@@ -224,8 +202,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\13\0\0\0NameProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\1\0\0\0\0\
-                    \")
+                    \\1\0\0\0\0")
                 (Right ("", 30, NameProperty
                     (Int64LE 0)
                     (PCString "")))
@@ -233,8 +210,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\13\0\0\0NameProperty\0\
                     \\1\0\0\0\0\0\0\0\
-                    \\2\0\0\0a\0\
-                    \")
+                    \\2\0\0\0a\0")
                 (Right ("", 31, NameProperty
                     (Int64LE 1)
                     (PCString "a")))
@@ -246,8 +222,7 @@ spec = describe "Property" $ do
                 "\
                     \\13\0\0\0NameProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\1\0\0\0\0\
-                    \"
+                    \\1\0\0\0\0"
             shouldBe
                 (Binary.encode (NameProperty
                     (Int64LE 1)
@@ -255,16 +230,14 @@ spec = describe "Property" $ do
                 "\
                     \\13\0\0\0NameProperty\0\
                     \\1\0\0\0\0\0\0\0\
-                    \\2\0\0\0a\0\
-                    \"
+                    \\2\0\0\0a\0"
     describe "QWord" $ do
         it "can be decoded" $ do
             shouldBe
                 (decodeProperty "\
                     \\14\0\0\0QWordProperty\0\
                     \\8\0\0\0\0\0\0\0\
-                    \\0\0\0\0\0\0\0\0\
-                    \")
+                    \\0\0\0\0\0\0\0\0")
                 (Right ("", 34, QWordProperty
                     (Int64LE 8)
                     (Int64LE 0)))
@@ -272,8 +245,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\14\0\0\0QWordProperty\0\
                     \\8\0\0\0\0\0\0\0\
-                    \\2\0\0\0\0\0\0\0\
-                    \")
+                    \\2\0\0\0\0\0\0\0")
                 (Right ("", 34, QWordProperty
                     (Int64LE 8)
                     (Int64LE 2)))
@@ -285,8 +257,7 @@ spec = describe "Property" $ do
                 "\
                     \\14\0\0\0QWordProperty\0\
                     \\8\0\0\0\0\0\0\0\
-                    \\0\0\0\0\0\0\0\0\
-                    \"
+                    \\0\0\0\0\0\0\0\0"
             shouldBe
                 (Binary.encode (QWordProperty
                     (Int64LE 8)
@@ -294,8 +265,7 @@ spec = describe "Property" $ do
                 "\
                     \\14\0\0\0QWordProperty\0\
                     \\8\0\0\0\0\0\0\0\
-                    \\2\0\0\0\0\0\0\0\
-                    \"
+                    \\2\0\0\0\0\0\0\0"
         it "does not raise a runtime error when decoding garbage" $ do
             shouldBe
                 (decodeProperty "\14\0\0\0QWordProperty\0\0\0\0\0\0\0\0\0")
@@ -306,8 +276,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\12\0\0\0StrProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\1\0\0\0\0\
-                    \")
+                    \\1\0\0\0\0")
                 (Right ("", 29, StrProperty
                     (Int64LE 0)
                     (PCString "")))
@@ -315,8 +284,7 @@ spec = describe "Property" $ do
                 (decodeProperty "\
                     \\12\0\0\0StrProperty\0\
                     \\1\0\0\0\0\0\0\0\
-                    \\2\0\0\0a\0\
-                    \")
+                    \\2\0\0\0a\0")
                 (Right ("", 30, StrProperty
                     (Int64LE 1)
                     (PCString "a")))
@@ -328,8 +296,7 @@ spec = describe "Property" $ do
                 "\
                     \\12\0\0\0StrProperty\0\
                     \\0\0\0\0\0\0\0\0\
-                    \\1\0\0\0\0\
-                    \"
+                    \\1\0\0\0\0"
             shouldBe
                 (Binary.encode (StrProperty
                     (Int64LE 1)
@@ -337,13 +304,11 @@ spec = describe "Property" $ do
                 "\
                     \\12\0\0\0StrProperty\0\
                     \\1\0\0\0\0\0\0\0\
-                    \\2\0\0\0a\0\
-                    \"
+                    \\2\0\0\0a\0"
     it "does not raise a runtime error when decoding garbage" $ do
         shouldBe
             (decodeProperty "\
-                \\14\0\0\0OtherProperty\0\
-                \")
+                \\14\0\0\0OtherProperty\0")
             (Left ("", 18, "unknown property type \"OtherProperty\""))
 
 decodeProperty :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Property)
