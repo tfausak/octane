@@ -11,11 +11,19 @@ import Test.Tasty.Hspec
 spec :: Spec
 spec = describe "Int64LE" $ do
     it "can be decoded" $ do
-        decodeInt64LE "\0\0\0\0\0\0\0\0" `shouldBe` Right ("", 8, Int64LE 0)
-        decodeInt64LE "\1\0\0\0\0\0\0\0" `shouldBe` Right ("", 8, Int64LE 1)
+        shouldBe
+            (decodeInt64LE "\0\0\0\0\0\0\0\0")
+            (Right ("", 8, Int64LE 0))
+        shouldBe
+            (decodeInt64LE "\1\0\0\0\0\0\0\0")
+            (Right ("", 8, Int64LE 1))
     it "can be encoded" $ do
-        Binary.encode (Int64LE 0) `shouldBe` "\0\0\0\0\0\0\0\0"
-        Binary.encode (Int64LE 1) `shouldBe` "\1\0\0\0\0\0\0\0"
+        shouldBe
+            (Binary.encode (Int64LE 0))
+            "\0\0\0\0\0\0\0\0"
+        shouldBe
+            (Binary.encode (Int64LE 1))
+            "\1\0\0\0\0\0\0\0"
 
 decodeInt64LE :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Int64LE)
 decodeInt64LE = Binary.decodeOrFail
