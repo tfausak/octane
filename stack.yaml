@@ -1,3 +1,5 @@
+extra-deps:
+- binary-bits-0.5
 install-ghc: true
 packages: [.]
 require-stack-version: '>=1.0'
