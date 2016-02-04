@@ -3,4 +3,4 @@ extra-deps:
 install-ghc: true
 packages: [.]
 require-stack-version: '>=1.0'
-resolver: nightly-2016-02-02
+resolver: nightly-2016-02-03
