@@ -41,7 +41,7 @@ instance Bits.BinaryBit Frame where
         frame & frameDelta & floatToWord & Bits.putWord32be 32
 
 wordToFloat :: Word.Word32 -> Float32LE
-wordToFloat = undefined -- TODO
+wordToFloat _ = Float32LE 0 -- TODO
 
 floatToWord :: Float32LE -> Word.Word32
-floatToWord = undefined -- TODO
+floatToWord _ = 0 -- TODO
