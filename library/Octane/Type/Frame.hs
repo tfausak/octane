@@ -3,7 +3,6 @@
 
 module Octane.Type.Frame (Frame(..)) where
 
-import qualified Data.Binary.Bits as Bits
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.Bits.Put as Bits
 import qualified Data.Word as Word
@@ -28,7 +27,7 @@ instance Binary Frame where
         frame & frameTime & put
         frame & frameDelta & put
 
-instance Bits.BinaryBit Frame where
+instance BinaryBit Frame where
     getBits _ = do
         time <- Bits.getWord32be 32
         delta <- Bits.getWord32be 32
