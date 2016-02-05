@@ -3,6 +3,8 @@
 
 module Octane.Type.Primitive.Int64LE (Int64LE(..)) where
 
+import qualified Data.Binary.Get as Binary
+import qualified Data.Binary.Put as Binary
 import Octane.Core
 
 -- | A 64-bit little-endian integer.
@@ -12,8 +14,8 @@ newtype Int64LE = Int64LE
 
 instance Binary Int64LE where
     get = do
-        int <- getWord64le
+        int <- Binary.getWord64le
         int & fromIntegral & Int64LE & return
 
     put (Int64LE int) = do
-        int & fromIntegral & putWord64le
+        int & fromIntegral & Binary.putWord64le

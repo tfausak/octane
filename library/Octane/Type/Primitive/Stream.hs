@@ -3,6 +3,8 @@
 
 module Octane.Type.Primitive.Stream (Stream(..)) where
 
+import qualified Data.Binary.Get as Binary
+import qualified Data.Binary.Put as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.Word as Word
@@ -16,14 +18,14 @@ newtype Stream = Stream
 instance Binary Stream where
     get = do
         size <- get
-        content <- size & getInt32LE & fromIntegral & getByteString
+        content <- size & getInt32LE & fromIntegral & Binary.getByteString
         content & BS.map reverseBits & Stream & return
 
     put stream = do
         let content = getStream stream
         let size = BS.length content
         size & fromIntegral & Int32LE & put
-        content & BS.map reverseBits & putByteString
+        content & BS.map reverseBits & Binary.putByteString
 
 reverseBits :: Word.Word8 -> Word.Word8
 reverseBits word =

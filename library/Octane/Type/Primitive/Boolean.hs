@@ -3,6 +3,7 @@
 
 module Octane.Type.Primitive.Boolean (Boolean(..)) where
 
+import qualified Data.Binary as Binary
 import Octane.Core
 
 -- | A boolean value, stored in the first bit of a byte.
@@ -12,10 +13,10 @@ newtype Boolean = Boolean
 
 instance Binary Boolean where
     get = do
-        boolean <- getWord8
+        boolean <- Binary.getWord8
         if boolean > 1
         then fail ("invalid Boolean value " ++ show boolean)
         else boolean & fromIntegral & toEnum & Boolean & return
 
     put (Boolean boolean) = do
-        boolean & fromEnum & fromIntegral & putWord8
+        boolean & fromEnum & fromIntegral & Binary.putWord8

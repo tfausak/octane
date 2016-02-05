@@ -3,8 +3,12 @@
 
 module Octane.Type.Primitive.PCString (PCString(..)) where
 
+import qualified Data.Binary.Get as Binary
+import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Char8 as BS8
+import qualified Data.Char as Char
 import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Encoding
 import Octane.Core
 import Octane.Type.Primitive.Int32LE
 
@@ -21,23 +25,23 @@ instance Binary PCString where
             else if size < 0
             then do
                 let actualSize = 2 * negate size
-                bytes <- getByteString (fromIntegral actualSize)
-                bytes & decodeUtf16LE & return
+                bytes <- Binary.getByteString (fromIntegral actualSize)
+                bytes & Encoding.decodeUtf16LE & return
             else do
-                bytes <- getByteString (fromIntegral size)
-                bytes & decodeLatin1 & return
+                bytes <- Binary.getByteString (fromIntegral size)
+                bytes & Encoding.decodeLatin1 & return
         string & Text.dropEnd 1 & PCString & return
 
     put (PCString string) = do
         let cString = Text.snoc string '\NUL'
         let size = cString & Text.length & fromIntegral
-        if Text.all isLatin1 cString
+        if Text.all Char.isLatin1 cString
         then do
             size & Int32LE & put
-            cString & encodeLatin1 & putByteString
+            cString & encodeLatin1 & Binary.putByteString
         else do
             size & negate & Int32LE & put
-            cString & encodeUtf16LE & putByteString
+            cString & Encoding.encodeUtf16LE & Binary.putByteString
 
 encodeLatin1 :: Text -> ByteString
 encodeLatin1 text = text & Text.unpack & BS8.pack

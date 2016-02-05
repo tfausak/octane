@@ -3,6 +3,7 @@
 
 module Octane.Type.Primitive.List (List(..)) where
 
+import qualified Control.Monad as Monad
 import Octane.Core
 import Octane.Type.Primitive.Int32LE
 
@@ -14,7 +15,7 @@ newtype List a = List
 instance (Binary a) => Binary (List a) where
     get = do
         (Int32LE size) <- get
-        elements <- replicateM (fromIntegral size) get
+        elements <- Monad.replicateM (fromIntegral size) get
         elements & List & return
 
     put (List list) = do
