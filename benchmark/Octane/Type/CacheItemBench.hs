@@ -16,9 +16,9 @@ benchmarks = bgroup "CacheItem"
         \\0\0\0\0\
         \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (CacheItem
-        (Int32LE 0)
-        (Int32LE 0)
-        (Int32LE 0)
+        (Word32LE 0)
+        (Word32LE 0)
+        (Word32LE 0)
         (List [])))
     ]
 

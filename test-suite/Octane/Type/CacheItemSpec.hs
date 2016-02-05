@@ -18,9 +18,9 @@ spec = describe "CacheItem" $ do
                 \\0\0\0\0\
                 \\0\0\0\0")
             (Right ("", 16, CacheItem
-                (Int32LE 0)
-                (Int32LE 0)
-                (Int32LE 0)
+                (Word32LE 0)
+                (Word32LE 0)
+                (Word32LE 0)
                 (List [])))
         shouldBe
             (decodeCacheItem "\
@@ -30,16 +30,16 @@ spec = describe "CacheItem" $ do
                 \\1\0\0\0\
                 \\4\0\0\0\5\0\0\0")
             (Right ("", 24, CacheItem
-                (Int32LE 1)
-                (Int32LE 2)
-                (Int32LE 3)
-                (List [CacheProperty (Int32LE 4) (Int32LE 5)])))
+                (Word32LE 1)
+                (Word32LE 2)
+                (Word32LE 3)
+                (List [CacheProperty (Word32LE 4) (Word32LE 5)])))
     it "can be encoded" $ do
         shouldBe
             (Binary.encode (CacheItem
-                (Int32LE 0)
-                (Int32LE 0)
-                (Int32LE 0)
+                (Word32LE 0)
+                (Word32LE 0)
+                (Word32LE 0)
                 (List [])))
             "\
                 \\0\0\0\0\
@@ -48,10 +48,10 @@ spec = describe "CacheItem" $ do
                 \\0\0\0\0"
         shouldBe
             (Binary.encode (CacheItem
-                (Int32LE 1)
-                (Int32LE 2)
-                (Int32LE 3)
-                (List [CacheProperty (Int32LE 4) (Int32LE 5)])))
+                (Word32LE 1)
+                (Word32LE 2)
+                (Word32LE 3)
+                (List [CacheProperty (Word32LE 4) (Word32LE 5)])))
             "\
                 \\1\0\0\0\
                 \\2\0\0\0\

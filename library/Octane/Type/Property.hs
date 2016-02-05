@@ -5,23 +5,23 @@
 module Octane.Type.Property (Property(..)) where
 
 import Octane.Core
-import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Boolean
-import Octane.Type.Primitive.Float32LE
-import Octane.Type.Primitive.Int32LE
-import Octane.Type.Primitive.Int64LE
-import Octane.Type.Primitive.List
 import Octane.Type.Primitive.Dictionary
+import Octane.Type.Primitive.Float32LE
+import Octane.Type.Primitive.List
+import Octane.Type.Primitive.PCString
+import Octane.Type.Primitive.Word32LE
+import Octane.Type.Primitive.Word64LE
 
 data Property
-    = ArrayProperty Int64LE (List (Dictionary Property))
-    | BoolProperty Int64LE Boolean
-    | ByteProperty Int64LE (PCString, PCString)
-    | FloatProperty Int64LE Float32LE
-    | IntProperty Int64LE Int32LE
-    | NameProperty Int64LE PCString
-    | QWordProperty Int64LE Int64LE
-    | StrProperty Int64LE PCString
+    = ArrayProperty Word64LE (List (Dictionary Property))
+    | BoolProperty Word64LE Boolean
+    | ByteProperty Word64LE (PCString, PCString)
+    | FloatProperty Word64LE Float32LE
+    | IntProperty Word64LE Word32LE
+    | NameProperty Word64LE PCString
+    | QWordProperty Word64LE Word64LE
+    | StrProperty Word64LE PCString
     deriving (Eq, Generic, NFData, Show)
 
 instance Binary Property where
@@ -43,13 +43,13 @@ instance Binary Property where
                 ByteProperty size (key, value) & return
             "FloatProperty" -> do
                 size <- get
-                value <- case getInt64LE size of
+                value <- case getWord64LE size of
                     4 -> get
                     x -> fail ("unknown FloatProperty size " ++ show x)
                 FloatProperty size value & return
             "IntProperty" -> do
                 size <- get
-                value <- case getInt64LE size of
+                value <- case getWord64LE size of
                     4 -> get
                     x -> fail ("unknown IntProperty size " ++ show x)
                 IntProperty size value & return
@@ -59,7 +59,7 @@ instance Binary Property where
                 NameProperty size value & return
             "QWordProperty" -> do
                 size <- get
-                value <- case getInt64LE size of
+                value <- case getWord64LE size of
                     8 -> get
                     x -> fail ("unknown QWordProperty size " ++ show x)
                 QWordProperty size value & return

@@ -16,7 +16,7 @@ spec = describe "List" $ do
             (Right ("", 4, List [] :: List Boolean))
         shouldBe
             (decodeList "\1\0\0\0\0\0\0\0")
-            (Right ("", 8, List [Int32LE 0]))
+            (Right ("", 8, List [Word32LE 0]))
         shouldBe
             (decodeList "\2\0\0\0\0\1")
             (Right ("", 6, List [Boolean False, Boolean True]))
@@ -25,7 +25,7 @@ spec = describe "List" $ do
             (Binary.encode (List [] :: List Boolean))
             "\0\0\0\0"
         shouldBe
-            (Binary.encode (List [Int32LE 0]))
+            (Binary.encode (List [Word32LE 0]))
             "\1\0\0\0\0\0\0\0"
         shouldBe
             (Binary.encode (List [Boolean False, Boolean True]))

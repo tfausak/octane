@@ -9,22 +9,22 @@ import Octane.Type.CacheItem
 import Octane.Type.KeyFrame
 import Octane.Type.Mark
 import Octane.Type.Message
-import Octane.Type.Primitive.PCString
-import Octane.Type.Primitive.Int32LE
-import Octane.Type.Primitive.List
-import Octane.Type.Property
 import Octane.Type.Primitive.Dictionary
+import Octane.Type.Primitive.List
+import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Stream
+import Octane.Type.Primitive.Word32LE
+import Octane.Type.Property
 
 data Replay = Replay
-    { replaySize1 :: Int32LE
-    , replayCRC1 :: Int32LE
-    , replayVersion1 :: Int32LE
-    , replayVersion2 :: Int32LE
+    { replaySize1 :: Word32LE
+    , replayCRC1 :: Word32LE
+    , replayVersion1 :: Word32LE
+    , replayVersion2 :: Word32LE
     , replayLabel :: PCString
     , replayProperties :: Dictionary Property
-    , replaySize2 :: Int32LE
-    , replayCRC2 :: Int32LE
+    , replaySize2 :: Word32LE
+    , replayCRC2 :: Word32LE
     , replayEffects :: List PCString
     , replayKeyFrames :: List KeyFrame
     , replayStream :: Stream

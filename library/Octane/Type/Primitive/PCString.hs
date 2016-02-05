@@ -10,7 +10,7 @@ import qualified Data.Char as Char
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
 import Octane.Core
-import Octane.Type.Primitive.Int32LE
+import Octane.Type.Primitive.Word32LE
 
 -- | A length-prefixed null-terminated string.
 newtype PCString = PCString
@@ -19,7 +19,7 @@ newtype PCString = PCString
 
 instance Binary PCString where
     get = do
-        (Int32LE size) <- get
+        (Word32LE size) <- get
         string <- if size == 0
             then fail ("invalid PCString size " ++ show size)
             else if size < 0
@@ -37,10 +37,10 @@ instance Binary PCString where
         let size = cString & Text.length & fromIntegral
         if Text.all Char.isLatin1 cString
         then do
-            size & Int32LE & put
+            size & Word32LE & put
             cString & encodeLatin1 & Binary.putByteString
         else do
-            size & negate & Int32LE & put
+            size & negate & Word32LE & put
             cString & Encoding.encodeUtf16LE & Binary.putByteString
 
 encodeLatin1 :: Text -> ByteString

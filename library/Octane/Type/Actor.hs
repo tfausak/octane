@@ -5,11 +5,11 @@ module Octane.Type.Actor (Actor(..)) where
 
 import Octane.Core
 import Octane.Type.Primitive.PCString
-import Octane.Type.Primitive.Int32LE
+import Octane.Type.Primitive.Word32LE
 
 data Actor = Actor
     { actorName :: PCString
-    , actorTag :: Int32LE
+    , actorTag :: Word32LE
     } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Actor where

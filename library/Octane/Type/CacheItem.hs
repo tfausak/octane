@@ -5,13 +5,13 @@ module Octane.Type.CacheItem (CacheItem(..)) where
 
 import Octane.Core
 import Octane.Type.CacheProperty
-import Octane.Type.Primitive.Int32LE
 import Octane.Type.Primitive.List
+import Octane.Type.Primitive.Word32LE
 
 data CacheItem = CacheItem
-    { cacheItemTag :: Int32LE
-    , cacheItemStart :: Int32LE
-    , cacheItemEnd :: Int32LE
+    { cacheItemTag :: Word32LE
+    , cacheItemStart :: Word32LE
+    , cacheItemEnd :: Word32LE
     , cacheItemCacheProperties :: List CacheProperty
     } deriving (Eq, Generic, NFData, Show)
 

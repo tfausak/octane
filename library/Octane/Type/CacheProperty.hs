@@ -4,11 +4,11 @@
 module Octane.Type.CacheProperty (CacheProperty(..)) where
 
 import Octane.Core
-import Octane.Type.Primitive.Int32LE
+import Octane.Type.Primitive.Word32LE
 
 data CacheProperty = CacheProperty
-    { cachePropertyIndex :: Int32LE
-    , cachePropertyTag :: Int32LE
+    { cachePropertyIndex :: Word32LE
+    , cachePropertyTag :: Word32LE
     } deriving (Eq, Generic, NFData, Show)
 
 instance Binary CacheProperty where

@@ -33,15 +33,15 @@ library
         Octane.Type.Message
         Octane.Type.Primitive
         Octane.Type.Primitive.Boolean
+        Octane.Type.Primitive.Dictionary
         Octane.Type.Primitive.Float32LE
-        Octane.Type.Primitive.Int32LE
-        Octane.Type.Primitive.Int64LE
         Octane.Type.Primitive.List
         Octane.Type.Primitive.PCString
-        Octane.Type.Primitive.Dictionary
+        Octane.Type.Primitive.Stream
+        Octane.Type.Primitive.Word32LE
+        Octane.Type.Primitive.Word64LE
         Octane.Type.Property
         Octane.Type.Replay
-        Octane.Type.Primitive.Stream
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,
@@ -93,11 +93,11 @@ test-suite octane-test-suite
         Octane.Type.PrimitiveSpec
         Octane.Type.Primitive.BooleanSpec
         Octane.Type.Primitive.Float32LESpec
-        Octane.Type.Primitive.Int32LESpec
-        Octane.Type.Primitive.Int64LESpec
         Octane.Type.Primitive.ListSpec
         Octane.Type.Primitive.PCStringSpec
         Octane.Type.Primitive.DictionarySpec
+        Octane.Type.Primitive.Word32LESpec
+        Octane.Type.Primitive.Word64LESpec
         Octane.Type.PropertySpec
         Octane.Type.ReplaySpec
         Octane.Type.Primitive.StreamSpec
@@ -130,10 +130,10 @@ benchmark octane-benchmark
         Octane.Type.Primitive.BooleanBench
         Octane.Type.Primitive.DictionaryBench
         Octane.Type.Primitive.Float32LEBench
-        Octane.Type.Primitive.Int32LEBench
-        Octane.Type.Primitive.Int64LEBench
         Octane.Type.Primitive.ListBench
         Octane.Type.Primitive.PCStringBench
+        Octane.Type.Primitive.Word32LEBench
+        Octane.Type.Primitive.Word64LEBench
         Octane.Type.PropertyBench
         Octane.Type.ReplayBench
         Octane.Type.Primitive.StreamBench

@@ -5,11 +5,11 @@ module Octane.Type.Message (Message(..)) where
 
 import Octane.Core
 import Octane.Type.Primitive.PCString
-import Octane.Type.Primitive.Int32LE
+import Octane.Type.Primitive.Word32LE
 
 -- | A debugging message. Replays do not have any of these anymore.
 data Message = Message
-    { messageFrame :: Int32LE
+    { messageFrame :: Word32LE
     , messageName :: PCString
     , messageContent :: PCString
     } deriving (Eq, Generic, NFData, Show)

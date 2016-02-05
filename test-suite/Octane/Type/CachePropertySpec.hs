@@ -16,27 +16,27 @@ spec = describe "CacheProperty" $ do
                 \\0\0\0\0\
                 \\0\0\0\0")
             (Right ("", 8, CacheProperty
-                (Int32LE 0)
-                (Int32LE 0)))
+                (Word32LE 0)
+                (Word32LE 0)))
         shouldBe
             (decodeCacheProperty "\
                 \\1\0\0\0\
                 \\2\0\0\0")
             (Right ("", 8, CacheProperty
-                (Int32LE 1)
-                (Int32LE 2)))
+                (Word32LE 1)
+                (Word32LE 2)))
     it "can be encoded" $ do
         shouldBe
             (Binary.encode (CacheProperty
-                (Int32LE 0)
-                (Int32LE 0)))
+                (Word32LE 0)
+                (Word32LE 0)))
             "\
                 \\0\0\0\0\
                 \\0\0\0\0"
         shouldBe
             (Binary.encode (CacheProperty
-                (Int32LE 1)
-                (Int32LE 2)))
+                (Word32LE 1)
+                (Word32LE 2)))
             "\
                 \\1\0\0\0\
                 \\2\0\0\0"

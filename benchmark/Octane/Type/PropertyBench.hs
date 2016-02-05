@@ -16,7 +16,7 @@ benchmarks = bgroup "Property"
             \\0\0\0\0\0\0\0\0\
             \\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (ArrayProperty
-            (Int64LE 0)
+            (Word64LE 0)
             (List [])))
         ]
     , bgroup "Bool"
@@ -25,7 +25,7 @@ benchmarks = bgroup "Property"
             \\0\0\0\0\0\0\0\0\
             \\0")
         , bench "encode basic" (nf Binary.encode (BoolProperty
-            (Int64LE 0)
+            (Word64LE 0)
             (Boolean False)))
         ]
     , bgroup "Byte"
@@ -35,7 +35,7 @@ benchmarks = bgroup "Property"
             \\1\0\0\0\0\
             \\1\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (ByteProperty
-            (Int64LE 0)
+            (Word64LE 0)
             (PCString "", PCString "")))
         ]
     , bgroup "Float"
@@ -44,7 +44,7 @@ benchmarks = bgroup "Property"
             \\4\0\0\0\0\0\0\0\
             \\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (FloatProperty
-            (Int64LE 4)
+            (Word64LE 4)
             (Float32LE 0.0)))
         ]
     , bgroup "Int"
@@ -53,8 +53,8 @@ benchmarks = bgroup "Property"
             \\4\0\0\0\0\0\0\0\
             \\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (IntProperty
-            (Int64LE 4)
-            (Int32LE 0)))
+            (Word64LE 4)
+            (Word32LE 0)))
         ]
     , bgroup "Name"
         [ bench "decode basic" (nf decodeProperty "\
@@ -62,7 +62,7 @@ benchmarks = bgroup "Property"
             \\0\0\0\0\0\0\0\0\
             \\1\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (NameProperty
-            (Int64LE 0)
+            (Word64LE 0)
             (PCString "")))
         ]
     , bgroup "QWord"
@@ -71,8 +71,8 @@ benchmarks = bgroup "Property"
             \\8\0\0\0\0\0\0\0\
             \\0\0\0\0\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (QWordProperty
-            (Int64LE 8)
-            (Int64LE 0)))
+            (Word64LE 8)
+            (Word64LE 0)))
         ]
     , bgroup "String"
         [ bench "decode basic" (nf decodeProperty "\
@@ -80,7 +80,7 @@ benchmarks = bgroup "Property"
             \\0\0\0\0\0\0\0\0\
             \\1\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (StrProperty
-            (Int64LE 0)
+            (Word64LE 0)
             (PCString "")))
         ]
     ]
