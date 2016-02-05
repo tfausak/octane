@@ -2,8 +2,11 @@
 
 module Octane.Type.FrameSpec (spec) where
 
-import qualified Data.Binary as Binary
+import qualified Data.Binary.Bits as Bits
+import qualified Data.Binary.Bits.Get as Bits
+import qualified Data.Binary.Bits.Put as Bits
 import qualified Data.Binary.Get as Binary
+import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as BSL
 import Octane
 import Test.Tasty.Hspec
@@ -20,7 +23,7 @@ spec = describe "Frame" $ do
                 (Float32LE 0.0)))
     it "can be encoded" $ do
         shouldBe
-            (Binary.encode (Frame
+            (encodeFrame (Frame
                 (Float32LE 0.0)
                 (Float32LE 0.0)))
             "\
@@ -28,4 +31,7 @@ spec = describe "Frame" $ do
                 \\0\0\0\0"
 
 decodeFrame :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Frame)
-decodeFrame = Binary.decodeOrFail
+decodeFrame bytes = Binary.runGetOrFail (Bits.runBitGet (Bits.getBits undefined)) bytes
+
+encodeFrame :: Frame -> BSL.ByteString
+encodeFrame frame = Binary.runPut (Bits.runBitPut (Bits.putBits undefined frame))

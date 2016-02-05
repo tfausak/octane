@@ -72,6 +72,7 @@ test-suite octane-test-suite
     build-depends:
         base -any,
         binary -any,
+        binary-bits -any,
         bytestring -any,
         containers -any,
         octane -any,
@@ -109,6 +110,7 @@ benchmark octane-benchmark
     build-depends:
         base -any,
         binary -any,
+        binary-bits -any,
         bytestring -any,
         containers -any,
         octane -any,

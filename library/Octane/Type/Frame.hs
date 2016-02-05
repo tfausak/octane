@@ -14,19 +14,6 @@ data Frame = Frame
     , frameDelta :: Float32LE
     } deriving (Eq, Generic, NFData, Show)
 
-instance Binary Frame where
-    get = do
-        time <- get
-        delta <- get
-        return Frame
-            { frameTime = time
-            , frameDelta = delta
-            }
-
-    put frame = do
-        frame & frameTime & put
-        frame & frameDelta & put
-
 instance BinaryBit Frame where
     getBits _ = do
         time <- Bits.getWord32be 32
