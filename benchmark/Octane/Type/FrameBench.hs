@@ -15,10 +15,12 @@ benchmarks :: Benchmark
 benchmarks = bgroup "Frame"
     [ bench "decode basic" (nf decodeFrame "\
         \\0\0\0\0\
-        \\0\0\0\0")
+        \\0\0\0\0\
+        \\0")
     , bench "encode basic" (nf encodeFrame (Frame
         (Float32LE 0.0)
-        (Float32LE 0.0)))
+        (Float32LE 0.0)
+        []))
     ]
 
 decodeFrame :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Frame)

@@ -17,18 +17,22 @@ spec = describe "Frame" $ do
         shouldBe
             (decodeFrame "\
                 \\0\0\0\0\
-                \\0\0\0\0")
-            (Right ("", 8, Frame
+                \\0\0\0\0\
+                \\0")
+            (Right ("", 9, Frame
                 (Float32LE 0.0)
-                (Float32LE 0.0)))
+                (Float32LE 0.0)
+                []))
     it "can be encoded" $ do
         shouldBe
             (encodeFrame (Frame
                 (Float32LE 0.0)
-                (Float32LE 0.0)))
+                (Float32LE 0.0)
+                []))
             "\
                 \\0\0\0\0\
-                \\0\0\0\0"
+                \\0\0\0\0\
+                \\0"
 
 decodeFrame :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Frame)
 decodeFrame bytes = Binary.runGetOrFail (Bits.runBitGet (Bits.getBits undefined)) bytes
