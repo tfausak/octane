@@ -1,6 +1,7 @@
 extra-deps:
 - binary-bits-0.5
 install-ghc: true
-packages: [.]
+packages:
+- .
 require-stack-version: '>=1.0'
-resolver: nightly-2016-02-05
+resolver: nightly-2016-02-11
