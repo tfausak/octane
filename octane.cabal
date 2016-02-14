@@ -93,15 +93,15 @@ test-suite octane-test-suite
         Octane.Type.MessageSpec
         Octane.Type.PrimitiveSpec
         Octane.Type.Primitive.BooleanSpec
+        Octane.Type.Primitive.DictionarySpec
         Octane.Type.Primitive.Float32LESpec
         Octane.Type.Primitive.ListSpec
         Octane.Type.Primitive.PCStringSpec
-        Octane.Type.Primitive.DictionarySpec
+        Octane.Type.Primitive.StreamSpec
         Octane.Type.Primitive.Word32LESpec
         Octane.Type.Primitive.Word64LESpec
         Octane.Type.PropertySpec
         Octane.Type.ReplaySpec
-        Octane.Type.Primitive.StreamSpec
     ghc-options: -threaded -Wall
 
 benchmark octane-benchmark
@@ -120,7 +120,6 @@ benchmark octane-benchmark
     other-modules:
         OctaneBench
         Octane.MainBench
-        Octane.TypeBench
         Octane.Type.ActorBench
         Octane.Type.CacheItemBench
         Octane.Type.CachePropertyBench
@@ -134,9 +133,10 @@ benchmark octane-benchmark
         Octane.Type.Primitive.Float32LEBench
         Octane.Type.Primitive.ListBench
         Octane.Type.Primitive.PCStringBench
+        Octane.Type.Primitive.StreamBench
         Octane.Type.Primitive.Word32LEBench
         Octane.Type.Primitive.Word64LEBench
         Octane.Type.PropertyBench
         Octane.Type.ReplayBench
-        Octane.Type.Primitive.StreamBench
+        Octane.TypeBench
     ghc-options: -threaded -Wall
