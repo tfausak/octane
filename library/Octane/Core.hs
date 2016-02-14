@@ -2,6 +2,8 @@ module Octane.Core
     ( module Control.DeepSeq
     , module Data.Binary
     , module Data.Binary.Bits
+    , module Data.Binary.Bits.Get
+    , module Data.Binary.Bits.Put
     , module Data.ByteString
     , module Data.Function
     , module Data.IntMap
@@ -14,6 +16,8 @@ module Octane.Core
 import Control.DeepSeq (NFData)
 import Data.Binary (Binary, Get, Put, get, put)
 import Data.Binary.Bits (BinaryBit, getBits, putBits)
+import Data.Binary.Bits.Get (BitGet)
+import Data.Binary.Bits.Put (BitPut)
 import Data.ByteString (ByteString)
 import Data.Function ((&))
 import Data.IntMap (IntMap)

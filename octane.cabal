@@ -42,6 +42,7 @@ library
         Octane.Type.Primitive.Word64LE
         Octane.Type.Property
         Octane.Type.Replay
+        Octane.Type.Replication
     build-depends:
         base ==4.8.*,
         binary ==0.7.*,
