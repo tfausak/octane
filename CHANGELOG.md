@@ -1,6 +1,7 @@
 # Change log
 
-Octane uses [Semantic Versioning][]. The change log is available [on GitHub][].
+Octane uses [Semantic Versioning][].
+The change log is available through the [releases on GitHub][].
 
 [Semantic Versioning]: http://semver.org/spec/v2.0.0.html
-[on GitHub]: https://github.com/tfausak/octane/releases
+[releases on GitHub]: https://github.com/tfausak/octane/releases

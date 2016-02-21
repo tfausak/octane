@@ -1,7 +1,7 @@
 # [Octane][]
 
-[![Version badge][]][package version]
-[![Build badge][]][build status]
+[![Version badge][]][version]
+[![Build badge][]][build]
 
 Octane parses [Rocket League][] replays.
 
@@ -15,8 +15,8 @@ Octane parses [Rocket League][] replays.
 
 [Octane]: https://github.com/tfausak/octane
 [Version badge]: https://www.stackage.org/package/octane/badge/nightly?label=version
-[package version]: https://www.stackage.org/package/octane
+[version]: https://www.stackage.org/package/octane
 [Build badge]: https://travis-ci.org/tfausak/octane.svg?branch=main
-[build status]: https://travis-ci.org/tfausak/octane
+[build]: https://travis-ci.org/tfausak/octane
 [Rocket League]: http://rocketleague.psyonix.com
 [Stack]: http://haskellstack.org
