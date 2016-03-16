@@ -1,8 +1,25 @@
-name: octane
-version: 0.4.1
-
+benchmarks:
+  octane-benchmark:
+    dependencies:
+    - base
+    - binary
+    - binary-bits
+    - bytestring
+    - containers
+    - criterion ==1.1.*
+    - octane
+    ghc-options: -threaded
+    main: Benchmark.hs
+    source-dirs: benchmark
 category: Game
 description: Octane parses Rocket League replays.
+executables:
+  octane:
+    dependencies:
+    - base
+    - octane
+    main: Executable.hs
+    source-dirs: executable
 extra-source-files:
 - CHANGELOG.md
 - package.yaml
@@ -10,10 +27,6 @@ extra-source-files:
 - stack.yaml
 ghc-options: -Wall
 github: tfausak/octane
-license: MIT
-maintainer: Taylor Fausak
-synopsis: Parse Rocket League replays.
-
 library:
   dependencies:
   - base ==4.8.*
@@ -27,15 +40,10 @@ library:
   other-modules:
   - Octane.Core
   source-dirs: library
-
-executables:
-  octane:
-    dependencies:
-    - base
-    - octane
-    main: Executable.hs
-    source-dirs: executable
-
+license: MIT
+maintainer: Taylor Fausak
+name: octane
+synopsis: Parse Rocket League replays.
 tests:
   octane-test-suite:
     dependencies:
@@ -50,17 +58,4 @@ tests:
     ghc-options: -threaded
     main: TestSuite.hs
     source-dirs: test-suite
-
-benchmarks:
-  octane-benchmark:
-    dependencies:
-    - base
-    - binary
-    - binary-bits
-    - bytestring
-    - containers
-    - criterion ==1.1.*
-    - octane
-    ghc-options: -threaded
-    main: Benchmark.hs
-    source-dirs: benchmark
+version: '0.4.1'
