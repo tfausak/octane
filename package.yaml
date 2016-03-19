@@ -8,7 +8,10 @@ benchmarks:
     - containers
     - criterion ==1.1.*
     - octane
-    ghc-options: -threaded
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
     main: Benchmark.hs
     source-dirs: benchmark
 category: Game
@@ -18,6 +21,10 @@ executables:
     dependencies:
     - base
     - octane
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
     main: Executable.hs
     source-dirs: executable
 extra-source-files:
@@ -55,7 +62,10 @@ tests:
     - octane
     - tasty ==0.11.*
     - tasty-hspec ==1.1.*
-    ghc-options: -threaded
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
     main: TestSuite.hs
     source-dirs: test-suite
 version: '0.4.2'
