@@ -1,0 +1,7 @@
+install:
+- curl -ostack.zip -L --insecure http://www.stackage.org/stack/windows-x86_64
+- 7z x stack.zip stack.exe
+test_script:
+- stack.exe --no-terminal build --bench --haddock --no-run-benchmarks --pedantic --test
+- stack.exe sdist
+version: ! '{build}'
