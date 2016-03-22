@@ -1,10 +1,16 @@
+build_script:
+- stack.exe --no-terminal build --bench --haddock --no-run-benchmarks --no-run-tests
+  --pedantic --test
+cache:
+- c:\s
+environment:
+  global:
+    STACK_ROOT: c:\s
 install:
 - curl -ostack.zip -L --insecure http://www.stackage.org/stack/windows-x86_64
 - 7z x stack.zip stack.exe
+platform: x64
 test_script:
 - stack.exe --no-terminal build --pedantic --test
 - stack.exe sdist
 version: '{build}'
-platform: x64
-build_script:
-- stack.exe --no-terminal build --bench --haddock --no-run-benchmarks --no-run-tests --pedantic --test
