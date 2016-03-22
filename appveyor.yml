@@ -4,4 +4,4 @@ install:
 test_script:
 - stack.exe --no-terminal build --bench --haddock --no-run-benchmarks --pedantic --test
 - stack.exe sdist
-version: ! '{build}'
+version: '{build}'
