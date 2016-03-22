@@ -2,6 +2,8 @@ addons:
   apt:
     packages:
     - libgmp-dev
+after_success:
+- scripts/upload-package.sh
 before_deploy:
 - scripts/copy-executable.sh
 before_install:
@@ -12,14 +14,6 @@ cache:
   - $HOME/.local/bin
   - $HOME/.stack
 deploy:
-- on:
-    repo: tfausak/octane
-    tags: true
-  password:
-    secure: huva2lUr9/4y0QwpKpZN5XS9nD/t1D6Su7HooXba0MS6tYNbLqj7EjcdLVmgB6oOT0p6IV4a1XyNo1jWTv6uyVVRddbKsJn+Gj3mpRwrzvei2xkcRcY4jDaSCVnK8R7vQvbizyN5jYLTcVseZR4dlmkyudLSG7/TjfCgg8uhGOwlysziL/Syt0nFiZkw/eecfVzTLg+pbRQytOyChnx32azy6Kt44nQbJFoSkjuLrSDlgm02nYJxOgJ9id/nlH+XAQBDWqCVqfTeMCsqyFHYOvlVLioxwav9/WFRnkAyg5f5LUccLarkN+DFTc3spx+eFbowAMx6vK2IjKy6yPK72Rpw0AIvkfLwHmCi9EqiuFk+HrNET8EeOQibMOXoLqhBe7+icoMfKisqwEIoS4K7s0IY4ZOKzp1ZIMdb1rK2gbS63yU169t+gyoED6U4R4hP36YPgWIRjj7ZTYZM+rbKBLzhXIuEGpm6qChPG/VUY/DgFhybbWziSAJ8iNoIu8LrLu6JY2POH7kjkvtvClasZykEmHTg8MlTm2wOjlOCS5w61uEb3RpGNgADR992HUKSHufi4lxxPwz4wz8BNy1oRWOXaLcKkp7vrmiGEqGlC1WZwBb5dkpidXV9fk5bQm8ay4eqXJsCPA30AB2nMNqXT4YJClRvHuQaHVA1sWCDfZk=
-  provider: hackage
-  skip_cleanup: true
-  username: fozworth
 - api_key:
     secure: vYH3XDZO7AVqcJl9+qVC6U1NeO7H7fv75ua/tQgc7J9SnZkyvotlVeNNSm4oHbirxZtExw1tHW+Nh/6vvKlgA7GmQ5NSHOMWC6tPlJFJgXXOiwvyF5ckkqZ8A4U60POkmRJxtiCDoLfjAtWN/ObDU97DgAp3t6Z36WbVYp8eh164B6YN/w5q9m0Zq8e6EBXcFBL49npfSJSBOFCz8Gd2wE2jvZHsVxPZwgdV4+KxblIf4fJEbb1pALkPX7OFniPpp11BHjtXxSeykH5KW7nfRGXqeX8dbddDJS4kzJJsCyJfDJli8hfUv5mfQMNuGXWW9bqs3wZoONDZJzcCYA8RF8IP7CaHKrNUh705+8IZFltZiVp94yKdPMzYCCB77n1SMQ72sxP6tz99jIYncGEIdvPCr21Y0kQekCSqoGhK51agbdYnBqopm7M3CiKBBS9lvrX6CpsX+K4HEzcEo/gZqsYZvSaOlOC+07v3kVorapjVLmWmAEhm5n8TjOR0rBOENC4On7vDDa+zlqAaUTBO+RcQstu2hU3qBA7bBM8evqQvaC6+ZiZanhvQL130G/8NSt2NA1JlXIh1yBoeRQHfX0Q1NigTU61cQDIa2x49CWVXRW2Bpo/biUiZ9DraonS5Aem7Jc2WYDmg2pP4TpFQiXO0r7ykxRl+/rZpOB6N98M=
   file: tmp/octane
