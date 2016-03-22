@@ -23,6 +23,9 @@ deploy:
   provider: releases
   skip_cleanup: true
 language: c
+os:
+- linux
+- osx
 script:
 - stack --no-terminal build --bench --haddock --no-run-benchmarks --pedantic --test
 - stack sdist
