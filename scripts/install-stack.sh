@@ -1,5 +1,5 @@
 #!/bin/sh
-set -o errexit -o xtrace
+set -o errexit -o verbose
 
 mkdir -p "$HOME/.local/bin"
 export PATH="$HOME/.local/bin:$PATH"

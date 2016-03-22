@@ -1,5 +1,5 @@
 #!/bin/sh
-set -o errexit -o xtrace
+set -o errexit -o verbose
 
 test "$TRAVIS_TAG" &&
   mkdir -p "$HOME/.stack/upload" &&
