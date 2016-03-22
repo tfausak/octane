@@ -2,8 +2,6 @@ addons:
   apt:
     packages:
     - libgmp-dev
-after_success:
-- scripts/upload-package.sh
 before_install:
 - scripts/install-stack.sh
 - stack install hscolour
@@ -11,6 +9,15 @@ cache:
   directories:
   - $HOME/.local/bin
   - $HOME/.stack
+deploy:
+- on:
+    repo: tfausak/octane
+    tags: true
+  password:
+    secure: huva2lUr9/4y0QwpKpZN5XS9nD/t1D6Su7HooXba0MS6tYNbLqj7EjcdLVmgB6oOT0p6IV4a1XyNo1jWTv6uyVVRddbKsJn+Gj3mpRwrzvei2xkcRcY4jDaSCVnK8R7vQvbizyN5jYLTcVseZR4dlmkyudLSG7/TjfCgg8uhGOwlysziL/Syt0nFiZkw/eecfVzTLg+pbRQytOyChnx32azy6Kt44nQbJFoSkjuLrSDlgm02nYJxOgJ9id/nlH+XAQBDWqCVqfTeMCsqyFHYOvlVLioxwav9/WFRnkAyg5f5LUccLarkN+DFTc3spx+eFbowAMx6vK2IjKy6yPK72Rpw0AIvkfLwHmCi9EqiuFk+HrNET8EeOQibMOXoLqhBe7+icoMfKisqwEIoS4K7s0IY4ZOKzp1ZIMdb1rK2gbS63yU169t+gyoED6U4R4hP36YPgWIRjj7ZTYZM+rbKBLzhXIuEGpm6qChPG/VUY/DgFhybbWziSAJ8iNoIu8LrLu6JY2POH7kjkvtvClasZykEmHTg8MlTm2wOjlOCS5w61uEb3RpGNgADR992HUKSHufi4lxxPwz4wz8BNy1oRWOXaLcKkp7vrmiGEqGlC1WZwBb5dkpidXV9fk5bQm8ay4eqXJsCPA30AB2nMNqXT4YJClRvHuQaHVA1sWCDfZk=
+  provider: hackage
+  skip_cleanup: true
+  username: fozworth
 language: c
 script:
 - stack --no-terminal build --bench --haddock --no-run-benchmarks --pedantic --test
