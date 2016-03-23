@@ -18,4 +18,5 @@ tar -x --strip-components 3 -f github-release.tar.bz2
   --user tfausak \
   --repo octane \
   --tag "$TRAVIS_TAG" \
-  --file "octane-$TRAVIS_OS_NAME.gz"
+  --file "octane-$TRAVIS_OS_NAME.gz" \
+  --name "octane-$TRAVIS_OS_NAME.gz"
