@@ -7,8 +7,17 @@ environment:
   global:
     STACK_ROOT: c:\s
 install:
-- curl -ostack.zip -L --insecure http://www.stackage.org/stack/windows-x86_64
+- curl --output stack.zip --location --insecure http://www.stackage.org/stack/windows-x86_64
 - 7z x stack.zip stack.exe
+on_success:
+- ps: |
+    if ($env:APPVEYOR_REPO_TAG_NAME)
+    {
+      7z a octane-windows.zip "$(stack.exe path --local-install-root)/bin/octane"
+      curl --output stack.zip --location https://github.com/aktau/github-release/releases/download/v0.6.2/windows-amd64-github-release.zip
+      7z x windows-amd64-github-release.zip bin/windows/amd64/github-release.exe
+      github-release.exe upload --user tfausak --repo octane --tag $env:APPVEYOR_REPO_TAG_NAME --file octane-windows.zip
+    }
 platform: x64
 test_script:
 - stack.exe --no-terminal build --pedantic --test
