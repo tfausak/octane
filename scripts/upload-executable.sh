@@ -12,10 +12,10 @@ else
     curl --location 'https://github.com/aktau/github-release/releases/download/v0.6.2/darwin-amd64-github-release.tar.bz2' > github-release.tar.bz2
   fi
 fi
+gzip --best --to-stdout "$(stack path --local-install-root)/bin/octane" > "octane-$TRAVIS_OS_NAME.gz"
 tar -x --strip-components 3 -f github-release.tar.bz2
 ./github-release upload \
   --user tfausak \
   --repo octane \
   --tag "$TRAVIS_TAG" \
-  --name "octane-$TRAVIS_OS_NAME" \
-  --file "$(stack path --local-install-root)/bin/octane"
+  --file "octane-$TRAVIS_OS_NAME.gz"
