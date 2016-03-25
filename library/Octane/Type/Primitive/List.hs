@@ -22,3 +22,5 @@ instance (Binary a) => Binary (List a) where
         list & unpack & mapM_ put
 
 instance Newtype (List a)
+
+instance (ToJSON a) => ToJSON (List a)

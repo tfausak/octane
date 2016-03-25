@@ -21,3 +21,5 @@ instance Binary Boolean where
         boolean & unpack & fromEnum & fromIntegral & Binary.putWord8
 
 instance Newtype Boolean
+
+instance ToJSON Boolean

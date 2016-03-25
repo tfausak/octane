@@ -27,6 +27,9 @@ instance Binary Stream where
 
 instance Newtype Stream
 
+instance ToJSON Stream where
+    toJSON _ = toJSON "<Stream>"
+
 reverseBits :: Word.Word8 -> Word.Word8
 reverseBits word =
     (if Bits.testBit word 0 then 128 else 0) Bits..|.

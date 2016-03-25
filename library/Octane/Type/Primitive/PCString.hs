@@ -44,5 +44,7 @@ instance Binary PCString where
 
 instance Newtype PCString
 
+instance ToJSON PCString
+
 encodeLatin1 :: Text -> ByteString
 encodeLatin1 text = text & Text.unpack & BS8.pack

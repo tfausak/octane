@@ -20,3 +20,5 @@ instance Binary Word32LE where
         word & unpack & fromIntegral & Binary.putWord32le
 
 instance Newtype Word32LE
+
+instance ToJSON Word32LE

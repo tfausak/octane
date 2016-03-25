@@ -19,3 +19,5 @@ instance Binary Float32LE where
         float & unpack & IEEE754.putFloat32le
 
 instance Newtype Float32LE
+
+instance ToJSON Float32LE

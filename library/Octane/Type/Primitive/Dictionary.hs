@@ -29,6 +29,9 @@ instance (Binary a) => Binary (Dictionary a) where
 
 instance Newtype (Dictionary a)
 
+instance (ToJSON a) => ToJSON (Dictionary a) where
+    toJSON dictionary = dictionary & unpack & Map.mapKeys unpack & toJSON
+
 getElement :: (Binary a) => Get (Map PCString a)
 getElement = do
     key <- get
