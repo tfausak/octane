@@ -23,3 +23,6 @@ instance Binary CacheProperty where
     put cacheProperty = do
         cacheProperty & cachePropertyIndex & put
         cacheProperty & cachePropertyTag & put
+
+instance ToJSON CacheProperty where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 13 }

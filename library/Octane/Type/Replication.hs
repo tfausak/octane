@@ -17,3 +17,6 @@ instance BinaryBit Replication where
 
     putBits _ _ = do
         return ()
+
+instance ToJSON Replication where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 11 }

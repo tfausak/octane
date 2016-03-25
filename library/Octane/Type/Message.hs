@@ -29,3 +29,6 @@ instance Binary Message where
         message & messageFrame & put
         message & messageName & put
         message & messageContent & put
+
+instance ToJSON Message where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 7 }

@@ -26,3 +26,6 @@ instance Binary Mark where
     put mark = do
         mark & markLabel & put
         mark & markFrame & put
+
+instance ToJSON Mark where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 4 }

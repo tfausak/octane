@@ -31,3 +31,6 @@ instance Binary KeyFrame where
         keyFrame & keyFrameTime & put
         keyFrame & keyFrameFrame & put
         keyFrame & keyFramePosition & put
+
+instance ToJSON KeyFrame where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 8 }

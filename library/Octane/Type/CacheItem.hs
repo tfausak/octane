@@ -33,3 +33,6 @@ instance Binary CacheItem where
         cacheItem & cacheItemStart & put
         cacheItem & cacheItemEnd & put
         cacheItem & cacheItemCacheProperties & put
+
+instance ToJSON CacheItem where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 9 }

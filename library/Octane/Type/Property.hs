@@ -103,3 +103,6 @@ instance Binary Property where
             "StrProperty" & PCString & put
             size & put
             value & put
+
+instance ToJSON Property where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 8 }

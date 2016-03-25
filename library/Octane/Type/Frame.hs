@@ -32,6 +32,9 @@ instance BinaryBit Frame where
         frame & frameDelta & floatToWord & Bits.putWord32be 32
         frame & frameReplications & putReplications
 
+instance ToJSON Frame where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 5 }
+
 wordToFloat :: Word.Word32 -> Float32LE
 wordToFloat _ = Float32LE 0 -- TODO
 

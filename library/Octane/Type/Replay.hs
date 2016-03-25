@@ -97,3 +97,6 @@ instance Binary Replay where
         replay & replayNames & put
         replay & replayActors & put
         replay & replayCacheItems & put
+
+instance ToJSON Replay where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 6 }

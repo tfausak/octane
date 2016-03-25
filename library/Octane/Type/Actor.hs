@@ -24,3 +24,6 @@ instance Binary Actor where
     put actor = do
         actor & actorName & put
         actor & actorTag & put
+
+instance ToJSON Actor where
+    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 5 }
