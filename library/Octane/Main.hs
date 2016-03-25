@@ -1,10 +1,12 @@
 module Octane.Main (main) where
 
 import qualified Control.Monad as Monad
+import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
+import qualified Data.ByteString.Lazy.Char8 as BSL8
 import Octane.Core
 import Octane.Type
 import qualified System.Environment as Environment
@@ -26,4 +28,5 @@ debug (file, contents, result) = case result of
         let outputSize = replay & Binary.encode & BSL.length
         Monad.when (inputSize /= outputSize) $ do
             IO.hPutStrLn IO.stderr ("input size (" ++ show inputSize ++ ") not equal to output size (" ++ show outputSize ++ ")!")
-        print replay
+        let config = Aeson.defConfig { Aeson.confCompare = compare }
+        replay & Aeson.encodePretty' config & BSL8.putStrLn
