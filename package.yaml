@@ -44,6 +44,7 @@ library:
   - containers ==0.5.*
   - data-binary-ieee754 ==0.4.*
   - deepseq ==1.4.*
+  - newtype-generics ==0.4.*
   - text ==1.2.*
   other-modules:
   - Octane.Core

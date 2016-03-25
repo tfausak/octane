@@ -7,16 +7,17 @@ import qualified Data.Binary as Binary
 import Octane.Core
 
 -- | A boolean value, stored in the first bit of a byte.
-newtype Boolean = Boolean
-    { getBoolean :: Bool
-    } deriving (Eq, Generic, NFData, Show)
+newtype Boolean = Boolean Bool
+    deriving (Eq, Generic, NFData, Show)
 
 instance Binary Boolean where
     get = do
         boolean <- Binary.getWord8
         if boolean > 1
         then fail ("invalid Boolean value " ++ show boolean)
-        else boolean & fromIntegral & toEnum & Boolean & return
+        else boolean & fromIntegral & toEnum & pack & return
 
-    put (Boolean boolean) = do
-        boolean & fromEnum & fromIntegral & Binary.putWord8
+    put boolean = do
+        boolean & unpack & fromEnum & fromIntegral & Binary.putWord8
+
+instance Newtype Boolean

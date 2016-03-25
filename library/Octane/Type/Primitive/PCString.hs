@@ -13,9 +13,8 @@ import Octane.Core
 import Octane.Type.Primitive.Word32LE
 
 -- | A length-prefixed null-terminated string.
-newtype PCString = PCString
-    { getPCString :: Text
-    } deriving (Eq, Generic, NFData, Ord, Show)
+newtype PCString = PCString Text
+    deriving (Eq, Generic, NFData, Ord, Show)
 
 instance Binary PCString where
     get = do
@@ -30,10 +29,10 @@ instance Binary PCString where
             else do
                 bytes <- Binary.getByteString (fromIntegral size)
                 bytes & Encoding.decodeLatin1 & return
-        string & Text.dropEnd 1 & PCString & return
+        string & Text.dropEnd 1 & pack & return
 
-    put (PCString string) = do
-        let cString = Text.snoc string '\NUL'
+    put string = do
+        let cString = string & unpack & flip Text.snoc '\NUL'
         let size = cString & Text.length & fromIntegral
         if Text.all Char.isLatin1 cString
         then do
@@ -42,6 +41,8 @@ instance Binary PCString where
         else do
             size & negate & Word32LE & put
             cString & Encoding.encodeUtf16LE & Binary.putByteString
+
+instance Newtype PCString
 
 encodeLatin1 :: Text -> ByteString
 encodeLatin1 text = text & Text.unpack & BS8.pack

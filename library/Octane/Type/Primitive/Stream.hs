@@ -11,21 +11,21 @@ import qualified Data.Word as Word
 import Octane.Core
 import Octane.Type.Primitive.Word32LE
 
-newtype Stream = Stream
-    { getStream :: ByteString
-    } deriving (Eq, Generic, NFData, Show)
+newtype Stream = Stream ByteString
+    deriving (Eq, Generic, NFData, Show)
 
 instance Binary Stream where
     get = do
-        size <- get
-        content <- size & getWord32LE & fromIntegral & Binary.getByteString
-        content & BS.map reverseBits & Stream & return
+        Word32LE size <- get
+        content <- size & fromIntegral & Binary.getByteString
+        content & BS.map reverseBits & pack & return
 
     put stream = do
-        let content = getStream stream
-        let size = BS.length content
-        size & fromIntegral & Word32LE & put
+        let content = stream & unpack
+        content & BS.length & fromIntegral & Word32LE & put
         content & BS.map reverseBits & Binary.putByteString
+
+instance Newtype Stream
 
 reverseBits :: Word.Word8 -> Word.Word8
 reverseBits word =

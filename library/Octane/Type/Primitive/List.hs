@@ -8,16 +8,17 @@ import Octane.Core
 import Octane.Type.Primitive.Word32LE
 
 -- | A length-prefixed list.
-newtype List a = List
-    { getList :: [a]
-    } deriving (Eq, Generic, NFData, Show)
+newtype List a = List [a]
+    deriving (Eq, Generic, NFData, Show)
 
 instance (Binary a) => Binary (List a) where
     get = do
         (Word32LE size) <- get
         elements <- Monad.replicateM (fromIntegral size) get
-        elements & List & return
+        elements & pack & return
 
-    put (List list) = do
-        list & length & fromIntegral & Word32LE & put
-        list & mapM_ put
+    put list = do
+        list & unpack & length & fromIntegral & Word32LE & put
+        list & unpack & mapM_ put
+
+instance Newtype (List a)

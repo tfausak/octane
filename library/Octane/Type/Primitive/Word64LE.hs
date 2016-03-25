@@ -8,14 +8,15 @@ import qualified Data.Binary.Put as Binary
 import Octane.Core
 
 -- | A 64-bit little-endian integer.
-newtype Word64LE = Word64LE
-    { getWord64LE :: Word64
-    } deriving (Eq, Generic, NFData, Show)
+newtype Word64LE = Word64LE Word64
+    deriving (Eq, Generic, NFData, Show)
 
 instance Binary Word64LE where
     get = do
-        int <- Binary.getWord64le
-        int & fromIntegral & Word64LE & return
+        word <- Binary.getWord64le
+        word & fromIntegral & pack & return
 
-    put (Word64LE int) = do
-        int & fromIntegral & Binary.putWord64le
+    put word = do
+        word & unpack & fromIntegral & Binary.putWord64le
+
+instance Newtype Word64LE

@@ -10,34 +10,34 @@ import Octane.Type.Primitive.PCString
 
 -- | A dictionary that maps strings to values. The dictionary is terminated by
 -- | the key "None".
-newtype Dictionary a = Dictionary
-    { getDictionary :: Map PCString a
-    } deriving (Eq, Generic, NFData, Show)
+newtype Dictionary a = Dictionary (Map PCString a)
+    deriving (Eq, Generic, NFData, Show)
 
 instance (Binary a) => Binary (Dictionary a) where
     get = do
         element <- getElement
         if Map.null element
         then do
-            element & Dictionary & return
+            element & pack & return
         else do
             Dictionary elements <- get
-            elements & Map.union element & Dictionary & return
+            elements & Map.union element & pack & return
 
-    put (Dictionary elements) = do
-        elements & Map.assocs & mapM_ putElement
+    put dictionary = do
+        dictionary & unpack & Map.assocs & mapM_ putElement
         "None" & PCString & put
+
+instance Newtype (Dictionary a)
 
 getElement :: (Binary a) => Get (Map PCString a)
 getElement = do
     key <- get
     if key == PCString "None"
     then do
-        return Map.empty
+        Map.empty & return
     else do
         value <- get
-        return (Map.singleton key value)
-
+        value & Map.singleton key & return
 
 putElement :: (Binary a) => (PCString, a) -> Put
 putElement (key, value) = do
