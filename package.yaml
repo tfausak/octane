@@ -36,6 +36,7 @@ ghc-options: -Wall
 github: tfausak/octane
 library:
   dependencies:
+  - autoexporter ==0.1.*
   - base ==4.8.*
   - binary ==0.7.*
   - binary-bits ==0.5.*
