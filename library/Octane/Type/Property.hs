@@ -105,4 +105,12 @@ instance Binary Property where
             value & put
 
 instance ToJSON Property where
-    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 8 }
+    toJSON property = case property of
+        ArrayProperty _ x -> toJSON x
+        BoolProperty _ x -> toJSON x
+        ByteProperty _ (_, x) -> toJSON x
+        FloatProperty _ x -> toJSON x
+        IntProperty _ x -> toJSON x
+        NameProperty _ x -> toJSON x
+        QWordProperty _ x -> toJSON x
+        StrProperty _ x -> toJSON x
