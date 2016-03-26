@@ -6,6 +6,8 @@
 
 Octane parses [Rocket League][] replays.
 
+<https://github.com/rocket-league-replays/rocket-league-replays/wiki/Rocket-League-Replay-Parsers>
+
 ## Usage
 
 1.  Install [Stack][].
