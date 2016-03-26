@@ -50,6 +50,7 @@ library:
   - text ==1.2.*
   other-modules:
   - Octane.Core
+  - Paths_octane
   source-dirs: library
 license: MIT
 maintainer: Taylor Fausak
