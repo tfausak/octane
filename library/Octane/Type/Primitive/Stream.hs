@@ -28,7 +28,10 @@ instance Binary Stream where
 instance Newtype Stream
 
 instance ToJSON Stream where
-    toJSON _ = toJSON "<Stream>"
+    toJSON stream =
+        let size = stream & unpack & BS.length
+            bytes = if size == 1 then "byte" else "bytes"
+        in  toJSON (unwords ["Stream:", show size, bytes, "..."])
 
 reverseBits :: Word.Word8 -> Word.Word8
 reverseBits word =
