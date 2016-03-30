@@ -1,3 +1,4 @@
+{-# LANGUAGE BinaryLiterals #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
@@ -34,12 +35,12 @@ instance ToJSON Stream where
         in  toJSON (unwords ["Stream:", show size, bytes, "..."])
 
 reverseBits :: Word.Word8 -> Word.Word8
-reverseBits word =
-    (if Bits.testBit word 0 then 128 else 0) Bits..|.
-    (if Bits.testBit word 1 then 64 else 0) Bits..|.
-    (if Bits.testBit word 2 then 32 else 0) Bits..|.
-    (if Bits.testBit word 3 then 16 else 0) Bits..|.
-    (if Bits.testBit word 4 then 8 else 0) Bits..|.
-    (if Bits.testBit word 5 then 4 else 0) Bits..|.
-    (if Bits.testBit word 6 then 2 else 0) Bits..|.
-    (if Bits.testBit word 7 then 1 else 0)
+reverseBits word
+    = Bits.shiftR (word Bits..&. 0b10000000) 7
+    + Bits.shiftR (word Bits..&. 0b01000000) 5
+    + Bits.shiftR (word Bits..&. 0b00100000) 3
+    + Bits.shiftR (word Bits..&. 0b00010000) 1
+    + Bits.shiftL (word Bits..&. 0b00001000) 1
+    + Bits.shiftL (word Bits..&. 0b00000100) 3
+    + Bits.shiftL (word Bits..&. 0b00000010) 5
+    + Bits.shiftL (word Bits..&. 0b00000001) 7
