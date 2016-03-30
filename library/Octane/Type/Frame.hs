@@ -9,6 +9,7 @@ import qualified Data.Word as Word
 import Octane.Internal.Core
 import Octane.Type.Primitive.Float32LE
 import Octane.Type.Replication
+import qualified Unsafe.Coerce as Coerce
 
 data Frame = Frame
     { frameTime :: Float32LE
@@ -36,10 +37,10 @@ instance ToJSON Frame where
     toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 5 }
 
 wordToFloat :: Word.Word32 -> Float32LE
-wordToFloat _ = Float32LE 0 -- TODO
+wordToFloat word = word & Coerce.unsafeCoerce & pack
 
 floatToWord :: Float32LE -> Word.Word32
-floatToWord _ = 0 -- TODO
+floatToWord float = float & unpack & Coerce.unsafeCoerce
 
 getReplications :: BitGet [Replication]
 getReplications = do
