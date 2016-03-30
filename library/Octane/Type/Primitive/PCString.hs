@@ -9,7 +9,7 @@ import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Char as Char
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.Primitive.Word32LE
 
 -- | A length-prefixed null-terminated string.

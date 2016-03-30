@@ -4,7 +4,7 @@
 module Octane.Type.Primitive.List (List(..)) where
 
 import qualified Control.Monad as Monad
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.Primitive.Word32LE
 
 -- | A length-prefixed list.

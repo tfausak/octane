@@ -9,7 +9,7 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.Word as Word
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.Primitive.Word32LE
 
 newtype Stream = Stream ByteString

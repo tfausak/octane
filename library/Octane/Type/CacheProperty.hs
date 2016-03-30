@@ -3,7 +3,7 @@
 
 module Octane.Type.CacheProperty (CacheProperty(..)) where
 
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.Primitive.Word32LE
 
 data CacheProperty = CacheProperty

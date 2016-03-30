@@ -3,7 +3,7 @@
 
 module Octane.Type.Replay (Replay(..)) where
 
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.Actor
 import Octane.Type.CacheItem
 import Octane.Type.KeyFrame

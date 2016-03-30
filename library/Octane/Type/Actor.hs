@@ -3,7 +3,7 @@
 
 module Octane.Type.Actor (Actor(..)) where
 
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.Primitive.PCString
 import Octane.Type.Primitive.Word32LE
 

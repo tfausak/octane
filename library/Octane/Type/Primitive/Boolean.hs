@@ -4,7 +4,7 @@
 module Octane.Type.Primitive.Boolean (Boolean(..)) where
 
 import qualified Data.Binary as Binary
-import Octane.Core
+import Octane.Internal.Core
 
 -- | A boolean value, stored in the first bit of a byte.
 newtype Boolean = Boolean Bool

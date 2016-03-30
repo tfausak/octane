@@ -4,7 +4,7 @@
 module Octane.Type.Primitive.Float32LE (Float32LE(..)) where
 
 import qualified Data.Binary.IEEE754 as IEEE754
-import Octane.Core
+import Octane.Internal.Core
 
 -- | A 32-bit little-endian float.
 newtype Float32LE = Float32LE Float

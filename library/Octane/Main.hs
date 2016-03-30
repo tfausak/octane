@@ -7,7 +7,7 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.Lazy.Char8 as BSL8
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type
 import qualified System.Environment as Environment
 import qualified System.IO as IO

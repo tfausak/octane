@@ -3,7 +3,7 @@
 
 module Octane.Type.CacheItem (CacheItem(..)) where
 
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.CacheProperty
 import Octane.Type.Primitive.List
 import Octane.Type.Primitive.Word32LE

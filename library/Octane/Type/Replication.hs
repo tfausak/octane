@@ -3,7 +3,7 @@
 
 module Octane.Type.Replication (Replication(..)) where
 
-import Octane.Core
+import Octane.Internal.Core
 
 data Replication = Replication
     {

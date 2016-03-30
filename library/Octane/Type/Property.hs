@@ -4,7 +4,7 @@
 
 module Octane.Type.Property (Property(..)) where
 
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.Primitive.Boolean
 import Octane.Type.Primitive.Dictionary
 import Octane.Type.Primitive.Float32LE

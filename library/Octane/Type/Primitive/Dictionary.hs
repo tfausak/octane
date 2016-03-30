@@ -5,7 +5,7 @@
 module Octane.Type.Primitive.Dictionary (Dictionary(..)) where
 
 import qualified Data.Map as Map
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.Primitive.PCString
 
 -- | A dictionary that maps strings to values. The dictionary is terminated by

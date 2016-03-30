@@ -1,4 +1,4 @@
-module Octane.Core
+module Octane.Internal.Core
     ( module Control.DeepSeq
     , module Control.Newtype
     , module Data.Aeson

@@ -5,7 +5,7 @@ module Octane.Type.Primitive.Word32LE (Word32LE(..)) where
 
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
-import Octane.Core
+import Octane.Internal.Core
 
 -- | A 32-bit little-endian integer.
 newtype Word32LE = Word32LE Word32

@@ -3,7 +3,7 @@
 
 module Octane.Type.KeyFrame (KeyFrame(..)) where
 
-import Octane.Core
+import Octane.Internal.Core
 import Octane.Type.Primitive.Float32LE
 import Octane.Type.Primitive.Word32LE
 
