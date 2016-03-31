@@ -1,5 +1,7 @@
 module Octane.TypeSpec (spec) where
 
+import Test.Tasty.Hspec
+
 import qualified Octane.Type.ActorSpec
 import qualified Octane.Type.CacheItemSpec
 import qualified Octane.Type.CachePropertySpec
@@ -10,7 +12,6 @@ import qualified Octane.Type.MessageSpec
 import qualified Octane.Type.PrimitiveSpec
 import qualified Octane.Type.PropertySpec
 import qualified Octane.Type.ReplaySpec
-import Test.Tasty.Hspec
 
 spec :: Spec
 spec = describe "Type" $ do

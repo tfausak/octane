@@ -1,6 +1,7 @@
 module OctaneBench (benchmarks) where
 
 import Criterion
+
 import qualified Octane.MainBench
 import qualified Octane.TypeBench
 

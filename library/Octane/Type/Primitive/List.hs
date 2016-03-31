@@ -3,9 +3,10 @@
 
 module Octane.Type.Primitive.List (List(..)) where
 
-import qualified Control.Monad as Monad
 import Octane.Internal.Core
 import Octane.Type.Primitive.Word32LE
+
+import qualified Control.Monad as Monad
 
 -- | A length-prefixed list.
 newtype List a = List [a]

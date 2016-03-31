@@ -4,13 +4,14 @@
 
 module Octane.Type.Primitive.Stream (Stream(..)) where
 
+import Octane.Internal.Core
+import Octane.Type.Primitive.Word32LE
+
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.Word as Word
-import Octane.Internal.Core
-import Octane.Type.Primitive.Word32LE
 
 newtype Stream = Stream ByteString
     deriving (Eq, Generic, NFData, Show)

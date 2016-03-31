@@ -2,11 +2,12 @@
 
 module Octane.Type.Primitive.Float32LESpec (spec) where
 
+import Octane
+import Test.Tasty.Hspec
+
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString.Lazy as BSL
-import Octane
-import Test.Tasty.Hspec
 
 spec :: Spec
 spec = describe "Float32LE" $ do

@@ -3,14 +3,15 @@
 
 module Octane.Type.Primitive.PCString (PCString(..)) where
 
+import Octane.Internal.Core
+import Octane.Type.Primitive.Word32LE
+
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Char as Char
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
-import Octane.Internal.Core
-import Octane.Type.Primitive.Word32LE
 
 -- | A length-prefixed null-terminated string.
 newtype PCString = PCString Text

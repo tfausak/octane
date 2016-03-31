@@ -2,12 +2,13 @@
 
 module Octane.Type.Primitive.DictionarySpec (spec) where
 
+import Octane
+import Test.Tasty.Hspec
+
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Map as Map
-import Octane
-import Test.Tasty.Hspec
 
 spec :: Spec
 spec = describe "Dictionary" $ do

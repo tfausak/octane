@@ -1,5 +1,7 @@
 module Octane.Type.PrimitiveSpec (spec) where
 
+import Test.Tasty.Hspec
+
 import qualified Octane.Type.Primitive.BooleanSpec
 import qualified Octane.Type.Primitive.DictionarySpec
 import qualified Octane.Type.Primitive.Float32LESpec
@@ -8,7 +10,6 @@ import qualified Octane.Type.Primitive.PCStringSpec
 import qualified Octane.Type.Primitive.StreamSpec
 import qualified Octane.Type.Primitive.Word32LESpec
 import qualified Octane.Type.Primitive.Word64LESpec
-import Test.Tasty.Hspec
 
 spec :: Spec
 spec = describe "Primitive" $ do

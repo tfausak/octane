@@ -3,12 +3,13 @@
 
 module Octane.Type.Frame (Frame(..)) where
 
-import qualified Data.Binary.Bits.Get as Bits
-import qualified Data.Binary.Bits.Put as Bits
-import qualified Data.Word as Word
 import Octane.Internal.Core
 import Octane.Type.Primitive.Float32LE
 import Octane.Type.Replication
+
+import qualified Data.Binary.Bits.Get as Bits
+import qualified Data.Binary.Bits.Put as Bits
+import qualified Data.Word as Word
 import qualified Unsafe.Coerce as Coerce
 
 data Frame = Frame

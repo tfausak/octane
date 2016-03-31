@@ -3,10 +3,11 @@
 module Octane.Type.PropertyBench (benchmarks) where
 
 import Criterion
+import Octane
+
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString.Lazy as BSL
-import Octane
 
 benchmarks :: Benchmark
 benchmarks = bgroup "Property"

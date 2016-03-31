@@ -1,6 +1,7 @@
+import Test.Tasty.Hspec
+
 import qualified OctaneSpec
 import qualified Test.Tasty
-import Test.Tasty.Hspec
 
 main :: IO ()
 main = do

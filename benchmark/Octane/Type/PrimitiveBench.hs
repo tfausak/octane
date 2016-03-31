@@ -1,6 +1,7 @@
 module Octane.Type.PrimitiveBench (benchmarks) where
 
 import Criterion
+
 import qualified Octane.Type.Primitive.BooleanBench
 import qualified Octane.Type.Primitive.DictionaryBench
 import qualified Octane.Type.Primitive.Float32LEBench

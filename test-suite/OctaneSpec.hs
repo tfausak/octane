@@ -1,8 +1,9 @@
 module OctaneSpec (spec) where
 
+import Test.Tasty.Hspec
+
 import qualified Octane.MainSpec
 import qualified Octane.TypeSpec
-import Test.Tasty.Hspec
 
 spec :: Spec
 spec = describe "Octane" $ do

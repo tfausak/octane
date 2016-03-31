@@ -1,6 +1,7 @@
 module Octane.TypeBench (benchmarks) where
 
 import Criterion
+
 import qualified Octane.Type.ActorBench
 import qualified Octane.Type.CacheItemBench
 import qualified Octane.Type.CachePropertyBench

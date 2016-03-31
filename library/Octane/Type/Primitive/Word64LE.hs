@@ -3,9 +3,10 @@
 
 module Octane.Type.Primitive.Word64LE (Word64LE(..)) where
 
+import Octane.Internal.Core
+
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
-import Octane.Internal.Core
 
 -- | A 64-bit little-endian integer.
 newtype Word64LE = Word64LE Word64
