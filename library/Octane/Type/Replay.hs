@@ -25,7 +25,7 @@ data Replay = Replay
     , replayProperties :: Dictionary Property
     , replaySize2 :: Word32LE
     , replayCRC2 :: Word32LE
-    , replayEffects :: List PCString
+    , replayLevels :: List PCString
     , replayKeyFrames :: List KeyFrame
     , replayStream :: Stream
     , replayMessages :: List Message
@@ -47,7 +47,7 @@ instance Binary Replay where
         properties <- get
         size2 <- get
         crc2 <- get
-        effects <- get
+        levels <- get
         keyFrames <- get
         stream <- get
         messages <- get
@@ -66,7 +66,7 @@ instance Binary Replay where
             , replayProperties = properties
             , replaySize2 = size2
             , replayCRC2 = crc2
-            , replayEffects = effects
+            , replayLevels = levels
             , replayKeyFrames = keyFrames
             , replayStream = stream
             , replayMessages = messages
@@ -87,7 +87,7 @@ instance Binary Replay where
         replay & replayProperties & put
         replay & replaySize2 & put
         replay & replayCRC2 & put
-        replay & replayEffects & put
+        replay & replayLevels & put
         replay & replayKeyFrames & put
         replay & replayStream & put
         replay & replayMessages & put
