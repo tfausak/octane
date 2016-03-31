@@ -38,45 +38,25 @@ data Replay = Replay
     } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Replay where
-    get = do
-        size1 <- get
-        crc1 <- get
-        version1 <- get
-        version2 <- get
-        label <- get
-        properties <- get
-        size2 <- get
-        crc2 <- get
-        levels <- get
-        keyFrames <- get
-        stream <- get
-        messages <- get
-        marks <- get
-        packages <- get
-        objects <- get
-        names <- get
-        actors <- get
-        cacheItems <- get
-        return Replay
-            { replaySize1 = size1
-            , replayCRC1 = crc1
-            , replayVersion1 = version1
-            , replayVersion2 = version2
-            , replayLabel = label
-            , replayProperties = properties
-            , replaySize2 = size2
-            , replayCRC2 = crc2
-            , replayLevels = levels
-            , replayKeyFrames = keyFrames
-            , replayStream = stream
-            , replayMessages = messages
-            , replayMarks = marks
-            , replayPackages = packages
-            , replayObjects = objects
-            , replayNames = names
-            , replayActors = actors
-            , replayCacheItems = cacheItems
-            }
+    get = Replay
+        <$> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
+        <*> get
 
     put replay = do
         replay & replaySize1 & put

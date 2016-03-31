@@ -17,15 +17,10 @@ data KeyFrame = KeyFrame
     } deriving (Eq, Generic, NFData, Show)
 
 instance Binary KeyFrame where
-    get = do
-        time <- get
-        frame <- get
-        position <- get
-        return KeyFrame
-            { keyFrameTime = time
-            , keyFrameFrame = frame
-            , keyFramePosition = position
-            }
+    get = KeyFrame
+        <$> get
+        <*> get
+        <*> get
 
     put keyFrame = do
         keyFrame & keyFrameTime & put

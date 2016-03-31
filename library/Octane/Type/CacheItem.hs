@@ -16,17 +16,11 @@ data CacheItem = CacheItem
     } deriving (Eq, Generic, NFData, Show)
 
 instance Binary CacheItem where
-    get = do
-        tag <- get
-        start <- get
-        end <- get
-        cacheProperties <- get
-        return CacheItem
-            { cacheItemTag = tag
-            , cacheItemStart = start
-            , cacheItemEnd = end
-            , cacheItemCacheProperties = cacheProperties
-            }
+    get = CacheItem
+        <$> get
+        <*> get
+        <*> get
+        <*> get
 
     put cacheItem = do
         cacheItem & cacheItemTag & put

@@ -13,13 +13,9 @@ data Actor = Actor
     } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Actor where
-    get = do
-        name <- get
-        tag <- get
-        return Actor
-            { actorName = name
-            , actorTag = tag
-            }
+    get = Actor
+        <$> get
+        <*> get
 
     put actor = do
         actor & actorName & put

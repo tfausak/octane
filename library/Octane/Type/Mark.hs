@@ -15,13 +15,9 @@ data Mark = Mark
     } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Mark where
-    get = do
-        label <- get
-        frame <- get
-        return Mark
-            { markLabel = label
-            , markFrame = frame
-            }
+    get = Mark
+        <$> get
+        <*> get
 
     put mark = do
         mark & markLabel & put

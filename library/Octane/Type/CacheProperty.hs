@@ -12,13 +12,9 @@ data CacheProperty = CacheProperty
     } deriving (Eq, Generic, NFData, Show)
 
 instance Binary CacheProperty where
-    get = do
-        index <- get
-        tag <- get
-        return CacheProperty
-            { cachePropertyIndex = index
-            , cachePropertyTag = tag
-            }
+    get = CacheProperty
+        <$> get
+        <*> get
 
     put cacheProperty = do
         cacheProperty & cachePropertyIndex & put

@@ -15,15 +15,10 @@ data Message = Message
     } deriving (Eq, Generic, NFData, Show)
 
 instance Binary Message where
-    get = do
-        frame <- get
-        name <- get
-        content <- get
-        return Message
-            { messageFrame = frame
-            , messageName = name
-            , messageContent = content
-            }
+    get = Message
+        <$> get
+        <*> get
+        <*> get
 
     put message = do
         message & messageFrame & put
