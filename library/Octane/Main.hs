@@ -1,6 +1,7 @@
 module Octane.Main (main) where
 
 import Octane.Internal.Core
+import Octane.Parser
 import Octane.Type
 
 import qualified Control.Monad as Monad
@@ -31,3 +32,7 @@ debug (file, contents, result) = case result of
             IO.hPutStrLn IO.stderr ("input size (" ++ show inputSize ++ ") not equal to output size (" ++ show outputSize ++ ")!")
         let config = Aeson.defConfig { Aeson.confCompare = compare }
         replay & Aeson.encodePretty' config & BSL8.putStrLn
+
+        let frames = parseFrames replay
+        let frame = take 1 frames
+        print frame
