@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Type.Frame where
+module Octane.Type.Frame (Frame(..)) where
 
 import Octane.Internal.Core
 import Octane.Type.Replication

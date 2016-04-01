@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Type.Replication where
+module Octane.Type.Replication (Replication(..)) where
 
 import Octane.Internal.Core
 
