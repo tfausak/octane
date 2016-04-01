@@ -69,7 +69,11 @@ getReplication _context = do
     then return Nothing
     else do
         -- TODO
-        undefined
+        let replication = Replication
+                {
+                }
+
+        return (Just replication)
 
 -- TODO: Does this actually work? I don't know yet.
 wordToFloat :: Word32 -> Float
