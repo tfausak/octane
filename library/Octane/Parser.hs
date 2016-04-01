@@ -10,20 +10,30 @@ import qualified Unsafe.Coerce as Coerce
 
 parseFrames :: Replay -> [Frame]
 parseFrames replay = Binary.runGet
-    (Bits.runBitGet (getFrames replay))
+    (replay & extractContext & getFrames & Bits.runBitGet)
     (replay & replayStream & unpack & BSL.fromStrict)
 
-getFrames :: Replay -> Bits.BitGet [Frame]
-getFrames replay = do
-    maybeFrame <- getFrame replay
+-- TODO: This will need at least the actors and cache items.
+data Context = Context
+    {
+    }
+
+extractContext :: Replay -> Context
+extractContext _replay = Context
+    {
+    }
+
+getFrames :: Context -> Bits.BitGet [Frame]
+getFrames context = do
+    maybeFrame <- getFrame context
     case maybeFrame of
         Nothing -> return []
         Just frame -> do
-            frames <- getFrames replay
+            frames <- getFrames context
             return (frame : frames)
 
-getFrame :: Replay -> Bits.BitGet (Maybe Frame)
-getFrame replay = do
+getFrame :: Context -> Bits.BitGet (Maybe Frame)
+getFrame context = do
     rawTime <- Bits.getWord32be 32
     rawDelta <- Bits.getWord32be 32
 
@@ -33,7 +43,7 @@ getFrame replay = do
     if time == 0 && delta == 0
     then return Nothing
     else do
-        replications <- getReplications replay
+        replications <- getReplications context
 
         let frame = Frame
                 { frameTime = time
@@ -43,17 +53,17 @@ getFrame replay = do
 
         return (Just frame)
 
-getReplications :: Replay -> Bits.BitGet [Replication]
-getReplications replay = do
-    maybeReplication <- getReplication replay
+getReplications :: Context -> Bits.BitGet [Replication]
+getReplications context = do
+    maybeReplication <- getReplication context
     case maybeReplication of
         Nothing -> return []
         Just replication -> do
-            replications <- getReplications replay
+            replications <- getReplications context
             return (replication : replications)
 
-getReplication :: Replay -> Bits.BitGet (Maybe Replication)
-getReplication _replay = do
+getReplication :: Context -> Bits.BitGet (Maybe Replication)
+getReplication _context = do
     hasReplication <- Bits.getBool
     if not hasReplication
     then return Nothing
