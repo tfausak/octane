@@ -8,4 +8,5 @@ import Octane.Internal.Core
 data Replication = Replication
     { replicationActorId :: ByteString -- TODO: This should be an Int.
     , replicationIsOpen :: Bool
+    , replicationIsNew :: Maybe Bool
     } deriving (Eq, Generic, NFData, Show)
