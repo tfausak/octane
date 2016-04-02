@@ -70,12 +70,21 @@ getReplication _context = do
         if isOpen
         then do
             isNew <- Bits.getBool
-            -- TODO
-            return (Just (Replication
-                { replicationActorId = actorId
-                , replicationIsOpen = isOpen
-                , replicationIsNew = Just isNew
-                }))
+            if isNew
+            then do
+                -- TODO: This is going to have to update the context.
+                return (Just (Replication
+                    { replicationActorId = actorId
+                    , replicationIsOpen = isOpen
+                    , replicationIsNew = Just isNew
+                    }))
+            else do
+                -- TODO
+                return (Just (Replication
+                    { replicationActorId = actorId
+                    , replicationIsOpen = isOpen
+                    , replicationIsNew = Just isNew
+                    }))
         else return (Just (Replication
             { replicationActorId = actorId
             , replicationIsOpen = isOpen
