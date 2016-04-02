@@ -72,11 +72,13 @@ getReplication _context = do
     then return Nothing
     else do
         actorId <- Bits.getByteString (bitSize maxChannels)
+        channelOpen <- Bits.getBool
 
         -- TODO
 
         let replication = Replication
                 { replicationActorId = actorId
+                , replicationChannelOpen = channelOpen
                 }
 
         return (Just replication)
