@@ -71,12 +71,21 @@ getReplication _context = do
     if not hasReplication
     then return Nothing
     else do
+        actorId <- Bits.getByteString (bitSize maxChannels)
+
         -- TODO
+
         let replication = Replication
-                {
+                { replicationActorId = actorId
                 }
 
         return (Just replication)
+
+maxChannels :: (Integral a) => a
+maxChannels = 1024
+
+bitSize :: (Integral a) => a -> a
+bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling
 
 -- TODO: Does this actually work? I don't know yet.
 wordToFloat :: Word32 -> Float
