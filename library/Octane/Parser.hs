@@ -66,16 +66,18 @@ getReplication _context = do
     then return Nothing
     else do
         actorId <- Bits.getByteString (bitSize maxChannels)
-        channelOpen <- Bits.getBool
-
-        -- TODO
-
-        let replication = Replication
+        isOpen <- Bits.getBool
+        if isOpen
+        then do
+            -- TODO
+            return (Just (Replication
                 { replicationActorId = actorId
-                , replicationChannelOpen = channelOpen
-                }
-
-        return (Just replication)
+                , replicationIsOpen = isOpen
+                }))
+        else return (Just (Replication
+            { replicationActorId = actorId
+            , replicationIsOpen = isOpen
+            }))
 
 maxChannels :: (Integral a) => a
 maxChannels = 1024
