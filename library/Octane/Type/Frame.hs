@@ -7,7 +7,7 @@ import Octane.Internal.Core
 import Octane.Type.Replication
 
 data Frame = Frame
-    { frameTime :: Float
-    , frameDelta :: Float
+    { frameTime :: ByteString -- TODO: This should be a Float.
+    , frameDelta :: ByteString -- TODO: This should be a Float.
     , frameReplications :: [Replication]
     } deriving (Eq, Generic, NFData, Show)
