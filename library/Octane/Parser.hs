@@ -54,18 +54,18 @@ getFrame context = do
 
 getReplications :: Context -> Bits.BitGet [Replication]
 getReplications context = do
-    maybeReplication <- getReplication context
+    (context', maybeReplication) <- getReplication context
     case maybeReplication of
         Nothing -> return []
         Just replication -> do
-            replications <- getReplications context
+            replications <- getReplications context'
             return (replication : replications)
 
-getReplication :: Context -> Bits.BitGet (Maybe Replication)
-getReplication _context = do
+getReplication :: Context -> Bits.BitGet (Context, Maybe Replication)
+getReplication context = do
     hasReplication <- Bits.getBool
     if not hasReplication
-    then return Nothing
+    then return (context, Nothing)
     else do
         -- TODO: Convert actor ID into an integer.
         actorId <- Bits.getByteString (bitSize maxChannels)
@@ -75,20 +75,20 @@ getReplication _context = do
             isNew <- Bits.getBool
             if isNew
             then do
-                -- TODO: This is going to have to update the context.
-                return (Just (Replication
+                -- TODO: Parse new actor.
+                return (context, Just (Replication
                     { replicationActorId = actorId
                     , replicationIsOpen = isOpen
                     , replicationIsNew = Just isNew
                     }))
             else do
-                -- TODO
-                return (Just (Replication
+                -- TODO: Parse existing actor.
+                return (context, Just (Replication
                     { replicationActorId = actorId
                     , replicationIsOpen = isOpen
                     , replicationIsNew = Just isNew
                     }))
-        else return (Just (Replication
+        else return (context, Just (Replication
             { replicationActorId = actorId
             , replicationIsOpen = isOpen
             , replicationIsNew = Nothing
