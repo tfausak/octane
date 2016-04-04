@@ -34,7 +34,9 @@ getFrames context = do
 
 getFrame :: Context -> Bits.BitGet (Maybe Frame)
 getFrame context = do
+    -- TODO: Convert time bytes into a float.
     time <- Bits.getByteString 32
+    -- TODO: Convert delta bytes into a float.
     delta <- Bits.getByteString 32
 
     if BS.all (== 0) time && BS.all (== 0) delta
@@ -65,6 +67,7 @@ getReplication _context = do
     if not hasReplication
     then return Nothing
     else do
+        -- TODO: Convert actor ID into an integer.
         actorId <- Bits.getByteString (bitSize maxChannels)
         isOpen <- Bits.getBool
         if isOpen

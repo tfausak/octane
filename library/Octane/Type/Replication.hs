@@ -6,7 +6,7 @@ module Octane.Type.Replication (Replication(..)) where
 import Octane.Internal.Core
 
 data Replication = Replication
-    { replicationActorId :: ByteString -- TODO: This should be an Int.
+    { replicationActorId :: ByteString
     , replicationIsOpen :: Bool
     , replicationIsNew :: Maybe Bool
     } deriving (Eq, Generic, NFData, Show)
