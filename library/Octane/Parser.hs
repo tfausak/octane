@@ -75,6 +75,7 @@ getReplication context = do
             isNew <- Bits.getBool
             if isNew
             then do
+                _unknownFlag <- Bits.getBool
                 -- TODO: Parse new actor.
                 return (context, Just (Replication
                     { replicationActorId = actorId
