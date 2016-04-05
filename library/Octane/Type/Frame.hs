@@ -11,6 +11,6 @@ data Frame = Frame
     { frameTime :: BS.ByteString
     , frameDelta :: BS.ByteString
     , frameReplications :: [Replication.Replication]
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq,Generics.Generic,Show)
 
 instance DeepSeq.NFData Frame

@@ -17,14 +17,10 @@ data KeyFrame = KeyFrame
     { keyFrameTime :: Float32LE.Float32LE
     , keyFrameFrame :: Word32LE.Word32LE
     , keyFramePosition :: Word32LE.Word32LE
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary KeyFrame where
-    get = KeyFrame
-        <$> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-
+    get = KeyFrame <$> Binary.get <*> Binary.get <*> Binary.get
     put keyFrame = do
         keyFrame & keyFrameTime & Binary.put
         keyFrame & keyFrameFrame & Binary.put
@@ -33,4 +29,8 @@ instance Binary.Binary KeyFrame where
 instance DeepSeq.NFData KeyFrame
 
 instance Aeson.ToJSON KeyFrame where
-    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 8 }
+    toJSON = 
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 8
+            }

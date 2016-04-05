@@ -15,14 +15,10 @@ data Message = Message
     { messageFrame :: Word32LE.Word32LE
     , messageName :: PCString.PCString
     , messageContent :: PCString.PCString
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Message where
-    get = Message
-        <$> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-
+    get = Message <$> Binary.get <*> Binary.get <*> Binary.get
     put message = do
         message & messageFrame & Binary.put
         message & messageName & Binary.put
@@ -31,4 +27,8 @@ instance Binary.Binary Message where
 instance DeepSeq.NFData Message
 
 instance Aeson.ToJSON Message where
-    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 7 }
+    toJSON = 
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 7
+            }

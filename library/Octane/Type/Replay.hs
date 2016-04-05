@@ -38,29 +38,25 @@ data Replay = Replay
     , replayNames :: List.List PCString.PCString
     , replayActors :: List.List Actor.Actor
     , replayCacheItems :: List.List CacheItem.CacheItem
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Replay where
-    get = Replay
-        <$> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-
+    get = 
+        Replay <$> Binary.get <*> Binary.get <*> Binary.get <*> Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get <*>
+        Binary.get
     put replay = do
         replay & replaySize1 & Binary.put
         replay & replayCRC1 & Binary.put
@@ -84,4 +80,8 @@ instance Binary.Binary Replay where
 instance DeepSeq.NFData Replay
 
 instance Aeson.ToJSON Replay where
-    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 6 }
+    toJSON = 
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 6
+            }

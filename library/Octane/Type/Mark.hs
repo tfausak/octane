@@ -15,13 +15,10 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 data Mark = Mark
     { markLabel :: PCString.PCString
     , markFrame :: Word32LE.Word32LE
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Mark where
-    get = Mark
-        <$> Binary.get
-        <*> Binary.get
-
+    get = Mark <$> Binary.get <*> Binary.get
     put mark = do
         mark & markLabel & Binary.put
         mark & markFrame & Binary.put
@@ -29,4 +26,8 @@ instance Binary.Binary Mark where
 instance DeepSeq.NFData Mark
 
 instance Aeson.ToJSON Mark where
-    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 4 }
+    toJSON = 
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 4
+            }

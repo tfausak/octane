@@ -10,6 +10,6 @@ data Replication = Replication
     { replicationActorId :: BS.ByteString
     , replicationIsOpen :: Bool
     , replicationIsNew :: Maybe Bool
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq,Generics.Generic,Show)
 
 instance DeepSeq.NFData Replication

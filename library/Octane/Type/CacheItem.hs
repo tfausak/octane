@@ -16,15 +16,10 @@ data CacheItem = CacheItem
     , cacheItemStart :: Word32LE.Word32LE
     , cacheItemEnd :: Word32LE.Word32LE
     , cacheItemCacheProperties :: List.List CacheProperty.CacheProperty
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary CacheItem where
-    get = CacheItem
-        <$> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-
+    get = CacheItem <$> Binary.get <*> Binary.get <*> Binary.get <*> Binary.get
     put cacheItem = do
         cacheItem & cacheItemTag & Binary.put
         cacheItem & cacheItemStart & Binary.put
@@ -34,4 +29,8 @@ instance Binary.Binary CacheItem where
 instance DeepSeq.NFData CacheItem
 
 instance Aeson.ToJSON CacheItem where
-    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 9 }
+    toJSON = 
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 9
+            }

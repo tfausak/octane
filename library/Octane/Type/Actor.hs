@@ -13,13 +13,10 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 data Actor = Actor
     { actorName :: PCString.PCString
     , actorTag :: Word32LE.Word32LE
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Actor where
-    get = Actor
-        <$> Binary.get
-        <*> Binary.get
-
+    get = Actor <$> Binary.get <*> Binary.get
     put actor = do
         actor & actorName & Binary.put
         actor & actorTag & Binary.put
@@ -27,4 +24,8 @@ instance Binary.Binary Actor where
 instance DeepSeq.NFData Actor
 
 instance Aeson.ToJSON Actor where
-    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 5 }
+    toJSON = 
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 5
+            }
