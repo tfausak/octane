@@ -10,16 +10,16 @@ import Data.Function ((&))
 import qualified GHC.Generics as Generics
 
 -- | A boolean value, stored in the first bit of a byte.
-newtype Boolean = Boolean Bool
-    deriving (Eq, Generics.Generic, Show)
+newtype Boolean =
+    Boolean Bool
+    deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Boolean where
     get = do
         boolean <- Binary.getWord8
         if boolean > 1
-        then fail ("invalid Boolean value " ++ show boolean)
-        else boolean & fromIntegral & toEnum & Newtype.pack & return
-
+            then fail ("invalid Boolean value " ++ show boolean)
+            else boolean & fromIntegral & toEnum & Newtype.pack & return
     put boolean = do
         boolean & Newtype.unpack & fromEnum & fromIntegral & Binary.putWord8
 

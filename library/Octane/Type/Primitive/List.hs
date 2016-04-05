@@ -12,17 +12,18 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A length-prefixed list.
-newtype List a = List [a]
-    deriving (Eq, Generics.Generic, Show)
+newtype List a =
+    List [a]
+    deriving (Eq,Generics.Generic,Show)
 
 instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
         (Word32LE.Word32LE size) <- Binary.get
         elements <- Monad.replicateM (fromIntegral size) Binary.get
         elements & Newtype.pack & return
-
     put list = do
-        list & Newtype.unpack & length & fromIntegral & Word32LE.Word32LE & Binary.put
+        list & Newtype.unpack & length & fromIntegral & Word32LE.Word32LE &
+            Binary.put
         list & Newtype.unpack & mapM_ Binary.put
 
 instance Newtype.Newtype (List a)

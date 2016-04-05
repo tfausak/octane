@@ -13,14 +13,14 @@ import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 
 -- | A 64-bit little-endian integer.
-newtype Word64LE = Word64LE Word.Word64
-    deriving (Eq, Generics.Generic, Show)
+newtype Word64LE =
+    Word64LE Word.Word64
+    deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Word64LE where
     get = do
         word <- Binary.getWord64le
         word & fromIntegral & Newtype.pack & return
-
     put word = do
         word & Newtype.unpack & fromIntegral & Binary.putWord64le
 

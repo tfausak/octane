@@ -13,14 +13,14 @@ import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 
 -- | A 32-bit little-endian integer.
-newtype Word32LE = Word32LE Word.Word32
-    deriving (Eq, Generics.Generic, Show)
+newtype Word32LE =
+    Word32LE Word.Word32
+    deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Word32LE where
     get = do
         word <- Binary.getWord32le
         word & fromIntegral & Newtype.pack & return
-
     put word = do
         word & Newtype.unpack & fromIntegral & Binary.putWord32le
 

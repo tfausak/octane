@@ -14,19 +14,19 @@ import qualified Octane.Type.Primitive.PCString as PCString
 
 -- | A dictionary that maps strings to values. The dictionary is terminated by
 -- | the key "None".
-newtype Dictionary a = Dictionary (Map.Map PCString.PCString a)
-    deriving (Eq, Generics.Generic, Show)
+newtype Dictionary a =
+    Dictionary (Map.Map PCString.PCString a)
+    deriving (Eq,Generics.Generic,Show)
 
 instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
     get = do
         element <- getElement
         if Map.null element
-        then do
-            element & Newtype.pack & return
-        else do
-            Dictionary elements <- Binary.get
-            elements & Map.union element & Newtype.pack & return
-
+            then do
+                element & Newtype.pack & return
+            else do
+                Dictionary elements <- Binary.get
+                elements & Map.union element & Newtype.pack & return
     put dictionary = do
         dictionary & Newtype.unpack & Map.assocs & mapM_ putElement
         "None" & PCString.PCString & Binary.put
@@ -36,19 +36,24 @@ instance Newtype.Newtype (Dictionary a)
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Dictionary a)
 
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
-    toJSON dictionary = dictionary & Newtype.unpack & Map.mapKeys Newtype.unpack & Aeson.toJSON
+    toJSON dictionary =
+        dictionary & Newtype.unpack & Map.mapKeys Newtype.unpack & Aeson.toJSON
 
-getElement :: (Binary.Binary a) => Binary.Get (Map.Map PCString.PCString a)
+getElement
+    :: (Binary.Binary a)
+    => Binary.Get (Map.Map PCString.PCString a)
 getElement = do
     key <- Binary.get
     if key == PCString.PCString "None"
-    then do
-        Map.empty & return
-    else do
-        value <- Binary.get
-        value & Map.singleton key & return
+        then do
+            return Map.empty
+        else do
+            value <- Binary.get
+            value & Map.singleton key & return
 
-putElement :: (Binary.Binary a) => (PCString.PCString, a) -> Binary.Put
-putElement (key, value) = do
-    key & Binary.put
-    value & Binary.put
+putElement
+    :: (Binary.Binary a)
+    => (PCString.PCString, a) -> Binary.Put
+putElement (key,value) = do
+    Binary.put key
+    Binary.put value
