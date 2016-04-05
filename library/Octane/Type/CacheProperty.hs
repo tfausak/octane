@@ -1,24 +1,29 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Octane.Type.CacheProperty (CacheProperty(..)) where
 
-import Octane.Internal.Core
-import Octane.Type.Primitive.Word32LE
+import qualified Control.DeepSeq as DeepSeq
+import qualified Data.Aeson.Types as Aeson
+import qualified Data.Binary as Binary
+import Data.Function ((&))
+import qualified GHC.Generics as Generics
+import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 data CacheProperty = CacheProperty
-    { cachePropertyIndex :: Word32LE
-    , cachePropertyTag :: Word32LE
-    } deriving (Eq, Generic, NFData, Show)
+    { cachePropertyIndex :: Word32LE.Word32LE
+    , cachePropertyTag :: Word32LE.Word32LE
+    } deriving (Eq, Generics.Generic, Show)
 
-instance Binary CacheProperty where
+instance Binary.Binary CacheProperty where
     get = CacheProperty
-        <$> get
-        <*> get
+        <$> Binary.get
+        <*> Binary.get
 
     put cacheProperty = do
-        cacheProperty & cachePropertyIndex & put
-        cacheProperty & cachePropertyTag & put
+        cacheProperty & cachePropertyIndex & Binary.put
+        cacheProperty & cachePropertyTag & Binary.put
 
-instance ToJSON CacheProperty where
-    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 13 }
+instance DeepSeq.NFData CacheProperty
+
+instance Aeson.ToJSON CacheProperty where
+    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 13 }

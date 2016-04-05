@@ -1,13 +1,16 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Octane.Type.Frame (Frame(..)) where
 
-import Octane.Internal.Core
-import Octane.Type.Replication
+import qualified Control.DeepSeq as DeepSeq
+import qualified Data.ByteString as BS
+import qualified GHC.Generics as Generics
+import qualified Octane.Type.Replication as Replication
 
 data Frame = Frame
-    { frameTime :: ByteString
-    , frameDelta :: ByteString
-    , frameReplications :: [Replication]
-    } deriving (Eq, Generic, NFData, Show)
+    { frameTime :: BS.ByteString
+    , frameDelta :: BS.ByteString
+    , frameReplications :: [Replication.Replication]
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData Frame

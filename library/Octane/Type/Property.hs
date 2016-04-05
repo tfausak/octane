@@ -1,116 +1,122 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Octane.Type.Property (Property(..)) where
 
-import Octane.Internal.Core
-import Octane.Type.Primitive.Boolean
-import Octane.Type.Primitive.Dictionary
-import Octane.Type.Primitive.Float32LE
-import Octane.Type.Primitive.List
-import Octane.Type.Primitive.PCString
-import Octane.Type.Primitive.Word32LE
-import Octane.Type.Primitive.Word64LE
+import qualified Control.DeepSeq as DeepSeq
+import qualified Control.Newtype as Newtype
+import qualified Data.Aeson.Types as Aeson
+import qualified Data.Binary as Binary
+import Data.Function ((&))
+import qualified GHC.Generics as Generics
+import qualified Octane.Type.Primitive.Boolean as Boolean
+import qualified Octane.Type.Primitive.Dictionary as Dictionary
+import qualified Octane.Type.Primitive.Float32LE as Float32LE
+import qualified Octane.Type.Primitive.List as List
+import qualified Octane.Type.Primitive.PCString as PCString
+import qualified Octane.Type.Primitive.Word32LE as Word32LE
+import qualified Octane.Type.Primitive.Word64LE as Word64LE
 
 data Property
-    = ArrayProperty Word64LE (List (Dictionary Property))
-    | BoolProperty Word64LE Boolean
-    | ByteProperty Word64LE (PCString, PCString)
-    | FloatProperty Word64LE Float32LE
-    | IntProperty Word64LE Word32LE
-    | NameProperty Word64LE PCString
-    | QWordProperty Word64LE Word64LE
-    | StrProperty Word64LE PCString
-    deriving (Eq, Generic, NFData, Show)
+    = ArrayProperty Word64LE.Word64LE (List.List (Dictionary.Dictionary Property))
+    | BoolProperty Word64LE.Word64LE Boolean.Boolean
+    | ByteProperty Word64LE.Word64LE (PCString.PCString, PCString.PCString)
+    | FloatProperty Word64LE.Word64LE Float32LE.Float32LE
+    | IntProperty Word64LE.Word64LE Word32LE.Word32LE
+    | NameProperty Word64LE.Word64LE PCString.PCString
+    | QWordProperty Word64LE.Word64LE Word64LE.Word64LE
+    | StrProperty Word64LE.Word64LE PCString.PCString
+    deriving (Eq, Generics.Generic, Show)
 
-instance Binary Property where
+instance Binary.Binary Property where
     get = do
-        PCString kind <- get
+        PCString.PCString kind <- Binary.get
         case kind of
             "ArrayProperty" -> do
-                size <- get
-                value <- get
-                ArrayProperty size value & return
+                size <- Binary.get
+                value <- Binary.get
+                value & ArrayProperty size & return
             "BoolProperty" -> do
-                size <- get
-                value <- get
-                BoolProperty size value & return
+                size <- Binary.get
+                value <- Binary.get
+                value & BoolProperty size & return
             "ByteProperty" -> do
-                size <- get
-                key <- get
-                value <- get
-                ByteProperty size (key, value) & return
+                size <- Binary.get
+                key <- Binary.get
+                value <- Binary.get
+                (key, value) & ByteProperty size & return
             "FloatProperty" -> do
-                size <- get
-                value <- case unpack size of
-                    4 -> get
+                size <- Binary.get
+                value <- case Newtype.unpack size of
+                    4 -> Binary.get
                     x -> fail ("unknown FloatProperty size " ++ show x)
-                FloatProperty size value & return
+                value & FloatProperty size & return
             "IntProperty" -> do
-                size <- get
-                value <- case unpack size of
-                    4 -> get
+                size <- Binary.get
+                value <- case Newtype.unpack size of
+                    4 -> Binary.get
                     x -> fail ("unknown IntProperty size " ++ show x)
-                IntProperty size value & return
+                value & IntProperty size & return
             "NameProperty" -> do
-                size <- get
-                value <- get
-                NameProperty size value & return
+                size <- Binary.get
+                value <- Binary.get
+                value & NameProperty size & return
             "QWordProperty" -> do
-                size <- get
-                value <- case unpack size of
-                    8 -> get
+                size <- Binary.get
+                value <- case Newtype.unpack size of
+                    8 -> Binary.get
                     x -> fail ("unknown QWordProperty size " ++ show x)
-                QWordProperty size value & return
+                value & QWordProperty size & return
             "StrProperty" -> do
-                size <- get
-                value <- get
-                StrProperty size value & return
+                size <- Binary.get
+                value <- Binary.get
+                value & StrProperty size & return
             x -> fail ("unknown property type " ++ show x)
 
     put property = case property of
         ArrayProperty size value -> do
-            "ArrayProperty" & PCString & put
-            size & put
-            value & put
+            "ArrayProperty" & PCString.PCString & Binary.put
+            Binary.put size
+            Binary.put value
         BoolProperty size value -> do
-            "BoolProperty" & PCString & put
-            size & put
-            value & put
+            "BoolProperty" & PCString.PCString & Binary.put
+            Binary.put size
+            Binary.put value
         ByteProperty size (key, value) -> do
-            "ByteProperty" & PCString & put
-            size & put
-            key & put
-            value & put
+            "ByteProperty" & PCString.PCString & Binary.put
+            Binary.put size
+            Binary.put key
+            Binary.put value
         FloatProperty size value -> do
-            "FloatProperty" & PCString & put
-            size & put
-            value & put
+            "FloatProperty" & PCString.PCString & Binary.put
+            Binary.put size
+            Binary.put value
         IntProperty size value -> do
-            "IntProperty" & PCString & put
-            size & put
-            value & put
+            "IntProperty" & PCString.PCString & Binary.put
+            Binary.put size
+            Binary.put value
         NameProperty size value -> do
-            "NameProperty" & PCString & put
-            size & put
-            value & put
+            "NameProperty" & PCString.PCString & Binary.put
+            Binary.put size
+            Binary.put value
         QWordProperty size value -> do
-            "QWordProperty" & PCString & put
-            size & put
-            value & put
+            "QWordProperty" & PCString.PCString & Binary.put
+            Binary.put size
+            Binary.put value
         StrProperty size value -> do
-            "StrProperty" & PCString & put
-            size & put
-            value & put
+            "StrProperty" & PCString.PCString & Binary.put
+            Binary.put size
+            Binary.put value
 
-instance ToJSON Property where
+instance DeepSeq.NFData Property
+
+instance Aeson.ToJSON Property where
     toJSON property = case property of
-        ArrayProperty _ x -> toJSON x
-        BoolProperty _ x -> toJSON x
-        ByteProperty _ (_, x) -> toJSON x
-        FloatProperty _ x -> toJSON x
-        IntProperty _ x -> toJSON x
-        NameProperty _ x -> toJSON x
-        QWordProperty _ x -> toJSON x
-        StrProperty _ x -> toJSON x
+        ArrayProperty _ x -> Aeson.toJSON x
+        BoolProperty _ x -> Aeson.toJSON x
+        ByteProperty _ (_, x) -> Aeson.toJSON x
+        FloatProperty _ x -> Aeson.toJSON x
+        IntProperty _ x -> Aeson.toJSON x
+        NameProperty _ x -> Aeson.toJSON x
+        QWordProperty _ x -> Aeson.toJSON x
+        StrProperty _ x -> Aeson.toJSON x

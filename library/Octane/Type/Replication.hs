@@ -1,12 +1,15 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Octane.Type.Replication (Replication(..)) where
 
-import Octane.Internal.Core
+import qualified Control.DeepSeq as DeepSeq
+import qualified Data.ByteString as BS
+import qualified GHC.Generics as Generics
 
 data Replication = Replication
-    { replicationActorId :: ByteString
+    { replicationActorId :: BS.ByteString
     , replicationIsOpen :: Bool
     , replicationIsNew :: Maybe Bool
-    } deriving (Eq, Generic, NFData, Show)
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData Replication

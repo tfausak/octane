@@ -1,25 +1,30 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Octane.Type.Actor (Actor(..)) where
 
-import Octane.Internal.Core
-import Octane.Type.Primitive.PCString
-import Octane.Type.Primitive.Word32LE
+import qualified Control.DeepSeq as DeepSeq
+import qualified Data.Aeson.Types as Aeson
+import qualified Data.Binary as Binary
+import Data.Function ((&))
+import qualified GHC.Generics as Generics
+import qualified Octane.Type.Primitive.PCString as PCString
+import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 data Actor = Actor
-    { actorName :: PCString
-    , actorTag :: Word32LE
-    } deriving (Eq, Generic, NFData, Show)
+    { actorName :: PCString.PCString
+    , actorTag :: Word32LE.Word32LE
+    } deriving (Eq, Generics.Generic, Show)
 
-instance Binary Actor where
+instance Binary.Binary Actor where
     get = Actor
-        <$> get
-        <*> get
+        <$> Binary.get
+        <*> Binary.get
 
     put actor = do
-        actor & actorName & put
-        actor & actorTag & put
+        actor & actorName & Binary.put
+        actor & actorTag & Binary.put
 
-instance ToJSON Actor where
-    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 5 }
+instance DeepSeq.NFData Actor
+
+instance Aeson.ToJSON Actor where
+    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 5 }

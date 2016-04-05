@@ -1,27 +1,32 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Octane.Type.Mark (Mark(..)) where
 
-import Octane.Internal.Core
-import Octane.Type.Primitive.PCString
-import Octane.Type.Primitive.Word32LE
+import qualified Control.DeepSeq as DeepSeq
+import qualified Data.Aeson.Types as Aeson
+import qualified Data.Binary as Binary
+import Data.Function ((&))
+import qualified GHC.Generics as Generics
+import qualified Octane.Type.Primitive.PCString as PCString
+import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A tick mark on the replay. The only thing that creates tick marks are
 -- | goals.
 data Mark = Mark
-    { markLabel :: PCString
-    , markFrame :: Word32LE
-    } deriving (Eq, Generic, NFData, Show)
+    { markLabel :: PCString.PCString
+    , markFrame :: Word32LE.Word32LE
+    } deriving (Eq, Generics.Generic, Show)
 
-instance Binary Mark where
+instance Binary.Binary Mark where
     get = Mark
-        <$> get
-        <*> get
+        <$> Binary.get
+        <*> Binary.get
 
     put mark = do
-        mark & markLabel & put
-        mark & markFrame & put
+        mark & markLabel & Binary.put
+        mark & markFrame & Binary.put
 
-instance ToJSON Mark where
-    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 4 }
+instance DeepSeq.NFData Mark
+
+instance Aeson.ToJSON Mark where
+    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 4 }

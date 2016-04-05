@@ -1,29 +1,34 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Octane.Type.Message (Message(..)) where
 
-import Octane.Internal.Core
-import Octane.Type.Primitive.PCString
-import Octane.Type.Primitive.Word32LE
+import qualified Control.DeepSeq as DeepSeq
+import qualified Data.Aeson.Types as Aeson
+import qualified Data.Binary as Binary
+import Data.Function ((&))
+import qualified GHC.Generics as Generics
+import qualified Octane.Type.Primitive.PCString as PCString
+import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A debugging message. Replays do not have any of these anymore.
 data Message = Message
-    { messageFrame :: Word32LE
-    , messageName :: PCString
-    , messageContent :: PCString
-    } deriving (Eq, Generic, NFData, Show)
+    { messageFrame :: Word32LE.Word32LE
+    , messageName :: PCString.PCString
+    , messageContent :: PCString.PCString
+    } deriving (Eq, Generics.Generic, Show)
 
-instance Binary Message where
+instance Binary.Binary Message where
     get = Message
-        <$> get
-        <*> get
-        <*> get
+        <$> Binary.get
+        <*> Binary.get
+        <*> Binary.get
 
     put message = do
-        message & messageFrame & put
-        message & messageName & put
-        message & messageContent & put
+        message & messageFrame & Binary.put
+        message & messageName & Binary.put
+        message & messageContent & Binary.put
 
-instance ToJSON Message where
-    toJSON = genericToJSON defaultOptions { fieldLabelModifier = drop 7 }
+instance DeepSeq.NFData Message
+
+instance Aeson.ToJSON Message where
+    toJSON = Aeson.genericToJSON Aeson.defaultOptions { Aeson.fieldLabelModifier = drop 7 }
