@@ -1,25 +1,31 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Octane.Type.Primitive.Word32LE (Word32LE(..)) where
 
-import Octane.Internal.Core
-
+import qualified Control.DeepSeq as DeepSeq
+import qualified Control.Newtype as Newtype
+import qualified Data.Aeson as Aeson
+import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
+import Data.Function ((&))
+import qualified Data.Word as Word
+import qualified GHC.Generics as Generics
 
 -- | A 32-bit little-endian integer.
-newtype Word32LE = Word32LE Word32
-    deriving (Eq, Generic, NFData, Show)
+newtype Word32LE = Word32LE Word.Word32
+    deriving (Eq, Generics.Generic, Show)
 
-instance Binary Word32LE where
+instance Binary.Binary Word32LE where
     get = do
         word <- Binary.getWord32le
-        word & fromIntegral & pack & return
+        word & fromIntegral & Newtype.pack & return
 
     put word = do
-        word & unpack & fromIntegral & Binary.putWord32le
+        word & Newtype.unpack & fromIntegral & Binary.putWord32le
 
-instance Newtype Word32LE
+instance Newtype.Newtype Word32LE
 
-instance ToJSON Word32LE
+instance DeepSeq.NFData Word32LE
+
+instance Aeson.ToJSON Word32LE

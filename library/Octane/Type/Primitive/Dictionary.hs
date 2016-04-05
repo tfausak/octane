@@ -1,49 +1,54 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Octane.Type.Primitive.Dictionary (Dictionary(..)) where
 
-import Octane.Internal.Core
-import Octane.Type.Primitive.PCString
-
+import qualified Control.DeepSeq as DeepSeq
+import qualified Control.Newtype as Newtype
+import qualified Data.Aeson as Aeson
+import qualified Data.Binary as Binary
+import Data.Function ((&))
 import qualified Data.Map as Map
+import qualified GHC.Generics as Generics
+import qualified Octane.Type.Primitive.PCString as PCString
 
 -- | A dictionary that maps strings to values. The dictionary is terminated by
 -- | the key "None".
-newtype Dictionary a = Dictionary (Map PCString a)
-    deriving (Eq, Generic, NFData, Show)
+newtype Dictionary a = Dictionary (Map.Map PCString.PCString a)
+    deriving (Eq, Generics.Generic, Show)
 
-instance (Binary a) => Binary (Dictionary a) where
+instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
     get = do
         element <- getElement
         if Map.null element
         then do
-            element & pack & return
+            element & Newtype.pack & return
         else do
-            Dictionary elements <- get
-            elements & Map.union element & pack & return
+            Dictionary elements <- Binary.get
+            elements & Map.union element & Newtype.pack & return
 
     put dictionary = do
-        dictionary & unpack & Map.assocs & mapM_ putElement
-        "None" & PCString & put
+        dictionary & Newtype.unpack & Map.assocs & mapM_ putElement
+        "None" & PCString.PCString & Binary.put
 
-instance Newtype (Dictionary a)
+instance Newtype.Newtype (Dictionary a)
 
-instance (ToJSON a) => ToJSON (Dictionary a) where
-    toJSON dictionary = dictionary & unpack & Map.mapKeys unpack & toJSON
+instance (DeepSeq.NFData a) => DeepSeq.NFData (Dictionary a)
 
-getElement :: (Binary a) => Get (Map PCString a)
+instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
+    toJSON dictionary = dictionary & Newtype.unpack & Map.mapKeys Newtype.unpack & Aeson.toJSON
+
+getElement :: (Binary.Binary a) => Binary.Get (Map.Map PCString.PCString a)
 getElement = do
-    key <- get
-    if key == PCString "None"
+    key <- Binary.get
+    if key == PCString.PCString "None"
     then do
         Map.empty & return
     else do
-        value <- get
+        value <- Binary.get
         value & Map.singleton key & return
 
-putElement :: (Binary a) => (PCString, a) -> Put
+putElement :: (Binary.Binary a) => (PCString.PCString, a) -> Binary.Put
 putElement (key, value) = do
-    key & put
-    value & put
+    key & Binary.put
+    value & Binary.put

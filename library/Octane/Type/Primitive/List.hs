@@ -1,27 +1,32 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Octane.Type.Primitive.List (List(..)) where
 
-import Octane.Internal.Core
-import Octane.Type.Primitive.Word32LE
-
+import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
+import qualified Control.Newtype as Newtype
+import qualified Data.Aeson as Aeson
+import qualified Data.Binary as Binary
+import Data.Function ((&))
+import qualified GHC.Generics as Generics
+import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A length-prefixed list.
 newtype List a = List [a]
-    deriving (Eq, Generic, NFData, Show)
+    deriving (Eq, Generics.Generic, Show)
 
-instance (Binary a) => Binary (List a) where
+instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
-        (Word32LE size) <- get
-        elements <- Monad.replicateM (fromIntegral size) get
-        elements & pack & return
+        (Word32LE.Word32LE size) <- Binary.get
+        elements <- Monad.replicateM (fromIntegral size) Binary.get
+        elements & Newtype.pack & return
 
     put list = do
-        list & unpack & length & fromIntegral & Word32LE & put
-        list & unpack & mapM_ put
+        list & Newtype.unpack & length & fromIntegral & Word32LE.Word32LE & Binary.put
+        list & Newtype.unpack & mapM_ Binary.put
 
-instance Newtype (List a)
+instance Newtype.Newtype (List a)
 
-instance (ToJSON a) => ToJSON (List a)
+instance (DeepSeq.NFData a) => DeepSeq.NFData (List a)
+
+instance (Aeson.ToJSON a) => Aeson.ToJSON (List a)
