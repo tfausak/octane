@@ -12,6 +12,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Char as Char
 import Data.Function ((&))
+import qualified Data.String as String
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
 import qualified GHC.Generics as Generics
@@ -25,13 +26,13 @@ newtype PCString =
 instance Binary.Binary PCString where
     get = do
         (Word32LE.Word32LE size) <- Binary.get
-        string <- 
+        string <-
             if size == 0
                 then fail ("invalid PCString size " ++ show size)
                 else if size < 0
                          then do
                              let actualSize = 2 * negate size
-                             bytes <- 
+                             bytes <-
                                  Binary.getByteString (fromIntegral actualSize)
                              bytes & Encoding.decodeUtf16LE & return
                          else do
@@ -48,6 +49,9 @@ instance Binary.Binary PCString where
             else do
                 size & negate & Word32LE.Word32LE & Binary.put
                 cString & Encoding.encodeUtf16LE & Binary.putByteString
+
+instance String.IsString PCString where
+    fromString string = string & Text.pack & Newtype.pack
 
 instance Newtype.Newtype PCString
 

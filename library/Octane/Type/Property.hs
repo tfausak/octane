@@ -38,91 +38,91 @@ data Property
 
 instance Binary.Binary Property where
     get = do
-        PCString.PCString kind <- Binary.get
+        kind <- Binary.get
         case kind of
-            "ArrayProperty" -> do
+            _ | kind == arrayProperty -> do
                 size <- Binary.get
                 value <- Binary.get
                 value & ArrayProperty size & return
-            "BoolProperty" -> do
+            _ | kind == boolProperty -> do
                 size <- Binary.get
                 value <- Binary.get
                 value & BoolProperty size & return
-            "ByteProperty" -> do
+            _ | kind == byteProperty -> do
                 size <- Binary.get
                 key <- Binary.get
                 value <- Binary.get
                 (key, value) & ByteProperty size & return
-            "FloatProperty" -> do
+            _ | kind == floatProperty -> do
                 size <- Binary.get
-                value <- 
+                value <-
                     case Newtype.unpack size of
                         4 -> Binary.get
                         x -> fail ("unknown FloatProperty size " ++ show x)
                 value & FloatProperty size & return
-            "IntProperty" -> do
+            _ | kind == intProperty -> do
                 size <- Binary.get
-                value <- 
+                value <-
                     case Newtype.unpack size of
                         4 -> Binary.get
                         x -> fail ("unknown IntProperty size " ++ show x)
                 value & IntProperty size & return
-            "NameProperty" -> do
+            _ | kind == nameProperty -> do
                 size <- Binary.get
                 value <- Binary.get
                 value & NameProperty size & return
-            "QWordProperty" -> do
+            _ | kind == qWordProperty -> do
                 size <- Binary.get
-                value <- 
+                value <-
                     case Newtype.unpack size of
                         8 -> Binary.get
                         x -> fail ("unknown QWordProperty size " ++ show x)
                 value & QWordProperty size & return
-            "StrProperty" -> do
+            _ | kind == strProperty -> do
                 size <- Binary.get
                 value <- Binary.get
                 value & StrProperty size & return
-            x -> fail ("unknown property type " ++ show x)
-    put property = 
+            _ -> fail ("unknown property type " ++ show (Newtype.unpack kind))
+    put property =
         case property of
             ArrayProperty size value -> do
-                "ArrayProperty" & PCString.PCString & Binary.put
+                Binary.put arrayProperty
                 Binary.put size
                 Binary.put value
             BoolProperty size value -> do
-                "BoolProperty" & PCString.PCString & Binary.put
+                Binary.put boolProperty
                 Binary.put size
                 Binary.put value
             ByteProperty size (key,value) -> do
-                "ByteProperty" & PCString.PCString & Binary.put
+                Binary.put byteProperty
                 Binary.put size
                 Binary.put key
                 Binary.put value
             FloatProperty size value -> do
-                "FloatProperty" & PCString.PCString & Binary.put
+                Binary.put floatProperty
                 Binary.put size
                 Binary.put value
             IntProperty size value -> do
-                "IntProperty" & PCString.PCString & Binary.put
+                Binary.put intProperty
                 Binary.put size
                 Binary.put value
             NameProperty size value -> do
-                "NameProperty" & PCString.PCString & Binary.put
+                Binary.put nameProperty
                 Binary.put size
                 Binary.put value
             QWordProperty size value -> do
-                "QWordProperty" & PCString.PCString & Binary.put
+                Binary.put qWordProperty
                 Binary.put size
                 Binary.put value
             StrProperty size value -> do
-                "StrProperty" & PCString.PCString & Binary.put
+                Binary.put strProperty
                 Binary.put size
                 Binary.put value
 
 instance DeepSeq.NFData Property
 
 instance Aeson.ToJSON Property where
-    toJSON property = 
+    toJSON property =
         case property of
             ArrayProperty _ x -> Aeson.toJSON x
             BoolProperty _ x -> Aeson.toJSON x
@@ -132,3 +132,27 @@ instance Aeson.ToJSON Property where
             NameProperty _ x -> Aeson.toJSON x
             QWordProperty _ x -> Aeson.toJSON x
             StrProperty _ x -> Aeson.toJSON x
+
+arrayProperty :: PCString.PCString
+arrayProperty = "ArrayProperty"
+
+boolProperty :: PCString.PCString
+boolProperty = "BoolProperty"
+
+byteProperty :: PCString.PCString
+byteProperty = "ByteProperty"
+
+floatProperty :: PCString.PCString
+floatProperty = "FloatProperty"
+
+intProperty :: PCString.PCString
+intProperty = "IntProperty"
+
+nameProperty :: PCString.PCString
+nameProperty = "NameProperty"
+
+qWordProperty :: PCString.PCString
+qWordProperty = "QWordProperty"
+
+strProperty :: PCString.PCString
+strProperty = "StrProperty"

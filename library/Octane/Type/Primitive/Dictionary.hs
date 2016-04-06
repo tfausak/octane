@@ -29,7 +29,7 @@ instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
                 elements & Map.union element & Newtype.pack & return
     put dictionary = do
         dictionary & Newtype.unpack & Map.assocs & mapM_ putElement
-        "None" & PCString.PCString & Binary.put
+        noneKey & Binary.put
 
 instance Newtype.Newtype (Dictionary a)
 
@@ -44,7 +44,7 @@ getElement
     => Binary.Get (Map.Map PCString.PCString a)
 getElement = do
     key <- Binary.get
-    if key == PCString.PCString "None"
+    if key == noneKey
         then do
             return Map.empty
         else do
@@ -57,3 +57,6 @@ putElement
 putElement (key,value) = do
     Binary.put key
     Binary.put value
+
+noneKey :: PCString.PCString
+noneKey = "None"
