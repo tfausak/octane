@@ -4,7 +4,7 @@ addons:
     - libgmp-dev
 after_success:
 - |
-    if test "$TRAVIS_TAG" -a "TRAVIS_OS_NAME" = 'linux'
+    if test "$TRAVIS_TAG" -a "$TRAVIS_OS_NAME" = 'linux'
     then
       mkdir -p "$HOME/.stack/upload"
       echo "{ \"username\": \"$HACKAGE_USERNAME\", \"password\": \"$HACKAGE_PASSWORD\" }" > "$HOME/.stack/upload/credentials.json"
