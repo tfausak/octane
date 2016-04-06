@@ -28,6 +28,7 @@ executables:
     source-dirs: executable
 extra-source-files:
 - CHANGELOG.md
+- LICENSE.md
 - package.yaml
 - README.md
 - stack.yaml
@@ -47,8 +48,7 @@ library:
   - deepseq ==1.4.*
   - newtype-generics ==0.4.*
   - text ==1.2.*
-  other-modules:
-  - Paths_octane
+  other-modules: Paths_octane
   source-dirs: library
 license: MIT
 maintainer: Taylor Fausak
