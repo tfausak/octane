@@ -27,7 +27,7 @@ instance Binary.Binary Message where
 instance DeepSeq.NFData Message
 
 instance Aeson.ToJSON Message where
-    toJSON = 
+    toJSON =
         Aeson.genericToJSON
             Aeson.defaultOptions
             { Aeson.fieldLabelModifier = drop 7

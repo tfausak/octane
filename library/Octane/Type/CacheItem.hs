@@ -29,7 +29,7 @@ instance Binary.Binary CacheItem where
 instance DeepSeq.NFData CacheItem
 
 instance Aeson.ToJSON CacheItem where
-    toJSON = 
+    toJSON =
         Aeson.genericToJSON
             Aeson.defaultOptions
             { Aeson.fieldLabelModifier = drop 9

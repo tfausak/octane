@@ -34,16 +34,16 @@ instance Newtype.Newtype Stream
 instance DeepSeq.NFData Stream
 
 instance Aeson.ToJSON Stream where
-    toJSON stream = 
+    toJSON stream =
         let size = stream & Newtype.unpack & BS.length
-            bytes = 
+            bytes =
                 if size == 1
                     then "byte"
                     else "bytes"
         in Aeson.toJSON (unwords ["Stream:", show size, bytes, "..."])
 
 reverseBits :: Word.Word8 -> Word.Word8
-reverseBits word = 
+reverseBits word =
     Bits.shiftR (word Bits..&. 128) 7 + Bits.shiftR (word Bits..&. 64) 5 +
     Bits.shiftR (word Bits..&. 32) 3 +
     Bits.shiftR (word Bits..&. 16) 1 +

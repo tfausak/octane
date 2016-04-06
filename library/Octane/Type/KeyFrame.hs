@@ -29,7 +29,7 @@ instance Binary.Binary KeyFrame where
 instance DeepSeq.NFData KeyFrame
 
 instance Aeson.ToJSON KeyFrame where
-    toJSON = 
+    toJSON =
         Aeson.genericToJSON
             Aeson.defaultOptions
             { Aeson.fieldLabelModifier = drop 8

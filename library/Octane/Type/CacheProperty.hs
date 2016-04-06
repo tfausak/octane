@@ -23,7 +23,7 @@ instance Binary.Binary CacheProperty where
 instance DeepSeq.NFData CacheProperty
 
 instance Aeson.ToJSON CacheProperty where
-    toJSON = 
+    toJSON =
         Aeson.genericToJSON
             Aeson.defaultOptions
             { Aeson.fieldLabelModifier = drop 13

@@ -24,7 +24,7 @@ instance Binary.Binary Actor where
 instance DeepSeq.NFData Actor
 
 instance Aeson.ToJSON Actor where
-    toJSON = 
+    toJSON =
         Aeson.genericToJSON
             Aeson.defaultOptions
             { Aeson.fieldLabelModifier = drop 5

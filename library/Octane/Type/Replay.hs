@@ -41,7 +41,7 @@ data Replay = Replay
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Replay where
-    get = 
+    get =
         Replay <$> Binary.get <*> Binary.get <*> Binary.get <*> Binary.get <*>
         Binary.get <*>
         Binary.get <*>
@@ -80,7 +80,7 @@ instance Binary.Binary Replay where
 instance DeepSeq.NFData Replay
 
 instance Aeson.ToJSON Replay where
-    toJSON = 
+    toJSON =
         Aeson.genericToJSON
             Aeson.defaultOptions
             { Aeson.fieldLabelModifier = drop 6

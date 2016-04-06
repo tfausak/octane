@@ -26,7 +26,7 @@ instance Binary.Binary Mark where
 instance DeepSeq.NFData Mark
 
 instance Aeson.ToJSON Mark where
-    toJSON = 
+    toJSON =
         Aeson.genericToJSON
             Aeson.defaultOptions
             { Aeson.fieldLabelModifier = drop 4
