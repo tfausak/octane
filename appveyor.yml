@@ -14,10 +14,10 @@ on_success:
 - ps: |
     if ($env:APPVEYOR_REPO_TAG_NAME)
     {
-      7z a octane-windows.zip "$(./stack.exe path --local-install-root)/bin/octane.exe"
+      7z a octane.zip "$(./stack.exe path --local-install-root)/bin/octane.exe"
       curl -OutFile github-release.zip https://github.com/aktau/github-release/releases/download/v0.6.2/windows-amd64-github-release.zip
       7z x github-release.zip
-      ./bin/windows/amd64/github-release.exe upload --user tfausak --repo octane --tag $env:APPVEYOR_REPO_TAG_NAME --file octane-windows.zip --name octane-windows.zip
+      ./bin/windows/amd64/github-release.exe upload --user tfausak --repo octane --tag $env:APPVEYOR_REPO_TAG_NAME --file octane.zip --name octane-$env:APPVEYOR_REPO_TAG_NAME-windows.zip
     }
 platform: x64
 test_script:
