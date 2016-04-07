@@ -35,6 +35,8 @@ before_install:
       gunzip stack.tar.gz
       tar -x -f stack.tar --strip-components 1
       cp stack "$HOME/.local/bin/stack"
+      cd ..
+      rm -r stack
     fi
 - stack install hscolour
 cache:
