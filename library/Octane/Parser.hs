@@ -88,15 +88,19 @@ getReplication context = do
                                        , Type.replicationIsNew = Just isNew
                                        }))
                         else do
-                            -- TODO: Parse existing actor.
-                            return
-                                ( context
-                                , Just
-                                      (Type.Replication
-                                       { Type.replicationActorId = actorId
-                                       , Type.replicationIsOpen = isOpen
-                                       , Type.replicationIsNew = Just isNew
-                                       }))
+                            let maybeClassId = getClassId context actorId
+                            case maybeClassId of
+                                Nothing -> fail "TODO: Could not get class ID."
+                                Just _classId ->
+                                    -- TODO: Parse existing actor.
+                                    return
+                                        ( context
+                                        , Just
+                                              (Type.Replication
+                                               { Type.replicationActorId = actorId
+                                               , Type.replicationIsOpen = isOpen
+                                               , Type.replicationIsNew = Just isNew
+                                               }))
                 else return
                          ( context
                          , Just
@@ -141,3 +145,7 @@ getInt maxValue = do
                     go (i + 1) newValue
                 else return value
     go 0 0
+
+-- TODO: Actually implement this.
+getClassId :: Context -> BS.ByteString -> Maybe ()
+getClassId _context _actorId = Nothing
