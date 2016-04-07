@@ -6,15 +6,11 @@
 
 Octane parses [Rocket League][] replays.
 
-<https://github.com/rocket-league-replays/rocket-league-replays/wiki/Rocket-League-Replay-Parsers>
+To use Octane, first download and unpack the [latest release][] for your
+operating system. Then run `octane path-to/the.replay`.
 
-## Usage
-
-1.  Install [Stack][].
-
-2.  `stack --resolver nightly install octane`
-
-3.  `stack exec octane path/to.replay`
+The [Rocket League Replays wiki][] has links to other Rocket League replay
+parsers.
 
 [Octane]: https://github.com/tfausak/octane
 [Version badge]: https://www.stackage.org/package/octane/badge/nightly?label=version
@@ -23,5 +19,6 @@ Octane parses [Rocket League][] replays.
 [windows build]: https://ci.appveyor.com/project/TaylorFausak/octane
 [Build badge]: https://travis-ci.org/tfausak/octane.svg?branch=main
 [build]: https://travis-ci.org/tfausak/octane
-[Rocket League]: http://rocketleague.psyonix.com
-[Stack]: http://haskellstack.org
+[Rocket League]: http://www.rocketleaguegame.com
+[latest release]: https://github.com/tfausak/octane/releases/latest
+[Rocket League Replays wiki]: https://github.com/rocket-league-replays/rocket-league-replays/wiki/Rocket-League-Replay-Parsers
