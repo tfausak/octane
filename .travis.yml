@@ -3,41 +3,45 @@ addons:
     packages:
     - libgmp-dev
 after_success:
-- |
-    if test "$TRAVIS_TAG" -a "$TRAVIS_OS_NAME" = 'linux'
-    then
-      mkdir -p "$HOME/.stack/upload"
-      echo "{ \"username\": \"$HACKAGE_USERNAME\", \"password\": \"$HACKAGE_PASSWORD\" }" > "$HOME/.stack/upload/credentials.json"
-      stack upload .
-    fi
-- |
-    if test "$TRAVIS_TAG" -a "$GITHUB_TOKEN"
-    then
-      if test "$TRAVIS_OS_NAME" = 'linux'
-      then
-        curl --location 'https://github.com/aktau/github-release/releases/download/v0.6.2/linux-amd64-github-release.tar.bz2' > github-release.tar.bz2
-      else
-        curl --location 'https://github.com/aktau/github-release/releases/download/v0.6.2/darwin-amd64-github-release.tar.bz2' > github-release.tar.bz2
-      fi
-      gzip --best --to-stdout "$(stack path --local-install-root)/bin/octane" > octane.gz
-      tar -x --strip-components 3 -f github-release.tar.bz2
-      ./github-release upload --user tfausak --repo octane --tag "$TRAVIS_TAG" --file octane.gz --name "octane-$TRAVIS_TAG-$TRAVIS_OS_NAME.gz"
-    fi
+- | # Upload package to Hackage.
+  if test "$TRAVIS_TAG" -a "$TRAVIS_OS_NAME" = linux
+  then
+    mkdir -p "$HOME/.stack/upload"
+    echo "{ \"username\": \"$HACKAGE_USERNAME\", \"password\": \"$HACKAGE_PASSWORD\" }" > "$HOME/.stack/upload/credentials.json"
+    stack upload .
+  fi
+- | # Add compressed binary to GitHub release.
+  if test "$TRAVIS_TAG" -a "$GITHUB_TOKEN"
+  then
+    gzip --best --to-stdout "$(stack path --local-install-root)/bin/octane" > octane.gz
+    github-release upload \
+      --user tfausak \
+      --repo octane \
+      --tag "$TRAVIS_TAG" \
+      --file octane.gz \
+      --name "octane-$TRAVIS_TAG-$TRAVIS_OS_NAME.gz"
+  fi
 before_install:
-- |
+- | # Install github-release tool.
+  if test ! -f "$HOME/.local/bin/github-release"
+  then
+    OS=$(test "$TRAVIS_OS_NAME" = osx && echo darwin || echo "$TRAVIS_OS_NAME")
+    URL="https://github.com/aktau/github-release/releases/download/v0.6.2/$OS-amd64-github-release.tar.bz2"
+    curl --location "$URL" > github-release.tar.bz2
+    tar -x -f github-release.tar.bz2 --strip-components 3
     mkdir -p "$HOME/.local/bin"
-    export PATH="$HOME/.local/bin:$PATH"
-    if test ! -f "$HOME/.local/bin/stack"
-    then
-      mkdir -p stack
-      cd stack
-      curl --location "https://www.stackage.org/stack/$TRAVIS_OS_NAME-x86_64" > stack.tar.gz
-      gunzip stack.tar.gz
-      tar -x -f stack.tar --strip-components 1
-      cp stack "$HOME/.local/bin/stack"
-      cd ..
-      rm -r stack
-    fi
+    mv github-release "$HOME/.local/bin/"
+  fi
+- | # Install stack.
+  if test ! -f "$HOME/.local/bin/stack"
+  then
+    URL="https://www.stackage.org/stack/$TRAVIS_OS_NAME-x86_64"
+    curl --location "$URL" > stack.tar.gz
+    gzunip stack.tar.gz
+    tar -x -f stack.tar --strip-components 1
+    mkdir -p "$HOME/.local/bin"
+    mv stack "$HOME/.local/bin/"
+  fi
 - stack install hscolour
 cache:
   directories:
