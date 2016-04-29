@@ -77,36 +77,41 @@ getReplication context = do
     actorId <- Bits.getByteString (bitSize maxChannels)
     isOpen <- Bits.getBool
     if isOpen
+        then getOpenReplication context actorId
+        else getClosedReplication context actorId
+
+type ActorId = BS.ByteString
+
+getOpenReplication :: Context
+                   -> ActorId
+                   -> Bits.BitGet (Context, Type.Replication)
+getOpenReplication context actorId = do
+    isNew <- Bits.getBool
+    if isNew
         then do
-            isNew <- Bits.getBool
-            if isNew
-                then do
-                    _unknownFlag <- Bits.getBool
-                    _objectId <- getInt 32
-                    -- TODO: Parse new actor.
+            _unknownFlag <- Bits.getBool
+            _objectId <- getInt 32
+            -- TODO: Parse new actor.
+            return
+                ( context
+                , Type.Replication
+                  { Type.replicationActorId = actorId
+                  , Type.replicationIsOpen = True
+                  , Type.replicationIsNew = Just isNew
+                  })
+        else do
+            let maybeClassId = getClassId context actorId
+            case maybeClassId of
+                Nothing -> fail "TODO: Could not get class ID."
+                Just _classId ->
+                    -- TODO: Parse existing actor.
                     return
                         ( context
                         , Type.Replication
                           { Type.replicationActorId = actorId
-                          , Type.replicationIsOpen = isOpen
+                          , Type.replicationIsOpen = True
                           , Type.replicationIsNew = Just isNew
                           })
-                else do
-                    let maybeClassId = getClassId context actorId
-                    case maybeClassId of
-                        Nothing -> fail "TODO: Could not get class ID."
-                        Just _classId ->
-                            -- TODO: Parse existing actor.
-                            return
-                                ( context
-                                , Type.Replication
-                                  { Type.replicationActorId = actorId
-                                  , Type.replicationIsOpen = isOpen
-                                  , Type.replicationIsNew = Just isNew
-                                  })
-        else getClosedReplication context actorId
-
-type ActorId = BS.ByteString
 
 getClosedReplication :: Context
                      -> ActorId
