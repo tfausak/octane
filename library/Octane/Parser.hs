@@ -55,60 +55,62 @@ getFrame context = do
 
 getReplications :: Context -> Bits.BitGet [Type.Replication]
 getReplications context = do
-    (context',maybeReplication) <- getReplication context
+    (context',maybeReplication) <- getMaybeReplication context
     case maybeReplication of
         Nothing -> return []
         Just replication -> do
             replications <- getReplications context'
             return (replication : replications)
 
-getReplication :: Context -> Bits.BitGet (Context, Maybe Type.Replication)
-getReplication context = do
+getMaybeReplication :: Context -> Bits.BitGet (Context, Maybe Type.Replication)
+getMaybeReplication context = do
     hasReplication <- Bits.getBool
     if not hasReplication
         then return (context, Nothing)
         else do
-            -- TODO: Convert actor ID into an integer.
-            actorId <- Bits.getByteString (bitSize maxChannels)
-            isOpen <- Bits.getBool
-            if isOpen
+            (newContext,replication) <- getReplication context
+            return (newContext, Just replication)
+
+getReplication :: Context -> Bits.BitGet (Context, Type.Replication)
+getReplication context = do
+    -- TODO: Convert actor ID into an integer.
+    actorId <- Bits.getByteString (bitSize maxChannels)
+    isOpen <- Bits.getBool
+    if isOpen
+        then do
+            isNew <- Bits.getBool
+            if isNew
                 then do
-                    isNew <- Bits.getBool
-                    if isNew
-                        then do
-                            _unknownFlag <- Bits.getBool
-                            _objectId <- getInt 32
-                            -- TODO: Parse new actor.
+                    _unknownFlag <- Bits.getBool
+                    _objectId <- getInt 32
+                    -- TODO: Parse new actor.
+                    return
+                        ( context
+                        , Type.Replication
+                          { Type.replicationActorId = actorId
+                          , Type.replicationIsOpen = isOpen
+                          , Type.replicationIsNew = Just isNew
+                          })
+                else do
+                    let maybeClassId = getClassId context actorId
+                    case maybeClassId of
+                        Nothing -> fail "TODO: Could not get class ID."
+                        Just _classId ->
+                            -- TODO: Parse existing actor.
                             return
                                 ( context
-                                , Just
-                                      (Type.Replication
-                                       { Type.replicationActorId = actorId
-                                       , Type.replicationIsOpen = isOpen
-                                       , Type.replicationIsNew = Just isNew
-                                       }))
-                        else do
-                            let maybeClassId = getClassId context actorId
-                            case maybeClassId of
-                                Nothing -> fail "TODO: Could not get class ID."
-                                Just _classId ->
-                                    -- TODO: Parse existing actor.
-                                    return
-                                        ( context
-                                        , Just
-                                              (Type.Replication
-                                               { Type.replicationActorId = actorId
-                                               , Type.replicationIsOpen = isOpen
-                                               , Type.replicationIsNew = Just isNew
-                                               }))
-                else return
-                         ( context
-                         , Just
-                               (Type.Replication
-                                { Type.replicationActorId = actorId
-                                , Type.replicationIsOpen = isOpen
-                                , Type.replicationIsNew = Nothing
-                                }))
+                                , Type.Replication
+                                  { Type.replicationActorId = actorId
+                                  , Type.replicationIsOpen = isOpen
+                                  , Type.replicationIsNew = Just isNew
+                                  })
+        else return
+                 ( context
+                 , Type.Replication
+                   { Type.replicationActorId = actorId
+                   , Type.replicationIsOpen = isOpen
+                   , Type.replicationIsNew = Nothing
+                   })
 
 maxChannels
     :: (Integral a)
@@ -147,5 +149,6 @@ getInt maxValue = do
     go 0 0
 
 -- TODO: Actually implement this.
-getClassId :: Context -> BS.ByteString -> Maybe ()
+getClassId
+    :: Context -> BS.ByteString -> Maybe ()
 getClassId _context _actorId = Nothing
