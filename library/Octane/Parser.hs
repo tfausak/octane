@@ -89,19 +89,7 @@ getOpenReplication context actorId = do
     isNew <- Bits.getBool
     if isNew
         then getNewReplication context actorId
-        else do
-            let maybeClassId = getClassId context actorId
-            case maybeClassId of
-                Nothing -> fail "TODO: Could not get class ID."
-                Just _classId ->
-                    -- TODO: Parse existing actor.
-                    return
-                        ( context
-                        , Type.Replication
-                          { Type.replicationActorId = actorId
-                          , Type.replicationIsOpen = True
-                          , Type.replicationIsNew = Just isNew
-                          })
+        else getExistingReplication context actorId
 
 getNewReplication :: Context
                   -> ActorId
@@ -117,6 +105,23 @@ getNewReplication context actorId = do
           , Type.replicationIsOpen = True
           , Type.replicationIsNew = Just True
           })
+
+getExistingReplication :: Context
+                       -> ActorId
+                       -> Bits.BitGet (Context, Type.Replication)
+getExistingReplication context actorId = do
+    let maybeClassId = getClassId context actorId
+    case maybeClassId of
+        Nothing -> fail "TODO: Could not get class ID."
+        Just _classId ->
+            -- TODO: Parse existing actor.
+            return
+                ( context
+                , Type.Replication
+                  { Type.replicationActorId = actorId
+                  , Type.replicationIsOpen = True
+                  , Type.replicationIsNew = Just True
+                  })
 
 getClosedReplication :: Context
                      -> ActorId
