@@ -1,3 +1,7 @@
-module Octane.Version (module Paths_octane) where
+module Octane.Version where
 
-import Paths_octane (version)
+import qualified Data.Version as Version
+import qualified Paths_octane as This
+
+version :: Version.Version
+version = This.version
