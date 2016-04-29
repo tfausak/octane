@@ -51,6 +51,7 @@ library:
   other-modules: Paths_octane
   source-dirs: library
 license: MIT
+license-file: LICENSE.md
 maintainer: Taylor Fausak
 name: octane
 synopsis: Parse Rocket League replays.
