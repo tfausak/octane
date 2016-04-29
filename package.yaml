@@ -27,9 +27,9 @@ executables:
     main: Executable.hs
     source-dirs: executable
 extra-source-files:
-- CHANGELOG.md
+- CHANGELOG.markdown
 - package.yaml
-- README.md
+- README.markdown
 - stack.yaml
 ghc-options: -Wall
 github: tfausak/octane
@@ -50,7 +50,7 @@ library:
   other-modules: Paths_octane
   source-dirs: library
 license: MIT
-license-file: LICENSE.md
+license-file: LICENSE.markdown
 maintainer: Taylor Fausak
 name: octane
 synopsis: Parse Rocket League replays.
