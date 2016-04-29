@@ -104,13 +104,21 @@ getReplication context = do
                                   , Type.replicationIsOpen = isOpen
                                   , Type.replicationIsNew = Just isNew
                                   })
-        else return
-                 ( context
-                 , Type.Replication
-                   { Type.replicationActorId = actorId
-                   , Type.replicationIsOpen = isOpen
-                   , Type.replicationIsNew = Nothing
-                   })
+        else getClosedReplication context actorId
+
+type ActorId = BS.ByteString
+
+getClosedReplication :: Context
+                     -> ActorId
+                     -> Bits.BitGet (Context, Type.Replication)
+getClosedReplication context actorId = do
+    return
+        ( context
+        , Type.Replication
+          { Type.replicationActorId = actorId
+          , Type.replicationIsOpen = False
+          , Type.replicationIsNew = Nothing
+          })
 
 maxChannels
     :: (Integral a)
