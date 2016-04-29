@@ -171,7 +171,9 @@ getInt maxValue = do
                 else return value
     go 0 0
 
+type ClassId = ()
+
 -- TODO: Actually implement this.
 getClassId
-    :: Context -> BS.ByteString -> Maybe ()
+    :: Context -> BS.ByteString -> Maybe ClassId
 getClassId _context _actorId = Nothing
