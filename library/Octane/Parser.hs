@@ -7,6 +7,8 @@ import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.Function ((&))
+import qualified Data.IntMap as IntMap
+import qualified Data.Text as Text
 import qualified Octane.Type as Type
 
 parseFrames :: Type.Replay -> [Type.Frame]
@@ -14,6 +16,12 @@ parseFrames replay =
     Binary.runGet
         (replay & extractContext & getFrames & Bits.runBitGet)
         (replay & Type.replayStream & Newtype.unpack & BSL.fromStrict)
+
+buildObjectMap :: Type.Replay -> IntMap.IntMap Text.Text
+buildObjectMap replay =
+    replay & Type.replayObjects & Newtype.unpack & map Newtype.unpack &
+    zip [0 ..] &
+    IntMap.fromAscList
 
 -- TODO: This will need at least the actors and cache items.
 data Context = Context
