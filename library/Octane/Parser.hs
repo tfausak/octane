@@ -73,12 +73,14 @@ getMaybeReplication context = do
 
 getReplication :: Context -> Bits.BitGet (Context, Type.Replication)
 getReplication context = do
-    -- TODO: Convert actor ID into an integer.
-    actorId <- Bits.getByteString (bitSize maxChannels)
+    bytes <- maxChannels & bitSize & Bits.getByteString
+    let actorId = id bytes -- TODO: Convert actor ID into an integer.
     isOpen <- Bits.getBool
-    if isOpen
-        then getOpenReplication context actorId
-        else getClosedReplication context actorId
+    let go =
+            if isOpen
+                then getOpenReplication
+                else getClosedReplication
+    go context actorId
 
 type ActorId = BS.ByteString
 
@@ -87,9 +89,11 @@ getOpenReplication :: Context
                    -> Bits.BitGet (Context, Type.Replication)
 getOpenReplication context actorId = do
     isNew <- Bits.getBool
-    if isNew
-        then getNewReplication context actorId
-        else getExistingReplication context actorId
+    let go =
+            if isNew
+                then getNewReplication
+                else getExistingReplication
+    go context actorId
 
 getNewReplication :: Context
                   -> ActorId
