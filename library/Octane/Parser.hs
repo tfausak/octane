@@ -17,13 +17,17 @@ parseFrames replay =
         (replay & extractContext & getFrames & Bits.runBitGet)
         (replay & Type.replayStream & Newtype.unpack & BSL.fromStrict)
 
-buildObjectMap :: Type.Replay -> IntMap.IntMap Text.Text
+type ObjectMap = IntMap.IntMap Text.Text
+
+buildObjectMap :: Type.Replay -> ObjectMap
 buildObjectMap replay =
     replay & Type.replayObjects & Newtype.unpack & map Newtype.unpack &
     zip [0 ..] &
     IntMap.fromAscList
 
-buildClassMap :: Type.Replay -> IntMap.IntMap Text.Text
+type ClassMap = IntMap.IntMap Text.Text
+
+buildClassMap :: Type.Replay -> ClassMap
 buildClassMap replay =
     replay & Type.replayActors & Newtype.unpack &
     map
