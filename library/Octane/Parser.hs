@@ -188,5 +188,5 @@ type ClassId = ()
 
 -- TODO: Actually implement this.
 getClassId
-    :: Context -> BS.ByteString -> Maybe ClassId
+    :: Context -> ActorId -> Maybe ClassId
 getClassId _context _actorId = Nothing
