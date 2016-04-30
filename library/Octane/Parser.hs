@@ -23,6 +23,15 @@ buildObjectMap replay =
     zip [0 ..] &
     IntMap.fromAscList
 
+buildClassMap :: Type.Replay -> IntMap.IntMap Text.Text
+buildClassMap replay =
+    replay & Type.replayActors & Newtype.unpack &
+    map
+        (\x ->
+              ( x & Type.actorTag & Newtype.unpack & fromIntegral
+              , x & Type.actorName & Newtype.unpack)) &
+    IntMap.fromList
+
 -- TODO: This will need at least the actors and cache items.
 data Context = Context
     {
