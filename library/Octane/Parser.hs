@@ -28,15 +28,15 @@ extractContext _replay =
 
 getFrames :: Context -> Bits.BitGet [Type.Frame]
 getFrames context = do
-    maybeFrame <- getFrame context
+    maybeFrame <- getMaybeFrame context
     case maybeFrame of
         Nothing -> return []
         Just frame -> do
             frames <- getFrames context
             return (frame : frames)
 
-getFrame :: Context -> Bits.BitGet (Maybe Type.Frame)
-getFrame context = do
+getMaybeFrame :: Context -> Bits.BitGet (Maybe Type.Frame)
+getMaybeFrame context = do
     -- TODO: Convert time bytes into a float.
     time <- Bits.getByteString 32
     -- TODO: Convert delta bytes into a float.
@@ -44,14 +44,23 @@ getFrame context = do
     if BS.all (== 0) time && BS.all (== 0) delta
         then return Nothing
         else do
-            replications <- getReplications context
-            let frame =
-                    Type.Frame
-                    { Type.frameTime = time
-                    , Type.frameDelta = delta
-                    , Type.frameReplications = replications
-                    }
+            frame <- getFrame context time delta
             return (Just frame)
+
+type Time = BS.ByteString
+
+type Delta = BS.ByteString
+
+getFrame :: Context -> Time -> Delta -> Bits.BitGet Type.Frame
+getFrame context time delta = do
+    replications <- getReplications context
+    let frame =
+            Type.Frame
+            { Type.frameTime = time
+            , Type.frameDelta = delta
+            , Type.frameReplications = replications
+            }
+    return frame
 
 getReplications :: Context -> Bits.BitGet [Type.Replication]
 getReplications context = do
