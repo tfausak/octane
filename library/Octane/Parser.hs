@@ -95,6 +95,16 @@ buildClassPropertyMap replay =
                     in IntMap.insert k v m
     in IntMap.foldrWithKey f IntMap.empty classMap
 
+getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
+getClass objectMap objectId =
+    case IntMap.lookup objectId objectMap of
+        Nothing -> Nothing
+        Just name ->
+            if name == Text.pack "TAGame.Default__PRI_TA" ||
+               Text.isInfixOf (Text.pack "Archetype") name
+                then getClass objectMap (objectId - 1)
+                else Just (objectId, name)
+
 -- TODO: This will need at least the actors and cache items.
 data Context = Context
     {
