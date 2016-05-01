@@ -8,6 +8,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.Function ((&))
 import qualified Data.IntMap as IntMap
+import qualified Data.Maybe as Maybe
 import qualified Data.Text as Text
 import qualified Octane.Type as Type
 
@@ -45,6 +46,36 @@ buildCache replay =
         (\x ->
               (x & Type.cacheItemTag & Newtype.unpack & fromIntegral, x)) &
     IntMap.fromList
+
+type PropertyMap = IntMap.IntMap Text.Text
+
+buildPropertyMap :: ObjectMap -> Cache -> Int -> PropertyMap
+buildPropertyMap objectMap cache key =
+    case IntMap.lookup key cache of
+        Nothing -> IntMap.empty
+        Just cacheItem ->
+            let parentId =
+                    cacheItem & Type.cacheItemStart & Newtype.unpack &
+                    fromIntegral
+                properties =
+                    cacheItem & Type.cacheItemCacheProperties & Newtype.unpack &
+                    map
+                        (\x ->
+                              ( x & Type.cachePropertyIndex & Newtype.unpack &
+                                fromIntegral
+                              , x & Type.cachePropertyTag & Newtype.unpack &
+                                fromIntegral)) &
+                    Maybe.mapMaybe
+                        (\(k,v) ->
+                              case IntMap.lookup v objectMap of
+                                  Nothing -> Nothing
+                                  Just name -> Just (k, name)) &
+                    IntMap.fromList
+            in if key == parentId
+                   then properties
+                   else IntMap.union
+                            properties
+                            (buildPropertyMap objectMap cache parentId)
 
 -- TODO: This will need at least the actors and cache items.
 data Context = Context
