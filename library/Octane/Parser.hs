@@ -105,15 +105,14 @@ getClass objectMap objectId =
                 then getClass objectMap (objectId - 1)
                 else Just (objectId, name)
 
--- TODO: This will need at least the actors and cache items.
 data Context = Context
-    {
+    { contextObjectMap :: ObjectMap
     }
 
 extractContext :: Type.Replay -> Context
-extractContext _replay =
+extractContext replay =
     Context
-    {
+    { contextObjectMap = buildObjectMap replay
     }
 
 getFrames :: Context -> Bits.BitGet [Type.Frame]
@@ -212,10 +211,11 @@ getExistingReplication :: Context
                        -> ActorId
                        -> Bits.BitGet (Context, Type.Replication)
 getExistingReplication context actorId = do
-    let maybeClassId = getClassId context actorId
-    case maybeClassId of
-        Nothing -> fail "TODO: Could not get class ID."
-        Just _classId ->
+    let maybeClass = getClass (contextObjectMap context) actorId
+    case maybeClass of
+        Nothing ->
+            fail ("TODO: Could not get class for object " ++ show actorId)
+        Just (_classId,_className) ->
             -- TODO: Parse existing actor.
             return
                 ( context
@@ -272,10 +272,3 @@ getInt maxValue = do
                     go (i + 1) newValue
                 else return value
     go 0 0
-
-type ClassId = ()
-
--- TODO: Actually implement this.
-getClassId
-    :: Context -> ActorId -> Maybe ClassId
-getClassId _context _actorId = Nothing
