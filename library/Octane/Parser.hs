@@ -36,6 +36,16 @@ buildClassMap replay =
               , x & Type.actorName & Newtype.unpack)) &
     IntMap.fromList
 
+type Cache = IntMap.IntMap Type.CacheItem
+
+buildCache :: Type.Replay -> Cache
+buildCache replay =
+    replay & Type.replayCacheItems & Newtype.unpack &
+    map
+        (\x ->
+              (x & Type.cacheItemTag & Newtype.unpack & fromIntegral, x)) &
+    IntMap.fromList
+
 -- TODO: This will need at least the actors and cache items.
 data Context = Context
     {
