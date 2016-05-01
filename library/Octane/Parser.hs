@@ -77,6 +77,24 @@ buildPropertyMap objectMap cache key =
                             properties
                             (buildPropertyMap objectMap cache parentId)
 
+type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
+
+buildClassPropertyMap :: Type.Replay -> ClassPropertyMap
+buildClassPropertyMap replay =
+    let objectMap = buildObjectMap replay
+        classMap = buildClassMap replay
+        cache = buildCache replay
+        f k _ m =
+            case IntMap.lookup k cache of
+                Nothing -> m
+                Just cacheItem ->
+                    let x =
+                            cacheItem & Type.cacheItemTag & Newtype.unpack &
+                            fromIntegral
+                        v = buildPropertyMap objectMap cache x
+                    in IntMap.insert k v m
+    in IntMap.foldrWithKey f IntMap.empty classMap
+
 -- TODO: This will need at least the actors and cache items.
 data Context = Context
     {
