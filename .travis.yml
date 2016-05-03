@@ -42,7 +42,6 @@ before_install:
     mkdir -p "$HOME/.local/bin"
     mv stack "$HOME/.local/bin/"
   fi
-- stack install hscolour
 cache:
   directories:
   - $HOME/.local/bin
