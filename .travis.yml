@@ -57,6 +57,7 @@ os:
 - linux
 - osx
 script:
+- stack setup
 - stack --no-terminal build --bench --no-run-benchmarks --pedantic --test
 - stack sdist
 sudo: false
