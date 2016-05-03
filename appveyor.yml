@@ -18,6 +18,7 @@ on_success:
     }
 platform: x64
 test_script:
+- stack.exe setup
 - stack.exe --no-terminal build --bench --no-run-benchmarks --pedantic --test
 - stack.exe sdist
 version: '{build}'
