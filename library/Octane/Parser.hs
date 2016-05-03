@@ -14,9 +14,9 @@ import qualified Octane.Type as Type
 
 parseFrames :: Type.Replay -> [Type.Frame]
 parseFrames replay =
-    Binary.runGet
-        (replay & extractContext & getFrames & Bits.runBitGet)
-        (replay & Type.replayStream & Newtype.unpack & BSL.fromStrict)
+    let get = replay & extractContext & getFrames & Bits.runBitGet
+        stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
+    in Binary.runGet get stream
 
 type ObjectMap = IntMap.IntMap Text.Text
 
