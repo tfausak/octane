@@ -1,6 +1,3 @@
-build_script:
-- stack.exe --no-terminal build --bench --no-run-benchmarks --no-run-tests
-  --pedantic --test
 cache:
 - c:\s
 environment:
@@ -21,6 +18,6 @@ on_success:
     }
 platform: x64
 test_script:
-- stack.exe --no-terminal build --pedantic --test
+- stack.exe --no-terminal build --bench --no-run-benchmarks --pedantic --test
 - stack.exe sdist
 version: '{build}'
