@@ -38,7 +38,7 @@ library:
   - aeson >=0.9 && <0.12
   - aeson-pretty ==0.7.*
   - autoexporter ==0.2.*
-  - base ==4.*
+  - base >=4.8 && <4.10
   - binary ==0.7.*
   - binary-bits ==0.5.*
   - bytestring ==0.10.*
