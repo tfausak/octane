@@ -11,27 +11,19 @@ after_success:
     stack upload .
   fi
 - | # Add compressed binary to GitHub release.
-  if test "$TRAVIS_TAG" -a "$GITHUB_TOKEN"
+  if test "$TRAVIS_TAG"
   then
     gzip --best --to-stdout "$(stack path --local-install-root)/bin/octane" > octane.gz
-    github-release upload \
-      --user tfausak \
+    stack install github-release
+    stack exec -- github-release upload \
+      --token "$GITHUB_TOKEN" \
+      --owner tfausak \
       --repo octane \
       --tag "$TRAVIS_TAG" \
       --file octane.gz \
       --name "octane-$TRAVIS_TAG-$TRAVIS_OS_NAME.gz"
   fi
 before_install:
-- | # Install github-release tool.
-  if test ! -f "$HOME/.local/bin/github-release"
-  then
-    OS=$(test "$TRAVIS_OS_NAME" = osx && echo darwin || echo "$TRAVIS_OS_NAME")
-    URL="https://github.com/aktau/github-release/releases/download/v0.6.2/$OS-amd64-github-release.tar.bz2"
-    curl --location "$URL" > github-release.tar.bz2
-    tar -x -f github-release.tar.bz2 --strip-components 3
-    mkdir -p "$HOME/.local/bin"
-    mv github-release "$HOME/.local/bin/"
-  fi
 - | # Install stack.
   if test ! -f "$HOME/.local/bin/stack"
   then
