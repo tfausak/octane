@@ -1,6 +1,6 @@
 build_script:
-- ./stack.exe setup
-- ./stack.exe --no-terminal build --bench --only-dependencies --test
+- stack.exe setup
+- stack.exe --no-terminal build --bench --only-dependencies --test
 cache:
 - c:\s
 environment:
@@ -27,6 +27,6 @@ on_success:
     }
 platform: x64
 test_script:
-- ./stack.exe --no-terminal build --bench --no-run-benchmarks --pedantic --test
-- ./stack.exe sdist
+- stack.exe --no-terminal build --bench --no-run-benchmarks --pedantic --test
+- stack.exe sdist
 version: '{build}'
