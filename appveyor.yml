@@ -2,7 +2,7 @@ build_script:
 - stack.exe setup
 - stack.exe --no-terminal build --bench --only-dependencies --test
 cache:
-- c:\s
+- 'c:\s -> stack.yaml'
 environment:
   GITHUB_TOKEN:
     secure: CTD2sGkh3EQaLuMJybGza6XNaI+Ews42mdNy9p3U+eShkrjIwYrbUVKnpzra8kIZ
