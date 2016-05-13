@@ -9,6 +9,7 @@ import Data.Function ((&))
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
+-- | A property on an item in the class net cache map.
 data CacheProperty = CacheProperty
     { cachePropertyIndex :: Word32LE.Word32LE
     , cachePropertyTag :: Word32LE.Word32LE

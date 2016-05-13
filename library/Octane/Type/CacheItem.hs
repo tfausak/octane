@@ -11,6 +11,7 @@ import qualified Octane.Type.CacheProperty as CacheProperty
 import qualified Octane.Type.Primitive.List as List
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
+-- | An item in the class net cache map.
 data CacheItem = CacheItem
     { cacheItemTag :: Word32LE.Word32LE
     , cacheItemStart :: Word32LE.Word32LE

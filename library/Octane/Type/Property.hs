@@ -17,6 +17,9 @@ import qualified Octane.Type.Primitive.PCString as PCString
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 import qualified Octane.Type.Primitive.Word64LE as Word64LE
 
+-- | A metadata property. All properties have a size, but only some actually
+-- | use it. The value stored in the property can be an array, a boolean, and
+-- | so on.
 data Property
     = ArrayProperty Word64LE.Word64LE
                     (List.List (Dictionary.Dictionary Property))
