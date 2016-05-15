@@ -37,63 +37,63 @@ buildClassMap replay =
               , x & Type.actorName & Newtype.unpack)) &
     IntMap.fromList
 
-type Cache = IntMap.IntMap Type.CacheItem
+data CacheNode = CacheNode
+    { cacheNodeClassId :: Int
+    , cacheNodeParentCacheId :: Int
+    , cacheNodeCacheId :: Int
+    , cacheNodeProperties :: IntMap.IntMap Text.Text
+    }
+
+-- { class id => node }
+type Cache = IntMap.IntMap CacheNode
 
 buildCache :: Type.Replay -> Cache
 buildCache replay =
-    replay & Type.replayCacheItems & Newtype.unpack &
-    map
-        (\x ->
-              (x & Type.cacheItemClassId & Newtype.unpack & fromIntegral, x)) &
-    IntMap.fromList
+    let objectMap = buildObjectMap replay
+    in  replay
+        & Type.replayCacheItems
+        & Newtype.unpack
+        & map (\ item -> CacheNode
+            { cacheNodeClassId = item & Type.cacheItemClassId & Newtype.unpack & fromIntegral
+            , cacheNodeParentCacheId = item & Type.cacheItemParentCacheId & Newtype.unpack & fromIntegral
+            , cacheNodeCacheId = item & Type.cacheItemCacheId & Newtype.unpack & fromIntegral
+            , cacheNodeProperties = item
+                & Type.cacheItemCacheProperties
+                & Newtype.unpack
+                & map (\ property ->
+                    ( property & Type.cachePropertyStreamId & Newtype.unpack & fromIntegral
+                    , property
+                        & Type.cachePropertyObjectId
+                        & Newtype.unpack
+                        & fromIntegral
+                        & (\ objectId -> IntMap.lookup objectId objectMap)
+                        & Maybe.fromJust
+                    ))
+                & IntMap.fromList
+            })
+        & map (\ node -> (cacheNodeClassId node, node))
+        & IntMap.fromList
 
-type PropertyMap = IntMap.IntMap Text.Text
-
-buildPropertyMap :: ObjectMap -> Cache -> Int -> PropertyMap
-buildPropertyMap objectMap cache key =
-    case IntMap.lookup key cache of
-        Nothing -> IntMap.empty
-        Just cacheItem ->
-            let parentId =
-                    cacheItem & Type.cacheItemParentCacheId & Newtype.unpack &
-                    fromIntegral
-                properties =
-                    cacheItem & Type.cacheItemCacheProperties & Newtype.unpack &
-                    map
-                        (\x ->
-                              ( x & Type.cachePropertyObjectId & Newtype.unpack &
-                                fromIntegral
-                              , x & Type.cachePropertyStreamId & Newtype.unpack &
-                                fromIntegral)) &
-                    Maybe.mapMaybe
-                        (\(k,v) ->
-                              case IntMap.lookup v objectMap of
-                                  Nothing -> Nothing
-                                  Just name -> Just (k, name)) &
-                    IntMap.fromList
-            in if key == parentId
-                   then properties
-                   else IntMap.union
-                            properties
-                            (buildPropertyMap objectMap cache parentId)
-
+-- { class stream id => { property stream id => name } }
 type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
+
+getPropertyMap :: Cache -> Int -> IntMap.IntMap Text.Text
+getPropertyMap cache cacheId =
+    let cache' = cache & IntMap.toList & map snd & map (\ node -> (cacheNodeCacheId node, node)) & IntMap.fromList
+    in  case IntMap.lookup cacheId cache' of
+        Nothing -> IntMap.empty
+        Just node -> if cacheNodeParentCacheId node == 0 || cacheNodeParentCacheId node == cacheId
+            then cacheNodeProperties node
+            else IntMap.union (cacheNodeProperties node) (getPropertyMap cache (cacheNodeParentCacheId node))
 
 buildClassPropertyMap :: Type.Replay -> ClassPropertyMap
 buildClassPropertyMap replay =
-    let objectMap = buildObjectMap replay
-        classMap = buildClassMap replay
+    let classMap = buildClassMap replay
         cache = buildCache replay
-        f k _ m =
-            case IntMap.lookup k cache of
-                Nothing -> m
-                Just cacheItem ->
-                    let x =
-                            cacheItem & Type.cacheItemClassId & Newtype.unpack &
-                            fromIntegral
-                        v = buildPropertyMap objectMap cache x
-                    in IntMap.insert k v m
-    in IntMap.foldrWithKey f IntMap.empty classMap
+        f streamId _ m = case IntMap.lookup streamId cache of
+            Nothing -> m
+            Just node -> IntMap.insert streamId (getPropertyMap cache (cacheNodeCacheId node)) m
+    in  IntMap.foldrWithKey f IntMap.empty classMap
 
 getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
 getClass objectMap objectId =
@@ -107,12 +107,14 @@ getClass objectMap objectId =
 
 data Context = Context
     { contextObjectMap :: ObjectMap
+    , contextClassPropertyMap :: ClassPropertyMap
     }
 
 extractContext :: Type.Replay -> Context
 extractContext replay =
     Context
     { contextObjectMap = buildObjectMap replay
+    , contextClassPropertyMap = buildClassPropertyMap replay
     }
 
 getFrames :: Context -> Bits.BitGet [Type.Frame]
@@ -197,8 +199,15 @@ getNewReplication :: Context
                   -> Bits.BitGet (Context, Type.Replication)
 getNewReplication context actorId = do
     _unknownFlag <- Bits.getBool
-    _objectId <- getInt 32
-    -- TODO: Parse new actor.
+    objectId <- getInt 32
+    let _objectName = context & contextObjectMap & IntMap.lookup objectId & Maybe.fromJust
+    let (_classId, _className) = getClass (contextObjectMap context) objectId & Maybe.fromJust
+    -- TODO: Parse class initialization.
+    -- let classInit = getClassInit className
+    -- https://github.com/rustyfausak/gizmo-elixir/blob/10452da/lib/gizmo/netstream/class_init.ex#L36
+    -- TODO: Add all this to the context.
+    -- { unknownFlag, objectId, objectName, classId, className, classInit }
+    -- https://github.com/rustyfausak/gizmo-elixir/blob/10452da/lib/gizmo/netstream/replication.ex#L42
     return
         ( context
         , Type.Replication
