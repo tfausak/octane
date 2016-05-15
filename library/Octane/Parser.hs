@@ -33,7 +33,7 @@ buildClassMap replay =
     replay & Type.replayActors & Newtype.unpack &
     map
         (\x ->
-              ( x & Type.actorTag & Newtype.unpack & fromIntegral
+              ( x & Type.actorStreamId & Newtype.unpack & fromIntegral
               , x & Type.actorName & Newtype.unpack)) &
     IntMap.fromList
 
@@ -44,7 +44,7 @@ buildCache replay =
     replay & Type.replayCacheItems & Newtype.unpack &
     map
         (\x ->
-              (x & Type.cacheItemTag & Newtype.unpack & fromIntegral, x)) &
+              (x & Type.cacheItemClassId & Newtype.unpack & fromIntegral, x)) &
     IntMap.fromList
 
 type PropertyMap = IntMap.IntMap Text.Text
@@ -55,15 +55,15 @@ buildPropertyMap objectMap cache key =
         Nothing -> IntMap.empty
         Just cacheItem ->
             let parentId =
-                    cacheItem & Type.cacheItemStart & Newtype.unpack &
+                    cacheItem & Type.cacheItemParentCacheId & Newtype.unpack &
                     fromIntegral
                 properties =
                     cacheItem & Type.cacheItemCacheProperties & Newtype.unpack &
                     map
                         (\x ->
-                              ( x & Type.cachePropertyIndex & Newtype.unpack &
+                              ( x & Type.cachePropertyObjectId & Newtype.unpack &
                                 fromIntegral
-                              , x & Type.cachePropertyTag & Newtype.unpack &
+                              , x & Type.cachePropertyStreamId & Newtype.unpack &
                                 fromIntegral)) &
                     Maybe.mapMaybe
                         (\(k,v) ->
@@ -89,7 +89,7 @@ buildClassPropertyMap replay =
                 Nothing -> m
                 Just cacheItem ->
                     let x =
-                            cacheItem & Type.cacheItemTag & Newtype.unpack &
+                            cacheItem & Type.cacheItemClassId & Newtype.unpack &
                             fromIntegral
                         v = buildPropertyMap objectMap cache x
                     in IntMap.insert k v m

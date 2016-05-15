@@ -14,14 +14,14 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 -- | (like 0).
 data Actor = Actor
     { actorName :: PCString.PCString
-    , actorTag :: Word32LE.Word32LE
+    , actorStreamId :: Word32LE.Word32LE
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Actor where
     get = Actor <$> Binary.get <*> Binary.get
     put actor = do
         actor & actorName & Binary.put
-        actor & actorTag & Binary.put
+        actor & actorStreamId & Binary.put
 
 instance DeepSeq.NFData Actor
 

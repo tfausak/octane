@@ -13,18 +13,18 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | An item in the class net cache map.
 data CacheItem = CacheItem
-    { cacheItemTag :: Word32LE.Word32LE
-    , cacheItemStart :: Word32LE.Word32LE
-    , cacheItemEnd :: Word32LE.Word32LE
+    { cacheItemClassId :: Word32LE.Word32LE
+    , cacheItemParentCacheId :: Word32LE.Word32LE
+    , cacheItemCacheId :: Word32LE.Word32LE
     , cacheItemCacheProperties :: List.List CacheProperty.CacheProperty
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary CacheItem where
     get = CacheItem <$> Binary.get <*> Binary.get <*> Binary.get <*> Binary.get
     put cacheItem = do
-        cacheItem & cacheItemTag & Binary.put
-        cacheItem & cacheItemStart & Binary.put
-        cacheItem & cacheItemEnd & Binary.put
+        cacheItem & cacheItemClassId & Binary.put
+        cacheItem & cacheItemParentCacheId & Binary.put
+        cacheItem & cacheItemCacheId & Binary.put
         cacheItem & cacheItemCacheProperties & Binary.put
 
 instance DeepSeq.NFData CacheItem

@@ -11,15 +11,15 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A property on an item in the class net cache map.
 data CacheProperty = CacheProperty
-    { cachePropertyIndex :: Word32LE.Word32LE
-    , cachePropertyTag :: Word32LE.Word32LE
+    { cachePropertyObjectId :: Word32LE.Word32LE
+    , cachePropertyStreamId :: Word32LE.Word32LE
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary CacheProperty where
     get = CacheProperty <$> Binary.get <*> Binary.get
     put cacheProperty = do
-        cacheProperty & cachePropertyIndex & Binary.put
-        cacheProperty & cachePropertyTag & Binary.put
+        cacheProperty & cachePropertyObjectId & Binary.put
+        cacheProperty & cachePropertyStreamId & Binary.put
 
 instance DeepSeq.NFData CacheProperty
 
