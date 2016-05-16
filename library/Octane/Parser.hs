@@ -332,7 +332,7 @@ getExistingReplication context actorId = do
                 , Type.Replication
                   { Type.replicationActorId = actorId
                   , Type.replicationIsOpen = True
-                  , Type.replicationIsNew = Just True
+                  , Type.replicationIsNew = Just False
                   })
 
 getClosedReplication :: Context
