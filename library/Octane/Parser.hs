@@ -14,10 +14,10 @@ import qualified Data.Text as Text
 import qualified Octane.Type as Type
 
 parseFrames :: Type.Replay -> [Type.Frame]
-parseFrames replay =
+parseFrames replay = do
     let get = replay & extractContext & getFrames & Bits.runBitGet
         stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
-    in Binary.runGet get stream
+    Binary.runGet get stream
 
 getFrames :: Context -> Bits.BitGet [Type.Frame]
 getFrames context = do
