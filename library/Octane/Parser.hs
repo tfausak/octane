@@ -30,11 +30,11 @@ getFrames context = do
 
 getMaybeFrame :: Context -> Bits.BitGet (Maybe Type.Frame)
 getMaybeFrame context = do
-    -- TODO: Convert time bytes into a float.
-    time <- Bits.getByteString 32
-    -- TODO: Convert delta bytes into a float.
-    delta <- Bits.getByteString 32
-    if BS.all (== 0) time && BS.all (== 0) delta
+    timeBytes <- Bits.getByteString 32
+    let time = byteStringToFloat timeBytes
+    deltaBytes <- Bits.getByteString 32
+    let delta = byteStringToFloat deltaBytes
+    if BS.all (== 0) timeBytes && BS.all (== 0) deltaBytes
         then return Nothing
         else do
             frame <- getFrame context time delta
@@ -143,7 +143,6 @@ getClosedReplication context actorId = do
           , Type.replicationIsNew = Nothing
           })
 
---
 -- { stream id => object name }
 type ObjectMap = IntMap.IntMap Text.Text
 
@@ -268,9 +267,9 @@ extractContext replay =
     , contextClassPropertyMap = buildClassPropertyMap replay
     }
 
-type Time = BS.ByteString
+type Time = Float
 
-type Delta = BS.ByteString
+type Delta = Float
 
 type ActorId = Int
 
@@ -319,6 +318,10 @@ maxVectorValue = 20 -- 19?
 byteStringToInt
     :: BS.ByteString -> Int
 byteStringToInt _ = 0
+
+-- TODO
+byteStringToFloat :: BS.ByteString -> Float
+byteStringToFloat _ = 0.0
 
 getVector :: Bits.BitGet Vector
 getVector = do
