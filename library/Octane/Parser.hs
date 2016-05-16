@@ -19,106 +19,6 @@ parseFrames replay =
         stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
     in Binary.runGet get stream
 
--- { stream id => object name }
-type ObjectMap = IntMap.IntMap Text.Text
-
-buildObjectMap :: Type.Replay -> ObjectMap
-buildObjectMap replay =
-    replay & Type.replayObjects & Newtype.unpack & map Newtype.unpack &
-    zip [0 ..] &
-    IntMap.fromAscList
-
--- { stream id => class name }
-type ClassMap = IntMap.IntMap Text.Text
-
-buildClassMap :: Type.Replay -> ClassMap
-buildClassMap replay =
-    replay & Type.replayActors & Newtype.unpack &
-    map
-        (\x ->
-              ( x & Type.actorStreamId & Newtype.unpack & fromIntegral
-              , x & Type.actorName & Newtype.unpack)) &
-    IntMap.fromList
-
-data CacheNode = CacheNode
-    { cacheNodeClassId :: Int
-    , cacheNodeParentCacheId :: Int
-    , cacheNodeCacheId :: Int
-    , cacheNodeProperties :: IntMap.IntMap Text.Text
-    }
-
--- { class id => node }
-type Cache = IntMap.IntMap CacheNode
-
-buildCache :: Type.Replay -> Cache
-buildCache replay =
-    let objectMap = buildObjectMap replay
-    in  replay
-        & Type.replayCacheItems
-        & Newtype.unpack
-        & map (\ item -> CacheNode
-            { cacheNodeClassId = item & Type.cacheItemClassId & Newtype.unpack & fromIntegral
-            , cacheNodeParentCacheId = item & Type.cacheItemParentCacheId & Newtype.unpack & fromIntegral
-            , cacheNodeCacheId = item & Type.cacheItemCacheId & Newtype.unpack & fromIntegral
-            , cacheNodeProperties = item
-                & Type.cacheItemCacheProperties
-                & Newtype.unpack
-                & map (\ property ->
-                    ( property & Type.cachePropertyStreamId & Newtype.unpack & fromIntegral
-                    , property
-                        & Type.cachePropertyObjectId
-                        & Newtype.unpack
-                        & fromIntegral
-                        & (\ objectId -> IntMap.lookup objectId objectMap)
-                        & Maybe.fromJust
-                    ))
-                & IntMap.fromList
-            })
-        & map (\ node -> (cacheNodeClassId node, node))
-        & IntMap.fromList
-
--- { class stream id => { property stream id => name } }
-type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
-
-getPropertyMap :: Cache -> Int -> IntMap.IntMap Text.Text
-getPropertyMap cache cacheId = case IntMap.lookup cacheId cache of
-        Nothing -> IntMap.empty
-        Just node -> if cacheNodeParentCacheId node == 0 || cacheNodeParentCacheId node == cacheId
-            then cacheNodeProperties node
-            else IntMap.union (cacheNodeProperties node) (getPropertyMap cache (cacheNodeParentCacheId node))
-
-buildClassPropertyMap :: Type.Replay -> ClassPropertyMap
-buildClassPropertyMap replay =
-    let classMap = buildClassMap replay
-        cacheByStreamId = buildCache replay
-        cacheByCacheId = cacheByStreamId & IntMap.toList & map snd & map (\ node -> (cacheNodeCacheId node, node)) & IntMap.fromList
-        f streamId _ m = case IntMap.lookup streamId cacheByStreamId of
-            Nothing -> m
-            Just node -> IntMap.insert streamId (getPropertyMap cacheByCacheId (cacheNodeCacheId node)) m
-    in  IntMap.foldrWithKey f IntMap.empty classMap
-
-getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
-getClass objectMap objectId =
-    case IntMap.lookup objectId objectMap of
-        Nothing -> Nothing
-        Just name ->
-            if name == Text.pack "TAGame.Default__PRI_TA" ||
-               Text.isInfixOf (Text.pack "Archetype") name
-                then getClass objectMap (objectId - 1)
-                else Just (objectId, name)
-
-data Context = Context
-    { contextObjectMap :: ObjectMap
-    , contextClassPropertyMap :: ClassPropertyMap
-    }
-
-extractContext :: Type.Replay -> Context
-extractContext replay =
-    Context
-    { contextObjectMap = buildObjectMap replay
-    , contextClassPropertyMap = buildClassPropertyMap replay
-    }
-
 getFrames :: Context -> Bits.BitGet [Type.Frame]
 getFrames context = do
     maybeFrame <- getMaybeFrame context
@@ -139,10 +39,6 @@ getMaybeFrame context = do
         else do
             frame <- getFrame context time delta
             return (Just frame)
-
-type Time = BS.ByteString
-
-type Delta = BS.ByteString
 
 getFrame :: Context -> Time -> Delta -> Bits.BitGet Type.Frame
 getFrame context time delta = do
@@ -183,8 +79,6 @@ getReplication context = do
                 else getClosedReplication
     go context actorId
 
-type ActorId = Int
-
 getOpenReplication :: Context
                    -> ActorId
                    -> Bits.BitGet (Context, Type.Replication)
@@ -196,115 +90,17 @@ getOpenReplication context actorId = do
                 else getExistingReplication
     go context actorId
 
-data Vector = Vector
-    { vectorX :: Int
-    , vectorY :: Int
-    , vectorZ :: Int
-    }
-
-data ClassInit = ClassInit
-    { classInitLocation :: Maybe Vector
-    , classInitRotation :: Maybe Vector
-    }
-
-classesWithLocation :: Set.Set Text.Text
-classesWithLocation =
-    [ "Engine.GameReplicationInfo"
-    , "TAGame.Ball_TA"
-    , "TAGame.CarComponent_Boost_TA"
-    , "TAGame.CarComponent_Dodge_TA"
-    , "TAGame.CarComponent_DoubleJump_TA"
-    , "TAGame.CarComponent_FlipCar_TA"
-    , "TAGame.CarComponent_Jump_TA"
-    , "TAGame.Car_TA"
-    , "TAGame.Default__PRI_TA"
-    , "TAGame.GRI_TA"
-    , "TAGame.GameEvent_Season_TA"
-    , "TAGame.GameEvent_SoccarPrivate_TA"
-    , "TAGame.GameEvent_SoccarSplitscreen_TA"
-    , "TAGame.GameEvent_Soccar_TA"
-    , "TAGame.PRI_TA"
-    , "TAGame.Team_Soccar_TA"
-    , "TAGame.Team_TA"
-    ] & map Text.pack & Set.fromList
-
-classesWithRotation :: Set.Set Text.Text
-classesWithRotation =
-    [ "TAGame.Ball_TA"
-    , "TAGame.Car_Season_TA"
-    , "TAGame.Car_TA"
-    ] & map Text.pack & Set.fromList
-
-maxVectorValue :: Int
-maxVectorValue = 20 -- 19?
-
--- TODO
-byteStringToInt :: BS.ByteString -> Int
-byteStringToInt _ = 0
-
-getVector :: Bits.BitGet Vector
-getVector = do
-    numBits <- getInt maxVectorValue
-    let bias = 2 * (numBits + 1)
-    let maxBits = numBits + 2
-    dx <- Bits.getByteString maxBits
-    dy <- Bits.getByteString maxBits
-    dz <- Bits.getByteString maxBits
-    return Vector
-        { vectorX = byteStringToInt dx - bias
-        , vectorY = byteStringToInt dy - bias
-        , vectorZ = byteStringToInt dz - bias
-        }
-
--- TODO: These ints might be backwards.
-getVectorBytewise :: Bits.BitGet Vector
-getVectorBytewise = do
-    hasX <- Bits.getBool
-    x <- if hasX
-        then do
-            word <- Bits.getWord8 8
-            return (fromIntegral word)
-        else return 0
-    hasY <- Bits.getBool
-    y <- if hasY
-        then do
-            word <- Bits.getWord8 8
-            return (fromIntegral word)
-        else return 0
-    hasZ <- Bits.getBool
-    z <- if hasZ
-        then do
-            word <- Bits.getWord8 8
-            return (fromIntegral word)
-        else return 0
-    return Vector
-        { vectorX = x
-        , vectorY = y
-        , vectorZ = z
-        }
-
-getClassInit :: Text.Text -> Bits.BitGet ClassInit
-getClassInit className = do
-    location <- if Set.member className classesWithLocation
-        then do
-            vector <- getVector
-            return (Just vector)
-        else return Nothing
-    rotation <- if Set.member className classesWithRotation
-        then do
-            vector <- getVectorBytewise
-            return (Just vector)
-        else return Nothing
-    return ClassInit { classInitLocation = location, classInitRotation = rotation }
-
 getNewReplication :: Context
                   -> ActorId
                   -> Bits.BitGet (Context, Type.Replication)
 getNewReplication context actorId = do
     _unknownFlag <- Bits.getBool
     objectId <- getInt 32
-    let _objectName = context & contextObjectMap & IntMap.lookup objectId & Maybe.fromJust
-    let (_classId, className) = getClass (contextObjectMap context) objectId & Maybe.fromJust
+    let _objectName =
+            context & contextObjectMap & IntMap.lookup objectId &
+            Maybe.fromJust
+    let (_classId,className) =
+            getClass (contextObjectMap context) objectId & Maybe.fromJust
     let _classInit = getClassInit className
     -- TODO: Add all this to the context.
     -- { unknownFlag, objectId, objectName, classId, className, classInit }
@@ -346,6 +142,250 @@ getClosedReplication context actorId = do
           , Type.replicationIsOpen = False
           , Type.replicationIsNew = Nothing
           })
+
+--
+-- { stream id => object name }
+type ObjectMap = IntMap.IntMap Text.Text
+
+buildObjectMap :: Type.Replay -> ObjectMap
+buildObjectMap replay =
+    replay & Type.replayObjects & Newtype.unpack & map Newtype.unpack &
+    zip [0 ..] &
+    IntMap.fromAscList
+
+-- { stream id => class name }
+type ClassMap = IntMap.IntMap Text.Text
+
+buildClassMap :: Type.Replay -> ClassMap
+buildClassMap replay =
+    replay & Type.replayActors & Newtype.unpack &
+    map
+        (\x ->
+              ( x & Type.actorStreamId & Newtype.unpack & fromIntegral
+              , x & Type.actorName & Newtype.unpack)) &
+    IntMap.fromList
+
+data CacheNode = CacheNode
+    { cacheNodeClassId :: Int
+    , cacheNodeParentCacheId :: Int
+    , cacheNodeCacheId :: Int
+    , cacheNodeProperties :: IntMap.IntMap Text.Text
+    }
+
+-- { class id => node }
+type Cache = IntMap.IntMap CacheNode
+
+buildCache :: Type.Replay -> Cache
+buildCache replay =
+    let objectMap = buildObjectMap replay
+    in replay & Type.replayCacheItems & Newtype.unpack &
+       map
+           (\item ->
+                 CacheNode
+                 { cacheNodeClassId = item & Type.cacheItemClassId &
+                   Newtype.unpack &
+                   fromIntegral
+                 , cacheNodeParentCacheId = item & Type.cacheItemParentCacheId &
+                   Newtype.unpack &
+                   fromIntegral
+                 , cacheNodeCacheId = item & Type.cacheItemCacheId &
+                   Newtype.unpack &
+                   fromIntegral
+                 , cacheNodeProperties = item & Type.cacheItemCacheProperties &
+                   Newtype.unpack &
+                   map
+                       (\property ->
+                             ( property & Type.cachePropertyStreamId &
+                               Newtype.unpack &
+                               fromIntegral
+                             , property & Type.cachePropertyObjectId &
+                               Newtype.unpack &
+                               fromIntegral &
+                               (\objectId ->
+                                     IntMap.lookup objectId objectMap) &
+                               Maybe.fromJust)) &
+                   IntMap.fromList
+                 }) &
+       map
+           (\node ->
+                 (cacheNodeClassId node, node)) &
+       IntMap.fromList
+
+-- { class stream id => { property stream id => name } }
+type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
+
+getPropertyMap :: Cache -> Int -> IntMap.IntMap Text.Text
+getPropertyMap cache cacheId =
+    case IntMap.lookup cacheId cache of
+        Nothing -> IntMap.empty
+        Just node ->
+            if cacheNodeParentCacheId node == 0 ||
+               cacheNodeParentCacheId node == cacheId
+                then cacheNodeProperties node
+                else IntMap.union
+                         (cacheNodeProperties node)
+                         (getPropertyMap cache (cacheNodeParentCacheId node))
+
+buildClassPropertyMap :: Type.Replay -> ClassPropertyMap
+buildClassPropertyMap replay =
+    let classMap = buildClassMap replay
+        cacheByStreamId = buildCache replay
+        cacheByCacheId =
+            cacheByStreamId & IntMap.toList & map snd &
+            map
+                (\node ->
+                      (cacheNodeCacheId node, node)) &
+            IntMap.fromList
+        f streamId _ m =
+            case IntMap.lookup streamId cacheByStreamId of
+                Nothing -> m
+                Just node ->
+                    IntMap.insert
+                        streamId
+                        (getPropertyMap cacheByCacheId (cacheNodeCacheId node))
+                        m
+    in IntMap.foldrWithKey f IntMap.empty classMap
+
+getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
+getClass objectMap objectId =
+    case IntMap.lookup objectId objectMap of
+        Nothing -> Nothing
+        Just name ->
+            if name == Text.pack "TAGame.Default__PRI_TA" ||
+               Text.isInfixOf (Text.pack "Archetype") name
+                then getClass objectMap (objectId - 1)
+                else Just (objectId, name)
+
+data Context = Context
+    { contextObjectMap :: ObjectMap
+    , contextClassPropertyMap :: ClassPropertyMap
+    }
+
+extractContext :: Type.Replay -> Context
+extractContext replay =
+    Context
+    { contextObjectMap = buildObjectMap replay
+    , contextClassPropertyMap = buildClassPropertyMap replay
+    }
+
+type Time = BS.ByteString
+
+type Delta = BS.ByteString
+
+type ActorId = Int
+
+data Vector = Vector
+    { vectorX :: Int
+    , vectorY :: Int
+    , vectorZ :: Int
+    }
+
+data ClassInit = ClassInit
+    { classInitLocation :: Maybe Vector
+    , classInitRotation :: Maybe Vector
+    }
+
+classesWithLocation :: Set.Set Text.Text
+classesWithLocation =
+    [ "Engine.GameReplicationInfo"
+    , "TAGame.Ball_TA"
+    , "TAGame.CarComponent_Boost_TA"
+    , "TAGame.CarComponent_Dodge_TA"
+    , "TAGame.CarComponent_DoubleJump_TA"
+    , "TAGame.CarComponent_FlipCar_TA"
+    , "TAGame.CarComponent_Jump_TA"
+    , "TAGame.Car_TA"
+    , "TAGame.Default__PRI_TA"
+    , "TAGame.GRI_TA"
+    , "TAGame.GameEvent_Season_TA"
+    , "TAGame.GameEvent_SoccarPrivate_TA"
+    , "TAGame.GameEvent_SoccarSplitscreen_TA"
+    , "TAGame.GameEvent_Soccar_TA"
+    , "TAGame.PRI_TA"
+    , "TAGame.Team_Soccar_TA"
+    , "TAGame.Team_TA"] &
+    map Text.pack &
+    Set.fromList
+
+classesWithRotation :: Set.Set Text.Text
+classesWithRotation =
+    ["TAGame.Ball_TA", "TAGame.Car_Season_TA", "TAGame.Car_TA"] & map Text.pack &
+    Set.fromList
+
+maxVectorValue :: Int
+maxVectorValue = 20 -- 19?
+
+-- TODO
+byteStringToInt
+    :: BS.ByteString -> Int
+byteStringToInt _ = 0
+
+getVector :: Bits.BitGet Vector
+getVector = do
+    numBits <- getInt maxVectorValue
+    let bias = 2 * (numBits + 1)
+    let maxBits = numBits + 2
+    dx <- Bits.getByteString maxBits
+    dy <- Bits.getByteString maxBits
+    dz <- Bits.getByteString maxBits
+    return
+        Vector
+        { vectorX = byteStringToInt dx - bias
+        , vectorY = byteStringToInt dy - bias
+        , vectorZ = byteStringToInt dz - bias
+        }
+
+-- TODO: These ints might be backwards.
+getVectorBytewise
+    :: Bits.BitGet Vector
+getVectorBytewise = do
+    hasX <- Bits.getBool
+    x <-
+        if hasX
+            then do
+                word <- Bits.getWord8 8
+                return (fromIntegral word)
+            else return 0
+    hasY <- Bits.getBool
+    y <-
+        if hasY
+            then do
+                word <- Bits.getWord8 8
+                return (fromIntegral word)
+            else return 0
+    hasZ <- Bits.getBool
+    z <-
+        if hasZ
+            then do
+                word <- Bits.getWord8 8
+                return (fromIntegral word)
+            else return 0
+    return
+        Vector
+        { vectorX = x
+        , vectorY = y
+        , vectorZ = z
+        }
+
+getClassInit :: Text.Text -> Bits.BitGet ClassInit
+getClassInit className = do
+    location <-
+        if Set.member className classesWithLocation
+            then do
+                vector <- getVector
+                return (Just vector)
+            else return Nothing
+    rotation <-
+        if Set.member className classesWithRotation
+            then do
+                vector <- getVectorBytewise
+                return (Just vector)
+            else return Nothing
+    return
+        ClassInit
+        { classInitLocation = location
+        , classInitRotation = rotation
+        }
 
 maxChannels
     :: (Integral a)
