@@ -1,4 +1,3 @@
-import qualified Octane
+module Main (module Octane) where
 
-main :: IO ()
-main = Octane.main
+import Octane (main)
