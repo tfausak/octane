@@ -331,11 +331,6 @@ maxVectorValue :: Int
 maxVectorValue = 20 -- 19?
 
 -- TODO
-byteStringToInt
-    :: BS.ByteString -> Int
-byteStringToInt _ = 0
-
--- TODO
 byteStringToFloat :: BS.ByteString -> Float
 byteStringToFloat _ = 0.0
 
@@ -344,14 +339,15 @@ getVector = do
     numBits <- getInt maxVectorValue
     let bias = 2 * (numBits + 1)
     let maxBits = numBits + 2
-    dx <- Bits.getByteString maxBits
-    dy <- Bits.getByteString maxBits
-    dz <- Bits.getByteString maxBits
+    -- TODO: These might be backwards.
+    dx <- Bits.getWord8 maxBits
+    dy <- Bits.getWord8 maxBits
+    dz <- Bits.getWord8 maxBits
     return
         Vector
-        { vectorX = byteStringToInt dx - bias
-        , vectorY = byteStringToInt dy - bias
-        , vectorZ = byteStringToInt dz - bias
+        { vectorX = fromIntegral dx - bias
+        , vectorY = fromIntegral dy - bias
+        , vectorZ = fromIntegral dz - bias
         }
 
 -- TODO: These ints might be backwards.
