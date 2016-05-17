@@ -30,9 +30,9 @@ getFrames context = do
 
 getMaybeFrame :: Context -> Bits.BitGet (Maybe Type.Frame)
 getMaybeFrame context = do
-    timeBytes <- Bits.getByteString 32
+    timeBytes <- Bits.getByteString 4
     let time = byteStringToFloat timeBytes
-    deltaBytes <- Bits.getByteString 32
+    deltaBytes <- Bits.getByteString 4
     let delta = byteStringToFloat deltaBytes
     if BS.all (== 0) timeBytes && BS.all (== 0) deltaBytes
         then return Nothing
