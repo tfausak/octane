@@ -120,7 +120,14 @@ getExistingReplication context actorId = do
     let maybeClass = getClass (contextObjectMap context) actorId
     case maybeClass of
         Nothing ->
-            fail ("TODO: Could not get class for object " ++ show actorId)
+            -- fail ("TODO: Could not get class for object " ++ show actorId)
+            return
+                ( context
+                , Type.Replication
+                  { Type.replicationActorId = actorId
+                  , Type.replicationIsOpen = True
+                  , Type.replicationIsNew = Just False
+                  })
         Just (_classId,_className) ->
             -- TODO: Parse existing actor.
             return
