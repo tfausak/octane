@@ -146,7 +146,7 @@ getClosedReplication :: Context
                      -> Bits.BitGet (Context, Type.Replication)
 getClosedReplication context actorId = do
     return
-        ( context
+        ( context -- TODO: Remove actor from context?
         , Type.Replication
           { Type.replicationActorId = actorId
           , Type.replicationIsOpen = False
