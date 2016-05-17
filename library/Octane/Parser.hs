@@ -11,7 +11,9 @@ import qualified Data.IntMap as IntMap
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
+import qualified Debug.Trace as Trace
 import qualified Octane.Type as Type
+import qualified Text.Printf as Printf
 
 parseFrames :: Type.Replay -> [Type.Frame]
 parseFrames replay = do
@@ -34,6 +36,7 @@ getMaybeFrame context = do
     let time = byteStringToFloat timeBytes
     deltaBytes <- Bits.getByteString 4
     let delta = byteStringToFloat deltaBytes
+    Trace.traceM ("time:\t0x" ++ showAsHex timeBytes)
     if BS.all (== 0) timeBytes && BS.all (== 0) deltaBytes
         then return Nothing
         else do
@@ -149,6 +152,12 @@ getClosedReplication context actorId = do
           , Type.replicationIsOpen = False
           , Type.replicationIsNew = Nothing
           })
+
+showAsHex :: BS.ByteString -> String
+showAsHex bytes
+    = bytes
+    & BS.unpack
+    & concatMap (\ byte -> Printf.printf "%02x" byte)
 
 -- { stream id => object name }
 type ObjectMap = IntMap.IntMap Text.Text
