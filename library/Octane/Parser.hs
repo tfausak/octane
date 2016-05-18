@@ -105,7 +105,7 @@ getNewReplication :: Context
 getNewReplication context actorId = do
     unknownFlag <- Bits.getBool
     Trace.traceM ("flag:\t" ++ show unknownFlag)
-    objectId <- getInt (2 ^ 32)
+    objectId <- getInt (2 ^ (32 :: Int))
     Trace.traceM ("object ID:\t" ++ show objectId)
     let objectName =
             context & contextObjectMap & IntMap.lookup objectId &
@@ -340,7 +340,7 @@ classesWithRotation =
     Set.fromList
 
 maxVectorValue :: Int
-maxVectorValue = 20 -- 19?
+maxVectorValue = 19
 
 byteStringToFloat :: BS.ByteString -> Float
 byteStringToFloat bytes = Binary.runGet
@@ -350,7 +350,7 @@ byteStringToFloat bytes = Binary.runGet
 getVector :: Bits.BitGet Vector
 getVector = do
     numBits <- getInt maxVectorValue
-    let bias = 2 * (numBits + 1)
+    let bias = Bits.shiftL 1 (numBits + 1)
     let maxBits = numBits + 2
     -- TODO: These might be backwards.
     dx <- Bits.getWord8 maxBits
@@ -358,9 +358,9 @@ getVector = do
     dz <- Bits.getWord8 maxBits
     return
         Vector
-        { vectorX = fromIntegral dx - bias
-        , vectorY = fromIntegral dy - bias
-        , vectorZ = fromIntegral dz - bias
+        { vectorX = fromIntegral (Type.reverseBits dx) - bias
+        , vectorY = fromIntegral (Type.reverseBits dy) - bias
+        , vectorZ = fromIntegral (Type.reverseBits dz) - bias
         }
 
 -- TODO: These ints might be backwards.
