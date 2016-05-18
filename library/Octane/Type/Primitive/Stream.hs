@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Type.Primitive.Stream (Stream(..)) where
+module Octane.Type.Primitive.Stream (Stream(..), reverseBits) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Newtype as Newtype

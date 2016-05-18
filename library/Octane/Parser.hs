@@ -2,6 +2,7 @@ module Octane.Parser where
 
 import qualified Control.Newtype as Newtype
 import qualified Data.Binary.Bits.Get as Bits
+import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Get as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
@@ -36,7 +37,8 @@ getMaybeFrame context = do
     let time = byteStringToFloat timeBytes
     deltaBytes <- Bits.getByteString 4
     let delta = byteStringToFloat deltaBytes
-    Trace.traceM ("time:\t0x" ++ showAsHex timeBytes)
+    Trace.traceM ("time:\t" ++ show time)
+    Trace.traceM ("delta:\t" ++ show delta)
     if BS.all (== 0) timeBytes && BS.all (== 0) deltaBytes
         then return Nothing
         else do
@@ -330,9 +332,10 @@ classesWithRotation =
 maxVectorValue :: Int
 maxVectorValue = 20 -- 19?
 
--- TODO
 byteStringToFloat :: BS.ByteString -> Float
-byteStringToFloat _ = 0.0
+byteStringToFloat bytes = Binary.runGet
+    IEEE754.getFloat32le
+    (bytes & BSL.fromStrict & BSL.map Type.reverseBits)
 
 getVector :: Bits.BitGet Vector
 getVector = do
