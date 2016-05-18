@@ -352,7 +352,6 @@ getVector = do
     numBits <- getInt maxVectorValue
     let bias = Bits.shiftL 1 (numBits + 1)
     let maxBits = numBits + 2
-    -- TODO: These might be backwards.
     dx <- Bits.getWord8 maxBits
     dy <- Bits.getWord8 maxBits
     dz <- Bits.getWord8 maxBits
@@ -363,7 +362,6 @@ getVector = do
         , vectorZ = fromIntegral (Type.reverseBits dz) - bias
         }
 
--- TODO: These ints might be backwards.
 getVectorBytewise
     :: Bits.BitGet Vector
 getVectorBytewise = do
@@ -372,21 +370,21 @@ getVectorBytewise = do
         if hasX
             then do
                 word <- Bits.getWord8 8
-                return (fromIntegral word)
+                word & Type.reverseBits & fromIntegral & return
             else return 0
     hasY <- Bits.getBool
     y <-
         if hasY
             then do
                 word <- Bits.getWord8 8
-                return (fromIntegral word)
+                word & Type.reverseBits & fromIntegral & return
             else return 0
     hasZ <- Bits.getBool
     z <-
         if hasZ
             then do
                 word <- Bits.getWord8 8
-                return (fromIntegral word)
+                word & Type.reverseBits & fromIntegral & return
             else return 0
     return
         Vector
