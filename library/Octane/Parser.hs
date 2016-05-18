@@ -68,6 +68,7 @@ getReplications context = do
 getMaybeReplication :: Context -> Bits.BitGet (Context, Maybe Type.Replication)
 getMaybeReplication context = do
     hasReplication <- Bits.getBool
+    Trace.traceM ("has replication?:\t" ++ show hasReplication)
     if not hasReplication
         then return (context, Nothing)
         else do
@@ -78,6 +79,8 @@ getReplication :: Context -> Bits.BitGet (Context, Type.Replication)
 getReplication context = do
     actorId <- getInt maxChannels
     isOpen <- Bits.getBool
+    Trace.traceM ("actor ID:\t" ++ show actorId)
+    Trace.traceM ("open?:\t" ++ show isOpen)
     let go =
             if isOpen
                 then getOpenReplication
@@ -89,6 +92,7 @@ getOpenReplication :: Context
                    -> Bits.BitGet (Context, Type.Replication)
 getOpenReplication context actorId = do
     isNew <- Bits.getBool
+    Trace.traceM ("new?:\t" ++ show isNew)
     let go =
             if isNew
                 then getNewReplication
@@ -99,14 +103,20 @@ getNewReplication :: Context
                   -> ActorId
                   -> Bits.BitGet (Context, Type.Replication)
 getNewReplication context actorId = do
-    _unknownFlag <- Bits.getBool
+    unknownFlag <- Bits.getBool
+    Trace.traceM ("flag:\t" ++ show unknownFlag)
     objectId <- getInt 32
-    let _objectName =
+    Trace.traceM ("object ID:\t" ++ show objectId)
+    let objectName =
             context & contextObjectMap & IntMap.lookup objectId &
             Maybe.fromJust
-    let (_classId,className) =
+    Trace.traceM ("object name:\t" ++ show objectName)
+    let (classId,className) =
             getClass (contextObjectMap context) objectId & Maybe.fromJust
-    let _classInit = getClassInit className
+    Trace.traceM ("class ID:\t" ++ show classId)
+    Trace.traceM ("class name:\t" ++ show className)
+    classInit <- getClassInit className
+    Trace.traceM ("class init:\t" ++ show classInit)
     -- TODO: Add all this to the context.
     -- { unknownFlag, objectId, objectName, classId, className, classInit }
     -- https://github.com/rustyfausak/gizmo-elixir/blob/10452da/lib/gizmo/netstream/replication.ex#L42
@@ -295,12 +305,12 @@ data Vector = Vector
     { vectorX :: Int
     , vectorY :: Int
     , vectorZ :: Int
-    }
+    } deriving (Show)
 
 data ClassInit = ClassInit
     { classInitLocation :: Maybe Vector
     , classInitRotation :: Maybe Vector
-    }
+    } deriving (Show)
 
 classesWithLocation :: Set.Set Text.Text
 classesWithLocation =
