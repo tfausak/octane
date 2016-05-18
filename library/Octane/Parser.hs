@@ -105,7 +105,7 @@ getNewReplication :: Context
 getNewReplication context actorId = do
     unknownFlag <- Bits.getBool
     Trace.traceM ("flag:\t" ++ show unknownFlag)
-    objectId <- getInt 32
+    objectId <- getInt (2 ^ 32)
     Trace.traceM ("object ID:\t" ++ show objectId)
     let objectName =
             context & contextObjectMap & IntMap.lookup objectId &
