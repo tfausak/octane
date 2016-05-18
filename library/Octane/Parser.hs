@@ -322,6 +322,7 @@ classesWithLocation =
     , "TAGame.CarComponent_FlipCar_TA"
     , "TAGame.CarComponent_Jump_TA"
     , "TAGame.Car_TA"
+    , "TAGame.Default__CameraSettingsActor_TA"
     , "TAGame.Default__PRI_TA"
     , "TAGame.GRI_TA"
     , "TAGame.GameEvent_Season_TA"
@@ -352,14 +353,15 @@ getVector = do
     numBits <- getInt maxVectorValue
     let bias = Bits.shiftL 1 (numBits + 1)
     let maxBits = numBits + 2
-    dx <- Bits.getWord8 maxBits
-    dy <- Bits.getWord8 maxBits
-    dz <- Bits.getWord8 maxBits
+    let maxValue = 2 ^ maxBits
+    dx <- getInt maxValue
+    dy <- getInt maxValue
+    dz <- getInt maxValue
     return
         Vector
-        { vectorX = fromIntegral (Type.reverseBits dx) - bias
-        , vectorY = fromIntegral (Type.reverseBits dy) - bias
-        , vectorZ = fromIntegral (Type.reverseBits dz) - bias
+        { vectorX = dx - bias
+        , vectorY = dy - bias
+        , vectorZ = dz - bias
         }
 
 getVectorBytewise
