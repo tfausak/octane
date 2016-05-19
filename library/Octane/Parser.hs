@@ -117,11 +117,19 @@ getNewReplication context actorId = do
     Trace.traceM ("Object name:\t" ++ show objectName)
     Trace.traceM ("Class name:\t" ++ show className)
     Trace.traceM ("Initialization:\t" ++ show classInit)
-    -- TODO: Add all this to the context.
-    -- { unknownFlag, objectId, objectName, classId, className, classInit }
-    -- https://github.com/rustyfausak/gizmo-elixir/blob/10452da/lib/gizmo/netstream/replication.ex#L42
+    let thing = Thing
+            { thingFlag = unknownFlag
+            , thingObjectId = objectId
+            , thingObjectName = objectName
+            , thingClassId = classId
+            , thingClassName = className
+            , thingClassInit = classInit
+            }
+    let things = contextThings context
+    let newThings = IntMap.insert actorId thing things
+    let newContext = context { contextThings = newThings }
     return
-        ( context
+        ( newContext
         , Type.Replication
           { Type.replicationActorId = actorId
           , Type.replicationIsOpen = True
@@ -132,26 +140,14 @@ getExistingReplication :: Context
                        -> ActorId
                        -> Bits.BitGet (Context, Type.Replication)
 getExistingReplication context actorId = do
-    let maybeClass = getClass (contextObjectMap context) actorId
-    case maybeClass of
-        Nothing ->
-            -- fail ("TODO: Could not get class for object " ++ show actorId)
-            return
-                ( context
-                , Type.Replication
-                  { Type.replicationActorId = actorId
-                  , Type.replicationIsOpen = True
-                  , Type.replicationIsNew = Just False
-                  })
-        Just (_classId,_className) ->
-            -- TODO: Parse existing actor.
-            return
-                ( context
-                , Type.Replication
-                  { Type.replicationActorId = actorId
-                  , Type.replicationIsOpen = True
-                  , Type.replicationIsNew = Just False
-                  })
+    let thing = context & contextThings & IntMap.lookup actorId & Maybe.fromJust
+    properties <- getProps
+    Trace.traceM ("Properties:\t" ++ show properties)
+    return (context, Type.Replication
+        { Type.replicationActorId = actorId
+        , Type.replicationIsOpen = True
+        , Type.replicationIsNew = Just False
+        })
 
 getClosedReplication :: Context
                      -> ActorId
@@ -164,6 +160,41 @@ getClosedReplication context actorId = do
           , Type.replicationIsOpen = False
           , Type.replicationIsNew = Nothing
           })
+
+data Prop = Prop
+    deriving (Show)
+
+getProps :: Bits.BitGet [Prop]
+getProps = do
+    maybeProp <- getMaybeProp
+    case maybeProp of
+        Nothing -> return []
+        Just prop -> do
+            props <- getProps
+            return (prop : props)
+
+getMaybeProp :: Bits.BitGet (Maybe Prop)
+getMaybeProp = do
+    hasProp <- Bits.getBool
+    if hasProp
+    then do
+        prop <- getProp
+        return (Just prop)
+    else return Nothing
+
+getProp :: Bits.BitGet Prop
+getProp = do
+    -- TODO
+    return Prop
+
+data Thing = Thing
+    { thingFlag :: Bool
+    , thingObjectId :: Int
+    , thingObjectName :: Text.Text
+    , thingClassId :: Int
+    , thingClassName :: Text.Text
+    , thingClassInit :: ClassInit
+    }
 
 showAsHex :: BS.ByteString -> String
 showAsHex bytes
@@ -286,6 +317,7 @@ getClass objectMap objectId =
 data Context = Context
     { contextObjectMap :: ObjectMap
     , contextClassPropertyMap :: ClassPropertyMap
+    , contextThings :: IntMap.IntMap Thing
     }
 
 extractContext :: Type.Replay -> Context
@@ -293,6 +325,7 @@ extractContext replay =
     Context
     { contextObjectMap = buildObjectMap replay
     , contextClassPropertyMap = buildClassPropertyMap replay
+    , contextThings = IntMap.empty
     }
 
 type Time = Float
