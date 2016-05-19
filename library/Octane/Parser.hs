@@ -37,8 +37,6 @@ getMaybeFrame context = do
     let time = byteStringToFloat timeBytes
     deltaBytes <- Bits.getByteString 4
     let delta = byteStringToFloat deltaBytes
-    Trace.traceM ("time:\t" ++ show time)
-    Trace.traceM ("delta:\t" ++ show delta)
     if BS.all (== 0) timeBytes && BS.all (== 0) deltaBytes
         then return Nothing
         else do
@@ -47,6 +45,8 @@ getMaybeFrame context = do
 
 getFrame :: Context -> Time -> Delta -> Bits.BitGet Type.Frame
 getFrame context time delta = do
+    Trace.traceM ("Time:\t" ++ show time)
+    Trace.traceM ("Delta:\t" ++ show delta)
     replications <- getReplications context
     let frame =
             Type.Frame
@@ -68,7 +68,7 @@ getReplications context = do
 getMaybeReplication :: Context -> Bits.BitGet (Context, Maybe Type.Replication)
 getMaybeReplication context = do
     hasReplication <- Bits.getBool
-    Trace.traceM ("has replication?:\t" ++ show hasReplication)
+    Trace.traceM ("Replication?:\t" ++ show hasReplication)
     if not hasReplication
         then return (context, Nothing)
         else do
@@ -79,8 +79,8 @@ getReplication :: Context -> Bits.BitGet (Context, Type.Replication)
 getReplication context = do
     actorId <- getInt maxChannels
     isOpen <- Bits.getBool
-    Trace.traceM ("actor ID:\t" ++ show actorId)
-    Trace.traceM ("open?:\t" ++ show isOpen)
+    Trace.traceM ("Actor ID:\t" ++ show actorId)
+    Trace.traceM ("Open?:\t" ++ show isOpen)
     let go =
             if isOpen
                 then getOpenReplication
@@ -92,7 +92,7 @@ getOpenReplication :: Context
                    -> Bits.BitGet (Context, Type.Replication)
 getOpenReplication context actorId = do
     isNew <- Bits.getBool
-    Trace.traceM ("new?:\t" ++ show isNew)
+    Trace.traceM ("New?:\t" ++ show isNew)
     let go =
             if isNew
                 then getNewReplication
@@ -104,19 +104,19 @@ getNewReplication :: Context
                   -> Bits.BitGet (Context, Type.Replication)
 getNewReplication context actorId = do
     unknownFlag <- Bits.getBool
-    Trace.traceM ("flag:\t" ++ show unknownFlag)
     objectId <- getInt (2 ^ (32 :: Int))
-    Trace.traceM ("object ID:\t" ++ show objectId)
     let objectName =
             context & contextObjectMap & IntMap.lookup objectId &
             Maybe.fromJust
-    Trace.traceM ("object name:\t" ++ show objectName)
     let (classId,className) =
             getClass (contextObjectMap context) objectId & Maybe.fromJust
-    Trace.traceM ("class ID:\t" ++ show classId)
-    Trace.traceM ("class name:\t" ++ show className)
     classInit <- getClassInit className
-    Trace.traceM ("class init:\t" ++ show classInit)
+    Trace.traceM ("Flag:\t" ++ show unknownFlag)
+    Trace.traceM ("Object ID:\t" ++ show objectId)
+    Trace.traceM ("Class ID:\t" ++ show classId)
+    Trace.traceM ("Object name:\t" ++ show objectName)
+    Trace.traceM ("Class name:\t" ++ show className)
+    Trace.traceM ("Initialization:\t" ++ show classInit)
     -- TODO: Add all this to the context.
     -- { unknownFlag, objectId, objectName, classId, className, classInit }
     -- https://github.com/rustyfausak/gizmo-elixir/blob/10452da/lib/gizmo/netstream/replication.ex#L42
