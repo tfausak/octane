@@ -141,7 +141,7 @@ getExistingReplication :: Context
                        -> Bits.BitGet (Context, Type.Replication)
 getExistingReplication context actorId = do
     let thing = context & contextThings & IntMap.lookup actorId & Maybe.fromJust
-    properties <- getProps
+    properties <- getProps thing
     Trace.traceM ("Properties:\t" ++ show properties)
     return (context, Type.Replication
         { Type.replicationActorId = actorId
@@ -166,26 +166,26 @@ getClosedReplication context actorId = do
 data Prop = Prop
     deriving (Show)
 
-getProps :: Bits.BitGet [Prop]
-getProps = do
-    maybeProp <- getMaybeProp
+getProps :: Thing -> Bits.BitGet [Prop]
+getProps thing = do
+    maybeProp <- getMaybeProp thing
     case maybeProp of
         Nothing -> return []
         Just prop -> do
-            props <- getProps
+            props <- getProps thing
             return (prop : props)
 
-getMaybeProp :: Bits.BitGet (Maybe Prop)
-getMaybeProp = do
+getMaybeProp :: Thing -> Bits.BitGet (Maybe Prop)
+getMaybeProp thing = do
     hasProp <- Bits.getBool
     if hasProp
     then do
-        prop <- getProp
+        prop <- getProp thing
         return (Just prop)
     else return Nothing
 
-getProp :: Bits.BitGet Prop
-getProp = do
+getProp :: Thing -> Bits.BitGet Prop
+getProp _thing = do
     -- TODO
     return Prop
 
