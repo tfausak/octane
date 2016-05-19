@@ -153,8 +153,10 @@ getClosedReplication :: Context
                      -> ActorId
                      -> Bits.BitGet (Context, Type.Replication)
 getClosedReplication context actorId = do
+    let newThings = context & contextThings & IntMap.delete actorId
+    let newContext = context { contextThings = newThings }
     return
-        ( context -- TODO: Remove actor from context?
+        ( newContext
         , Type.Replication
           { Type.replicationActorId = actorId
           , Type.replicationIsOpen = False
