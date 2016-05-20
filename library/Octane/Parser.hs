@@ -201,7 +201,8 @@ getProp context thing = do
             Trace.traceM ("Flag: " ++ show flag)
             position <- getVector
             Trace.traceM ("Position: " ++ show position)
-            -- TODO: Read rotation
+            rotation <- getFloatVector
+            Trace.traceM ("Rotation: " ++ show rotation)
             if flag
             then return (Prop propId) -- TODO: Add prop value to prop.
             else do
@@ -473,6 +474,31 @@ getVectorBytewise = do
         , vectorY = y
         , vectorZ = z
         }
+
+getFloatVector :: Bits.BitGet (Vector Float)
+getFloatVector = do
+    let maxValue = 1
+    let numBits = 16
+    x <- getFloat maxValue numBits
+    y <- getFloat maxValue numBits
+    z <- getFloat maxValue numBits
+    return Vector { vectorX = x, vectorY = y, vectorZ = z }
+
+getFloat :: Int -> Int -> Bits.BitGet Float
+getFloat maxValue numBits = do
+    let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
+    let bias = Bits.shiftL 1 (numBits - 1)
+    let serIntMax = Bits.shiftL 1 numBits
+    delta <- getInt serIntMax
+    let unscaledValue = delta - bias
+    if maxValue > maxBitValue
+    then do
+        let invScale = fromIntegral maxValue / fromIntegral maxBitValue
+        return (fromIntegral unscaledValue * invScale)
+    else do
+        let scale = fromIntegral maxBitValue / fromIntegral maxValue
+        let invScale = 1.0 / scale
+        return (fromIntegral unscaledValue * invScale)
 
 getClassInit :: Text.Text -> Bits.BitGet ClassInit
 getClassInit className = do
