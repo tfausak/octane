@@ -1,5 +1,8 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Octane.Parser where
 
+import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Newtype as Newtype
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.IEEE754 as IEEE754
@@ -13,16 +16,18 @@ import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Debug.Trace as Trace
+import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
+import qualified Octane.Type.Replication as Replication
 import qualified Text.Printf as Printf
 
-parseFrames :: Type.Replay -> [Type.Frame]
+parseFrames :: Type.Replay -> [Frame]
 parseFrames replay = do
     let get = replay & extractContext & getFrames & Bits.runBitGet
         stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
     Binary.runGet get stream
 
-getFrames :: Context -> Bits.BitGet [Type.Frame]
+getFrames :: Context -> Bits.BitGet [Frame]
 getFrames context = do
     maybeFrame <- getMaybeFrame context
     case maybeFrame of
@@ -31,7 +36,7 @@ getFrames context = do
             frames <- getFrames context
             return (frame : frames)
 
-getMaybeFrame :: Context -> Bits.BitGet (Maybe Type.Frame)
+getMaybeFrame :: Context -> Bits.BitGet (Maybe Frame)
 getMaybeFrame context = do
     timeBytes <- Bits.getByteString 4
     let time = byteStringToFloat timeBytes
@@ -43,16 +48,16 @@ getMaybeFrame context = do
             frame <- getFrame context time delta
             return (Just frame)
 
-getFrame :: Context -> Time -> Delta -> Bits.BitGet Type.Frame
+getFrame :: Context -> Time -> Delta -> Bits.BitGet Frame
 getFrame context time delta = do
     Trace.traceM ("Time:\t" ++ show time)
     Trace.traceM ("Delta:\t" ++ show delta)
     replications <- getReplications context
     let frame =
-            Type.Frame
-            { Type.frameTime = time
-            , Type.frameDelta = delta
-            , Type.frameReplications = replications
+            Frame
+            { frameTime = time
+            , frameDelta = delta
+            , frameReplications = replications
             }
     return frame
 
@@ -189,6 +194,16 @@ getProp _thing = do
     -- TODO: Correctly read ID and actually read prop.
     propId <- getInt 1
     return (Prop propId)
+
+-- | A frame in the net stream. Each frame has the time since the beginning of
+-- | the match, the time since the last frame, and a list of replications.
+data Frame = Frame
+    { frameTime :: Float
+    , frameDelta :: Float
+    , frameReplications :: [Replication.Replication]
+    } deriving (Eq,Generics.Generic,Show)
+
+instance DeepSeq.NFData Frame
 
 data Thing = Thing
     { thingFlag :: Bool
