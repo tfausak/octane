@@ -195,8 +195,21 @@ getProp context thing = do
     Trace.traceM ("Prop ID: " ++ show propId)
     let propName = props & IntMap.lookup propId -- & Maybe.fromJust
     Trace.traceM ("Prop name: " ++ show propName)
-    -- TODO: Read prop.
-    return (Prop propId)
+    case fmap Text.unpack propName of
+        Just "TAGame.RBActor_TA:ReplicatedRBState" -> do
+            flag <- Bits.getBool
+            Trace.traceM ("Flag: " ++ show flag)
+            position <- getVector
+            Trace.traceM ("Position: " ++ show position)
+            -- TODO: Read rotation
+            if flag
+            then return (Prop propId) -- TODO: Add prop value to prop.
+            else do
+                _x <- getVector
+                _y <- getVector
+                return (Prop propId)
+        -- TODO: Parse other prop types.
+        _ -> fail ("Don't know how to read property " ++ show propName ++ " with ID " ++ show propId ++ ".")
 
 data Prop = Prop Int
     deriving (Show)
