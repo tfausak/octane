@@ -186,12 +186,12 @@ getMaybeProp context thing = do
     else return Nothing
 
 getProp :: Context -> Thing -> Bits.BitGet Prop
-getProp _context thing = do
-    Trace.traceM ("Getting prop for thing " ++ show thing)
-    let actorType = thing & thingObjectName
-    Trace.traceM ("Actor type: " ++ show actorType)
-    -- TODO: Correctly read ID and actually read prop.
-    propId <- getInt 1
+getProp context thing = do
+    let classId = thing & thingClassId
+    let maxId = context & contextClassPropertyMap & IntMap.lookup classId & Maybe.fromJust & IntMap.keys & maximum
+    Trace.traceM ("Max ID: " ++ show maxId)
+    propId <- getInt maxId
+    -- TODO: Read prop.
     return (Prop propId)
 
 data Prop = Prop Int
@@ -262,7 +262,7 @@ data Context = Context
     { contextObjectMap :: ObjectMap
     , contextClassPropertyMap :: ClassPropertyMap
     , contextThings :: IntMap.IntMap Thing
-    }
+    } deriving (Show)
 
 showAsHex :: BS.ByteString -> String
 showAsHex bytes
