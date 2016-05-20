@@ -213,6 +213,12 @@ getPropValue name = case Text.unpack name of
         y <- if flag then return Nothing else fmap Just getVector
         Trace.traceM ("Mystery vector 2: " ++ show y)
         return (RigidBodyState flag position rotation x y)
+    "TAGame.Ball_TA:GameEvent" -> do
+        flag <- Bits.getBool
+        Trace.traceM ("Flag: " ++ show flag)
+        int <- Bits.getWord32be 32 -- TODO: This isn't quite right
+        Trace.traceM ("Int: " ++ show int)
+        return (FlaggedInt flag (fromIntegral int))
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -223,6 +229,7 @@ data Prop = Prop
 
 data PropValue
     = RigidBodyState Bool (Vector Int) (Vector Float) (Maybe (Vector Int)) (Maybe (Vector Int))
+    | FlaggedInt Bool Int
     deriving (Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
