@@ -193,31 +193,36 @@ getProp context thing = do
     Trace.traceM ("Max ID: " ++ show maxId)
     pid <- getInt maxId
     Trace.traceM ("Prop ID: " ++ show pid)
-    let propName = props & IntMap.lookup pid -- & Maybe.fromJust
+    let propName = props & IntMap.lookup pid & Maybe.fromJust
     Trace.traceM ("Prop name: " ++ show propName)
-    case fmap Text.unpack propName of
-        Just "TAGame.RBActor_TA:ReplicatedRBState" -> do
-            flag <- Bits.getBool
-            Trace.traceM ("Flag: " ++ show flag)
-            position <- getVector
-            Trace.traceM ("Position: " ++ show position)
-            rotation <- getFloatVector
-            Trace.traceM ("Rotation: " ++ show rotation)
-            if flag
-            then return (Prop pid PropValue) -- TODO: Add prop value to prop.
-            else do
-                _x <- getVector
-                _y <- getVector
-                return (Prop pid PropValue)
-        -- TODO: Parse other prop types.
-        _ -> fail ("Don't know how to read property " ++ show propName ++ " with ID " ++ show pid ++ ".")
+    value <- getPropValue propName
+    Trace.traceM ("Prop value: " ++ show value)
+    return (Prop { propId = pid, propValue = value })
+
+getPropValue :: Text.Text -> Bits.BitGet PropValue
+getPropValue name = case Text.unpack name of
+    "TAGame.RBActor_TA:ReplicatedRBState" -> do
+        flag <- Bits.getBool
+        Trace.traceM ("Flag: " ++ show flag)
+        position <- getVector
+        Trace.traceM ("Position: " ++ show position)
+        rotation <- getFloatVector
+        Trace.traceM ("Rotation: " ++ show rotation)
+        x <- if flag then return Nothing else fmap Just getVector
+        Trace.traceM ("Mystery vector 1: " ++ show x)
+        y <- if flag then return Nothing else fmap Just getVector
+        Trace.traceM ("Mystery vector 2: " ++ show y)
+        return (RigidBodyState flag position rotation x y)
+    -- TODO: Parse other prop types.
+    _ -> fail ("don't know how to read property " ++ show name)
 
 data Prop = Prop
     { propId :: Int
     , propValue :: PropValue
     } deriving (Show)
 
-data PropValue = PropValue
+data PropValue
+    = RigidBodyState Bool (Vector Int) (Vector Float) (Maybe (Vector Int)) (Maybe (Vector Int))
     deriving (Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
