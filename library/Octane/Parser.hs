@@ -192,6 +192,7 @@ getProp :: Thing -> Bits.BitGet Prop
 getProp thing = do
     Trace.traceM ("Getting prop for thing " ++ show thing)
     let actorType = thing & thingObjectName
+    Trace.traceM ("Actor type: " ++ show actorType)
     -- TODO: Correctly read ID and actually read prop.
     propId <- getInt 1
     return (Prop propId)
