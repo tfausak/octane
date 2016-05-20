@@ -188,9 +188,13 @@ getMaybeProp context thing = do
 getProp :: Context -> Thing -> Bits.BitGet Prop
 getProp context thing = do
     let classId = thing & thingClassId
-    let maxId = context & contextClassPropertyMap & IntMap.lookup classId & Maybe.fromJust & IntMap.keys & maximum
+    let props = context & contextClassPropertyMap & IntMap.lookup classId & Maybe.fromJust
+    let maxId = props & IntMap.keys & maximum
     Trace.traceM ("Max ID: " ++ show maxId)
     propId <- getInt maxId
+    Trace.traceM ("Prop ID: " ++ show propId)
+    let propName = props & IntMap.lookup propId -- & Maybe.fromJust
+    Trace.traceM ("Prop name: " ++ show propName)
     -- TODO: Read prop.
     return (Prop propId)
 
