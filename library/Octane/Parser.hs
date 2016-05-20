@@ -167,9 +167,6 @@ getClosedReplication context actorId = do
           , replicationIsNew = Nothing
           })
 
-data Prop = Prop Int
-    deriving (Show)
-
 getProps :: Context -> Thing -> Bits.BitGet [Prop]
 getProps context thing = do
     maybeProp <- getMaybeProp context thing
@@ -196,6 +193,9 @@ getProp _context thing = do
     -- TODO: Correctly read ID and actually read prop.
     propId <- getInt 1
     return (Prop propId)
+
+data Prop = Prop Int
+    deriving (Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
 -- | the match, the time since the last frame, and a list of replications.
@@ -225,14 +225,50 @@ data Thing = Thing
     , thingClassInit :: ClassInit
     } deriving (Show)
 
+type Time = Float
+
+type Delta = Float
+
+type ActorId = Int
+
+data Vector = Vector
+    { vectorX :: Int
+    , vectorY :: Int
+    , vectorZ :: Int
+    } deriving (Show)
+
+data ClassInit = ClassInit
+    { classInitLocation :: Maybe Vector
+    , classInitRotation :: Maybe Vector
+    } deriving (Show)
+
+data CacheNode = CacheNode
+    { cacheNodeClassId :: Int
+    , cacheNodeParentCacheId :: Int
+    , cacheNodeCacheId :: Int
+    , cacheNodeProperties :: IntMap.IntMap Text.Text
+    }
+
+-- { class id => node }
+type Cache = IntMap.IntMap CacheNode
+
+-- { class stream id => { property stream id => name } }
+type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
+
+-- { stream id => object name }
+type ObjectMap = IntMap.IntMap Text.Text
+
+data Context = Context
+    { contextObjectMap :: ObjectMap
+    , contextClassPropertyMap :: ClassPropertyMap
+    , contextThings :: IntMap.IntMap Thing
+    }
+
 showAsHex :: BS.ByteString -> String
 showAsHex bytes
     = bytes
     & BS.unpack
     & concatMap (\ byte -> Printf.printf "%02x" byte)
-
--- { stream id => object name }
-type ObjectMap = IntMap.IntMap Text.Text
 
 buildObjectMap :: Type.Replay -> ObjectMap
 buildObjectMap replay =
@@ -251,16 +287,6 @@ buildClassMap replay =
               ( x & Type.actorStreamId & Newtype.unpack & fromIntegral
               , x & Type.actorName & Newtype.unpack)) &
     IntMap.fromList
-
-data CacheNode = CacheNode
-    { cacheNodeClassId :: Int
-    , cacheNodeParentCacheId :: Int
-    , cacheNodeCacheId :: Int
-    , cacheNodeProperties :: IntMap.IntMap Text.Text
-    }
-
--- { class id => node }
-type Cache = IntMap.IntMap CacheNode
 
 buildCache :: Type.Replay -> Cache
 buildCache replay =
@@ -297,9 +323,6 @@ buildCache replay =
            (\node ->
                  (cacheNodeClassId node, node)) &
        IntMap.fromList
-
--- { class stream id => { property stream id => name } }
-type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
 
 getPropertyMap :: Cache -> Int -> IntMap.IntMap Text.Text
 getPropertyMap cache cacheId =
@@ -343,12 +366,6 @@ getClass objectMap objectId =
                 then getClass objectMap (objectId - 1)
                 else Just (objectId, name)
 
-data Context = Context
-    { contextObjectMap :: ObjectMap
-    , contextClassPropertyMap :: ClassPropertyMap
-    , contextThings :: IntMap.IntMap Thing
-    }
-
 extractContext :: Type.Replay -> Context
 extractContext replay =
     Context
@@ -356,23 +373,6 @@ extractContext replay =
     , contextClassPropertyMap = buildClassPropertyMap replay
     , contextThings = IntMap.empty
     }
-
-type Time = Float
-
-type Delta = Float
-
-type ActorId = Int
-
-data Vector = Vector
-    { vectorX :: Int
-    , vectorY :: Int
-    , vectorZ :: Int
-    } deriving (Show)
-
-data ClassInit = ClassInit
-    { classInitLocation :: Maybe Vector
-    , classInitRotation :: Maybe Vector
-    } deriving (Show)
 
 classesWithLocation :: Set.Set Text.Text
 classesWithLocation =
