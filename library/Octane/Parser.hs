@@ -189,7 +189,9 @@ getMaybeProp thing = do
     else return Nothing
 
 getProp :: Thing -> Bits.BitGet Prop
-getProp _thing = do
+getProp thing = do
+    Trace.traceM ("Getting prop for thing " ++ show thing)
+    let actorType = thing & thingObjectName
     -- TODO: Correctly read ID and actually read prop.
     propId <- getInt 1
     return (Prop propId)
@@ -220,7 +222,7 @@ data Thing = Thing
     , thingClassId :: Int
     , thingClassName :: Text.Text
     , thingClassInit :: ClassInit
-    }
+    } deriving (Show)
 
 showAsHex :: BS.ByteString -> String
 showAsHex bytes
