@@ -248,15 +248,15 @@ type Delta = Float
 
 type ActorId = Int
 
-data Vector = Vector
-    { vectorX :: Int
-    , vectorY :: Int
-    , vectorZ :: Int
+data Vector a = Vector
+    { vectorX :: a
+    , vectorY :: a
+    , vectorZ :: a
     } deriving (Show)
 
 data ClassInit = ClassInit
-    { classInitLocation :: Maybe Vector
-    , classInitRotation :: Maybe Vector
+    { classInitLocation :: Maybe (Vector Int)
+    , classInitRotation :: Maybe (Vector Int)
     } deriving (Show)
 
 data CacheNode = CacheNode
@@ -427,7 +427,7 @@ byteStringToFloat bytes = Binary.runGet
     IEEE754.getFloat32le
     (bytes & BSL.fromStrict & BSL.map Type.reverseBits)
 
-getVector :: Bits.BitGet Vector
+getVector :: Bits.BitGet (Vector Int)
 getVector = do
     numBits <- getInt maxVectorValue
     let bias = Bits.shiftL 1 (numBits + 1)
@@ -444,7 +444,7 @@ getVector = do
         }
 
 getVectorBytewise
-    :: Bits.BitGet Vector
+    :: Bits.BitGet (Vector Int)
 getVectorBytewise = do
     hasX <- Bits.getBool
     x <-
