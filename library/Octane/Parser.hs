@@ -18,7 +18,6 @@ import qualified Data.Text as Text
 import qualified Debug.Trace as Trace
 import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
-import qualified Octane.Type.Replication as Replication
 import qualified Text.Printf as Printf
 
 parseFrames :: Type.Replay -> [Frame]
@@ -61,7 +60,7 @@ getFrame context time delta = do
             }
     return frame
 
-getReplications :: Context -> Bits.BitGet [Type.Replication]
+getReplications :: Context -> Bits.BitGet [Replication]
 getReplications context = do
     (context',maybeReplication) <- getMaybeReplication context
     case maybeReplication of
@@ -70,7 +69,7 @@ getReplications context = do
             replications <- getReplications context'
             return (replication : replications)
 
-getMaybeReplication :: Context -> Bits.BitGet (Context, Maybe Type.Replication)
+getMaybeReplication :: Context -> Bits.BitGet (Context, Maybe Replication)
 getMaybeReplication context = do
     hasReplication <- Bits.getBool
     Trace.traceM ("Replication?:\t" ++ show hasReplication)
@@ -80,7 +79,7 @@ getMaybeReplication context = do
             (newContext,replication) <- getReplication context
             return (newContext, Just replication)
 
-getReplication :: Context -> Bits.BitGet (Context, Type.Replication)
+getReplication :: Context -> Bits.BitGet (Context, Replication)
 getReplication context = do
     actorId <- getInt maxChannels
     isOpen <- Bits.getBool
@@ -94,7 +93,7 @@ getReplication context = do
 
 getOpenReplication :: Context
                    -> ActorId
-                   -> Bits.BitGet (Context, Type.Replication)
+                   -> Bits.BitGet (Context, Replication)
 getOpenReplication context actorId = do
     isNew <- Bits.getBool
     Trace.traceM ("New?:\t" ++ show isNew)
@@ -106,7 +105,7 @@ getOpenReplication context actorId = do
 
 getNewReplication :: Context
                   -> ActorId
-                  -> Bits.BitGet (Context, Type.Replication)
+                  -> Bits.BitGet (Context, Replication)
 getNewReplication context actorId = do
     unknownFlag <- Bits.getBool
     objectId <- getInt (2 ^ (32 :: Int))
@@ -135,37 +134,37 @@ getNewReplication context actorId = do
     let newContext = context { contextThings = newThings }
     return
         ( newContext
-        , Type.Replication
-          { Type.replicationActorId = actorId
-          , Type.replicationIsOpen = True
-          , Type.replicationIsNew = Just True
+        , Replication
+          { replicationActorId = actorId
+          , replicationIsOpen = True
+          , replicationIsNew = Just True
           })
 
 getExistingReplication :: Context
                        -> ActorId
-                       -> Bits.BitGet (Context, Type.Replication)
+                       -> Bits.BitGet (Context, Replication)
 getExistingReplication context actorId = do
     let thing = context & contextThings & IntMap.lookup actorId & Maybe.fromJust
     props <- getProps thing
     Trace.traceM ("Props:\t" ++ show props)
-    return (context, Type.Replication
-        { Type.replicationActorId = actorId
-        , Type.replicationIsOpen = True
-        , Type.replicationIsNew = Just False
+    return (context, Replication
+        { replicationActorId = actorId
+        , replicationIsOpen = True
+        , replicationIsNew = Just False
         })
 
 getClosedReplication :: Context
                      -> ActorId
-                     -> Bits.BitGet (Context, Type.Replication)
+                     -> Bits.BitGet (Context, Replication)
 getClosedReplication context actorId = do
     let newThings = context & contextThings & IntMap.delete actorId
     let newContext = context { contextThings = newThings }
     return
         ( newContext
-        , Type.Replication
-          { Type.replicationActorId = actorId
-          , Type.replicationIsOpen = False
-          , Type.replicationIsNew = Nothing
+        , Replication
+          { replicationActorId = actorId
+          , replicationIsOpen = False
+          , replicationIsNew = Nothing
           })
 
 data Prop = Prop Int
@@ -200,10 +199,19 @@ getProp _thing = do
 data Frame = Frame
     { frameTime :: Float
     , frameDelta :: Float
-    , frameReplications :: [Replication.Replication]
+    , frameReplications :: [Replication]
     } deriving (Eq,Generics.Generic,Show)
 
 instance DeepSeq.NFData Frame
+
+-- | Replication information about an actor in the net stream.
+data Replication = Replication
+    { replicationActorId :: Int
+    , replicationIsOpen :: Bool
+    , replicationIsNew :: Maybe Bool
+    } deriving (Eq,Generics.Generic,Show)
+
+instance DeepSeq.NFData Replication
 
 data Thing = Thing
     { thingFlag :: Bool
