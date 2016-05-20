@@ -191,9 +191,9 @@ getProp context thing = do
     let props = context & contextClassPropertyMap & IntMap.lookup classId & Maybe.fromJust
     let maxId = props & IntMap.keys & maximum
     Trace.traceM ("Max ID: " ++ show maxId)
-    propId <- getInt maxId
-    Trace.traceM ("Prop ID: " ++ show propId)
-    let propName = props & IntMap.lookup propId -- & Maybe.fromJust
+    pid <- getInt maxId
+    Trace.traceM ("Prop ID: " ++ show pid)
+    let propName = props & IntMap.lookup pid -- & Maybe.fromJust
     Trace.traceM ("Prop name: " ++ show propName)
     case fmap Text.unpack propName of
         Just "TAGame.RBActor_TA:ReplicatedRBState" -> do
@@ -204,15 +204,20 @@ getProp context thing = do
             rotation <- getFloatVector
             Trace.traceM ("Rotation: " ++ show rotation)
             if flag
-            then return (Prop propId) -- TODO: Add prop value to prop.
+            then return (Prop pid PropValue) -- TODO: Add prop value to prop.
             else do
                 _x <- getVector
                 _y <- getVector
-                return (Prop propId)
+                return (Prop pid PropValue)
         -- TODO: Parse other prop types.
-        _ -> fail ("Don't know how to read property " ++ show propName ++ " with ID " ++ show propId ++ ".")
+        _ -> fail ("Don't know how to read property " ++ show propName ++ " with ID " ++ show pid ++ ".")
 
-data Prop = Prop Int
+data Prop = Prop
+    { propId :: Int
+    , propValue :: PropValue
+    } deriving (Show)
+
+data PropValue = PropValue
     deriving (Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
