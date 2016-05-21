@@ -72,7 +72,7 @@ getReplications context = do
 getMaybeReplication :: Context -> Bits.BitGet (Context, Maybe Replication)
 getMaybeReplication context = do
     hasReplication <- Bits.getBool
-    Trace.traceM ("Replication?:\t" ++ show hasReplication)
+    Trace.traceM ("\nReplication?:\t" ++ show hasReplication)
     if not hasReplication
         then return (context, Nothing)
         else do
@@ -193,6 +193,8 @@ getProp context thing = do
     Trace.traceM ("Max ID: " ++ show maxId)
     pid <- getInt maxId
     Trace.traceM ("Prop ID: " ++ show pid)
+    Trace.traceShowM props
+    Trace.traceShowM thing
     let propName = props & IntMap.lookup pid & Maybe.fromJust
     Trace.traceM ("Prop name: " ++ show propName)
     value <- getPropValue propName
@@ -216,7 +218,7 @@ getPropValue name = case Text.unpack name of
     "TAGame.Ball_TA:GameEvent" -> do
         flag <- Bits.getBool
         Trace.traceM ("Flag: " ++ show flag)
-        int <- Bits.getWord32be 32 -- TODO: This isn't quite right
+        int <- getInt (2 ^ (32 :: Int))
         Trace.traceM ("Int: " ++ show int)
         return (FlaggedInt flag (fromIntegral int))
     -- TODO: Parse other prop types.
@@ -371,6 +373,7 @@ getPropertyMap cache cacheId =
                          (cacheNodeProperties node)
                          (getPropertyMap cache (cacheNodeParentCacheId node))
 
+-- TODO: I think this might be wrong.
 buildClassPropertyMap :: Type.Replay -> ClassPropertyMap
 buildClassPropertyMap replay =
     let classMap = buildClassMap replay
