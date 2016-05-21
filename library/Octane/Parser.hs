@@ -27,6 +27,7 @@ parseFrames replay = do
 
 getFrames :: Context -> Bits.BitGet [Frame]
 getFrames context = do
+    Trace.traceM ("CLASS PROPERTY MAP:\n" ++ (context & contextClassPropertyMap & IntMap.toAscList & map (\ (k1, v1) -> " " ++ show k1 ++ " =>\n" ++ (v1 & IntMap.toAscList & map (\ (k2, v2) -> "  " ++ show k2 ++ " => " ++ show v2) & unlines)) & unlines))
     maybeFrame <- getMaybeFrame context
     case maybeFrame of
         Nothing -> return []
