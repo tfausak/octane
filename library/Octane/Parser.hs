@@ -2,7 +2,6 @@
 
 module Octane.Parser where
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Newtype as Newtype
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.IEEE754 as IEEE754
@@ -15,6 +14,7 @@ import qualified Data.IntMap as IntMap
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Encoding
 import qualified Debug.Trace as Trace
 import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
@@ -49,8 +49,6 @@ getMaybeFrame context = do
 
 getFrame :: Context -> Time -> Delta -> Bits.BitGet Frame
 getFrame context time delta = do
-    Trace.traceM ("Time:\t" ++ show time)
-    Trace.traceM ("Delta:\t" ++ show delta)
     replications <- getReplications context
     let frame =
             Frame
@@ -72,7 +70,6 @@ getReplications context = do
 getMaybeReplication :: Context -> Bits.BitGet (Context, Maybe Replication)
 getMaybeReplication context = do
     hasReplication <- Bits.getBool
-    Trace.traceM ("Replication?:\t" ++ show hasReplication)
     if not hasReplication
         then return (context, Nothing)
         else do
@@ -83,8 +80,6 @@ getReplication :: Context -> Bits.BitGet (Context, Replication)
 getReplication context = do
     actorId <- getInt maxChannels
     isOpen <- Bits.getBool
-    Trace.traceM ("Actor ID:\t" ++ show actorId)
-    Trace.traceM ("Open?:\t" ++ show isOpen)
     let go =
             if isOpen
                 then getOpenReplication
@@ -96,7 +91,6 @@ getOpenReplication :: Context
                    -> Bits.BitGet (Context, Replication)
 getOpenReplication context actorId = do
     isNew <- Bits.getBool
-    Trace.traceM ("New?:\t" ++ show isNew)
     let go =
             if isNew
                 then getNewReplication
@@ -115,12 +109,6 @@ getNewReplication context actorId = do
     let (classId,className) =
             getClass (contextObjectMap context) objectId & Maybe.fromJust
     classInit <- getClassInit className
-    Trace.traceM ("Flag:\t" ++ show unknownFlag)
-    Trace.traceM ("Object ID:\t" ++ show objectId)
-    Trace.traceM ("Class ID:\t" ++ show classId)
-    Trace.traceM ("Object name:\t" ++ show objectName)
-    Trace.traceM ("Class name:\t" ++ show className)
-    Trace.traceM ("Initialization:\t" ++ show classInit)
     let thing = Thing
             { thingFlag = unknownFlag
             , thingObjectId = objectId
@@ -138,19 +126,23 @@ getNewReplication context actorId = do
           { replicationActorId = actorId
           , replicationIsOpen = True
           , replicationIsNew = Just True
+          , replicationProps = []
           })
 
 getExistingReplication :: Context
                        -> ActorId
                        -> Bits.BitGet (Context, Replication)
 getExistingReplication context actorId = do
+    Trace.traceM ("Getting existing replication for " ++ show actorId)
     let thing = context & contextThings & IntMap.lookup actorId & Maybe.fromJust
+    Trace.traceM ("Getting props for " ++ show thing)
     props <- getProps context thing
-    Trace.traceM ("Props:\t" ++ show props)
+    Trace.traceM ("Got props " ++ show props)
     return (context, Replication
         { replicationActorId = actorId
         , replicationIsOpen = True
         , replicationIsNew = Just False
+        , replicationProps = props
         })
 
 getClosedReplication :: Context
@@ -165,6 +157,7 @@ getClosedReplication context actorId = do
           { replicationActorId = actorId
           , replicationIsOpen = False
           , replicationIsNew = Nothing
+          , replicationProps = []
           })
 
 getProps :: Context -> Thing -> Bits.BitGet [Prop]
@@ -201,36 +194,60 @@ getProp context thing = do
 
 getPropValue :: Text.Text -> Bits.BitGet PropValue
 getPropValue name = case Text.unpack name of
-    "TAGame.RBActor_TA:ReplicatedRBState" -> do
+    _ | Set.member name propsWithRigidBodyState -> do
         flag <- Bits.getBool
-        Trace.traceM ("Flag: " ++ show flag)
         position <- getVector
-        Trace.traceM ("Position: " ++ show position)
         rotation <- getFloatVector
-        Trace.traceM ("Rotation: " ++ show rotation)
         x <- if flag then return Nothing else fmap Just getVector
-        Trace.traceM ("Mystery vector 1: " ++ show x)
         y <- if flag then return Nothing else fmap Just getVector
-        Trace.traceM ("Mystery vector 2: " ++ show y)
         return (RigidBodyState flag position rotation x y)
-    "TAGame.Ball_TA:GameEvent" -> do
+    _ | Set.member name propsWithFlaggedInt -> do
         flag <- Bits.getBool
-        Trace.traceM ("Flag: " ++ show flag)
-        int <- Bits.getWord32be 32 -- TODO: This isn't quite right
-        Trace.traceM ("Int: " ++ show int)
+        int <- getInt (2 ^ (32 :: Int))
         return (FlaggedInt flag (fromIntegral int))
+    _ | Set.member name propsWithString -> do
+        -- TODO: This has a lot of overlap with PCString.
+        rawSize <- getInt (2 ^ (32 :: Int))
+        rawText <- if rawSize < 0
+            then do
+                let size = -2 * rawSize
+                bytes <- Bits.getByteString size
+                bytes & BS.map Type.reverseBits & Encoding.decodeUtf16LE & return
+            else do
+                bytes <- Bits.getByteString rawSize
+                bytes & BS.map Type.reverseBits & Encoding.decodeLatin1 & return
+        let text = rawText & Text.dropEnd 1
+        return (String text)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
+
+propsWithRigidBodyState :: Set.Set Text.Text
+propsWithRigidBodyState =
+    [ "TAGame.RBActor_TA:ReplicatedRBState"
+    ] & map Text.pack & Set.fromList
+
+propsWithFlaggedInt :: Set.Set Text.Text
+propsWithFlaggedInt =
+    [ "Engine.GameReplicationInfo:GameClass"
+    , "TAGame.Ball_TA:GameEvent"
+    , "TAGame.Team_TA:GameEvent"
+    ] & map Text.pack & Set.fromList
+
+propsWithString :: Set.Set Text.Text
+propsWithString =
+    [ "Engine.GameReplicationInfo:ServerName"
+    ] & map Text.pack & Set.fromList
 
 data Prop = Prop
     { propId :: Int
     , propValue :: PropValue
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 data PropValue
     = RigidBodyState Bool (Vector Int) (Vector Float) (Maybe (Vector Int)) (Maybe (Vector Int))
     | FlaggedInt Bool Int
-    deriving (Show)
+    | String Text.Text
+    deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
 -- | the match, the time since the last frame, and a list of replications.
@@ -240,16 +257,13 @@ data Frame = Frame
     , frameReplications :: [Replication]
     } deriving (Eq,Generics.Generic,Show)
 
-instance DeepSeq.NFData Frame
-
 -- | Replication information about an actor in the net stream.
 data Replication = Replication
     { replicationActorId :: Int
     , replicationIsOpen :: Bool
     , replicationIsNew :: Maybe Bool
+    , replicationProps :: [Prop]
     } deriving (Eq,Generics.Generic,Show)
-
-instance DeepSeq.NFData Replication
 
 data Thing = Thing
     { thingFlag :: Bool
@@ -270,7 +284,7 @@ data Vector a = Vector
     { vectorX :: a
     , vectorY :: a
     , vectorZ :: a
-    } deriving (Show)
+    } deriving (Eq, Show)
 
 data ClassInit = ClassInit
     { classInitLocation :: Maybe (Vector Int)
@@ -282,7 +296,7 @@ data CacheNode = CacheNode
     , cacheNodeParentCacheId :: Int
     , cacheNodeCacheId :: Int
     , cacheNodeProperties :: IntMap.IntMap Text.Text
-    }
+    } deriving (Show)
 
 -- { class id => node }
 type Cache = IntMap.IntMap CacheNode
@@ -376,7 +390,7 @@ buildClassPropertyMap replay =
     let classMap = buildClassMap replay
         cacheByStreamId = buildCache replay
         cacheByCacheId =
-            cacheByStreamId & IntMap.toList & map snd &
+            cacheByStreamId & IntMap.toDescList & map snd &
             map
                 (\node ->
                       (cacheNodeCacheId node, node)) &
