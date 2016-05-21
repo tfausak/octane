@@ -14,6 +14,7 @@ import qualified Data.IntMap as IntMap
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Encoding
 import qualified Debug.Trace as Trace
 import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
@@ -193,7 +194,7 @@ getProp context thing = do
 
 getPropValue :: Text.Text -> Bits.BitGet PropValue
 getPropValue name = case Text.unpack name of
-    "TAGame.RBActor_TA:ReplicatedRBState" -> do
+    _ | Set.member name propsWithRigidBodyState -> do
         flag <- Bits.getBool
         position <- getVector
         rotation <- getFloatVector
@@ -204,14 +205,37 @@ getPropValue name = case Text.unpack name of
         flag <- Bits.getBool
         int <- getInt (2 ^ (32 :: Int))
         return (FlaggedInt flag (fromIntegral int))
+    _ | Set.member name propsWithString -> do
+        -- TODO: This has a lot of overlap with PCString.
+        rawSize <- getInt (2 ^ (32 :: Int))
+        rawText <- if rawSize < 0
+            then do
+                let size = -2 * rawSize
+                bytes <- Bits.getByteString size
+                bytes & BS.map Type.reverseBits & Encoding.decodeUtf16LE & return
+            else do
+                bytes <- Bits.getByteString rawSize
+                bytes & BS.map Type.reverseBits & Encoding.decodeLatin1 & return
+        let text = rawText & Text.dropEnd 1
+        return (String text)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
+
+propsWithRigidBodyState :: Set.Set Text.Text
+propsWithRigidBodyState =
+    [ "TAGame.RBActor_TA:ReplicatedRBState"
+    ] & map Text.pack & Set.fromList
 
 propsWithFlaggedInt :: Set.Set Text.Text
 propsWithFlaggedInt =
     [ "Engine.GameReplicationInfo:GameClass"
     , "TAGame.Ball_TA:GameEvent"
     , "TAGame.Team_TA:GameEvent"
+    ] & map Text.pack & Set.fromList
+
+propsWithString :: Set.Set Text.Text
+propsWithString =
+    [ "Engine.GameReplicationInfo:ServerName"
     ] & map Text.pack & Set.fromList
 
 data Prop = Prop
@@ -222,6 +246,7 @@ data Prop = Prop
 data PropValue
     = RigidBodyState Bool (Vector Int) (Vector Float) (Maybe (Vector Int)) (Maybe (Vector Int))
     | FlaggedInt Bool Int
+    | String Text.Text
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
