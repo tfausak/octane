@@ -265,7 +265,7 @@ data CacheNode = CacheNode
     , cacheNodeParentCacheId :: Int
     , cacheNodeCacheId :: Int
     , cacheNodeProperties :: IntMap.IntMap Text.Text
-    }
+    } deriving (Show)
 
 -- { class id => node }
 type Cache = IntMap.IntMap CacheNode
@@ -359,7 +359,7 @@ buildClassPropertyMap replay =
     let classMap = buildClassMap replay
         cacheByStreamId = buildCache replay
         cacheByCacheId =
-            cacheByStreamId & IntMap.toList & map snd &
+            cacheByStreamId & IntMap.toDescList & map snd &
             map
                 (\node ->
                       (cacheNodeCacheId node, node)) &
