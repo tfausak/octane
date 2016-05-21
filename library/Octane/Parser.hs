@@ -200,12 +200,19 @@ getPropValue name = case Text.unpack name of
         x <- if flag then return Nothing else fmap Just getVector
         y <- if flag then return Nothing else fmap Just getVector
         return (RigidBodyState flag position rotation x y)
-    "TAGame.Ball_TA:GameEvent" -> do
+    _ | Set.member name propsWithFlaggedInt -> do
         flag <- Bits.getBool
         int <- getInt (2 ^ (32 :: Int))
         return (FlaggedInt flag (fromIntegral int))
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
+
+propsWithFlaggedInt :: Set.Set Text.Text
+propsWithFlaggedInt =
+    [ "Engine.GameReplicationInfo:GameClass"
+    , "TAGame.Ball_TA:GameEvent"
+    , "TAGame.Team_TA:GameEvent"
+    ] & map Text.pack & Set.fromList
 
 data Prop = Prop
     { propId :: Int
