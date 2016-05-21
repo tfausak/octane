@@ -216,7 +216,7 @@ getPropValue name = case Text.unpack name of
     "TAGame.Ball_TA:GameEvent" -> do
         flag <- Bits.getBool
         Trace.traceM ("Flag: " ++ show flag)
-        int <- Bits.getWord32be 32 -- TODO: This isn't quite right
+        int <- getInt (2 ^ (32 :: Int))
         Trace.traceM ("Int: " ++ show int)
         return (FlaggedInt flag (fromIntegral int))
     -- TODO: Parse other prop types.
