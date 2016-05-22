@@ -11,7 +11,6 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.Function ((&))
 import qualified Data.IntMap as IntMap
-import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
@@ -103,11 +102,12 @@ getNewReplication :: Context
 getNewReplication context actorId = do
     unknownFlag <- Bits.getBool
     objectId <- getInt (2 ^ (32 :: Int))
-    let objectName =
-            context & contextObjectMap & IntMap.lookup objectId &
-            Maybe.fromJust
-    let (classId,className) =
-            getClass (contextObjectMap context) objectId & Maybe.fromJust
+    let objectName = case context & contextObjectMap & IntMap.lookup objectId of
+            Nothing -> error ("could not find object name for id " ++ show objectId)
+            Just x -> x
+    let (classId,className) = case getClass (contextObjectMap context) objectId of
+            Nothing -> error ("could not find class for object id " ++ show objectId)
+            Just x -> x
     classInit <- getClassInit className
     let thing = Thing
             { thingFlag = unknownFlag
@@ -134,7 +134,9 @@ getExistingReplication :: Context
                        -> Bits.BitGet (Context, Replication)
 getExistingReplication context actorId = do
     Trace.traceM ("Getting existing replication for " ++ show actorId)
-    let thing = context & contextThings & IntMap.lookup actorId & Maybe.fromJust
+    let thing = case context & contextThings & IntMap.lookup actorId of
+            Nothing -> error ("could not find thing for actor id " ++ show actorId)
+            Just x -> x
     Trace.traceM ("Getting props for " ++ show thing)
     props <- getProps context thing
     Trace.traceM ("Got props " ++ show props)
@@ -181,12 +183,16 @@ getMaybeProp context thing = do
 getProp :: Context -> Thing -> Bits.BitGet Prop
 getProp context thing = do
     let classId = thing & thingClassId
-    let props = context & contextClassPropertyMap & IntMap.lookup classId & Maybe.fromJust
+    let props = case context & contextClassPropertyMap & IntMap.lookup classId of
+            Nothing -> error ("could not find property map for class id " ++ show classId)
+            Just x -> x
     let maxId = props & IntMap.keys & maximum
     Trace.traceM ("Max ID: " ++ show maxId)
     pid <- getInt maxId
     Trace.traceM ("Prop ID: " ++ show pid)
-    let propName = props & IntMap.lookup pid & Maybe.fromJust
+    let propName = case props & IntMap.lookup pid of
+            Nothing -> error ("could not find property name for property id " ++ show pid)
+            Just x -> x
     Trace.traceM ("Prop name: " ++ show propName)
     value <- getPropValue propName
     Trace.traceM ("Prop value: " ++ show value)
@@ -360,12 +366,9 @@ buildCache replay =
                              ( property & Type.cachePropertyStreamId &
                                Newtype.unpack &
                                fromIntegral
-                             , property & Type.cachePropertyObjectId &
-                               Newtype.unpack &
-                               fromIntegral &
-                               (\objectId ->
-                                     IntMap.lookup objectId objectMap) &
-                               Maybe.fromJust)) &
+                             , case property & Type.cachePropertyObjectId & Newtype.unpack & fromIntegral & flip IntMap.lookup objectMap of
+                                Nothing -> error ("could not find object for property " ++ show property)
+                                Just x -> x)) &
                    IntMap.fromList
                  }) &
        map
