@@ -222,6 +222,9 @@ getPropValue name = case Text.unpack name of
         x <- getInt32
         y <- getInt32
         return (PQWord x y)
+    _ | Set.member name propsWithInt -> do
+        int <- getInt32
+        return (PInt int)
     "ProjectX.GRI_X:Reservations" -> do
         -- I think this is the connection order. The first player to connect
         -- gets number 0, and it goes up from there. The maximum is 8, which
@@ -295,6 +298,11 @@ propsWithQWord =
     [ "ProjectX.GRI_X:GameServerID"
     ] & map Text.pack & Set.fromList
 
+propsWithInt :: Set.Set Text.Text
+propsWithInt =
+    [ "ProjectX.GRI_X:ReplicatedGamePlaylist"
+    ] & map Text.pack & Set.fromList
+
 type SystemId = Word.Word8
 
 -- This is the number associated with a splitscreen player. So the first player
@@ -320,6 +328,7 @@ data PropValue
     | PBoolean Bool
     | PQWord Int Int
     | PReservation Int SystemId UniqueId SplitscreenId (Maybe Text.Text) Bool Bool
+    | PInt Int
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
