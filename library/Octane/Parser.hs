@@ -206,11 +206,11 @@ getPropValue name = case Text.unpack name of
         rotation <- getFloatVector
         x <- if flag then return Nothing else fmap Just getVector
         y <- if flag then return Nothing else fmap Just getVector
-        return (RigidBodyState flag position rotation x y)
+        return (PRigidBodyState flag position rotation x y)
     _ | Set.member name propsWithFlaggedInt -> do
         flag <- Bits.getBool
         int <- getInt (2 ^ (32 :: Int))
-        return (FlaggedInt flag (fromIntegral int))
+        return (PFlaggedInt flag (fromIntegral int))
     _ | Set.member name propsWithString -> do
         -- TODO: This has a lot of overlap with PCString.
         rawSize <- getInt (2 ^ (32 :: Int))
@@ -223,7 +223,14 @@ getPropValue name = case Text.unpack name of
                 bytes <- Bits.getByteString rawSize
                 bytes & BS.map Type.reverseBits & Encoding.decodeLatin1 & return
         let text = rawText & Text.dropEnd 1
-        return (String text)
+        return (PString text)
+    _ | Set.member name propsWithBoolean -> do
+        bool <- Bits.getBool
+        return (PBoolean bool)
+    _ | Set.member name propsWithQWord -> do
+        x <- getInt (2 ^ (32 :: Int))
+        y <- getInt (2 ^ (32 :: Int))
+        return (PQWord x y)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -244,15 +251,27 @@ propsWithString =
     [ "Engine.GameReplicationInfo:ServerName"
     ] & map Text.pack & Set.fromList
 
+propsWithBoolean :: Set.Set Text.Text
+propsWithBoolean =
+    [ "ProjectX.GRI_X:bGameStarted"
+    ] & map Text.pack & Set.fromList
+
+propsWithQWord :: Set.Set Text.Text
+propsWithQWord =
+    [ "ProjectX.GRI_X:GameServerID"
+    ] & map Text.pack & Set.fromList
+
 data Prop = Prop
     { propId :: Int
     , propValue :: PropValue
     } deriving (Eq, Show)
 
 data PropValue
-    = RigidBodyState Bool (Vector Int) (Vector Float) (Maybe (Vector Int)) (Maybe (Vector Int))
-    | FlaggedInt Bool Int
-    | String Text.Text
+    = PRigidBodyState Bool (Vector Int) (Vector Float) (Maybe (Vector Int)) (Maybe (Vector Int))
+    | PFlaggedInt Bool Int
+    | PString Text.Text
+    | PBoolean Bool
+    | PQWord Int Int
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
