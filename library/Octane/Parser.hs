@@ -101,7 +101,7 @@ getNewReplication :: Context
                   -> Bits.BitGet (Context, Replication)
 getNewReplication context actorId = do
     unknownFlag <- Bits.getBool
-    objectId <- getInt (2 ^ (32 :: Int))
+    objectId <- getInt32
     let objectName = case context & contextObjectMap & IntMap.lookup objectId of
             Nothing -> error ("could not find object name for id " ++ show objectId)
             Just x -> x
@@ -209,11 +209,11 @@ getPropValue name = case Text.unpack name of
         return (PRigidBodyState flag position rotation x y)
     _ | Set.member name propsWithFlaggedInt -> do
         flag <- Bits.getBool
-        int <- getInt (2 ^ (32 :: Int))
+        int <- getInt32
         return (PFlaggedInt flag (fromIntegral int))
     _ | Set.member name propsWithString -> do
         -- TODO: This has a lot of overlap with PCString.
-        rawSize <- getInt (2 ^ (32 :: Int))
+        rawSize <- getInt32
         rawText <- if rawSize < 0
             then do
                 let size = -2 * rawSize
@@ -228,8 +228,8 @@ getPropValue name = case Text.unpack name of
         bool <- Bits.getBool
         return (PBoolean bool)
     _ | Set.member name propsWithQWord -> do
-        x <- getInt (2 ^ (32 :: Int))
-        y <- getInt (2 ^ (32 :: Int))
+        x <- getInt32
+        y <- getInt32
         return (PQWord x y)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
@@ -608,3 +608,6 @@ getInt maxValue = do
                     go (i + 1) newValue
                 else return value
     go 0 0
+
+getInt32 :: Bits.BitGet Int
+getInt32 = getInt (2 ^ (32 :: Int))
