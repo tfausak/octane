@@ -22,6 +22,18 @@ import qualified Text.Printf as Printf
 
 parseFrames :: Type.Replay -> [Frame]
 parseFrames replay = do
+    replay
+        & Type.replayCacheItems
+        & Newtype.unpack
+        & map (\ x ->
+            "\t"
+                ++ (x & Type.cacheItemClassId & Newtype.unpack & show)
+                ++ "\t"
+                ++ (x & Type.cacheItemCacheId & Newtype.unpack & show)
+                ++ "\t"
+                ++ (x & Type.cacheItemParentCacheId & Newtype.unpack & show))
+        & unlines
+        & Trace.traceM
     let get = replay & extractContext & getFrames & Bits.runBitGet
         stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
     Binary.runGet get stream
@@ -191,6 +203,7 @@ getProp context thing = do
     Trace.traceM ("Max ID: " ++ show maxId)
     pid <- getInt maxId
     Trace.traceM ("Prop ID: " ++ show pid)
+    props & IntMap.toAscList & map (\ (k, v) -> " " ++ show k ++ " => " ++ show v) & unlines & Trace.traceM
     let propName = case props & IntMap.lookup pid of
             Nothing -> error ("could not find property name for property id " ++ show pid)
             Just x -> x
@@ -454,9 +467,13 @@ buildCache replay =
 
 getPropertyMap :: Cache -> Int -> IntMap.IntMap Text.Text
 getPropertyMap cache cacheId =
+    Trace.trace ("getting property map for cache id " ++ show cacheId) $
     case IntMap.lookup cacheId cache of
-        Nothing -> IntMap.empty
+        Nothing ->
+            Trace.trace ("did not find property map for cache id " ++ show cacheId) $
+            IntMap.empty
         Just node ->
+            Trace.trace ("found property map for cache id " ++ show cacheId) $
             if cacheNodeParentCacheId node == 0 ||
                cacheNodeParentCacheId node == cacheId
                 then cacheNodeProperties node
