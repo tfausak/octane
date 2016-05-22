@@ -42,7 +42,7 @@ debug (file,contents,result) =
                     Aeson.defConfig
                     { Aeson.confCompare = compare
                     }
-            Monad.when False $ replay & Aeson.encodePretty' config & BSL8.putStrLn -- TODO
+            replay & Aeson.encodePretty' config & BSL8.putStrLn
             let frames = Parser.parseFrames replay
             let frame = take 1 frames
             print frame
