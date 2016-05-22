@@ -14,6 +14,7 @@ import qualified Data.IntMap as IntMap
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
+import qualified Data.Word as Word
 import qualified Debug.Trace as Trace
 import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
@@ -212,18 +213,8 @@ getPropValue name = case Text.unpack name of
         int <- getInt32
         return (PFlaggedInt flag (fromIntegral int))
     _ | Set.member name propsWithString -> do
-        -- TODO: This has a lot of overlap with PCString.
-        rawSize <- getInt32
-        rawText <- if rawSize < 0
-            then do
-                let size = -2 * rawSize
-                bytes <- Bits.getByteString size
-                bytes & BS.map Type.reverseBits & Encoding.decodeUtf16LE & return
-            else do
-                bytes <- Bits.getByteString rawSize
-                bytes & BS.map Type.reverseBits & Encoding.decodeLatin1 & return
-        let text = rawText & Text.dropEnd 1
-        return (PString text)
+        string <- getString
+        return (PString string)
     _ | Set.member name propsWithBoolean -> do
         bool <- Bits.getBool
         return (PBoolean bool)
@@ -231,8 +222,51 @@ getPropValue name = case Text.unpack name of
         x <- getInt32
         y <- getInt32
         return (PQWord x y)
+    "ProjectX.GRI_X:Reservations" -> do
+        -- I think this is the connection order. The first player to connect
+        -- gets number 0, and it goes up from there. The maximum is 8, which
+        -- would be a full 4x4 game.
+        number <- getInt 8
+        (systemId, uniqueId, splitscreenId) <- getUniqueId
+        playerName <- if systemId == 0 then return Nothing else do
+            string <- getString
+            return (Just string)
+        -- No idea what these two flags are. Might be for bots?
+        a <- Bits.getBool
+        b <- Bits.getBool
+        return (PReservation number systemId uniqueId splitscreenId playerName a b)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
+
+-- TODO: This has a lot of overlap with PCString.
+getString :: Bits.BitGet Text.Text
+getString = do
+    rawSize <- getInt32
+    rawText <- if rawSize < 0
+        then do
+            let size = -2 * rawSize
+            bytes <- Bits.getByteString size
+            bytes & BS.map Type.reverseBits & Encoding.decodeUtf16LE & return
+        else do
+            bytes <- Bits.getByteString rawSize
+            bytes & BS.map Type.reverseBits & Encoding.decodeLatin1 & return
+    rawText & Text.dropEnd 1 & return
+
+getUniqueId :: Bits.BitGet (SystemId, UniqueId, SplitscreenId)
+getUniqueId = do
+    byte <- Bits.getWord8 8
+    let systemId = Type.reverseBits byte
+    case systemId of
+        0 -> error "don't know how to parse splitscreen ids"
+        1 -> do
+            uniqueId <- Bits.getByteString 8
+            splitscreenId <- Bits.getWord8 8
+            return (systemId, SteamId uniqueId, splitscreenId)
+        2 -> do
+            uniqueId <- Bits.getByteString 32
+            splitscreenId <- Bits.getWord8 8
+            return (systemId, PlayStationId uniqueId, splitscreenId)
+        _ -> error ("unknown system id " ++ show systemId)
 
 propsWithRigidBodyState :: Set.Set Text.Text
 propsWithRigidBodyState =
@@ -261,6 +295,19 @@ propsWithQWord =
     [ "ProjectX.GRI_X:GameServerID"
     ] & map Text.pack & Set.fromList
 
+type SystemId = Word.Word8
+
+-- This is the number associated with a splitscreen player. So the first player
+-- is 0, the second is 1, and so on.
+-- - 0 "Someone"
+-- - 1 "Someone (1)"
+type SplitscreenId = Word.Word8
+
+data UniqueId
+    = SteamId BS.ByteString -- TODO: This is an integer.
+    | PlayStationId BS.ByteString -- TODO: I think this is a string?
+    deriving (Eq, Show)
+
 data Prop = Prop
     { propId :: Int
     , propValue :: PropValue
@@ -272,6 +319,7 @@ data PropValue
     | PString Text.Text
     | PBoolean Bool
     | PQWord Int Int
+    | PReservation Int SystemId UniqueId SplitscreenId (Maybe Text.Text) Bool Bool
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
