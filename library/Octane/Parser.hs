@@ -784,7 +784,7 @@ buildClassPropertyMap' :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
 buildClassPropertyMap' replay = let
     propertyMap = buildPropertyMap' replay
     g x items = case items of
-        (classId, cacheId, parentCacheId, properties) : others ->
+        (_classId, cacheId, parentCacheId, properties) : others ->
             if x >= cacheId -- TODO: This seems dangeroues
             then IntMap.union
                 properties
@@ -792,7 +792,7 @@ buildClassPropertyMap' replay = let
             else g x others
         [] -> IntMap.empty
     f x items = case items of
-        (classId, cacheId, parentCacheId, properties) : others -> IntMap.insert
+        (classId, _cacheId, parentCacheId, properties) : others -> IntMap.insert
             classId
             (IntMap.union
                 properties
@@ -804,7 +804,7 @@ buildClassPropertyMap' replay = let
         & Newtype.unpack
         & map (\ item ->
             ( item & Type.cacheItemClassId & Newtype.unpack & fromIntegral
-            , item & Type.cacheItemCacheId & Newtype.unpack & fromIntegral
+            , item & Type.cacheItemCacheId & Newtype.unpack & fromIntegral & (\ x -> x :: Int)
             , item & Type.cacheItemParentCacheId & Newtype.unpack & fromIntegral
             , item & Type.cacheItemCacheProperties & Newtype.unpack & map (\ x ->
                 ( x & Type.cachePropertyStreamId & Newtype.unpack & fromIntegral
