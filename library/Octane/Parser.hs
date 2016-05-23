@@ -11,6 +11,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.Function ((&))
 import qualified Data.IntMap as IntMap
+import qualified Data.List as List
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -41,6 +42,23 @@ parseFrames replay = do
 
 getFrames :: Context -> Bits.BitGet [Frame]
 getFrames context = do
+    context
+        & contextClassPropertyMap
+        & IntMap.toAscList
+        & map (\ (a, b) ->
+            " "
+                ++ show a
+                ++ " =>\n"
+                ++ (b
+                    & IntMap.toAscList
+                    & map (\ (c, d) ->
+                        "  "
+                            ++ show c
+                            ++ " => "
+                            ++ show d)
+                    & unlines))
+        & unlines
+        & Trace.traceM
     maybeFrame <- getMaybeFrame context
     case maybeFrame of
         Nothing -> return []
@@ -204,7 +222,6 @@ getProp context thing = do
     Trace.traceM ("Max ID: " ++ show maxId)
     pid <- getInt maxId
     Trace.traceM ("Prop ID: " ++ show pid)
-    props & IntMap.toAscList & map (\ (k, v) -> " " ++ show k ++ " => " ++ show v) & unlines & Trace.traceM
     let propName = case props & IntMap.lookup pid of
             Nothing -> error ("could not find property name for property id " ++ show pid)
             Just x -> x
@@ -535,7 +552,7 @@ extractContext :: Type.Replay -> Context
 extractContext replay =
     Context
     { contextObjectMap = buildObjectMap replay
-    , contextClassPropertyMap = buildClassPropertyMap replay
+    , contextClassPropertyMap = buildClassPropertyMap' replay
     , contextThings = IntMap.empty
     }
 
@@ -733,8 +750,8 @@ buildClassMap' replay
 
 -- builds a map from class ids in the stream to a map of property ids in the
 -- stream to property names
-buildClassPropertyMap' :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
-buildClassPropertyMap' replay = let
+buildPartialClassPropertyMap' :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
+buildPartialClassPropertyMap' replay = let
     propertyMap = buildPropertyMap' replay
     in replay
         & Type.replayCacheItems
@@ -746,10 +763,45 @@ buildClassPropertyMap' replay = let
                 & Newtype.unpack
                 & map (\ y -> let
                     propertyId = y & Type.cachePropertyStreamId & Newtype.unpack & fromIntegral
-                    propertyName = y & Type.cachePropertyObjectId & Newtype.unpack & fromIntegral & flip IntMap.lookup propertyMap & Maybe.fromJust
+                    propertyName = case y & Type.cachePropertyObjectId & Newtype.unpack & fromIntegral & flip IntMap.lookup propertyMap of
+                        Nothing -> error ("could not find property name for id " ++ show propertyId ++ " in class " ++ show classId)
+                        Just z -> z
                     in (propertyId, propertyName))
                 & IntMap.fromList
             in (classId, properties))
         & IntMap.fromDistinctAscList
 
--- TODO: add parent's properties to class property map
+buildClassPropertyMap' :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
+buildClassPropertyMap' replay = let
+    propertyMap = buildPropertyMap' replay
+    g x items = case items of
+        (classId, cacheId, parentCacheId, properties) : others ->
+            if x >= cacheId -- TODO: This seems dangeroues
+            then IntMap.union
+                properties
+                (g parentCacheId others)
+            else g x others
+        [] -> IntMap.empty
+    f x items = case items of
+        (classId, cacheId, parentCacheId, properties) : others -> IntMap.insert
+            classId
+            (IntMap.union
+                properties
+                (g parentCacheId others))
+            x
+        [] -> x
+    in replay
+        & Type.replayCacheItems
+        & Newtype.unpack
+        & map (\ item ->
+            ( item & Type.cacheItemClassId & Newtype.unpack & fromIntegral
+            , item & Type.cacheItemCacheId & Newtype.unpack & fromIntegral
+            , item & Type.cacheItemParentCacheId & Newtype.unpack & fromIntegral
+            , item & Type.cacheItemCacheProperties & Newtype.unpack & map (\ x ->
+                ( x & Type.cachePropertyStreamId & Newtype.unpack & fromIntegral
+                , x & Type.cachePropertyObjectId & Newtype.unpack & fromIntegral & flip IntMap.lookup propertyMap & Maybe.fromJust
+                )) & IntMap.fromList
+            ))
+        & reverse
+        & List.tails
+        & foldl f IntMap.empty
