@@ -11,6 +11,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.Function ((&))
 import qualified Data.IntMap as IntMap
+import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
@@ -465,14 +466,11 @@ buildCache replay =
                  (cacheNodeClassId node, node)) &
        IntMap.fromList
 
-getPropertyMap :: Cache -> Int -> IntMap.IntMap Text.Text
+getPropertyMap :: IntMap.IntMap [CacheNode] -> Int -> IntMap.IntMap Text.Text
 getPropertyMap cache cacheId =
     Trace.trace ("getting property map for cache id " ++ show cacheId) $
     case IntMap.lookup cacheId cache of
-        Nothing ->
-            Trace.trace ("did not find property map for cache id " ++ show cacheId) $
-            IntMap.empty
-        Just node ->
+        Just [node] ->
             Trace.trace ("found property map for cache id " ++ show cacheId) $
             if cacheNodeParentCacheId node == 0 ||
                cacheNodeParentCacheId node == cacheId
@@ -480,6 +478,22 @@ getPropertyMap cache cacheId =
                 else IntMap.union
                          (cacheNodeProperties node)
                          (getPropertyMap cache (cacheNodeParentCacheId node))
+        Just nodes -> case nodes of
+            [] ->
+                Trace.trace ("impossibly did not have any property maps for cache id " ++ show cacheId) $
+                IntMap.empty
+            node : _ ->
+                Trace.trace ("found multiple property maps for cache id " ++ show cacheId) $
+                Trace.traceShow nodes $
+                if cacheNodeParentCacheId node == 0 ||
+                   cacheNodeParentCacheId node == cacheId
+                    then cacheNodeProperties node
+                    else IntMap.union
+                             (cacheNodeProperties node)
+                             (getPropertyMap cache (cacheNodeParentCacheId node))
+        Nothing ->
+            Trace.trace ("did not find property map for cache id " ++ show cacheId) $
+            IntMap.empty
 
 buildClassPropertyMap :: Type.Replay -> ClassPropertyMap
 buildClassPropertyMap replay =
@@ -489,9 +503,11 @@ buildClassPropertyMap replay =
             cacheByStreamId & IntMap.toDescList & map snd &
             map
                 (\node ->
-                      (cacheNodeCacheId node, node)) &
-            IntMap.fromList
-        f streamId _ m =
+                      (cacheNodeCacheId node, [node])) &
+            IntMap.fromListWith (++)
+        f streamId v m =
+            Trace.trace ("class id " ++ show streamId) $
+            Trace.trace ("class name " ++ show v) $
             case IntMap.lookup streamId cacheByStreamId of
                 Nothing -> m
                 Just node ->
@@ -499,7 +515,11 @@ buildClassPropertyMap replay =
                         streamId
                         (getPropertyMap cacheByCacheId (cacheNodeCacheId node))
                         m
-    in IntMap.foldrWithKey f IntMap.empty classMap
+    in
+        Trace.trace ("size of cache " ++ show (length (Newtype.unpack (Type.replayCacheItems replay)))) $
+        Trace.trace ("size of cache by stream id " ++ show (IntMap.size cacheByStreamId)) $
+        Trace.trace ("size of cache by cache id " ++ show (IntMap.size cacheByCacheId)) $
+        IntMap.foldrWithKey f IntMap.empty classMap
 
 getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
 getClass objectMap objectId =
@@ -685,3 +705,51 @@ getInt maxValue = do
 
 getInt32 :: Bits.BitGet Int
 getInt32 = getInt (2 ^ (32 :: Int))
+
+-- I'm trying to wrap my head around building the class property map. I figured
+-- I'd take another shot at it from scratch.
+
+-- builds a map from property ids in the stream to property names
+buildPropertyMap' :: Type.Replay -> IntMap.IntMap Text.Text
+buildPropertyMap' replay
+    = replay
+    & Type.replayObjects
+    & Newtype.unpack
+    & map Newtype.unpack
+    & zip [0 ..]
+    & IntMap.fromDistinctAscList
+
+-- builds a map from class ids in the stream to class names
+buildClassMap' :: Type.Replay -> IntMap.IntMap Text.Text
+buildClassMap' replay
+    = replay
+    & Type.replayActors
+    & Newtype.unpack
+    & map (\ x -> let
+        classId = x & Type.actorStreamId & Newtype.unpack & fromIntegral
+        className = x & Type.actorName & Newtype.unpack
+        in (classId, className))
+    & IntMap.fromDistinctAscList
+
+-- builds a map from class ids in the stream to a map of property ids in the
+-- stream to property names
+buildClassPropertyMap' :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
+buildClassPropertyMap' replay = let
+    propertyMap = buildPropertyMap' replay
+    in replay
+        & Type.replayCacheItems
+        & Newtype.unpack
+        & map (\ x -> let
+            classId = x & Type.cacheItemClassId & Newtype.unpack & fromIntegral
+            properties = x
+                & Type.cacheItemCacheProperties
+                & Newtype.unpack
+                & map (\ y -> let
+                    propertyId = y & Type.cachePropertyStreamId & Newtype.unpack & fromIntegral
+                    propertyName = y & Type.cachePropertyObjectId & Newtype.unpack & fromIntegral & flip IntMap.lookup propertyMap & Maybe.fromJust
+                    in (propertyId, propertyName))
+                & IntMap.fromList
+            in (classId, properties))
+        & IntMap.fromDistinctAscList
+
+-- TODO: add parent's properties to class property map
