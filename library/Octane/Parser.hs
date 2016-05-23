@@ -214,7 +214,10 @@ getMaybeProp context thing = do
 
 getProp :: Context -> Thing -> Bits.BitGet Prop
 getProp context thing = do
-    let classId = thing & thingClassId
+    -- TODO: WHY?!
+    let classId = if thingClassName thing == Text.pack "TAGame.Default__CameraSettingsActor_TA"
+            then thingClassId thing - 1
+            else thingClassId thing
     let props = case context & contextClassPropertyMap & IntMap.lookup classId of
             Nothing -> error ("could not find property map for class id " ++ show classId)
             Just x -> x
@@ -344,6 +347,7 @@ propsWithFlaggedInt =
     , "Engine.PlayerReplicationInfo:Team"
     , "TAGame.Ball_TA:GameEvent"
     , "TAGame.PRI_TA:PersistentCamera"
+    , "TAGame.PRI_TA:ReplicatedGameEvent"
     , "TAGame.Team_TA:GameEvent"
     ] & map Text.pack & Set.fromList
 
@@ -357,6 +361,8 @@ propsWithBoolean :: Set.Set Text.Text
 propsWithBoolean =
     [ "Engine.PlayerReplicationInfo:bReadyToPlay"
     , "ProjectX.GRI_X:bGameStarted"
+    , "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera"
+    , "TAGame.PRI_TA:bOnlineLoadoutSet"
     ] & map Text.pack & Set.fromList
 
 propsWithQWord :: Set.Set Text.Text
