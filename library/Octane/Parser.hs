@@ -284,7 +284,22 @@ getPropValue name = case Text.unpack name of
                 value <- getInt (2 ^ (8 :: Int))
                 return (Just value)
             else return Nothing
-        return (PLoadout version x y z)
+        return (PLoadoutOnline version x y z)
+    "TAGame.PRI_TA:ClientLoadout" -> do
+        version <- getInt (2 ^ (8 :: Int))
+        a <- getInt32
+        b <- getInt32
+        c <- getInt32
+        d <- getInt32
+        e <- getInt32
+        f <- getInt32
+        g <- getInt32
+        h <- if version > 10
+            then do
+                value <- getInt32
+                return (Just value)
+            else return Nothing
+        return (PLoadout version a b c d e f g h)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -396,7 +411,8 @@ data PropValue
     | PInt Int
     | PByte Int
     | PUniqueId SystemId RemoteId LocalId
-    | PLoadout Int Int Int (Maybe Int)
+    | PLoadoutOnline Int Int Int (Maybe Int)
+    | PLoadout Int Int Int Int Int Int Int Int (Maybe Int)
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
