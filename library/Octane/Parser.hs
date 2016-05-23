@@ -259,19 +259,22 @@ getPropValue name = case Text.unpack name of
     _ | Set.member name propsWithByte -> do
         int <- getInt (2 ^ (8 :: Int))
         return (PByte int)
+    _ | Set.member name propsWithUniqueId -> do
+        (systemId, remoteId, localId) <- getUniqueId
+        return (PUniqueId systemId remoteId localId)
     "ProjectX.GRI_X:Reservations" -> do
         -- I think this is the connection order. The first player to connect
         -- gets number 0, and it goes up from there. The maximum is 8, which
         -- would be a full 4x4 game.
         number <- getInt 8
-        (systemId, uniqueId, splitscreenId) <- getUniqueId
+        (systemId, remoteId, localId) <- getUniqueId
         playerName <- if systemId == 0 then return Nothing else do
             string <- getString
             return (Just string)
         -- No idea what these two flags are. Might be for bots?
         a <- Bits.getBool
         b <- Bits.getBool
-        return (PReservation number systemId uniqueId splitscreenId playerName a b)
+        return (PReservation number systemId remoteId localId playerName a b)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -289,20 +292,20 @@ getString = do
             bytes & BS.map Type.reverseBits & Encoding.decodeLatin1 & return
     rawText & Text.dropEnd 1 & return
 
-getUniqueId :: Bits.BitGet (SystemId, UniqueId, SplitscreenId)
+getUniqueId :: Bits.BitGet (SystemId, RemoteId, LocalId)
 getUniqueId = do
     byte <- Bits.getWord8 8
     let systemId = Type.reverseBits byte
     case systemId of
         0 -> error "don't know how to parse splitscreen ids"
         1 -> do
-            uniqueId <- Bits.getByteString 8
-            splitscreenId <- Bits.getWord8 8
-            return (systemId, SteamId uniqueId, splitscreenId)
+            remoteId <- Bits.getByteString 8
+            localId <- Bits.getWord8 8
+            return (systemId, SteamId remoteId, localId)
         2 -> do
-            uniqueId <- Bits.getByteString 32
-            splitscreenId <- Bits.getWord8 8
-            return (systemId, PlayStationId uniqueId, splitscreenId)
+            remoteId <- Bits.getByteString 32
+            localId <- Bits.getWord8 8
+            return (systemId, PlayStationId remoteId, localId)
         _ -> error ("unknown system id " ++ show systemId)
 
 propsWithRigidBodyState :: Set.Set Text.Text
@@ -313,18 +316,22 @@ propsWithRigidBodyState =
 propsWithFlaggedInt :: Set.Set Text.Text
 propsWithFlaggedInt =
     [ "Engine.GameReplicationInfo:GameClass"
+    , "Engine.PlayerReplicationInfo:Team"
     , "TAGame.Ball_TA:GameEvent"
+    , "TAGame.PRI_TA:PersistentCamera"
     , "TAGame.Team_TA:GameEvent"
     ] & map Text.pack & Set.fromList
 
 propsWithString :: Set.Set Text.Text
 propsWithString =
     [ "Engine.GameReplicationInfo:ServerName"
+    , "Engine.PlayerReplicationInfo:PlayerName"
     ] & map Text.pack & Set.fromList
 
 propsWithBoolean :: Set.Set Text.Text
 propsWithBoolean =
-    [ "ProjectX.GRI_X:bGameStarted"
+    [ "Engine.PlayerReplicationInfo:bReadyToPlay"
+    , "ProjectX.GRI_X:bGameStarted"
     ] & map Text.pack & Set.fromList
 
 propsWithQWord :: Set.Set Text.Text
@@ -334,12 +341,21 @@ propsWithQWord =
 
 propsWithInt :: Set.Set Text.Text
 propsWithInt =
-    [ "ProjectX.GRI_X:ReplicatedGamePlaylist"
+    [ "Engine.PlayerReplicationInfo:PlayerID"
+    , "ProjectX.GRI_X:ReplicatedGamePlaylist"
+    , "TAGame.PRI_TA:Title"
+    , "TAGame.PRI_TA:TotalXP"
     ] & map Text.pack & Set.fromList
 
 propsWithByte :: Set.Set Text.Text
 propsWithByte =
     [ "Engine.PlayerReplicationInfo:Ping"
+    ] & map Text.pack & Set.fromList
+
+propsWithUniqueId :: Set.Set Text.Text
+propsWithUniqueId =
+    [ "Engine.PlayerReplicationInfo:UniqueId"
+    , "TAGame.PRI_TA:PartyLeader"
     ] & map Text.pack & Set.fromList
 
 type SystemId = Word.Word8
@@ -348,9 +364,9 @@ type SystemId = Word.Word8
 -- is 0, the second is 1, and so on.
 -- - 0 "Someone"
 -- - 1 "Someone (1)"
-type SplitscreenId = Word.Word8
+type LocalId = Word.Word8
 
-data UniqueId
+data RemoteId
     = SteamId BS.ByteString -- TODO: This is an integer.
     | PlayStationId BS.ByteString -- TODO: I think this is a string?
     deriving (Eq, Show)
@@ -366,9 +382,10 @@ data PropValue
     | PString Text.Text
     | PBoolean Bool
     | PQWord Int Int
-    | PReservation Int SystemId UniqueId SplitscreenId (Maybe Text.Text) Bool Bool
+    | PReservation Int SystemId RemoteId LocalId (Maybe Text.Text) Bool Bool
     | PInt Int
     | PByte Int
+    | PUniqueId SystemId RemoteId LocalId
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
