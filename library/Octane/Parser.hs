@@ -199,6 +199,10 @@ getProp context thing = do
             then rawClassId - 4
             else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_60"
             then rawClassId - 5
+            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_58"
+            then rawClassId - 6
+            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_61"
+            then rawClassId - 7
             else rawClassId
 
     let props = case context & contextClassPropertyMap & IntMap.lookup classId of
@@ -309,6 +313,9 @@ getPropValue name = case Text.unpack name of
         instigatorId <- if instigator then fmap Just getInt32 else return Nothing
         pickedUp <- Bits.getBool
         return (PPickup instigator instigatorId pickedUp)
+    "Engine.Actor:Role" -> do
+        x <- Bits.getWord16be 11
+        return (PEnum x)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -380,6 +387,8 @@ propsWithBoolean =
     , "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam"
     , "TAGame.PRI_TA:bOnlineLoadoutSet"
     , "TAGame.Vehicle_TA:bDriving"
+    , "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit"
+    , "TAGame.Vehicle_TA:bReplicatedHandbrake"
     ] & map Text.pack & Set.fromList
 
 propsWithQWord :: Set.Set Text.Text
@@ -399,6 +408,7 @@ propsWithInt =
     , "TAGame.GameEvent_Team_TA:MaxTeamSize"
     , "TAGame.PRI_TA:Title"
     , "TAGame.PRI_TA:TotalXP"
+    , "TAGame.PRI_TA:MatchScore"
     ] & map Text.pack & Set.fromList
 
 propsWithByte :: Set.Set Text.Text
@@ -408,6 +418,7 @@ propsWithByte =
     , "TAGame.Vehicle_TA:ReplicatedThrottle"
     , "TAGame.CarComponent_TA:ReplicatedActive"
     , "TAGame.Vehicle_TA:ReplicatedSteer"
+    , "TAGame.Ball_TA:HitTeamNum"
     ] & map Text.pack & Set.fromList
 
 propsWithUniqueId :: Set.Set Text.Text
@@ -460,6 +471,7 @@ data PropValue
     | PTeamPaint Int Int Int Int Int
     | PLocation (Vector Int)
     | PPickup Bool (Maybe Int) Bool
+    | PEnum Word.Word16 -- TODO: This isn't the right data type.
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
