@@ -328,6 +328,7 @@ propsWithFlaggedInt =
     [ "Engine.GameReplicationInfo:GameClass"
     , "Engine.PlayerReplicationInfo:Team"
     , "TAGame.Ball_TA:GameEvent"
+    , "TAGame.CameraSettingsActor_TA:PRI"
     , "TAGame.PRI_TA:PersistentCamera"
     , "TAGame.PRI_TA:ReplicatedGameEvent"
     , "TAGame.Team_TA:GameEvent"
@@ -344,6 +345,8 @@ propsWithBoolean =
     [ "Engine.PlayerReplicationInfo:bReadyToPlay"
     , "ProjectX.GRI_X:bGameStarted"
     , "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera"
+    , "TAGame.GameEvent_TA:bHasLeaveMatchPenalty"
+    , "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam"
     , "TAGame.PRI_TA:bOnlineLoadoutSet"
     ] & map Text.pack & Set.fromList
 
@@ -356,6 +359,10 @@ propsWithInt :: Set.Set Text.Text
 propsWithInt =
     [ "Engine.PlayerReplicationInfo:PlayerID"
     , "ProjectX.GRI_X:ReplicatedGamePlaylist"
+    , "TAGame.GameEvent_Soccar_TA:SecondsRemaining"
+    , "TAGame.GameEvent_TA:BotSkill"
+    , "TAGame.GameEvent_TA:ReplicatedStateName"
+    , "TAGame.GameEvent_Team_TA:MaxTeamSize"
     , "TAGame.PRI_TA:Title"
     , "TAGame.PRI_TA:TotalXP"
     ] & map Text.pack & Set.fromList
