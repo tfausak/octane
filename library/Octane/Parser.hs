@@ -22,58 +22,59 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
 
 parseFrames :: Type.Replay -> [Frame]
-parseFrames replay = do
-    let get = replay & extractContext & getFrames & Bits.runBitGet
-        stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
-    Binary.runGet get stream
+parseFrames replay = let
+    get = replay & extractContext & getFrames & Bits.runBitGet
+    stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
+    (_context, frames) = Binary.runGet get stream
+    in frames
 
-getFrames :: Context -> Bits.BitGet [Frame]
+getFrames :: Context -> Bits.BitGet (Context, [Frame])
 getFrames context = do
     maybeFrame <- getMaybeFrame context
     case maybeFrame of
-        Nothing -> return []
-        Just frame -> do
-            frames <- getFrames context
-            return (frame : frames)
+        Nothing -> return (context, [])
+        Just (newContext, frame) -> do
+            (newerContext, frames) <- getFrames newContext
+            return (newerContext, (frame : frames))
 
-getMaybeFrame :: Context -> Bits.BitGet (Maybe Frame)
+getMaybeFrame :: Context -> Bits.BitGet (Maybe (Context, Frame))
 getMaybeFrame context = do
     time <- getFloat32
     delta <- getFloat32
     if time == 0 && delta == 0
         then return Nothing
         else do
-            frame <- getFrame context time delta
-            return (Just frame)
+            (newContext, frame) <- getFrame context time delta
+            return (Just (newContext, frame))
 
-getFrame :: Context -> Time -> Delta -> Bits.BitGet Frame
+getFrame :: Context -> Time -> Delta -> Bits.BitGet (Context, Frame)
 getFrame context time delta = do
-    replications <- getReplications context
+    (newContext, replications) <- getReplications context
     let frame =
             Frame
             { frameTime = time
             , frameDelta = delta
             , frameReplications = replications
             }
-    return frame
+    return (newContext, frame)
 
-getReplications :: Context -> Bits.BitGet [Replication]
+getReplications :: Context -> Bits.BitGet (Context, [Replication])
 getReplications context = do
-    (newContext,maybeReplication) <- getMaybeReplication context
+    maybeReplication <- getMaybeReplication context
     case maybeReplication of
-        Nothing -> return []
-        Just replication -> do
-            replications <- getReplications newContext
-            return (replication : replications)
+        Nothing -> return (context, [])
+        Just (newContext, replication) -> do
+            (newerContext, replications) <- getReplications newContext
+            return (newerContext, replication : replications)
 
-getMaybeReplication :: Context -> Bits.BitGet (Context, Maybe Replication)
+getMaybeReplication :: Context -> Bits.BitGet (Maybe (Context, Replication))
 getMaybeReplication context = do
     hasReplication <- Bits.getBool
     if not hasReplication
-        then return (context, Nothing)
+        then return Nothing
         else do
             (newContext,replication) <- getReplication context
-            return (newContext, Just replication)
+            return (Just (newContext, replication))
 
 getReplication :: Context -> Bits.BitGet (Context, Replication)
 getReplication context = do
