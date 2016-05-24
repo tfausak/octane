@@ -184,9 +184,23 @@ getMaybeProp context thing = do
 getProp :: Context -> Thing -> Bits.BitGet Prop
 getProp context thing = do
     -- TODO: WHY?!
-    let classId = if thingClassName thing == Text.pack "TAGame.Default__CameraSettingsActor_TA"
-            then thingClassId thing - 1
-            else thingClassId thing
+    let rawClassId = thingClassId thing
+    let className = thing & thingClassName & Text.unpack
+    let classId =
+            if className == "TAGame.Default__CameraSettingsActor_TA"
+            then rawClassId - 1
+            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_24"
+            then rawClassId - 1
+            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_54"
+            then rawClassId - 2
+            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_62"
+            then rawClassId - 3
+            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_46"
+            then rawClassId - 4
+            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_60"
+            then rawClassId - 5
+            else rawClassId
+
     let props = case context & contextClassPropertyMap & IntMap.lookup classId of
             Nothing -> error ("could not find property map for class id " ++ show classId)
             Just x -> x
@@ -290,6 +304,11 @@ getPropValue name = case Text.unpack name of
         teamFinish <- getInt32
         customFinish <- getInt32
         return (PTeamPaint team teamColor customColor teamFinish customFinish)
+    "TAGame.VehiclePickup_TA:ReplicatedPickupData" -> do
+        instigator <- Bits.getBool
+        instigatorId <- if instigator then fmap Just getInt32 else return Nothing
+        pickedUp <- Bits.getBool
+        return (PPickup instigator instigatorId pickedUp)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -440,6 +459,7 @@ data PropValue
     | PCamSettings Float Float Float Float Float Float
     | PTeamPaint Int Int Int Int Int
     | PLocation (Vector Int)
+    | PPickup Bool (Maybe Int) Bool
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
