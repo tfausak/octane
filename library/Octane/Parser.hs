@@ -818,13 +818,12 @@ buildClassPropertyMap' :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
 buildClassPropertyMap' replay = let
     propertyMap = buildPropertyMap' replay
     g x items = case items of
-        (_classId, cacheId, parentCacheId, properties) : others ->
-            if x >= cacheId -- TODO: This seems dangeroues
-            then IntMap.union
+        [] -> IntMap.empty
+        _ -> case dropWhile (\ (_, cacheId, _, _) -> cacheId /= x) items of
+            [] -> g (x - 1) items
+            (_, _, parentCacheId, properties) : others -> IntMap.union
                 properties
                 (g parentCacheId others)
-            else g x others
-        [] -> IntMap.empty
     f x items = case items of
         (classId, _cacheId, parentCacheId, properties) : others -> IntMap.insert
             classId
