@@ -228,7 +228,7 @@ getPropValue name = case Text.unpack name of
         int <- getInt32
         return (PInt int)
     _ | Set.member name propsWithByte -> do
-        int <- getInt (2 ^ (8 :: Int))
+        int <- getInt8
         return (PByte int)
     _ | Set.member name propsWithUniqueId -> do
         (systemId, remoteId, localId) <- getUniqueId
@@ -260,12 +260,12 @@ getPropValue name = case Text.unpack name of
         y <- getInt32
         z <- if version >= 12
             then do
-                value <- getInt (2 ^ (8 :: Int))
+                value <- getInt8
                 return (Just value)
             else return Nothing
         return (PLoadoutOnline version x y z)
     "TAGame.PRI_TA:ClientLoadout" -> do
-        version <- getInt (2 ^ (8 :: Int))
+        version <- getInt8
         a <- getInt32
         b <- getInt32
         c <- getInt32
@@ -279,6 +279,13 @@ getPropValue name = case Text.unpack name of
                 return (Just value)
             else return Nothing
         return (PLoadout version a b c d e f g h)
+    "TAGame.Car_TA:TeamPaint" -> do
+        team <- getInt8
+        teamColor <- getInt8
+        customColor <- getInt8
+        teamFinish <- getInt32
+        customFinish <- getInt32
+        return (PTeamPaint team teamColor customColor teamFinish customFinish)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -325,6 +332,7 @@ propsWithRigidBodyState =
 propsWithFlaggedInt :: Set.Set Text.Text
 propsWithFlaggedInt =
     [ "Engine.GameReplicationInfo:GameClass"
+    , "Engine.Pawn:PlayerReplicationInfo"
     , "Engine.PlayerReplicationInfo:Team"
     , "TAGame.Ball_TA:GameEvent"
     , "TAGame.CameraSettingsActor_TA:PRI"
@@ -413,6 +421,7 @@ data PropValue
     | PLoadoutOnline Int Int Int (Maybe Int)
     | PLoadout Int Int Int Int Int Int Int Int (Maybe Int)
     | PCamSettings Float Float Float Float Float Float
+    | PTeamPaint Int Int Int Int Int
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
@@ -659,6 +668,9 @@ getInt maxValue = do
 
 getInt32 :: Bits.BitGet Int
 getInt32 = getInt (2 ^ (32 :: Int))
+
+getInt8 :: Bits.BitGet Int
+getInt8 = getInt (2 ^ (8 :: Int))
 
 -- builds a map from property ids in the stream to property names
 buildPropertyMap :: Type.Replay -> IntMap.IntMap Text.Text
