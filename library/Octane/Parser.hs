@@ -336,6 +336,7 @@ propsWithFlaggedInt =
     , "Engine.PlayerReplicationInfo:Team"
     , "TAGame.Ball_TA:GameEvent"
     , "TAGame.CameraSettingsActor_TA:PRI"
+    , "TAGame.CarComponent_TA:Vehicle"
     , "TAGame.PRI_TA:PersistentCamera"
     , "TAGame.PRI_TA:ReplicatedGameEvent"
     , "TAGame.Team_TA:GameEvent"
@@ -377,6 +378,7 @@ propsWithInt =
 propsWithByte :: Set.Set Text.Text
 propsWithByte =
     [ "Engine.PlayerReplicationInfo:Ping"
+    , "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount"
     ] & map Text.pack & Set.fromList
 
 propsWithUniqueId :: Set.Set Text.Text
