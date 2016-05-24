@@ -242,6 +242,9 @@ getPropValue name = case Text.unpack name of
         stiff <- getFloat32
         swiv <- getFloat32
         return (PCamSettings fov height pitch dist stiff swiv)
+    _ | Set.member name propsWithLocation -> do
+        vector <- getVector
+        return (PLocation vector)
     "ProjectX.GRI_X:Reservations" -> do
         -- I think this is the connection order. The first player to connect
         -- gets number 0, and it goes up from there. The maximum is 8, which
@@ -357,6 +360,7 @@ propsWithBoolean =
     , "TAGame.GameEvent_TA:bHasLeaveMatchPenalty"
     , "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam"
     , "TAGame.PRI_TA:bOnlineLoadoutSet"
+    , "TAGame.Vehicle_TA:bDriving"
     ] & map Text.pack & Set.fromList
 
 propsWithQWord :: Set.Set Text.Text
@@ -370,6 +374,8 @@ propsWithInt =
     , "ProjectX.GRI_X:ReplicatedGamePlaylist"
     , "TAGame.GameEvent_Soccar_TA:SecondsRemaining"
     , "TAGame.GameEvent_TA:BotSkill"
+    , "TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining"
+    , "TAGame.GameEvent_Soccar_TA:RoundNum"
     , "TAGame.GameEvent_TA:ReplicatedStateName"
     , "TAGame.GameEvent_Team_TA:MaxTeamSize"
     , "TAGame.PRI_TA:Title"
@@ -380,6 +386,9 @@ propsWithByte :: Set.Set Text.Text
 propsWithByte =
     [ "Engine.PlayerReplicationInfo:Ping"
     , "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount"
+    , "TAGame.Vehicle_TA:ReplicatedThrottle"
+    , "TAGame.CarComponent_TA:ReplicatedActive"
+    , "TAGame.Vehicle_TA:ReplicatedSteer"
     ] & map Text.pack & Set.fromList
 
 propsWithUniqueId :: Set.Set Text.Text
@@ -391,6 +400,11 @@ propsWithUniqueId =
 propsWithCamSettings :: Set.Set Text.Text
 propsWithCamSettings =
     [ "TAGame.CameraSettingsActor_TA:ProfileSettings"
+    ] & map Text.pack & Set.fromList
+
+propsWithLocation :: Set.Set Text.Text
+propsWithLocation =
+    [ "TAGame.CarComponent_Dodge_TA:DodgeTorque"
     ] & map Text.pack & Set.fromList
 
 type SystemId = Word.Word8
@@ -425,6 +439,7 @@ data PropValue
     | PLoadout Int Int Int Int Int Int Int Int (Maybe Int)
     | PCamSettings Float Float Float Float Float Float
     | PTeamPaint Int Int Int Int Int
+    | PLocation (Vector Int)
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
