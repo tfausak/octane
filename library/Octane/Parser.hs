@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Parser where
+module Octane.Parser (parseFrames) where
 
 import qualified Control.Newtype as Newtype
 import qualified Data.Binary.Bits.Get as Bits
@@ -20,7 +20,6 @@ import qualified Data.Word as Word
 import qualified Debug.Trace as Trace
 import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
-import qualified Text.Printf as Printf
 
 parseFrames :: Type.Replay -> [Frame]
 parseFrames replay = do
@@ -60,11 +59,11 @@ getFrame context time delta = do
 
 getReplications :: Context -> Bits.BitGet [Replication]
 getReplications context = do
-    (context',maybeReplication) <- getMaybeReplication context
+    (newContext,maybeReplication) <- getMaybeReplication context
     case maybeReplication of
         Nothing -> return []
         Just replication -> do
-            replications <- getReplications context'
+            replications <- getReplications newContext
             return (replication : replications)
 
 getMaybeReplication :: Context -> Bits.BitGet (Context, Maybe Replication)
@@ -458,16 +457,6 @@ data ClassInit = ClassInit
     , classInitRotation :: Maybe (Vector Int)
     } deriving (Show)
 
-data CacheNode = CacheNode
-    { cacheNodeClassId :: Int
-    , cacheNodeParentCacheId :: Int
-    , cacheNodeCacheId :: Int
-    , cacheNodeProperties :: IntMap.IntMap Text.Text
-    } deriving (Show)
-
--- { class id => node }
-type Cache = IntMap.IntMap CacheNode
-
 -- { class stream id => { property stream id => name } }
 type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
 
@@ -480,106 +469,11 @@ data Context = Context
     , contextThings :: IntMap.IntMap Thing
     } deriving (Show)
 
-showAsHex :: BS.ByteString -> String
-showAsHex bytes
-    = bytes
-    & BS.unpack
-    & concatMap (\ byte -> Printf.printf "%02x" byte)
-
 buildObjectMap :: Type.Replay -> ObjectMap
 buildObjectMap replay =
     replay & Type.replayObjects & Newtype.unpack & map Newtype.unpack &
     zip [0 ..] &
     IntMap.fromAscList
-
--- { stream id => class name }
-type ClassMap = IntMap.IntMap Text.Text
-
-buildClassMap :: Type.Replay -> ClassMap
-buildClassMap replay =
-    replay & Type.replayActors & Newtype.unpack &
-    map
-        (\x ->
-              ( x & Type.actorStreamId & Newtype.unpack & fromIntegral
-              , x & Type.actorName & Newtype.unpack)) &
-    IntMap.fromList
-
-buildCache :: Type.Replay -> Cache
-buildCache replay =
-    let objectMap = buildObjectMap replay
-    in replay & Type.replayCacheItems & Newtype.unpack &
-       map
-           (\item ->
-                 CacheNode
-                 { cacheNodeClassId = item & Type.cacheItemClassId &
-                   Newtype.unpack &
-                   fromIntegral
-                 , cacheNodeParentCacheId = item & Type.cacheItemParentCacheId &
-                   Newtype.unpack &
-                   fromIntegral
-                 , cacheNodeCacheId = item & Type.cacheItemCacheId &
-                   Newtype.unpack &
-                   fromIntegral
-                 , cacheNodeProperties = item & Type.cacheItemCacheProperties &
-                   Newtype.unpack &
-                   map
-                       (\property ->
-                             ( property & Type.cachePropertyStreamId &
-                               Newtype.unpack &
-                               fromIntegral
-                             , case property & Type.cachePropertyObjectId & Newtype.unpack & fromIntegral & flip IntMap.lookup objectMap of
-                                Nothing -> error ("could not find object for property " ++ show property)
-                                Just x -> x)) &
-                   IntMap.fromList
-                 }) &
-       map
-           (\node ->
-                 (cacheNodeClassId node, node)) &
-       IntMap.fromList
-
-getPropertyMap :: IntMap.IntMap [CacheNode] -> Int -> IntMap.IntMap Text.Text
-getPropertyMap cache cacheId =
-    case IntMap.lookup cacheId cache of
-        Just [node] ->
-            if cacheNodeParentCacheId node == 0 ||
-               cacheNodeParentCacheId node == cacheId
-                then cacheNodeProperties node
-                else IntMap.union
-                         (cacheNodeProperties node)
-                         (getPropertyMap cache (cacheNodeParentCacheId node))
-        Just nodes -> case nodes of
-            [] ->
-                IntMap.empty
-            node : _ ->
-                if cacheNodeParentCacheId node == 0 ||
-                   cacheNodeParentCacheId node == cacheId
-                    then cacheNodeProperties node
-                    else IntMap.union
-                             (cacheNodeProperties node)
-                             (getPropertyMap cache (cacheNodeParentCacheId node))
-        Nothing ->
-            IntMap.empty
-
-buildClassPropertyMap :: Type.Replay -> ClassPropertyMap
-buildClassPropertyMap replay =
-    let classMap = buildClassMap replay
-        cacheByStreamId = buildCache replay
-        cacheByCacheId =
-            cacheByStreamId & IntMap.toDescList & map snd &
-            map
-                (\node ->
-                      (cacheNodeCacheId node, [node])) &
-            IntMap.fromListWith (++)
-        f streamId _ m =
-            case IntMap.lookup streamId cacheByStreamId of
-                Nothing -> m
-                Just node ->
-                    IntMap.insert
-                        streamId
-                        (getPropertyMap cacheByCacheId (cacheNodeCacheId node))
-                        m
-    in
-        IntMap.foldrWithKey f IntMap.empty classMap
 
 getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
 getClass objectMap objectId =
@@ -595,7 +489,7 @@ extractContext :: Type.Replay -> Context
 extractContext replay =
     Context
     { contextObjectMap = buildObjectMap replay
-    , contextClassPropertyMap = buildClassPropertyMap' replay
+    , contextClassPropertyMap = buildClassPropertyMap replay
     , contextThings = IntMap.empty
     }
 
@@ -766,12 +660,9 @@ getInt maxValue = do
 getInt32 :: Bits.BitGet Int
 getInt32 = getInt (2 ^ (32 :: Int))
 
--- I'm trying to wrap my head around building the class property map. I figured
--- I'd take another shot at it from scratch.
-
 -- builds a map from property ids in the stream to property names
-buildPropertyMap' :: Type.Replay -> IntMap.IntMap Text.Text
-buildPropertyMap' replay
+buildPropertyMap :: Type.Replay -> IntMap.IntMap Text.Text
+buildPropertyMap replay
     = replay
     & Type.replayObjects
     & Newtype.unpack
@@ -779,44 +670,9 @@ buildPropertyMap' replay
     & zip [0 ..]
     & IntMap.fromDistinctAscList
 
--- builds a map from class ids in the stream to class names
-buildClassMap' :: Type.Replay -> IntMap.IntMap Text.Text
-buildClassMap' replay
-    = replay
-    & Type.replayActors
-    & Newtype.unpack
-    & map (\ x -> let
-        classId = x & Type.actorStreamId & Newtype.unpack & fromIntegral
-        className = x & Type.actorName & Newtype.unpack
-        in (classId, className))
-    & IntMap.fromDistinctAscList
-
--- builds a map from class ids in the stream to a map of property ids in the
--- stream to property names
-buildPartialClassPropertyMap' :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
-buildPartialClassPropertyMap' replay = let
-    propertyMap = buildPropertyMap' replay
-    in replay
-        & Type.replayCacheItems
-        & Newtype.unpack
-        & map (\ x -> let
-            classId = x & Type.cacheItemClassId & Newtype.unpack & fromIntegral
-            properties = x
-                & Type.cacheItemCacheProperties
-                & Newtype.unpack
-                & map (\ y -> let
-                    propertyId = y & Type.cachePropertyStreamId & Newtype.unpack & fromIntegral
-                    propertyName = case y & Type.cachePropertyObjectId & Newtype.unpack & fromIntegral & flip IntMap.lookup propertyMap of
-                        Nothing -> error ("could not find property name for id " ++ show propertyId ++ " in class " ++ show classId)
-                        Just z -> z
-                    in (propertyId, propertyName))
-                & IntMap.fromList
-            in (classId, properties))
-        & IntMap.fromDistinctAscList
-
-buildClassPropertyMap' :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
-buildClassPropertyMap' replay = let
-    propertyMap = buildPropertyMap' replay
+buildClassPropertyMap :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
+buildClassPropertyMap replay = let
+    propertyMap = buildPropertyMap replay
     g x items = case items of
         [] -> IntMap.empty
         _ -> case dropWhile (\ (_, cacheId, _, _) -> cacheId /= x) items of
