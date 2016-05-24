@@ -24,41 +24,12 @@ import qualified Text.Printf as Printf
 
 parseFrames :: Type.Replay -> [Frame]
 parseFrames replay = do
-    replay
-        & Type.replayCacheItems
-        & Newtype.unpack
-        & map (\ x ->
-            "\t"
-                ++ (x & Type.cacheItemClassId & Newtype.unpack & show)
-                ++ "\t"
-                ++ (x & Type.cacheItemCacheId & Newtype.unpack & show)
-                ++ "\t"
-                ++ (x & Type.cacheItemParentCacheId & Newtype.unpack & show))
-        & unlines
-        & Trace.traceM
     let get = replay & extractContext & getFrames & Bits.runBitGet
         stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
     Binary.runGet get stream
 
 getFrames :: Context -> Bits.BitGet [Frame]
 getFrames context = do
-    context
-        & contextClassPropertyMap
-        & IntMap.toAscList
-        & map (\ (a, b) ->
-            " "
-                ++ show a
-                ++ " =>\n"
-                ++ (b
-                    & IntMap.toAscList
-                    & map (\ (c, d) ->
-                        "  "
-                            ++ show c
-                            ++ " => "
-                            ++ show d)
-                    & unlines))
-        & unlines
-        & Trace.traceM
     maybeFrame <- getMaybeFrame context
     case maybeFrame of
         Nothing -> return []
@@ -68,11 +39,9 @@ getFrames context = do
 
 getMaybeFrame :: Context -> Bits.BitGet (Maybe Frame)
 getMaybeFrame context = do
-    timeBytes <- Bits.getByteString 4
-    let time = byteStringToFloat timeBytes
-    deltaBytes <- Bits.getByteString 4
-    let delta = byteStringToFloat deltaBytes
-    if BS.all (== 0) timeBytes && BS.all (== 0) deltaBytes
+    time <- getFloat32
+    delta <- getFloat32
+    if time == 0 && delta == 0
         then return Nothing
         else do
             frame <- getFrame context time delta
@@ -265,6 +234,14 @@ getPropValue name = case Text.unpack name of
     _ | Set.member name propsWithUniqueId -> do
         (systemId, remoteId, localId) <- getUniqueId
         return (PUniqueId systemId remoteId localId)
+    _ | Set.member name propsWithCamSettings -> do
+        fov <- getFloat32
+        height <- getFloat32
+        pitch <- getFloat32
+        dist <- getFloat32
+        stiff <- getFloat32
+        swiv <- getFloat32
+        return (PCamSettings fov height pitch dist stiff swiv)
     "ProjectX.GRI_X:Reservations" -> do
         -- I think this is the connection order. The first player to connect
         -- gets number 0, and it goes up from there. The maximum is 8, which
@@ -305,6 +282,11 @@ getPropValue name = case Text.unpack name of
         return (PLoadout version a b c d e f g h)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
+
+getFloat32 :: Bits.BitGet Float
+getFloat32 = do
+    bytes <- Bits.getByteString 4
+    bytes & byteStringToFloat & return
 
 -- TODO: This has a lot of overlap with PCString.
 getString :: Bits.BitGet Text.Text
@@ -389,6 +371,11 @@ propsWithUniqueId =
     , "TAGame.PRI_TA:PartyLeader"
     ] & map Text.pack & Set.fromList
 
+propsWithCamSettings :: Set.Set Text.Text
+propsWithCamSettings =
+    [ "TAGame.CameraSettingsActor_TA:ProfileSettings"
+    ] & map Text.pack & Set.fromList
+
 type SystemId = Word.Word8
 
 -- This is the number associated with a splitscreen player. So the first player
@@ -419,6 +406,7 @@ data PropValue
     | PUniqueId SystemId RemoteId LocalId
     | PLoadoutOnline Int Int Int (Maybe Int)
     | PLoadout Int Int Int Int Int Int Int Int (Maybe Int)
+    | PCamSettings Float Float Float Float Float Float
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
@@ -544,10 +532,8 @@ buildCache replay =
 
 getPropertyMap :: IntMap.IntMap [CacheNode] -> Int -> IntMap.IntMap Text.Text
 getPropertyMap cache cacheId =
-    Trace.trace ("getting property map for cache id " ++ show cacheId) $
     case IntMap.lookup cacheId cache of
         Just [node] ->
-            Trace.trace ("found property map for cache id " ++ show cacheId) $
             if cacheNodeParentCacheId node == 0 ||
                cacheNodeParentCacheId node == cacheId
                 then cacheNodeProperties node
@@ -556,11 +542,8 @@ getPropertyMap cache cacheId =
                          (getPropertyMap cache (cacheNodeParentCacheId node))
         Just nodes -> case nodes of
             [] ->
-                Trace.trace ("impossibly did not have any property maps for cache id " ++ show cacheId) $
                 IntMap.empty
             node : _ ->
-                Trace.trace ("found multiple property maps for cache id " ++ show cacheId) $
-                Trace.traceShow nodes $
                 if cacheNodeParentCacheId node == 0 ||
                    cacheNodeParentCacheId node == cacheId
                     then cacheNodeProperties node
@@ -568,7 +551,6 @@ getPropertyMap cache cacheId =
                              (cacheNodeProperties node)
                              (getPropertyMap cache (cacheNodeParentCacheId node))
         Nothing ->
-            Trace.trace ("did not find property map for cache id " ++ show cacheId) $
             IntMap.empty
 
 buildClassPropertyMap :: Type.Replay -> ClassPropertyMap
@@ -581,9 +563,7 @@ buildClassPropertyMap replay =
                 (\node ->
                       (cacheNodeCacheId node, [node])) &
             IntMap.fromListWith (++)
-        f streamId v m =
-            Trace.trace ("class id " ++ show streamId) $
-            Trace.trace ("class name " ++ show v) $
+        f streamId _ m =
             case IntMap.lookup streamId cacheByStreamId of
                 Nothing -> m
                 Just node ->
@@ -592,9 +572,6 @@ buildClassPropertyMap replay =
                         (getPropertyMap cacheByCacheId (cacheNodeCacheId node))
                         m
     in
-        Trace.trace ("size of cache " ++ show (length (Newtype.unpack (Type.replayCacheItems replay)))) $
-        Trace.trace ("size of cache by stream id " ++ show (IntMap.size cacheByStreamId)) $
-        Trace.trace ("size of cache by cache id " ++ show (IntMap.size cacheByCacheId)) $
         IntMap.foldrWithKey f IntMap.empty classMap
 
 getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
