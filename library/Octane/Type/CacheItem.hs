@@ -13,10 +13,10 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | An item in the class net cache map.
 data CacheItem = CacheItem
-    { cacheItemClassId :: Word32LE.Word32LE
-    , cacheItemParentCacheId :: Word32LE.Word32LE
-    , cacheItemCacheId :: Word32LE.Word32LE
-    , cacheItemCacheProperties :: List.List CacheProperty.CacheProperty
+    { cacheItemClassId :: !Word32LE.Word32LE
+    , cacheItemParentCacheId :: !Word32LE.Word32LE
+    , cacheItemCacheId :: !Word32LE.Word32LE
+    , cacheItemCacheProperties :: !(List.List CacheProperty.CacheProperty)
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary CacheItem where

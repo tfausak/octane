@@ -1,5 +1,6 @@
 module Octane.Main (main) where
 
+import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Control.Newtype as Newtype
 import qualified Data.Aeson.Encode.Pretty as Aeson
@@ -32,6 +33,7 @@ debug (file,contents,result) =
                 IO.stderr
                 (file ++ " @ byte " ++ show offset ++ " - " ++ message)
         Right replay -> do
+            DeepSeq.deepseq replay (IO.hPutStrLn IO.stderr "evaluated replay")
             let inputSize = contents & BS.length & fromIntegral
             let outputSize = replay & Binary.encode & BSL.length
             Monad.when (inputSize /= outputSize) $
@@ -50,6 +52,7 @@ debug (file,contents,result) =
 
             putStrLn ",\"frames\":\n"
             let frames = Parser.parseFrames replay
+            DeepSeq.deepseq frames (IO.hPutStrLn IO.stderr "evaluated frames")
             let expectedFrames = replay & Type.replayProperties & Newtype.unpack & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
             let actualFrames = frames & length & fromIntegral & Newtype.pack & Type.IntProperty (Newtype.pack 4) & Just
             Monad.when (expectedFrames /= actualFrames) $ IO.hPutStrLn IO.stderr ("expected " ++ show expectedFrames ++ " frames but found " ++ show actualFrames ++ " frames!")

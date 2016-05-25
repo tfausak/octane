@@ -8,7 +8,7 @@ import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Primitive.PCString as PCString
 

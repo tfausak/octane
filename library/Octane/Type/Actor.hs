@@ -13,8 +13,8 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 -- | A class (like "Core.Object") and it's associated ID in the net stream
 -- | (like 0).
 data Actor = Actor
-    { actorName :: PCString.PCString
-    , actorStreamId :: Word32LE.Word32LE
+    { actorName :: !PCString.PCString
+    , actorStreamId :: !Word32LE.Word32LE
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Actor where

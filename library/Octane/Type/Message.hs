@@ -12,9 +12,9 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A debugging message. Replays do not have any of these anymore.
 data Message = Message
-    { messageFrame :: Word32LE.Word32LE
-    , messageName :: PCString.PCString
-    , messageContent :: PCString.PCString
+    { messageFrame :: !Word32LE.Word32LE
+    , messageName :: !PCString.PCString
+    , messageContent :: !PCString.PCString
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Message where

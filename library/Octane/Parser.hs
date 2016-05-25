@@ -14,9 +14,9 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import qualified Data.IntMap as IntMap
+import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -477,8 +477,8 @@ type SystemId = Word.Word8
 type LocalId = Word.Word8
 
 data RemoteId
-    = SteamId BS.ByteString -- TODO: This is an integer.
-    | PlayStationId BS.ByteString -- TODO: I think this is a string?
+    = SteamId !BS.ByteString -- TODO: This is an integer.
+    | PlayStationId !BS.ByteString -- TODO: I think this is a string?
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData RemoteId
@@ -491,8 +491,8 @@ instance Aeson.ToJSON RemoteId where
         PlayStationId bytes -> bytes & show & Aeson.toJSON
 
 data Prop = Prop
-    { propId :: Int
-    , propValue :: PropValue
+    { propId :: !Int
+    , propValue :: !PropValue
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData Prop
@@ -504,26 +504,26 @@ instance Aeson.ToJSON Prop where
             }
 
 data PropValue
-    = PRigidBodyState Bool (Vector Int) (Vector Float) (Maybe (Vector Int)) (Maybe (Vector Int))
-    | PFlaggedInt Bool Int
-    | PString Text.Text
-    | PBoolean Bool
-    | PQWord Int Int
-    | PReservation Int SystemId RemoteId LocalId (Maybe Text.Text) Bool Bool
-    | PInt Int
-    | PByte Int
-    | PUniqueId SystemId RemoteId LocalId
-    | PLoadoutOnline Int Int Int (Maybe Int)
-    | PLoadout Int Int Int Int Int Int Int Int (Maybe Int)
-    | PCamSettings Float Float Float Float Float Float
-    | PTeamPaint Int Int Int Int Int
-    | PLocation (Vector Int)
-    | PPickup Bool (Maybe Int) Bool
-    | PEnum Word.Word16 -- TODO: This isn't the right data type.
-    | PExplosion Bool (Maybe Int) (Vector Int)
-    | PMusicStinger Bool Int Int
-    | PFloat Float
-    | PDemolish Bool (Maybe Int) Bool (Maybe Int) (Vector Int) (Vector Int)
+    = PRigidBodyState !Bool !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
+    | PFlaggedInt !Bool !Int
+    | PString !Text.Text
+    | PBoolean !Bool
+    | PQWord Int !Int
+    | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Text.Text) !Bool !Bool
+    | PInt !Int
+    | PByte !Int
+    | PUniqueId !SystemId !RemoteId !LocalId
+    | PLoadoutOnline !Int !Int !Int !(Maybe Int)
+    | PLoadout !Int !Int !Int !Int !Int !Int !Int !Int !(Maybe Int)
+    | PCamSettings !Float !Float !Float !Float !Float !Float
+    | PTeamPaint !Int !Int !Int !Int !Int
+    | PLocation !(Vector Int)
+    | PPickup !Bool !(Maybe Int) !Bool
+    | PEnum !Word.Word16 -- TODO: This isn't the right data type.
+    | PExplosion !Bool !(Maybe Int) !(Vector Int)
+    | PMusicStinger !Bool !Int !Int
+    | PFloat !Float
+    | PDemolish !Bool !(Maybe Int) !Bool !(Maybe Int) !(Vector Int) !(Vector Int)
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData PropValue
@@ -537,9 +537,9 @@ instance Aeson.ToJSON PropValue where
 -- | A frame in the net stream. Each frame has the time since the beginning of
 -- | the match, the time since the last frame, and a list of replications.
 data Frame = Frame
-    { frameTime :: Float
-    , frameDelta :: Float
-    , frameReplications :: [Replication]
+    { frameTime :: !Float
+    , frameDelta :: !Float
+    , frameReplications :: ![Replication]
     } deriving (Eq,Generics.Generic,Show)
 
 instance DeepSeq.NFData Frame
@@ -552,11 +552,11 @@ instance Aeson.ToJSON Frame where
 
 -- | Replication information about an actor in the net stream.
 data Replication = Replication
-    { replicationActorId :: Int
-    , replicationIsOpen :: Bool
-    , replicationIsNew :: Maybe Bool
-    , replicationClassInit :: Maybe ClassInit
-    , replicationProps :: [Prop]
+    { replicationActorId :: !Int
+    , replicationIsOpen :: !Bool
+    , replicationIsNew :: !(Maybe Bool)
+    , replicationClassInit :: !(Maybe ClassInit)
+    , replicationProps :: ![Prop]
     } deriving (Eq,Generics.Generic,Show)
 
 instance DeepSeq.NFData Replication
@@ -568,12 +568,12 @@ instance Aeson.ToJSON Replication where
             }
 
 data Thing = Thing
-    { thingFlag :: Bool
-    , thingObjectId :: Int
-    , thingObjectName :: Text.Text
-    , thingClassId :: Int
-    , thingClassName :: Text.Text
-    , thingClassInit :: ClassInit
+    { thingFlag :: !Bool
+    , thingObjectId :: !Int
+    , thingObjectName :: !Text.Text
+    , thingClassId :: !Int
+    , thingClassName :: !Text.Text
+    , thingClassInit :: !ClassInit
     } deriving (Show)
 
 type Time = Float
@@ -583,9 +583,9 @@ type Delta = Float
 type ActorId = Int
 
 data Vector a = Vector
-    { vectorX :: a
-    , vectorY :: a
-    , vectorZ :: a
+    { vectorX :: !a
+    , vectorY :: !a
+    , vectorZ :: !a
     } deriving (Eq, Generics.Generic, Show)
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a)
@@ -597,8 +597,8 @@ instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
             }
 
 data ClassInit = ClassInit
-    { classInitLocation :: Maybe (Vector Int)
-    , classInitRotation :: Maybe (Vector Int)
+    { classInitLocation :: !(Maybe (Vector Int))
+    , classInitRotation :: !(Maybe (Vector Int))
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData ClassInit
@@ -622,11 +622,11 @@ type ArchetypeMap = Map.Map Text.Text Text.Text
 type ClassMap = Map.Map Text.Text Int
 
 data Context = Context
-    { contextObjectMap :: ObjectMap
-    , contextClassPropertyMap :: ClassPropertyMap
-    , contextThings :: IntMap.IntMap Thing
-    , contextArchetypeMap :: ArchetypeMap
-    , contextClassMap :: ClassMap
+    { contextObjectMap :: !ObjectMap
+    , contextClassPropertyMap :: !ClassPropertyMap
+    , contextThings :: !(IntMap.IntMap Thing)
+    , contextArchetypeMap :: !ArchetypeMap
+    , contextClassMap :: !ClassMap
     } deriving (Show)
 
 buildObjectMap :: Type.Replay -> ObjectMap

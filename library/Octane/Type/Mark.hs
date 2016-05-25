@@ -12,8 +12,8 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A tick mark on the replay. Both goals and saves make tick marks.
 data Mark = Mark
-    { markLabel :: PCString.PCString
-    , markFrame :: Word32LE.Word32LE
+    { markLabel :: !PCString.PCString
+    , markFrame :: !Word32LE.Word32LE
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Mark where

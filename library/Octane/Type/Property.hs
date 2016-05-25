@@ -21,22 +21,22 @@ import qualified Octane.Type.Primitive.Word64LE as Word64LE
 -- | use it. The value stored in the property can be an array, a boolean, and
 -- | so on.
 data Property
-    = ArrayProperty Word64LE.Word64LE
-                    (List.List (Dictionary.Dictionary Property))
-    | BoolProperty Word64LE.Word64LE
-                   Boolean.Boolean
-    | ByteProperty Word64LE.Word64LE
-                   (PCString.PCString, PCString.PCString)
-    | FloatProperty Word64LE.Word64LE
-                    Float32LE.Float32LE
-    | IntProperty Word64LE.Word64LE
-                  Word32LE.Word32LE
-    | NameProperty Word64LE.Word64LE
-                   PCString.PCString
-    | QWordProperty Word64LE.Word64LE
-                    Word64LE.Word64LE
-    | StrProperty Word64LE.Word64LE
-                  PCString.PCString
+    = ArrayProperty !Word64LE.Word64LE
+                    !(List.List (Dictionary.Dictionary Property))
+    | BoolProperty !Word64LE.Word64LE
+                   !Boolean.Boolean
+    | ByteProperty !Word64LE.Word64LE
+                   !(PCString.PCString, PCString.PCString)
+    | FloatProperty !Word64LE.Word64LE
+                    !Float32LE.Float32LE
+    | IntProperty !Word64LE.Word64LE
+                  !Word32LE.Word32LE
+    | NameProperty !Word64LE.Word64LE
+                   !PCString.PCString
+    | QWordProperty !Word64LE.Word64LE
+                    !Word64LE.Word64LE
+    | StrProperty !Word64LE.Word64LE
+                  !PCString.PCString
     deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Property where

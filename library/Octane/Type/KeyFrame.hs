@@ -14,9 +14,9 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 -- | the frame it corresponds to, and that frame's bit position in the network
 -- | stream.
 data KeyFrame = KeyFrame
-    { keyFrameTime :: Float32LE.Float32LE
-    , keyFrameFrame :: Word32LE.Word32LE
-    , keyFramePosition :: Word32LE.Word32LE
+    { keyFrameTime :: !Float32LE.Float32LE
+    , keyFrameFrame :: !Word32LE.Word32LE
+    , keyFramePosition :: !Word32LE.Word32LE
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary KeyFrame where
