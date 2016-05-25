@@ -383,6 +383,7 @@ propsWithBoolean =
     , "TAGame.Vehicle_TA:bReplicatedHandbrake"
     , "Engine.Actor:bCollideActors"
     , "Engine.Actor:bBlockActors"
+    , "TAGame.CameraSettingsActor_TA:bUsingBehindView"
     ] & map Text.pack & Set.fromList
 
 propsWithQWord :: Set.Set Text.Text
@@ -408,6 +409,7 @@ propsWithInt =
     , "Engine.TeamInfo:Score"
     , "Engine.PlayerReplicationInfo:Score"
     , "TAGame.PRI_TA:MatchGoals"
+    , "TAGame.PRI_TA:MatchAssists"
     ] & map Text.pack & Set.fromList
 
 propsWithByte :: Set.Set Text.Text
@@ -419,6 +421,8 @@ propsWithByte =
     , "TAGame.Vehicle_TA:ReplicatedSteer"
     , "TAGame.Ball_TA:HitTeamNum"
     , "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam"
+    , "TAGame.CameraSettingsActor_TA:CameraYaw"
+    , "TAGame.CameraSettingsActor_TA:CameraPitch"
     ] & map Text.pack & Set.fromList
 
 propsWithUniqueId :: Set.Set Text.Text
