@@ -297,6 +297,16 @@ getPropValue name = case Text.unpack name of
     "Engine.Actor:Role" -> do
         x <- Bits.getWord16be 11
         return (PEnum x)
+    "TAGame.Ball_TA:ReplicatedExplosionData" -> do
+        noGoal <- Bits.getBool
+        a <- if noGoal then return Nothing else fmap Just getInt32
+        b <- getVector
+        return (PExplosion noGoal a b)
+    "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger" -> do
+        flag <- Bits.getBool
+        cue <- getInt32
+        trigger <- getInt8
+        return (PMusicStinger flag cue trigger)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -370,6 +380,8 @@ propsWithBoolean =
     , "TAGame.Vehicle_TA:bDriving"
     , "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit"
     , "TAGame.Vehicle_TA:bReplicatedHandbrake"
+    , "Engine.Actor:bCollideActors"
+    , "Engine.Actor:bBlockActors"
     ] & map Text.pack & Set.fromList
 
 propsWithQWord :: Set.Set Text.Text
@@ -390,6 +402,11 @@ propsWithInt =
     , "TAGame.PRI_TA:Title"
     , "TAGame.PRI_TA:TotalXP"
     , "TAGame.PRI_TA:MatchScore"
+    , "TAGame.PRI_TA:MatchShots"
+    , "TAGame.PRI_TA:MatchSaves"
+    , "Engine.TeamInfo:Score"
+    , "Engine.PlayerReplicationInfo:Score"
+    , "TAGame.PRI_TA:MatchGoals"
     ] & map Text.pack & Set.fromList
 
 propsWithByte :: Set.Set Text.Text
@@ -400,6 +417,7 @@ propsWithByte =
     , "TAGame.CarComponent_TA:ReplicatedActive"
     , "TAGame.Vehicle_TA:ReplicatedSteer"
     , "TAGame.Ball_TA:HitTeamNum"
+    , "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam"
     ] & map Text.pack & Set.fromList
 
 propsWithUniqueId :: Set.Set Text.Text
@@ -453,6 +471,8 @@ data PropValue
     | PLocation (Vector Int)
     | PPickup Bool (Maybe Int) Bool
     | PEnum Word.Word16 -- TODO: This isn't the right data type.
+    | PExplosion Bool (Maybe Int) (Vector Int)
+    | PMusicStinger Bool Int Int
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
