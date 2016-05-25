@@ -14,6 +14,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.IntMap as IntMap
 import qualified Data.List as List
+import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -524,10 +525,14 @@ type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
 -- { stream id => object name }
 type ObjectMap = IntMap.IntMap Text.Text
 
+-- { archetype (object) name => class name }
+type ArchetypeMap = Map.Map Text.Text Text.Text
+
 data Context = Context
     { contextObjectMap :: ObjectMap
     , contextClassPropertyMap :: ClassPropertyMap
     , contextThings :: IntMap.IntMap Thing
+    , contextArchetypeMap :: ArchetypeMap
     } deriving (Show)
 
 buildObjectMap :: Type.Replay -> ObjectMap
@@ -535,6 +540,18 @@ buildObjectMap replay =
     replay & Type.replayObjects & Newtype.unpack & map Newtype.unpack &
     zip [0 ..] &
     IntMap.fromAscList
+
+buildArchetypeMap :: Type.Replay -> ArchetypeMap
+buildArchetypeMap replay
+    = replay
+    & Type.replayObjects
+    & Newtype.unpack
+    & map Newtype.unpack
+    & map (\ archetype -> let
+        k = archetype
+        v = archetypeToClass archetype
+        in (k, v))
+    & Map.fromList
 
 getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
 getClass objectMap objectId =
@@ -548,8 +565,8 @@ getClass objectMap objectId =
             then getClass objectMap (objectId - 1)
             else Just (objectId, name)
 
-_archetypeToClass :: Text.Text -> Text.Text
-_archetypeToClass text
+archetypeToClass :: Text.Text -> Text.Text
+archetypeToClass text
     = text
     & Text.splitOn (Text.pack ".")
     & last
@@ -573,6 +590,7 @@ extractContext replay =
     { contextObjectMap = buildObjectMap replay
     , contextClassPropertyMap = buildClassPropertyMap replay
     , contextThings = IntMap.empty
+    , contextArchetypeMap = buildArchetypeMap replay
     }
 
 classesWithLocation :: Set.Set Text.Text
