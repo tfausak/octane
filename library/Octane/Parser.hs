@@ -528,11 +528,15 @@ type ObjectMap = IntMap.IntMap Text.Text
 -- { archetype (object) name => class name }
 type ArchetypeMap = Map.Map Text.Text Text.Text
 
+-- { class name => class id }
+type ClassMap = Map.Map Text.Text Int
+
 data Context = Context
     { contextObjectMap :: ObjectMap
     , contextClassPropertyMap :: ClassPropertyMap
     , contextThings :: IntMap.IntMap Thing
     , contextArchetypeMap :: ArchetypeMap
+    , contextClassMap :: ClassMap
     } deriving (Show)
 
 buildObjectMap :: Type.Replay -> ObjectMap
@@ -551,6 +555,20 @@ buildArchetypeMap replay
         k = archetype
         v = archetypeToClass archetype
         in (k, v))
+    & Map.fromList
+
+buildClassMap :: Type.Replay -> ClassMap
+buildClassMap replay
+    = replay
+    & Type.replayObjects
+    & Newtype.unpack
+    & map Newtype.unpack
+    & zip [0 ..]
+    & map (\ (objectId, objectName) -> let
+        k = archetypeToClass objectName
+        v = objectId
+        in (k, v))
+    & reverse
     & Map.fromList
 
 getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
@@ -591,6 +609,7 @@ extractContext replay =
     , contextClassPropertyMap = buildClassPropertyMap replay
     , contextThings = IntMap.empty
     , contextArchetypeMap = buildArchetypeMap replay
+    , contextClassMap = buildClassMap replay
     }
 
 classesWithLocation :: Set.Set Text.Text
