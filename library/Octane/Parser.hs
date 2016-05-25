@@ -316,6 +316,14 @@ getPropValue name = case Text.unpack name of
         cue <- getInt32
         trigger <- getInt8
         return (PMusicStinger flag cue trigger)
+    "TAGame.Car_TA:ReplicatedDemolish" -> do
+        hasAtk <- Bits.getBool
+        atk <- if hasAtk then fmap Just getInt32 else return Nothing
+        hasVic <- Bits.getBool
+        vic <- if hasVic then fmap Just getInt32 else return Nothing
+        vec1 <- getVector
+        vec2 <- getVector
+        return (PDemolish hasAtk atk hasVic vic vec1 vec2)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -367,6 +375,9 @@ propsWithFlaggedInt =
     , "TAGame.Ball_TA:GameEvent"
     , "TAGame.CameraSettingsActor_TA:PRI"
     , "TAGame.CarComponent_TA:Vehicle"
+    , "TAGame.CrowdActor_TA:GameEvent"
+    , "TAGame.CrowdActor_TA:ReplicatedOneShotSound"
+    , "TAGame.CrowdManager_TA:GameEvent"
     , "TAGame.PRI_TA:PersistentCamera"
     , "TAGame.PRI_TA:ReplicatedGameEvent"
     , "TAGame.Team_TA:GameEvent"
@@ -382,6 +393,7 @@ propsWithBoolean :: Set.Set Text.Text
 propsWithBoolean =
     [ "Engine.Actor:bBlockActors"
     , "Engine.Actor:bCollideActors"
+    , "Engine.Actor:bHidden"
     , "Engine.PlayerReplicationInfo:bReadyToPlay"
     , "ProjectX.GRI_X:bGameStarted"
     , "TAGame.CameraSettingsActor_TA:bUsingBehindView"
@@ -405,6 +417,7 @@ propsWithInt =
     , "Engine.PlayerReplicationInfo:Score"
     , "Engine.TeamInfo:Score"
     , "ProjectX.GRI_X:ReplicatedGamePlaylist"
+    , "TAGame.CrowdActor_TA:ReplicatedCountDownNumber"
     , "TAGame.GameEvent_Soccar_TA:RoundNum"
     , "TAGame.GameEvent_Soccar_TA:SecondsRemaining"
     , "TAGame.GameEvent_TA:BotSkill"
@@ -452,6 +465,7 @@ propsWithLocation =
 propsWithFloat :: Set.Set Text.Text
 propsWithFloat =
     [ "Engine.Actor:DrawScale"
+    , "TAGame.CarComponent_FlipCar_TA:FlipCarTime"
     , "TAGame.CrowdActor_TA:ModifiedNoise"
     ] & map Text.pack & Set.fromList
 
@@ -493,6 +507,7 @@ data PropValue
     | PExplosion Bool (Maybe Int) (Vector Int)
     | PMusicStinger Bool Int Int
     | PFloat Float
+    | PDemolish Bool (Maybe Int) Bool (Maybe Int) (Vector Int) (Vector Int)
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
