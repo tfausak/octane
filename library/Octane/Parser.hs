@@ -110,7 +110,7 @@ getNewReplication context actorId = do
     let objectName = case context & contextObjectMap & IntMap.lookup objectId of
             Nothing -> error ("could not find object name for id " ++ show objectId)
             Just x -> x
-    let (classId,className) = case getClass (contextObjectMap context) objectId of
+    let (classId,className) = case getClass context objectId of
             Nothing -> error ("could not find class for object id " ++ show objectId)
             Just x -> x
     classInit <- getClassInit className
@@ -571,8 +571,10 @@ buildClassMap replay
     & reverse
     & Map.fromList
 
-getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
-getClass objectMap objectId =
+getClass :: Context -> Int -> Maybe (Int, Text.Text)
+getClass context objectId = let
+    objectMap = contextObjectMap context
+    in
     case IntMap.lookup objectId objectMap of
         Nothing -> Nothing
         Just name ->
@@ -580,7 +582,7 @@ getClass objectMap objectId =
                 Text.isInfixOf (Text.pack "Default__") name ||
                 Text.isInfixOf (Text.pack "Archetype") name ||
                 Text.unpack name =~ "_[0-9][0-9]*$"
-            then getClass objectMap (objectId - 1)
+            then getClass context (objectId - 1)
             else Just (objectId, name)
 
 archetypeToClass :: Text.Text -> Text.Text
