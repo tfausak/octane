@@ -1,6 +1,7 @@
 module Octane.Main (main) where
 
 import qualified Control.Monad as Monad
+import qualified Control.Newtype as Newtype
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
@@ -8,6 +9,8 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import Data.Function ((&))
+import qualified Data.Map as Map
+import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
 import qualified Octane.Type as Type
 import qualified System.Environment as Environment
@@ -43,6 +46,8 @@ debug (file,contents,result) =
                     { Aeson.confCompare = compare
                     }
             replay & Aeson.encodePretty' config & BSL8.putStrLn
+
             let frames = Parser.parseFrames replay
-            let frame = take 1 frames
-            print frame
+            let expectedFrames = replay & Type.replayProperties & Newtype.unpack & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
+            let actualFrames = frames & length & fromIntegral & Newtype.pack & Type.IntProperty (Newtype.pack 4) & Just
+            Monad.when (expectedFrames /= actualFrames) $ IO.hPutStrLn IO.stderr ("expected " ++ show expectedFrames ++ " frames but found " ++ show actualFrames ++ " frames!")
