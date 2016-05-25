@@ -578,6 +578,8 @@ buildClassMap replay
     & Newtype.unpack
     & map Newtype.unpack
     & zip [0 ..]
+    & filter (\ (_, objectName) ->
+        not (Text.isInfixOf (Text.pack ":") objectName))
     & map (\ (objectId, objectName) -> let
         k = archetypeToClass objectName
         v = objectId
