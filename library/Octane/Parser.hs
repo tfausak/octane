@@ -137,13 +137,10 @@ getExistingReplication :: Context
                        -> ActorId
                        -> Bits.BitGet (Context, Replication)
 getExistingReplication context actorId = do
-    Trace.traceM ("Getting existing replication for " ++ show actorId)
     let thing = case context & contextThings & IntMap.lookup actorId of
             Nothing -> error ("could not find thing for actor id " ++ show actorId)
             Just x -> x
-    Trace.traceM ("Getting props for " ++ show thing)
     props <- getProps context thing
-    Trace.traceM ("Got props " ++ show props)
     return (context, Replication
         { replicationActorId = actorId
         , replicationIsOpen = True
@@ -196,15 +193,11 @@ getProp context thing = do
                 error ("could not find property map for class id " ++ show classId)
             Just x -> x
     let maxId = props & IntMap.keys & maximum
-    Trace.traceM ("Max ID: " ++ show maxId)
     pid <- getInt maxId
-    Trace.traceM ("Prop ID: " ++ show pid)
     let propName = case props & IntMap.lookup pid of
             Nothing -> error ("could not find property name for property id " ++ show pid)
             Just x -> x
-    Trace.traceM ("Prop name: " ++ show propName)
     value <- getPropValue propName
-    Trace.traceM ("Prop value: " ++ show value)
     return (Prop { propId = pid, propValue = value })
 
 getPropValue :: Text.Text -> Bits.BitGet PropValue
