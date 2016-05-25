@@ -6,10 +6,9 @@ import Data.Function ((&))
 import Text.Regex.Posix ((=~))
 
 import qualified Control.Newtype as Newtype
-import qualified Data.Bimap as Bimap
 import qualified Data.Binary.Bits.Get as Bits
-import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.IEEE754 as IEEE754
+import qualified Data.Binary.Get as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
@@ -107,7 +106,7 @@ getNewReplication :: Context
 getNewReplication context actorId = do
     unknownFlag <- Bits.getBool
     objectId <- getInt32
-    let objectName = case context & contextObjectMap & Bimap.lookup objectId of
+    let objectName = case context & contextObjectMap & IntMap.lookup objectId of
             Nothing -> error ("could not find object name for id " ++ show objectId)
             Just x -> x
     let (classId,className) = case getClass (contextObjectMap context) objectId of
@@ -523,7 +522,7 @@ data ClassInit = ClassInit
 type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
 
 -- { stream id => object name }
-type ObjectMap = Bimap.Bimap Int Text.Text
+type ObjectMap = IntMap.IntMap Text.Text
 
 data Context = Context
     { contextObjectMap :: ObjectMap
@@ -532,17 +531,14 @@ data Context = Context
     } deriving (Show)
 
 buildObjectMap :: Type.Replay -> ObjectMap
-buildObjectMap replay
-    = replay
-    & Type.replayObjects
-    & Newtype.unpack
-    & map Newtype.unpack
-    & zip [0 ..]
-    & Bimap.fromList
+buildObjectMap replay =
+    replay & Type.replayObjects & Newtype.unpack & map Newtype.unpack &
+    zip [0 ..] &
+    IntMap.fromAscList
 
 getClass :: ObjectMap -> Int -> Maybe (Int, Text.Text)
 getClass objectMap objectId =
-    case Bimap.lookup objectId objectMap of
+    case IntMap.lookup objectId objectMap of
         Nothing -> Nothing
         Just name ->
             if
