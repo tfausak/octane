@@ -23,6 +23,7 @@ import qualified Data.Word as Word
 import qualified Debug.Trace as Trace
 import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
+import qualified Text.Regex as Regex
 
 parseFrames :: Type.Replay -> [Frame]
 parseFrames replay = let
@@ -550,6 +551,25 @@ getClass objectMap objectId =
                 Text.unpack name =~ "_[0-9][0-9]*$"
             then getClass objectMap (objectId - 1)
             else Just (objectId, name)
+
+_archetypeToClass :: Text.Text -> Text.Text
+_archetypeToClass text
+    = text
+    & Text.splitOn (Text.pack ".")
+    & last
+    & Text.splitOn (Text.pack ":")
+    & last
+    & Text.unpack
+    & substitute "^Default__" ""
+    & substitute "_TA$" ""
+    & substitute "_Default$" ""
+    & substitute "_?[0-9]+$" ""
+    & substitute "Archetype$" ""
+    & Text.pack
+
+substitute :: String -> String -> String -> String
+substitute pattern replacement input =
+    Regex.subRegex (Regex.mkRegex pattern) input replacement
 
 extractContext :: Type.Replay -> Context
 extractContext replay =
