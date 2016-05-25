@@ -3,7 +3,6 @@
 module Octane.Parser (parseFrames) where
 
 import Data.Function ((&))
-import Text.Regex.Posix ((=~))
 
 import qualified Control.Newtype as Newtype
 import qualified Data.Binary.Bits.Get as Bits
@@ -556,6 +555,12 @@ buildArchetypeMap replay
         v = archetypeToClass archetype
         in (k, v))
     & Map.fromList
+    & Map.union specialArchetypes
+
+specialArchetypes :: ArchetypeMap
+specialArchetypes =
+    [ ("GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype", "GRI")
+    ] & map (\ (k, v) -> (Text.pack k, Text.pack v)) & Map.fromList
 
 buildClassMap :: Type.Replay -> ClassMap
 buildClassMap replay
@@ -574,16 +579,15 @@ buildClassMap replay
 getClass :: Context -> Int -> Maybe (Int, Text.Text)
 getClass context objectId = let
     objectMap = contextObjectMap context
-    in
-    case IntMap.lookup objectId objectMap of
+    archetypeMap = contextArchetypeMap context
+    classMap = contextClassMap context
+    in case IntMap.lookup objectId objectMap of
         Nothing -> Nothing
-        Just name ->
-            if
-                Text.isInfixOf (Text.pack "Default__") name ||
-                Text.isInfixOf (Text.pack "Archetype") name ||
-                Text.unpack name =~ "_[0-9][0-9]*$"
-            then getClass context (objectId - 1)
-            else Just (objectId, name)
+        Just archetypeName -> case Map.lookup archetypeName archetypeMap of
+            Nothing -> Nothing
+            Just className -> case Map.lookup className classMap of
+                Nothing -> Nothing
+                Just classId -> Just (classId, className)
 
 archetypeToClass :: Text.Text -> Text.Text
 archetypeToClass text
@@ -593,10 +597,10 @@ archetypeToClass text
     & Text.splitOn (Text.pack ":")
     & last
     & Text.unpack
+    & substitute "_?[0-9]+$" ""
     & substitute "^Default__" ""
     & substitute "_TA$" ""
     & substitute "_Default$" ""
-    & substitute "_?[0-9]+$" ""
     & substitute "Archetype$" ""
     & Text.pack
 
@@ -616,29 +620,31 @@ extractContext replay =
 
 classesWithLocation :: Set.Set Text.Text
 classesWithLocation =
-    [ "Engine.GameReplicationInfo"
-    , "TAGame.Ball_TA"
-    , "TAGame.CarComponent_Boost_TA"
-    , "TAGame.CarComponent_Dodge_TA"
-    , "TAGame.CarComponent_DoubleJump_TA"
-    , "TAGame.CarComponent_FlipCar_TA"
-    , "TAGame.CarComponent_Jump_TA"
-    , "TAGame.Car_TA"
-    , "TAGame.GRI_TA"
-    , "TAGame.GameEvent_Season_TA"
-    , "TAGame.GameEvent_SoccarPrivate_TA"
-    , "TAGame.GameEvent_SoccarSplitscreen_TA"
-    , "TAGame.GameEvent_Soccar_TA"
-    , "TAGame.PRI_TA"
-    , "TAGame.Team_Soccar_TA"
-    , "TAGame.Team_TA"
-    , "TAGame.CameraSettingsActor_TA"
+    [ "Ball"
+    , "CameraSettingsActor"
+    , "Car"
+    , "CarComponent_Boost"
+    , "CarComponent_Dodge"
+    , "CarComponent_DoubleJump"
+    , "CarComponent_FlipCar"
+    , "CarComponent_Jump"
+    , "GRI"
+    , "GameEvent_Season"
+    , "GameEvent_Soccar"
+    , "GameEvent_SoccarPrivate"
+    , "GameEvent_SoccarSplitscreen"
+    , "GameReplicationInfo"
+    , "PRI"
+    , "Team"
+    , "Team_Soccar"
     ] & map Text.pack & Set.fromList
 
 classesWithRotation :: Set.Set Text.Text
 classesWithRotation =
-    ["TAGame.Ball_TA", "TAGame.Car_Season_TA", "TAGame.Car_TA"] & map Text.pack &
-    Set.fromList
+    [ "Ball"
+    , "Car_Season"
+    , "Car"
+    ] & map Text.pack & Set.fromList
 
 maxVectorValue :: Int
 maxVectorValue = 19

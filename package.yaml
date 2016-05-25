@@ -47,7 +47,6 @@ library:
   - deepseq ==1.4.*
   - newtype-generics ==0.4.*
   - regex-compat ==0.95.*
-  - regex-posix ==0.95.*
   - text ==1.2.*
   other-modules: Paths_octane
   source-dirs: library
