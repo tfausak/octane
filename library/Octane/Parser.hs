@@ -1,10 +1,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Parser (parseFrames) where
+module Octane.Parser where
 
 import Data.Function ((&))
 
 import qualified Control.Newtype as Newtype
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Get as Binary
@@ -473,12 +475,26 @@ type LocalId = Word.Word8
 data RemoteId
     = SteamId BS.ByteString -- TODO: This is an integer.
     | PlayStationId BS.ByteString -- TODO: I think this is a string?
-    deriving (Eq, Show)
+    deriving (Eq, Generics.Generic, Show)
+
+-- TODO: This is a dumb instance. It's only necessary because there's no ToJSON
+-- instance for ByteString.
+instance Aeson.ToJSON RemoteId where
+    toJSON remoteId = case remoteId of
+        SteamId bytes -> bytes & show & Aeson.toJSON
+        PlayStationId bytes -> bytes & show & Aeson.toJSON
 
 data Prop = Prop
     { propId :: Int
     , propValue :: PropValue
-    } deriving (Eq, Show)
+    } deriving (Eq, Generics.Generic, Show)
+
+instance Aeson.ToJSON Prop where
+    toJSON =
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 4
+            }
 
 data PropValue
     = PRigidBodyState Bool (Vector Int) (Vector Float) (Maybe (Vector Int)) (Maybe (Vector Int))
@@ -501,7 +517,14 @@ data PropValue
     | PMusicStinger Bool Int Int
     | PFloat Float
     | PDemolish Bool (Maybe Int) Bool (Maybe Int) (Vector Int) (Vector Int)
-    deriving (Eq, Show)
+    deriving (Eq, Generics.Generic, Show)
+
+instance Aeson.ToJSON PropValue where
+    toJSON =
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 9
+            }
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
 -- | the match, the time since the last frame, and a list of replications.
@@ -511,6 +534,13 @@ data Frame = Frame
     , frameReplications :: [Replication]
     } deriving (Eq,Generics.Generic,Show)
 
+instance Aeson.ToJSON Frame where
+    toJSON =
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 5
+            }
+
 -- | Replication information about an actor in the net stream.
 data Replication = Replication
     { replicationActorId :: Int
@@ -518,6 +548,13 @@ data Replication = Replication
     , replicationIsNew :: Maybe Bool
     , replicationProps :: [Prop]
     } deriving (Eq,Generics.Generic,Show)
+
+instance Aeson.ToJSON Replication where
+    toJSON =
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 11
+            }
 
 data Thing = Thing
     { thingFlag :: Bool
@@ -538,7 +575,14 @@ data Vector a = Vector
     { vectorX :: a
     , vectorY :: a
     , vectorZ :: a
-    } deriving (Eq, Show)
+    } deriving (Eq, Generics.Generic, Show)
+
+instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
+    toJSON =
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 6
+            }
 
 data ClassInit = ClassInit
     { classInitLocation :: Maybe (Vector Int)

@@ -45,9 +45,13 @@ debug (file,contents,result) =
                     Aeson.defConfig
                     { Aeson.confCompare = compare
                     }
+            putStrLn "{\"meta\":\n"
             replay & Aeson.encodePretty' config & BSL8.putStrLn
 
+            putStrLn ",\"frames\":\n"
             let frames = Parser.parseFrames replay
             let expectedFrames = replay & Type.replayProperties & Newtype.unpack & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
             let actualFrames = frames & length & fromIntegral & Newtype.pack & Type.IntProperty (Newtype.pack 4) & Just
             Monad.when (expectedFrames /= actualFrames) $ IO.hPutStrLn IO.stderr ("expected " ++ show expectedFrames ++ " frames but found " ++ show actualFrames ++ " frames!")
+            frames & Aeson.encodePretty' config & BSL8.putStrLn
+            putStrLn "}"
