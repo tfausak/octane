@@ -4,6 +4,7 @@ module Octane.Parser where
 
 import Data.Function ((&))
 
+import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Types as Aeson
@@ -132,6 +133,7 @@ getNewReplication context actorId = do
           { replicationActorId = actorId
           , replicationIsOpen = True
           , replicationIsNew = Just True
+          , replicationClassInit = Just classInit
           , replicationProps = []
           })
 
@@ -147,6 +149,7 @@ getExistingReplication context actorId = do
         { replicationActorId = actorId
         , replicationIsOpen = True
         , replicationIsNew = Just False
+        , replicationClassInit = Nothing
         , replicationProps = props
         })
 
@@ -162,6 +165,7 @@ getClosedReplication context actorId = do
           { replicationActorId = actorId
           , replicationIsOpen = False
           , replicationIsNew = Nothing
+          , replicationClassInit = Nothing
           , replicationProps = []
           })
 
@@ -477,6 +481,8 @@ data RemoteId
     | PlayStationId BS.ByteString -- TODO: I think this is a string?
     deriving (Eq, Generics.Generic, Show)
 
+instance DeepSeq.NFData RemoteId
+
 -- TODO: This is a dumb instance. It's only necessary because there's no ToJSON
 -- instance for ByteString.
 instance Aeson.ToJSON RemoteId where
@@ -489,6 +495,7 @@ data Prop = Prop
     , propValue :: PropValue
     } deriving (Eq, Generics.Generic, Show)
 
+instance DeepSeq.NFData Prop
 instance Aeson.ToJSON Prop where
     toJSON =
         Aeson.genericToJSON
@@ -519,6 +526,7 @@ data PropValue
     | PDemolish Bool (Maybe Int) Bool (Maybe Int) (Vector Int) (Vector Int)
     deriving (Eq, Generics.Generic, Show)
 
+instance DeepSeq.NFData PropValue
 instance Aeson.ToJSON PropValue where
     toJSON =
         Aeson.genericToJSON
@@ -534,6 +542,7 @@ data Frame = Frame
     , frameReplications :: [Replication]
     } deriving (Eq,Generics.Generic,Show)
 
+instance DeepSeq.NFData Frame
 instance Aeson.ToJSON Frame where
     toJSON =
         Aeson.genericToJSON
@@ -546,9 +555,11 @@ data Replication = Replication
     { replicationActorId :: Int
     , replicationIsOpen :: Bool
     , replicationIsNew :: Maybe Bool
+    , replicationClassInit :: Maybe ClassInit
     , replicationProps :: [Prop]
     } deriving (Eq,Generics.Generic,Show)
 
+instance DeepSeq.NFData Replication
 instance Aeson.ToJSON Replication where
     toJSON =
         Aeson.genericToJSON
@@ -577,6 +588,7 @@ data Vector a = Vector
     , vectorZ :: a
     } deriving (Eq, Generics.Generic, Show)
 
+instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a)
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
     toJSON =
         Aeson.genericToJSON
@@ -587,7 +599,15 @@ instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
 data ClassInit = ClassInit
     { classInitLocation :: Maybe (Vector Int)
     , classInitRotation :: Maybe (Vector Int)
-    } deriving (Show)
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData ClassInit
+instance Aeson.ToJSON ClassInit where
+    toJSON =
+        Aeson.genericToJSON
+            Aeson.defaultOptions
+            { Aeson.fieldLabelModifier = drop 6
+            }
 
 -- { class stream id => { property stream id => name } }
 type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
