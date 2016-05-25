@@ -377,18 +377,18 @@ propsWithString =
 
 propsWithBoolean :: Set.Set Text.Text
 propsWithBoolean =
-    [ "Engine.PlayerReplicationInfo:bReadyToPlay"
+    [ "Engine.Actor:bBlockActors"
+    , "Engine.Actor:bCollideActors"
+    , "Engine.PlayerReplicationInfo:bReadyToPlay"
     , "ProjectX.GRI_X:bGameStarted"
+    , "TAGame.CameraSettingsActor_TA:bUsingBehindView"
     , "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera"
+    , "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit"
     , "TAGame.GameEvent_TA:bHasLeaveMatchPenalty"
     , "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam"
     , "TAGame.PRI_TA:bOnlineLoadoutSet"
     , "TAGame.Vehicle_TA:bDriving"
-    , "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit"
     , "TAGame.Vehicle_TA:bReplicatedHandbrake"
-    , "Engine.Actor:bCollideActors"
-    , "Engine.Actor:bBlockActors"
-    , "TAGame.CameraSettingsActor_TA:bUsingBehindView"
     ] & map Text.pack & Set.fromList
 
 propsWithQWord :: Set.Set Text.Text
@@ -399,35 +399,35 @@ propsWithQWord =
 propsWithInt :: Set.Set Text.Text
 propsWithInt =
     [ "Engine.PlayerReplicationInfo:PlayerID"
+    , "Engine.PlayerReplicationInfo:Score"
+    , "Engine.TeamInfo:Score"
     , "ProjectX.GRI_X:ReplicatedGamePlaylist"
+    , "TAGame.GameEvent_Soccar_TA:RoundNum"
     , "TAGame.GameEvent_Soccar_TA:SecondsRemaining"
     , "TAGame.GameEvent_TA:BotSkill"
     , "TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining"
-    , "TAGame.GameEvent_Soccar_TA:RoundNum"
     , "TAGame.GameEvent_TA:ReplicatedStateName"
     , "TAGame.GameEvent_Team_TA:MaxTeamSize"
-    , "TAGame.PRI_TA:Title"
-    , "TAGame.PRI_TA:TotalXP"
+    , "TAGame.PRI_TA:MatchAssists"
+    , "TAGame.PRI_TA:MatchGoals"
+    , "TAGame.PRI_TA:MatchSaves"
     , "TAGame.PRI_TA:MatchScore"
     , "TAGame.PRI_TA:MatchShots"
-    , "TAGame.PRI_TA:MatchSaves"
-    , "Engine.TeamInfo:Score"
-    , "Engine.PlayerReplicationInfo:Score"
-    , "TAGame.PRI_TA:MatchGoals"
-    , "TAGame.PRI_TA:MatchAssists"
+    , "TAGame.PRI_TA:Title"
+    , "TAGame.PRI_TA:TotalXP"
     ] & map Text.pack & Set.fromList
 
 propsWithByte :: Set.Set Text.Text
 propsWithByte =
     [ "Engine.PlayerReplicationInfo:Ping"
-    , "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount"
-    , "TAGame.Vehicle_TA:ReplicatedThrottle"
-    , "TAGame.CarComponent_TA:ReplicatedActive"
-    , "TAGame.Vehicle_TA:ReplicatedSteer"
     , "TAGame.Ball_TA:HitTeamNum"
-    , "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam"
-    , "TAGame.CameraSettingsActor_TA:CameraYaw"
     , "TAGame.CameraSettingsActor_TA:CameraPitch"
+    , "TAGame.CameraSettingsActor_TA:CameraYaw"
+    , "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount"
+    , "TAGame.CarComponent_TA:ReplicatedActive"
+    , "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam"
+    , "TAGame.Vehicle_TA:ReplicatedSteer"
+    , "TAGame.Vehicle_TA:ReplicatedThrottle"
     ] & map Text.pack & Set.fromList
 
 propsWithUniqueId :: Set.Set Text.Text
