@@ -250,6 +250,9 @@ getPropValue name = case Text.unpack name of
     _ | Set.member name propsWithLocation -> do
         vector <- getVector
         return (PLocation vector)
+    _ | Set.member name propsWithFloat -> do
+        float <- getFloat32
+        return (PFloat float)
     "ProjectX.GRI_X:Reservations" -> do
         -- I think this is the connection order. The first player to connect
         -- gets number 0, and it goes up from there. The maximum is 8, which
@@ -446,6 +449,12 @@ propsWithLocation =
     [ "TAGame.CarComponent_Dodge_TA:DodgeTorque"
     ] & map Text.pack & Set.fromList
 
+propsWithFloat :: Set.Set Text.Text
+propsWithFloat =
+    [ "Engine.Actor:DrawScale"
+    , "TAGame.CrowdActor_TA:ModifiedNoise"
+    ] & map Text.pack & Set.fromList
+
 type SystemId = Word.Word8
 
 -- This is the number associated with a splitscreen player. So the first player
@@ -483,6 +492,7 @@ data PropValue
     | PEnum Word.Word16 -- TODO: This isn't the right data type.
     | PExplosion Bool (Maybe Int) (Vector Int)
     | PMusicStinger Bool Int Int
+    | PFloat Float
     deriving (Eq, Show)
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
