@@ -2,6 +2,9 @@
 
 module Octane.Parser (parseFrames) where
 
+import Data.Function ((&))
+import Text.Regex.Posix ((=~))
+
 import qualified Control.Newtype as Newtype
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.IEEE754 as IEEE754
@@ -9,7 +12,6 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import Data.Function ((&))
 import qualified Data.IntMap as IntMap
 import qualified Data.List as List
 import qualified Data.Maybe as Maybe
@@ -183,28 +185,7 @@ getMaybeProp context thing = do
 
 getProp :: Context -> Thing -> Bits.BitGet Prop
 getProp context thing = do
-    -- TODO: WHY?!
-    let rawClassId = thingClassId thing
-    let className = thing & thingClassName & Text.unpack
-    let classId =
-            if className == "TAGame.Default__CameraSettingsActor_TA"
-            then rawClassId - 1
-            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_24"
-            then rawClassId - 1
-            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_54"
-            then rawClassId - 2
-            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_62"
-            then rawClassId - 3
-            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_46"
-            then rawClassId - 4
-            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_60"
-            then rawClassId - 5
-            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_58"
-            then rawClassId - 6
-            else if className == "TrainStation_P.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_61"
-            then rawClassId - 7
-            else rawClassId
-
+    let classId = thing & thingClassId
     let props = case context & contextClassPropertyMap & IntMap.lookup classId of
             Nothing -> error ("could not find property map for class id " ++ show classId)
             Just x -> x
@@ -539,10 +520,12 @@ getClass objectMap objectId =
     case IntMap.lookup objectId objectMap of
         Nothing -> Nothing
         Just name ->
-            if name == Text.pack "TAGame.Default__PRI_TA" ||
-               Text.isInfixOf (Text.pack "Archetype") name
-                then getClass objectMap (objectId - 1)
-                else Just (objectId, name)
+            if
+                Text.isInfixOf (Text.pack "Default__") name ||
+                Text.isInfixOf (Text.pack "Archetype") name ||
+                Text.unpack name =~ "_[0-9][0-9]*$"
+            then getClass objectMap (objectId - 1)
+            else Just (objectId, name)
 
 extractContext :: Type.Replay -> Context
 extractContext replay =
@@ -562,8 +545,6 @@ classesWithLocation =
     , "TAGame.CarComponent_FlipCar_TA"
     , "TAGame.CarComponent_Jump_TA"
     , "TAGame.Car_TA"
-    , "TAGame.Default__CameraSettingsActor_TA"
-    , "TAGame.Default__PRI_TA"
     , "TAGame.GRI_TA"
     , "TAGame.GameEvent_Season_TA"
     , "TAGame.GameEvent_SoccarPrivate_TA"
@@ -571,9 +552,9 @@ classesWithLocation =
     , "TAGame.GameEvent_Soccar_TA"
     , "TAGame.PRI_TA"
     , "TAGame.Team_Soccar_TA"
-    , "TAGame.Team_TA"] &
-    map Text.pack &
-    Set.fromList
+    , "TAGame.Team_TA"
+    , "TAGame.CameraSettingsActor_TA"
+    ] & map Text.pack & Set.fromList
 
 classesWithRotation :: Set.Set Text.Text
 classesWithRotation =
