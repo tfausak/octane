@@ -188,7 +188,12 @@ getProp :: Context -> Thing -> Bits.BitGet Prop
 getProp context thing = do
     let classId = thing & thingClassId
     let props = case context & contextClassPropertyMap & IntMap.lookup classId of
-            Nothing -> error ("could not find property map for class id " ++ show classId)
+            Nothing ->
+                Trace.trace (context & contextObjectMap & IntMap.toAscList & map (\ (k, v) -> "\t" ++ show k ++ "\t=> " ++ show v) & ("OBJECTS:" :) & unlines) $
+                Trace.trace (context & contextArchetypeMap & Map.toList & map (\ (k, v) -> "\t" ++ show k ++ "\t=> " ++ show v) & ("ARCHETYPES:" :) & unlines) $
+                Trace.trace (context & contextClassMap & Map.toList & map (\ (k, v) -> "\t" ++ show k ++ "\t=> " ++ show v) & ("CLASSES:" :) & unlines) $
+                Trace.trace (context & contextClassPropertyMap & IntMap.toAscList & map (\ (k1, v1) -> "\t" ++ show k1 ++ "\t=>\n" ++ (v1 & IntMap.toAscList & map (\ (k2, v2) -> "\t\t" ++ show k2 ++ "\t=>" ++ show v2) & unlines)) & ("CLASS PROPERTIES:" :) & unlines) $
+                error ("could not find property map for class id " ++ show classId)
             Just x -> x
     let maxId = props & IntMap.keys & maximum
     Trace.traceM ("Max ID: " ++ show maxId)
