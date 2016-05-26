@@ -411,6 +411,7 @@ propsWithBoolean =
     , "Engine.Actor:bHardAttach"
     , "Engine.Actor:bHidden"
     , "Engine.PlayerReplicationInfo:bBot"
+    , "Engine.PlayerReplicationInfo:bOnlySpectator"
     , "Engine.PlayerReplicationInfo:bReadyToPlay"
     , "Engine.PlayerReplicationInfo:bWaitingPlayer"
     , "ProjectX.GRI_X:bGameStarted"
