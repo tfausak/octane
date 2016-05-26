@@ -22,7 +22,6 @@ import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
 import qualified Data.Word as Word
-import qualified Debug.Trace as Trace
 import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
 import qualified Text.Regex as Regex
@@ -196,12 +195,7 @@ getProp :: Context -> Thing -> Bits.BitGet Prop
 getProp context thing = do
     let classId = thing & thingClassId
     let props = case context & contextClassPropertyMap & IntMap.lookup classId of
-            Nothing ->
-                Trace.trace (context & contextObjectMap & IntMap.toAscList & map (\ (k, v) -> "\t" ++ show k ++ "\t=> " ++ show v) & ("OBJECTS:" :) & unlines) $
-                Trace.trace (context & contextArchetypeMap & Map.toList & map (\ (k, v) -> "\t" ++ show k ++ "\t=> " ++ show v) & ("ARCHETYPES:" :) & unlines) $
-                Trace.trace (context & contextClassMap & Map.toList & map (\ (k, v) -> "\t" ++ show k ++ "\t=> " ++ show v) & ("CLASSES:" :) & unlines) $
-                Trace.trace (context & contextClassPropertyMap & IntMap.toAscList & map (\ (k1, v1) -> "\t" ++ show k1 ++ "\t=>\n" ++ (v1 & IntMap.toAscList & map (\ (k2, v2) -> "\t\t" ++ show k2 ++ "\t=>" ++ show v2) & unlines)) & ("CLASS PROPERTIES:" :) & unlines) $
-                error ("could not find property map for class id " ++ show classId)
+            Nothing -> error ("could not find property map for class id " ++ show classId)
             Just x -> x
     let maxId = props & IntMap.keys & maximum
     pid <- getInt maxId
@@ -336,7 +330,9 @@ getPropValue name = case Text.unpack name of
         password <- getString
         flag <- Bits.getBool
         return (PPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
-    -- TODO: Parse other prop types.
+    "Engine.Actor:RelativeRotation" -> do
+        vector <- getFloatVector
+        return (PRelativeRotation vector)
     _ -> fail ("don't know how to read property " ++ show name)
 
 getFloat32 :: Bits.BitGet Float
@@ -569,7 +565,8 @@ data PropValue
     | PMusicStinger !Bool !Int !Int
     | PFloat !Float
     | PDemolish !Bool !(Maybe Int) !Bool !(Maybe Int) !(Vector Int) !(Vector Int)
-    | PPrivateMatchSettings Text.Text Int Int Text.Text Text.Text Bool
+    | PPrivateMatchSettings !Text.Text !Int !Int !Text.Text !Text.Text !Bool
+    | PRelativeRotation !(Vector Float)
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData PropValue
@@ -741,6 +738,7 @@ archetypeToClass text
     & substitute "_TA$" ""
     & substitute "_Default$" ""
     & substitute "Archetype$" ""
+    & substitute "_Basketball$" ""
     & Text.pack
 
 substitute :: String -> String -> String -> String
@@ -760,7 +758,6 @@ extractContext replay =
 classesWithLocation :: Set.Set Text.Text
 classesWithLocation =
     [ "Ball"
-    , "Ball_Basketball"
     , "CameraSettingsActor"
     , "Car"
     , "CarComponent_Boost"
@@ -769,6 +766,7 @@ classesWithLocation =
     , "CarComponent_FlipCar"
     , "CarComponent_Jump"
     , "GRI"
+    , "GameEvent"
     , "GameEvent_Season"
     , "GameEvent_Soccar"
     , "GameEvent_SoccarPrivate"
@@ -782,7 +780,6 @@ classesWithLocation =
 classesWithRotation :: Set.Set Text.Text
 classesWithRotation =
     [ "Ball"
-    , "Ball_Basketball"
     , "Car_Season"
     , "Car"
     ] & map Text.pack & Set.fromList
