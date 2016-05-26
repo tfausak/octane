@@ -197,7 +197,7 @@ getProp context thing = do
     let props = case context & contextClassPropertyMap & IntMap.lookup classId of
             Nothing -> error ("could not find property map for class id " ++ show classId)
             Just x -> x
-    let maxId = props & IntMap.keys & maximum
+    let maxId = props & IntMap.keys & (0 :) & maximum
     pid <- getInt maxId
     let propName = case props & IntMap.lookup pid of
             Nothing -> error ("could not find property name for property id " ++ show pid)
@@ -333,6 +333,9 @@ getPropValue name = case Text.unpack name of
     "Engine.Actor:RelativeRotation" -> do
         vector <- getFloatVector
         return (PRelativeRotation vector)
+    "TAGame.GameEvent_TA:GameMode" -> do
+        mode <- Bits.getWord8 2
+        return (PGameMode mode)
     _ -> fail ("don't know how to read property " ++ show name)
 
 getFloat32 :: Bits.BitGet Float
@@ -567,6 +570,7 @@ data PropValue
     | PDemolish !Bool !(Maybe Int) !Bool !(Maybe Int) !(Vector Int) !(Vector Int)
     | PPrivateMatchSettings !Text.Text !Int !Int !Text.Text !Text.Text !Bool
     | PRelativeRotation !(Vector Float)
+    | PGameMode !Word.Word8 -- TODO: Only 2 bits.
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData PropValue
@@ -693,7 +697,8 @@ buildArchetypeMap replay
 
 specialArchetypes :: ArchetypeMap
 specialArchetypes =
-    [ ("GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype", "GRI")
+    [ ("GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype", "GRI")
+    , ("GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype", "GRI")
     ] & map (\ (k, v) -> (Text.pack k, Text.pack v)) & Map.fromList
 
 buildClassMap :: Type.Replay -> ClassMap
