@@ -354,7 +354,10 @@ getUniqueId = do
     byte <- Bits.getWord8 8
     let systemId = Type.reverseBits byte
     case systemId of
-        0 -> error "don't know how to parse splitscreen ids" -- TODO
+        0 -> do
+            remoteId <- Bits.getByteString 3
+            localId <- Bits.getWord8 8
+            return (systemId, SplitscreenId remoteId, localId)
         1 -> do
             remoteId <- Bits.getByteString 8
             localId <- Bits.getWord8 8
@@ -373,6 +376,7 @@ propsWithRigidBodyState =
 propsWithFlaggedInt :: Set.Set Text.Text
 propsWithFlaggedInt =
     [ "Engine.GameReplicationInfo:GameClass"
+    , "Engine.Actor:ReplicatedCollisionType"
     , "Engine.Pawn:PlayerReplicationInfo"
     , "Engine.PlayerReplicationInfo:Team"
     , "TAGame.Ball_TA:GameEvent"
@@ -398,6 +402,7 @@ propsWithBoolean =
     [ "Engine.Actor:bBlockActors"
     , "Engine.Actor:bCollideActors"
     , "Engine.Actor:bHidden"
+    , "Engine.PlayerReplicationInfo:bBot"
     , "Engine.PlayerReplicationInfo:bReadyToPlay"
     , "ProjectX.GRI_X:bGameStarted"
     , "TAGame.CameraSettingsActor_TA:bUsingBehindView"
@@ -426,6 +431,7 @@ propsWithInt =
     [ "Engine.PlayerReplicationInfo:PlayerID"
     , "Engine.PlayerReplicationInfo:Score"
     , "Engine.TeamInfo:Score"
+    , "ProjectX.GRI_X:ReplicatedGameMutatorIndex"
     , "ProjectX.GRI_X:ReplicatedGamePlaylist"
     , "TAGame.CrowdActor_TA:ReplicatedCountDownNumber"
     , "TAGame.GameEvent_Soccar_TA:RoundNum"
@@ -494,6 +500,7 @@ type LocalId = Word.Word8
 data RemoteId
     = SteamId !BS.ByteString -- TODO: This is an integer.
     | PlayStationId !BS.ByteString -- TODO: I think this is a string?
+    | SplitscreenId !BS.ByteString -- TODO: No idea what this represents.
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData RemoteId
@@ -504,6 +511,7 @@ instance Aeson.ToJSON RemoteId where
     toJSON remoteId = case remoteId of
         SteamId bytes -> bytes & show & Aeson.toJSON
         PlayStationId bytes -> bytes & show & Aeson.toJSON
+        SplitscreenId bytes -> bytes & show & Aeson.toJSON
 
 data Prop = Prop
     { propId :: !Int
