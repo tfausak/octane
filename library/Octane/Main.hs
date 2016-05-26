@@ -15,7 +15,6 @@ import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
 import qualified Octane.Type as Type
 import qualified System.Environment as Environment
-import qualified System.IO as IO
 
 main :: IO ()
 main = do
@@ -28,29 +27,46 @@ debug :: (String, BS.ByteString, Either (Binary.ByteOffset, String) Type.Replay)
       -> IO ()
 debug (file,contents,result) =
     case result of
-        Left (offset,message) ->
-            IO.hPutStrLn
-                IO.stderr
-                (file ++ " @ byte " ++ show offset ++ " - " ++ message)
+        Left (offset,message) -> error
+            ( file
+            ++ " @ byte "
+            ++ show offset
+            ++ ": "
+            ++ message
+            )
         Right replay -> do
             DeepSeq.deepseq replay (return ())
             let inputSize = contents & BS.length & fromIntegral
             let outputSize = replay & Binary.encode & BSL.length
-            Monad.when (inputSize /= outputSize) $
-                do IO.hPutStrLn
-                       IO.stderr
-                       ("input size (" ++
-                        show inputSize ++
-                        ") not equal to output size (" ++
-                        show outputSize ++ ")!")
-            putStrLn "{\"meta\":\n"
-            replay & Aeson.encode & BSL8.putStrLn
+            Monad.when (inputSize /= outputSize) (error
+                ( "input size "
+                ++ show inputSize
+                ++ " not equal to output size "
+                ++ show outputSize
+                ))
 
-            putStrLn ",\"frames\":\n"
             let frames = Parser.parseFrames replay
             DeepSeq.deepseq frames (return ())
-            let expectedFrames = replay & Type.replayProperties & Newtype.unpack & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
-            let actualFrames = frames & length & fromIntegral & Newtype.pack & Type.IntProperty (Newtype.pack 4) & Just
-            Monad.when (expectedFrames /= actualFrames) $ IO.hPutStrLn IO.stderr ("expected " ++ show expectedFrames ++ " frames but found " ++ show actualFrames ++ " frames!")
+            let expectedFrames = replay
+                    & Type.replayProperties
+                    & Newtype.unpack
+                    & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
+            let actualFrames = frames
+                    & length
+                    & fromIntegral
+                    & Newtype.pack
+                    & Type.IntProperty (Newtype.pack 4)
+                    & Just
+            Monad.when (expectedFrames /= actualFrames) (error
+                ( "expected "
+                ++ show expectedFrames
+                ++ " frames but found "
+                ++ show actualFrames
+                ++ " frames"
+                ))
+
+            putStr "{\"meta\":"
+            replay & Aeson.encode & BSL8.putStrLn
+            putStr ",\"frames\":"
             frames & Aeson.encode & BSL8.putStrLn
             putStrLn "}"
