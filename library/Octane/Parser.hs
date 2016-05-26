@@ -377,6 +377,7 @@ propsWithFlaggedInt =
     , "TAGame.CrowdActor_TA:GameEvent"
     , "TAGame.CrowdActor_TA:ReplicatedOneShotSound"
     , "TAGame.CrowdManager_TA:GameEvent"
+    , "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound"
     , "TAGame.PRI_TA:PersistentCamera"
     , "TAGame.PRI_TA:ReplicatedGameEvent"
     , "TAGame.Team_TA:GameEvent"
@@ -397,10 +398,15 @@ propsWithBoolean =
     , "ProjectX.GRI_X:bGameStarted"
     , "TAGame.CameraSettingsActor_TA:bUsingBehindView"
     , "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera"
+    , "TAGame.CarComponent_FlipCar_TA:bFlipRight"
     , "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit"
+    , "TAGame.GameEvent_Soccar_TA:bOverTime"
     , "TAGame.GameEvent_TA:bHasLeaveMatchPenalty"
     , "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam"
     , "TAGame.PRI_TA:bOnlineLoadoutSet"
+    , "TAGame.PRI_TA:bUsingBehindView"
+    , "TAGame.PRI_TA:bUsingSecondaryCamera"
+    , "TAGame.RBActor_TA:bReplayActor"
     , "TAGame.Vehicle_TA:bDriving"
     , "TAGame.Vehicle_TA:bReplicatedHandbrake"
     ] & map Text.pack & Set.fromList
@@ -441,6 +447,9 @@ propsWithByte =
     , "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount"
     , "TAGame.CarComponent_TA:ReplicatedActive"
     , "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam"
+    , "TAGame.GameEvent_TA:ReplicatedStateIndex"
+    , "TAGame.PRI_TA:CameraPitch"
+    , "TAGame.PRI_TA:CameraYaw"
     , "TAGame.Vehicle_TA:ReplicatedSteer"
     , "TAGame.Vehicle_TA:ReplicatedThrottle"
     ] & map Text.pack & Set.fromList
@@ -454,6 +463,7 @@ propsWithUniqueId =
 propsWithCamSettings :: Set.Set Text.Text
 propsWithCamSettings =
     [ "TAGame.CameraSettingsActor_TA:ProfileSettings"
+    , "TAGame.PRI_TA:CameraSettings"
     ] & map Text.pack & Set.fromList
 
 propsWithLocation :: Set.Set Text.Text
