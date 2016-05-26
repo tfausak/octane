@@ -326,6 +326,14 @@ getPropValue name = case Text.unpack name of
         vec1 <- getVector
         vec2 <- getVector
         return (PDemolish hasAtk atk hasVic vic vec1 vec2)
+    "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings" -> do
+        mutators <- getString
+        joinableBy <- getInt32
+        maxPlayers <- getInt32
+        name <- getString
+        password <- getString
+        flag <- Bits.getBool
+        return (PPrivateMatchSettings mutators joinableBy maxPlayers name password flag)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -412,6 +420,7 @@ propsWithBoolean =
     , "TAGame.GameEvent_Soccar_TA:bOverTime"
     , "TAGame.GameEvent_TA:bHasLeaveMatchPenalty"
     , "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam"
+    , "TAGame.PRI_TA:bIsInSplitScreen"
     , "TAGame.PRI_TA:bOnlineLoadoutSet"
     , "TAGame.PRI_TA:bReady"
     , "TAGame.PRI_TA:bUsingBehindView"
@@ -547,6 +556,7 @@ data PropValue
     | PMusicStinger !Bool !Int !Int
     | PFloat !Float
     | PDemolish !Bool !(Maybe Int) !Bool !(Maybe Int) !(Vector Int) !(Vector Int)
+    | PPrivateMatchSettings Text.Text Int Int Text.Text Text.Text Bool
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData PropValue
