@@ -3,7 +3,7 @@ module Octane.Main (main) where
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Control.Newtype as Newtype
-import qualified Data.Aeson.Encode.Pretty as Aeson
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString as BS
@@ -43,12 +43,8 @@ debug (file,contents,result) =
                         show inputSize ++
                         ") not equal to output size (" ++
                         show outputSize ++ ")!")
-            let config =
-                    Aeson.defConfig
-                    { Aeson.confCompare = compare
-                    }
             putStrLn "{\"meta\":\n"
-            replay & Aeson.encodePretty' config & BSL8.putStrLn
+            replay & Aeson.encode & BSL8.putStrLn
 
             putStrLn ",\"frames\":\n"
             let frames = Parser.parseFrames replay
@@ -56,5 +52,5 @@ debug (file,contents,result) =
             let expectedFrames = replay & Type.replayProperties & Newtype.unpack & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
             let actualFrames = frames & length & fromIntegral & Newtype.pack & Type.IntProperty (Newtype.pack 4) & Just
             Monad.when (expectedFrames /= actualFrames) $ IO.hPutStrLn IO.stderr ("expected " ++ show expectedFrames ++ " frames but found " ++ show actualFrames ++ " frames!")
-            frames & Aeson.encodePretty' config & BSL8.putStrLn
+            frames & Aeson.encode & BSL8.putStrLn
             putStrLn "}"
