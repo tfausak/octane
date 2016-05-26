@@ -410,7 +410,12 @@ propsWithBoolean =
     , "Engine.Actor:bCollideActors"
     , "Engine.Actor:bHardAttach"
     , "Engine.Actor:bHidden"
+    , "Engine.Actor:bProjTarget"
+    , "Engine.Actor:bTearOff"
+    , "Engine.GameReplicationInfo:bMatchIsOver"
+    , "Engine.Pawn:bRootMotionFromInterpCurve"
     , "Engine.PlayerReplicationInfo:bBot"
+    , "Engine.PlayerReplicationInfo:bIsSpectator"
     , "Engine.PlayerReplicationInfo:bOnlySpectator"
     , "Engine.PlayerReplicationInfo:bReadyToPlay"
     , "Engine.PlayerReplicationInfo:bWaitingPlayer"
@@ -496,6 +501,10 @@ propsWithLocation =
 propsWithFloat :: Set.Set Text.Text
 propsWithFloat =
     [ "Engine.Actor:DrawScale"
+    , "TAGame.Ball_TA:ReplicatedAddedCarBounceScale"
+    , "TAGame.Ball_TA:ReplicatedBallMaxLinearSpeedScale"
+    , "TAGame.Ball_TA:ReplicatedBallScale"
+    , "TAGame.Ball_TA:ReplicatedWorldBounceScale"
     , "TAGame.CarComponent_FlipCar_TA:FlipCarTime"
     , "TAGame.CrowdActor_TA:ModifiedNoise"
     ] & map Text.pack & Set.fromList
