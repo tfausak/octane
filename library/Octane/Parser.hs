@@ -330,10 +330,10 @@ getPropValue name = case Text.unpack name of
         mutators <- getString
         joinableBy <- getInt32
         maxPlayers <- getInt32
-        name <- getString
+        gameName <- getString
         password <- getString
         flag <- Bits.getBool
-        return (PPrivateMatchSettings mutators joinableBy maxPlayers name password flag)
+        return (PPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
     -- TODO: Parse other prop types.
     _ -> fail ("don't know how to read property " ++ show name)
 
@@ -408,6 +408,7 @@ propsWithBoolean :: Set.Set Text.Text
 propsWithBoolean =
     [ "Engine.Actor:bBlockActors"
     , "Engine.Actor:bCollideActors"
+    , "Engine.Actor:bHardAttach"
     , "Engine.Actor:bHidden"
     , "Engine.PlayerReplicationInfo:bBot"
     , "Engine.PlayerReplicationInfo:bReadyToPlay"
