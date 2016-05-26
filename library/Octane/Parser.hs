@@ -758,6 +758,7 @@ extractContext replay =
 classesWithLocation :: Set.Set Text.Text
 classesWithLocation =
     [ "Ball"
+    , "Ball_Basketball"
     , "CameraSettingsActor"
     , "Car"
     , "CarComponent_Boost"
@@ -779,6 +780,7 @@ classesWithLocation =
 classesWithRotation :: Set.Set Text.Text
 classesWithRotation =
     [ "Ball"
+    , "Ball_Basketball"
     , "Car_Season"
     , "Car"
     ] & map Text.pack & Set.fromList
