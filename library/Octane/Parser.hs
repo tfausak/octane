@@ -108,16 +108,15 @@ getNewReplication :: Context
                   -> Bits.BitGet (Context, Replication)
 getNewReplication context actorId = do
     unknownFlag <- Bits.getBool
+    if unknownFlag
+        then error "the unknown flag in a new replication is true! what does it mean?"
+        else return ()
     objectId <- getInt32
     let objectName = case context & contextObjectMap & IntMap.lookup objectId of
             Nothing -> error ("could not find object name for id " ++ show objectId)
             Just x -> x
     let (classId,className) = case getClass context objectId of
-            Nothing ->
-                Trace.trace ("flag: " ++ show unknownFlag) $
-                Trace.trace ("object id: " ++ show objectId) $
-                Trace.trace ("object name: " ++ show objectName) $
-                error ("could not find class for object id " ++ show objectId)
+            Nothing -> error ("could not find class for object id " ++ show objectId)
             Just x -> x
     classInit <- getClassInit className
     let thing = Thing
@@ -404,6 +403,7 @@ propsWithBoolean =
     , "Engine.Actor:bHidden"
     , "Engine.PlayerReplicationInfo:bBot"
     , "Engine.PlayerReplicationInfo:bReadyToPlay"
+    , "Engine.PlayerReplicationInfo:bWaitingPlayer"
     , "ProjectX.GRI_X:bGameStarted"
     , "TAGame.CameraSettingsActor_TA:bUsingBehindView"
     , "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera"
