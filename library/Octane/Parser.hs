@@ -113,7 +113,11 @@ getNewReplication context actorId = do
             Nothing -> error ("could not find object name for id " ++ show objectId)
             Just x -> x
     let (classId,className) = case getClass context objectId of
-            Nothing -> error ("could not find class for object id " ++ show objectId)
+            Nothing ->
+                Trace.trace ("flag: " ++ show unknownFlag) $
+                Trace.trace ("object id: " ++ show objectId) $
+                Trace.trace ("object name: " ++ show objectName) $
+                error ("could not find class for object id " ++ show objectId)
             Just x -> x
     classInit <- getClassInit className
     let thing = Thing
@@ -350,7 +354,7 @@ getUniqueId = do
     byte <- Bits.getWord8 8
     let systemId = Type.reverseBits byte
     case systemId of
-        0 -> error "don't know how to parse splitscreen ids"
+        0 -> error "don't know how to parse splitscreen ids" -- TODO
         1 -> do
             remoteId <- Bits.getByteString 8
             localId <- Bits.getWord8 8
@@ -404,6 +408,7 @@ propsWithBoolean =
     , "TAGame.GameEvent_TA:bHasLeaveMatchPenalty"
     , "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam"
     , "TAGame.PRI_TA:bOnlineLoadoutSet"
+    , "TAGame.PRI_TA:bReady"
     , "TAGame.PRI_TA:bUsingBehindView"
     , "TAGame.PRI_TA:bUsingSecondaryCamera"
     , "TAGame.RBActor_TA:bReplayActor"
