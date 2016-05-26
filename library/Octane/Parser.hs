@@ -403,6 +403,7 @@ propsWithString :: Set.Set Text.Text
 propsWithString =
     [ "Engine.GameReplicationInfo:ServerName"
     , "Engine.PlayerReplicationInfo:PlayerName"
+    , "TAGame.GRI_TA:NewDedicatedServerIP"
     ] & map Text.pack & Set.fromList
 
 propsWithBoolean :: Set.Set Text.Text
@@ -414,10 +415,13 @@ propsWithBoolean =
     , "Engine.Actor:bProjTarget"
     , "Engine.Actor:bTearOff"
     , "Engine.GameReplicationInfo:bMatchIsOver"
+    , "Engine.Pawn:bCanSwatTurn"
     , "Engine.Pawn:bRootMotionFromInterpCurve"
+    , "Engine.Pawn:bSimulateGravity"
     , "Engine.PlayerReplicationInfo:bBot"
     , "Engine.PlayerReplicationInfo:bIsSpectator"
     , "Engine.PlayerReplicationInfo:bOnlySpectator"
+    , "Engine.PlayerReplicationInfo:bOutOfLives"
     , "Engine.PlayerReplicationInfo:bReadyToPlay"
     , "Engine.PlayerReplicationInfo:bWaitingPlayer"
     , "ProjectX.GRI_X:bGameStarted"
@@ -433,6 +437,7 @@ propsWithBoolean =
     , "TAGame.PRI_TA:bReady"
     , "TAGame.PRI_TA:bUsingBehindView"
     , "TAGame.PRI_TA:bUsingSecondaryCamera"
+    , "TAGame.RBActor_TA:bFrozen"
     , "TAGame.RBActor_TA:bReplayActor"
     , "TAGame.Vehicle_TA:bDriving"
     , "TAGame.Vehicle_TA:bReplicatedHandbrake"
