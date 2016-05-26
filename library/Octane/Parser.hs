@@ -48,10 +48,12 @@ getMaybeFrame context = do
     time <- getFloat32
     delta <- getFloat32
     if time == 0 && delta == 0
-        then return Nothing
-        else do
-            (newContext, frame) <- getFrame context time delta
-            return (Just (newContext, frame))
+    then return Nothing
+    else if time < 0.001 || delta < 0.001
+    then error ("parsing previous frame probably failed. time: " ++ show time ++ ", delta: " ++ show delta)
+    else do
+        (newContext, frame) <- getFrame context time delta
+        return (Just (newContext, frame))
 
 getFrame :: Context -> Time -> Delta -> Bits.BitGet (Context, Frame)
 getFrame context time delta = do
