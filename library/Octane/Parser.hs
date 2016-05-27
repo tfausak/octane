@@ -368,7 +368,10 @@ getUniqueId = do
             localId <- Bits.getWord8 8
             return (systemId, SplitscreenId remoteId, localId)
         1 -> do
-            remoteId <- Bits.getByteString 8
+            bytes <- Bits.getByteString 8
+            let remoteId = Binary.runGet
+                    Binary.getWord64le
+                    (bytes & BS.map Type.reverseBits & BSL.fromStrict)
             localId <- Bits.getWord8 8
             return (systemId, SteamId remoteId, localId)
         2 -> do
@@ -532,7 +535,7 @@ type LocalId = Word.Word8
 
 -- TODO: None of these are actually represented by byte strings.
 data RemoteId
-    = SteamId !BS.ByteString
+    = SteamId !Word.Word64
     | PlayStationId !BS.ByteString
     | SplitscreenId !Int
     | XboxId !BS.ByteString
