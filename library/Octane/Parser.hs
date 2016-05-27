@@ -344,7 +344,6 @@ getFloat32 = do
     bytes <- Bits.getByteString 4
     bytes & byteStringToFloat & return
 
--- TODO: This has a lot of overlap with PCString.
 getString :: Bits.BitGet Text.Text
 getString = do
     rawSize <- getInt32
@@ -581,14 +580,14 @@ data PropValue
     | PTeamPaint !Int !Int !Int !Int !Int
     | PLocation !(Vector Int)
     | PPickup !Bool !(Maybe Int) !Bool
-    | PEnum !Word.Word16 -- TODO: This isn't the right data type.
+    | PEnum !Word.Word16
     | PExplosion !Bool !(Maybe Int) !(Vector Int)
     | PMusicStinger !Bool !Int !Int
     | PFloat !Float
     | PDemolish !Bool !(Maybe Int) !Bool !(Maybe Int) !(Vector Int) !(Vector Int)
     | PPrivateMatchSettings !Text.Text !Int !Int !Text.Text !Text.Text !Bool
     | PRelativeRotation !(Vector Float)
-    | PGameMode !Word.Word8 -- TODO: Only 2 bits.
+    | PGameMode !Word.Word8
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData PropValue
