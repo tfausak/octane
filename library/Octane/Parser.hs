@@ -15,14 +15,13 @@ import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.IntMap.Strict as IntMap
-import qualified Data.List as List
 import qualified Data.Map.Strict as Map
-import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
+import qualified Octane.Parser.ClassPropertyMap as CPM
 import qualified Octane.Type as Type
 import qualified Text.Printf as Printf
 import qualified Text.Regex as Regex
@@ -771,7 +770,7 @@ extractContext :: Type.Replay -> Context
 extractContext replay =
     Context
     { contextObjectMap = buildObjectMap replay
-    , contextClassPropertyMap = buildClassPropertyMap replay
+    , contextClassPropertyMap = CPM.getClassPropertyMap replay
     , contextThings = IntMap.empty
     , contextArchetypeMap = buildArchetypeMap replay
     , contextClassMap = buildClassMap replay
@@ -947,47 +946,3 @@ getInt32 = getInt (2 ^ (32 :: Int))
 
 getInt8 :: Bits.BitGet Int
 getInt8 = getInt (2 ^ (8 :: Int))
-
--- builds a map from property ids in the stream to property names
-buildPropertyMap :: Type.Replay -> IntMap.IntMap Text.Text
-buildPropertyMap replay
-    = replay
-    & Type.replayObjects
-    & Newtype.unpack
-    & map Newtype.unpack
-    & zip [0 ..]
-    & IntMap.fromDistinctAscList
-
-buildClassPropertyMap :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
-buildClassPropertyMap replay = let
-    propertyMap = buildPropertyMap replay
-    g x items = case items of
-        [] -> IntMap.empty
-        _ -> case dropWhile (\ (_, cacheId, _, _) -> cacheId /= x) items of
-            [] -> g (x - 1) items
-            (_, _, parentCacheId, properties) : others -> IntMap.union
-                properties
-                (g parentCacheId others)
-    f x items = case items of
-        (classId, _cacheId, parentCacheId, properties) : others -> IntMap.insert
-            classId
-            (IntMap.union
-                properties
-                (g parentCacheId others))
-            x
-        [] -> x
-    in replay
-        & Type.replayCacheItems
-        & Newtype.unpack
-        & map (\ item ->
-            ( item & Type.cacheItemClassId & Newtype.unpack & fromIntegral
-            , item & Type.cacheItemCacheId & Newtype.unpack & fromIntegral & (\ x -> x :: Int)
-            , item & Type.cacheItemParentCacheId & Newtype.unpack & fromIntegral
-            , item & Type.cacheItemCacheProperties & Newtype.unpack & map (\ x ->
-                ( x & Type.cachePropertyStreamId & Newtype.unpack & fromIntegral
-                , x & Type.cachePropertyObjectId & Newtype.unpack & fromIntegral & flip IntMap.lookup propertyMap & Maybe.fromJust
-                )) & IntMap.fromList
-            ))
-        & reverse
-        & List.tails
-        & foldl f IntMap.empty
