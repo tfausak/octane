@@ -11,7 +11,9 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import Data.Function ((&))
 import qualified Data.IntMap as IntMap
+import qualified Data.List as List
 import qualified Data.Map as Map
+import qualified Data.Maybe as Maybe
 import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
 import qualified Octane.Type as Type
@@ -50,6 +52,49 @@ debug (file,contents,result) =
             let toInt x = x & fromIntegral & (\ y -> y :: Int)
             let stripBlanks x = x & lines & filter (\ y -> y & null & not) & unlines
 
+            let classCache = replay
+                    & Type.replayCacheItems
+                    & Newtype.unpack
+                    & map (\ cacheItem ->
+                        ( cacheItem & Type.cacheItemClassId & Newtype.unpack & toInt
+                        , cacheItem & Type.cacheItemCacheId & Newtype.unpack & toInt
+                        , cacheItem & Type.cacheItemParentCacheId & Newtype.unpack & toInt
+                        ))
+            let classMap = classCache
+                    & reverse
+                    & List.tails
+                    & Maybe.mapMaybe (\ xs ->
+                        case xs of
+                            [] -> Nothing
+                            (classId, _, parentCacheId) : ys ->
+                                case dropWhile (\ (_, cacheId, _) -> cacheId /= parentCacheId) ys of
+                                    [] -> Nothing
+                                    (parentClassId, _, _) : _ -> Just (classId, parentClassId))
+                    & IntMap.fromList
+            let propertyMap = replay
+                    & Type.replayObjects
+                    & Newtype.unpack
+                    & map Newtype.unpack
+                    & map Text.unpack
+                    & zip [0 ..]
+                    & IntMap.fromDistinctAscList
+            let basicClassPropertyMap = replay
+                    & Type.replayCacheItems
+                    & Newtype.unpack
+                    & map (\ cacheItem -> let
+                        classId = cacheItem & Type.cacheItemClassId & Newtype.unpack & toInt
+                        properties = cacheItem
+                            & Type.cacheItemCacheProperties
+                            & Newtype.unpack
+                            & map (\ cacheProperty -> let
+                                streamId = cacheProperty & Type.cachePropertyStreamId & Newtype.unpack & toInt
+                                propertyId = cacheProperty & Type.cachePropertyObjectId & Newtype.unpack & toInt
+                                name = propertyMap IntMap.! propertyId
+                                in (streamId, name))
+                            & IntMap.fromList
+                        in (classId, properties))
+                    & IntMap.fromList
+
             putStrLn "OBJECT STREAM ID => OBJECT NAME"
             replay
                 & Type.replayObjects
@@ -76,42 +121,19 @@ debug (file,contents,result) =
                 & putStrLn
 
             putStrLn "CLASS ID => (CACHE ID, PARENT CACHE ID)"
-            replay
-                & Type.replayCacheItems
-                & Newtype.unpack
-                & map (\ cacheItem ->
-                    ( cacheItem & Type.cacheItemClassId & Newtype.unpack & toInt
-                    , cacheItem & Type.cacheItemCacheId & Newtype.unpack & toInt
-                    , cacheItem & Type.cacheItemParentCacheId & Newtype.unpack & toInt
-                    ))
+            classCache
                 & map (\ (classId, cacheId, parentCacheId) ->
                     Printf.printf " %-3d => (%-2d, %-2d)" classId cacheId parentCacheId)
                 & unlines
                 & putStrLn
 
-            let propertyMap = replay
-                    & Type.replayObjects
-                    & Newtype.unpack
-                    & map Newtype.unpack
-                    & map Text.unpack
-                    & zip [0 ..]
-                    & IntMap.fromDistinctAscList
-            let basicClassPropertyMap = replay
-                    & Type.replayCacheItems
-                    & Newtype.unpack
-                    & map (\ cacheItem -> let
-                        classId = cacheItem & Type.cacheItemClassId & Newtype.unpack & toInt
-                        properties = cacheItem
-                            & Type.cacheItemCacheProperties
-                            & Newtype.unpack
-                            & map (\ cacheProperty -> let
-                                streamId = cacheProperty & Type.cachePropertyStreamId & Newtype.unpack & toInt
-                                propertyId = cacheProperty & Type.cachePropertyObjectId & Newtype.unpack & toInt
-                                name = propertyMap IntMap.! propertyId
-                                in (streamId, name))
-                            & IntMap.fromList
-                        in (classId, properties))
-                    & IntMap.fromList
+            putStrLn "CLASS ID => PARENT CLASS ID"
+            classMap
+                & IntMap.toAscList
+                & map (\ (classId, parentId) ->
+                    Printf.printf " %d => %d" classId parentId)
+                & unlines
+                & putStrLn
 
             putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME } [PARTIAL]"
             basicClassPropertyMap
