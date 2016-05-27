@@ -94,14 +94,11 @@ debug (file,contents,result) =
                             & IntMap.fromList
                         in (classId, properties))
                     & IntMap.fromList
+            let classPropertyMap = basicClassPropertyMap -- TODO
 
             putStrLn "OBJECT STREAM ID => OBJECT NAME"
-            replay
-                & Type.replayObjects
-                & Newtype.unpack
-                & map Newtype.unpack
-                & map Text.unpack
-                & zip [(0 :: Int) ..]
+            propertyMap
+                & IntMap.toAscList
                 & map (\ (streamId, objectName) ->
                     Printf.printf " %-3d => %s" streamId objectName)
                 & unlines
@@ -135,8 +132,8 @@ debug (file,contents,result) =
                 & unlines
                 & putStrLn
 
-            putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME } [PARTIAL]"
-            basicClassPropertyMap
+            putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME }"
+            classPropertyMap
                 & IntMap.toAscList
                 & map (\ (classId, properties) ->
                     ( classId
@@ -152,7 +149,6 @@ debug (file,contents,result) =
                 & stripBlanks
                 & putStrLn
 
-            -- putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME } [COMPLETE]"
             -- putStrLn "OBJECT ID => CLASS ID"
 
             let frames = Parser.parseFrames replay
