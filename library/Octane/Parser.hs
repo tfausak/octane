@@ -379,7 +379,10 @@ getUniqueId = do
             localId <- Bits.getWord8 8
             return (systemId, PlayStationId remoteId, localId)
         4 -> do
-            remoteId <- Bits.getByteString 8
+            bytes <- Bits.getByteString 8
+            let remoteId = Binary.runGet
+                    Binary.getWord64le
+                    (bytes & BS.map Type.reverseBits & BSL.fromStrict)
             localId <- Bits.getWord8 8
             return (systemId, XboxId remoteId, localId)
         _ -> error ("unknown system id " ++ show systemId)
@@ -538,7 +541,7 @@ data RemoteId
     = SteamId !Word.Word64
     | PlayStationId !BS.ByteString
     | SplitscreenId !Int
-    | XboxId !BS.ByteString
+    | XboxId !Word.Word64
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData RemoteId
