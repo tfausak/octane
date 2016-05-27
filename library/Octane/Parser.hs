@@ -363,7 +363,8 @@ getUniqueId = do
     let systemId = Type.reverseBits byte
     case systemId of
         0 -> do
-            remoteId <- Bits.getByteString 3
+            remoteId <- getInt (2 ^ (24 :: Int))
+            if remoteId == 0 then return () else error ("unexpected splitscreen ID: " ++ show remoteId)
             localId <- Bits.getWord8 8
             return (systemId, SplitscreenId remoteId, localId)
         1 -> do
@@ -533,7 +534,7 @@ type LocalId = Word.Word8
 data RemoteId
     = SteamId !BS.ByteString
     | PlayStationId !BS.ByteString
-    | SplitscreenId !BS.ByteString
+    | SplitscreenId !Int
     | XboxId !BS.ByteString
     deriving (Eq, Generics.Generic, Show)
 
