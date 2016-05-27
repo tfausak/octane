@@ -60,6 +60,8 @@ debug (file,contents,result) =
                         , cacheItem & Type.cacheItemCacheId & Newtype.unpack & toInt
                         , cacheItem & Type.cacheItemParentCacheId & Newtype.unpack & toInt
                         ))
+            let classIds = classCache
+                    & map (\ (classId, _, _) -> classId)
             let basicClassMap = classCache
                     & reverse
                     & List.tails
@@ -71,12 +73,11 @@ debug (file,contents,result) =
                                     [] -> Nothing
                                     (parentClassId, _, _) : _ -> Just (classId, parentClassId))
                     & IntMap.fromList
-            let parentClassIds k m = case IntMap.lookup k m of
+            let getParentClassIds k m = case IntMap.lookup k m of
                     Nothing -> []
-                    Just v -> v : parentClassIds v m
-            let classMap = classCache
-                    & map (\ (classId, _, _) -> classId)
-                    & map (\ classId -> (classId, parentClassIds classId basicClassMap))
+                    Just v -> v : getParentClassIds v m
+            let classMap = classIds
+                    & map (\ classId -> (classId, getParentClassIds classId basicClassMap))
                     & IntMap.fromList
             let propertyMap = replay
                     & Type.replayObjects
@@ -101,7 +102,22 @@ debug (file,contents,result) =
                             & IntMap.fromList
                         in (classId, properties))
                     & IntMap.fromList
-            let classPropertyMap = basicClassPropertyMap -- TODO
+            let classPropertyMap = classIds
+                    & map (\ classId -> let
+                        ownProperties = case IntMap.lookup classId basicClassPropertyMap of
+                            Nothing -> IntMap.empty
+                            Just x -> x
+                        parentProperties = case IntMap.lookup classId classMap of
+                            Nothing -> IntMap.empty
+                            Just parentClassIds -> parentClassIds
+                                & map (\ parentClassId ->
+                                    case IntMap.lookup parentClassId basicClassPropertyMap of
+                                        Nothing -> IntMap.empty
+                                        Just x -> x)
+                                & IntMap.unions
+                        properties = IntMap.union ownProperties parentProperties
+                        in (classId, properties))
+                    & IntMap.fromList
 
             putStrLn "OBJECT STREAM ID => OBJECT NAME"
             propertyMap
