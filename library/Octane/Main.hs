@@ -60,7 +60,7 @@ debug (file,contents,result) =
                         , cacheItem & Type.cacheItemCacheId & Newtype.unpack & toInt
                         , cacheItem & Type.cacheItemParentCacheId & Newtype.unpack & toInt
                         ))
-            let classMap = classCache
+            let basicClassMap = classCache
                     & reverse
                     & List.tails
                     & Maybe.mapMaybe (\ xs ->
@@ -70,6 +70,13 @@ debug (file,contents,result) =
                                 case dropWhile (\ (_, cacheId, _) -> cacheId /= parentCacheId) ys of
                                     [] -> Nothing
                                     (parentClassId, _, _) : _ -> Just (classId, parentClassId))
+                    & IntMap.fromList
+            let parentClassIds k m = case IntMap.lookup k m of
+                    Nothing -> []
+                    Just v -> v : parentClassIds v m
+            let classMap = classCache
+                    & map (\ (classId, _, _) -> classId)
+                    & map (\ classId -> (classId, parentClassIds classId basicClassMap))
                     & IntMap.fromList
             let propertyMap = replay
                     & Type.replayObjects
@@ -125,10 +132,18 @@ debug (file,contents,result) =
                 & putStrLn
 
             putStrLn "CLASS ID => PARENT CLASS ID"
-            classMap
+            basicClassMap
                 & IntMap.toAscList
                 & map (\ (classId, parentId) ->
-                    Printf.printf " %d => %d" classId parentId)
+                    Printf.printf " %-3d => %-3d" classId parentId)
+                & unlines
+                & putStrLn
+
+            putStrLn "CLASS ID => [PARENT CLASS ID]"
+            classMap
+                & IntMap.toAscList
+                & map (\ (classId, parentIds) ->
+                    Printf.printf " %-3d => %s" classId (show parentIds))
                 & unlines
                 & putStrLn
 
