@@ -10,6 +10,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import Data.Function ((&))
+import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
 import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
@@ -47,8 +48,9 @@ debug (file,contents,result) =
                 ))
 
             let toInt x = x & fromIntegral & (\ y -> y :: Int)
+            let stripBlanks x = x & lines & filter (\ y -> y & null & not) & unlines
 
-            putStrLn "STREAM ID => OBJECT NAME"
+            putStrLn "OBJECT STREAM ID => OBJECT NAME"
             replay
                 & Type.replayObjects
                 & Newtype.unpack
@@ -56,11 +58,11 @@ debug (file,contents,result) =
                 & map Text.unpack
                 & zip [(0 :: Int) ..]
                 & map (\ (streamId, objectName) ->
-                    Printf.printf " %3d => %s" streamId objectName)
+                    Printf.printf " %-3d => %s" streamId objectName)
                 & unlines
                 & putStrLn
 
-            putStrLn "STREAM ID => CLASS NAME"
+            putStrLn "CLASS STREAM ID => CLASS NAME"
             replay
                 & Type.replayActors
                 & Newtype.unpack
@@ -69,7 +71,7 @@ debug (file,contents,result) =
                     , actor & Type.actorName & Newtype.unpack & Text.unpack
                     ))
                 & map (\ (streamId, name) ->
-                    Printf.printf " %3d => %s" streamId name)
+                    Printf.printf " %-3d => %s" streamId name)
                 & unlines
                 & putStrLn
 
@@ -83,11 +85,18 @@ debug (file,contents,result) =
                     , cacheItem & Type.cacheItemParentCacheId & Newtype.unpack & toInt
                     ))
                 & map (\ (classId, cacheId, parentCacheId) ->
-                    Printf.printf " %3d => (%2d, %2d)" classId cacheId parentCacheId)
+                    Printf.printf " %-3d => (%-2d, %-2d)" classId cacheId parentCacheId)
                 & unlines
                 & putStrLn
 
-            putStrLn "CLASS ID => { PROPERTY ID => STREAM ID }"
+            putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME } [PARTIAL]"
+            let propertyMap = replay
+                    & Type.replayObjects
+                    & Newtype.unpack
+                    & map Newtype.unpack
+                    & map Text.unpack
+                    & zip [(0 :: Int) ..]
+                    & IntMap.fromDistinctAscList
             replay
                 & Type.replayCacheItems
                 & Newtype.unpack
@@ -97,20 +106,25 @@ debug (file,contents,result) =
                         & Type.cacheItemCacheProperties
                         & Newtype.unpack
                         & map (\ cacheProperty ->
-                            ( cacheProperty & Type.cachePropertyObjectId & Newtype.unpack & toInt
-                            , cacheProperty & Type.cachePropertyStreamId & Newtype.unpack & toInt
+                            ( cacheProperty & Type.cachePropertyStreamId & Newtype.unpack & toInt
+                            , let
+                                propertyId = cacheProperty
+                                    & Type.cachePropertyObjectId
+                                    & Newtype.unpack
+                                    & toInt
+                              in propertyMap IntMap.! propertyId
                             ))
-                        & map (\ (propertyId, streamId) ->
-                            Printf.printf "  %3d => %2d" propertyId streamId)
+                        & map (\ (streamId, propertyName) ->
+                            Printf.printf "  %-2d => %s" streamId propertyName)
                         & unlines
                     ))
                 & map (\ (classId, properties) ->
-                    Printf.printf " %3d =>\n%s" classId properties)
+                    Printf.printf " %-3d =>\n%s" classId properties)
                 & unlines
-                & lines
-                & filter (not . null)
-                & unlines
+                & stripBlanks
                 & putStrLn
+
+            -- putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME } [COMPLETE]"
 
             let frames = Parser.parseFrames replay
             DeepSeq.deepseq frames (return ())
