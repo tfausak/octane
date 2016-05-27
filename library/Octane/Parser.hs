@@ -24,6 +24,7 @@ import qualified Data.Text.Encoding as Encoding
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 import qualified Octane.Type as Type
+import qualified Text.Printf as Printf
 import qualified Text.Regex as Regex
 
 parseFrames :: Type.Replay -> [Frame]
@@ -375,7 +376,12 @@ getUniqueId = do
             localId <- Bits.getWord8 8
             return (systemId, SteamId remoteId, localId)
         2 -> do
-            remoteId <- Bits.getByteString 32
+            bytes <- Bits.getByteString 32
+            let remoteId = bytes
+                    & BS.map Type.reverseBits
+                    & BS.unpack
+                    & concatMap (\ b -> Printf.printf "%02x" b)
+                    & Text.pack
             localId <- Bits.getWord8 8
             return (systemId, PlayStationId remoteId, localId)
         4 -> do
@@ -536,24 +542,15 @@ type SystemId = Word.Word8
 -- - 1 "Someone (1)"
 type LocalId = Word.Word8
 
--- TODO: None of these are actually represented by byte strings.
 data RemoteId
     = SteamId !Word.Word64
-    | PlayStationId !BS.ByteString
+    | PlayStationId !Text.Text
     | SplitscreenId !Int
     | XboxId !Word.Word64
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData RemoteId
-
--- TODO: This is a dumb instance. It's only necessary because there's no ToJSON
--- instance for ByteString.
-instance Aeson.ToJSON RemoteId where
-    toJSON remoteId = case remoteId of
-        SteamId bytes -> bytes & show & Aeson.toJSON
-        PlayStationId bytes -> bytes & show & Aeson.toJSON
-        SplitscreenId bytes -> bytes & show & Aeson.toJSON
-        XboxId bytes -> bytes & show & Aeson.toJSON
+instance Aeson.ToJSON RemoteId
 
 data Prop = Prop
     { propId :: !Int
