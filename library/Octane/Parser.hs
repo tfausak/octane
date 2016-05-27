@@ -374,6 +374,10 @@ getUniqueId = do
             remoteId <- Bits.getByteString 32
             localId <- Bits.getWord8 8
             return (systemId, PlayStationId remoteId, localId)
+        4 -> do
+            remoteId <- Bits.getByteString 8
+            localId <- Bits.getWord8 8
+            return (systemId, XboxId remoteId, localId)
         _ -> error ("unknown system id " ++ show systemId)
 
 propsWithRigidBodyState :: Set.Set Text.Text
@@ -403,6 +407,7 @@ propsWithString :: Set.Set Text.Text
 propsWithString =
     [ "Engine.GameReplicationInfo:ServerName"
     , "Engine.PlayerReplicationInfo:PlayerName"
+    , "Engine.PlayerReplicationInfo:RemoteUserData"
     , "TAGame.GRI_TA:NewDedicatedServerIP"
     ] & map Text.pack & Set.fromList
 
@@ -433,6 +438,7 @@ propsWithBoolean =
     , "TAGame.GameEvent_TA:bHasLeaveMatchPenalty"
     , "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam"
     , "TAGame.PRI_TA:bIsInSplitScreen"
+    , "TAGame.PRI_TA:bMatchMVP"
     , "TAGame.PRI_TA:bOnlineLoadoutSet"
     , "TAGame.PRI_TA:bReady"
     , "TAGame.PRI_TA:bUsingBehindView"
@@ -523,10 +529,12 @@ type SystemId = Word.Word8
 -- - 1 "Someone (1)"
 type LocalId = Word.Word8
 
+-- TODO: None of these are actually represented by byte strings.
 data RemoteId
-    = SteamId !BS.ByteString -- TODO: This is an integer.
-    | PlayStationId !BS.ByteString -- TODO: I think this is a string?
-    | SplitscreenId !BS.ByteString -- TODO: No idea what this represents.
+    = SteamId !BS.ByteString
+    | PlayStationId !BS.ByteString
+    | SplitscreenId !BS.ByteString
+    | XboxId !BS.ByteString
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData RemoteId
@@ -538,6 +546,7 @@ instance Aeson.ToJSON RemoteId where
         SteamId bytes -> bytes & show & Aeson.toJSON
         PlayStationId bytes -> bytes & show & Aeson.toJSON
         SplitscreenId bytes -> bytes & show & Aeson.toJSON
+        XboxId bytes -> bytes & show & Aeson.toJSON
 
 data Prop = Prop
     { propId :: !Int
