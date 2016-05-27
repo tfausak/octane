@@ -89,33 +89,39 @@ debug (file,contents,result) =
                 & unlines
                 & putStrLn
 
-            putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME } [PARTIAL]"
             let propertyMap = replay
                     & Type.replayObjects
                     & Newtype.unpack
                     & map Newtype.unpack
                     & map Text.unpack
-                    & zip [(0 :: Int) ..]
+                    & zip [0 ..]
                     & IntMap.fromDistinctAscList
-            replay
-                & Type.replayCacheItems
-                & Newtype.unpack
-                & map (\ cacheItem ->
-                    ( cacheItem & Type.cacheItemClassId & Newtype.unpack & toInt
-                    , cacheItem
-                        & Type.cacheItemCacheProperties
-                        & Newtype.unpack
-                        & map (\ cacheProperty ->
-                            ( cacheProperty & Type.cachePropertyStreamId & Newtype.unpack & toInt
-                            , let
-                                propertyId = cacheProperty
-                                    & Type.cachePropertyObjectId
-                                    & Newtype.unpack
-                                    & toInt
-                              in propertyMap IntMap.! propertyId
-                            ))
-                        & map (\ (streamId, propertyName) ->
-                            Printf.printf "  %-2d => %s" streamId propertyName)
+            let basicClassPropertyMap = replay
+                    & Type.replayCacheItems
+                    & Newtype.unpack
+                    & map (\ cacheItem -> let
+                        classId = cacheItem & Type.cacheItemClassId & Newtype.unpack & toInt
+                        properties = cacheItem
+                            & Type.cacheItemCacheProperties
+                            & Newtype.unpack
+                            & map (\ cacheProperty -> let
+                                streamId = cacheProperty & Type.cachePropertyStreamId & Newtype.unpack & toInt
+                                propertyId = cacheProperty & Type.cachePropertyObjectId & Newtype.unpack & toInt
+                                name = propertyMap IntMap.! propertyId
+                                in (streamId, name))
+                            & IntMap.fromList
+                        in (classId, properties))
+                    & IntMap.fromList
+
+            putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME } [PARTIAL]"
+            basicClassPropertyMap
+                & IntMap.toAscList
+                & map (\ (classId, properties) ->
+                    ( classId
+                    , properties
+                        & IntMap.toAscList
+                        & map (\ (streamId, name) ->
+                            Printf.printf "  %-2d => %s" streamId name)
                         & unlines
                     ))
                 & map (\ (classId, properties) ->
@@ -125,6 +131,7 @@ debug (file,contents,result) =
                 & putStrLn
 
             -- putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME } [COMPLETE]"
+            -- putStrLn "OBJECT ID => CLASS ID"
 
             let frames = Parser.parseFrames replay
             DeepSeq.deepseq frames (return ())
