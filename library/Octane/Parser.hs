@@ -673,11 +673,11 @@ data Vector a = Vector
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a)
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
-    toJSON =
-        Aeson.genericToJSON
-            Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 6
-            }
+    toJSON vector = Aeson.toJSON
+        [ vectorX vector
+        , vectorY vector
+        , vectorZ vector
+        ]
 
 data ClassInit = ClassInit
     { classInitLocation :: !(Maybe (Vector Int))
@@ -689,7 +689,7 @@ instance Aeson.ToJSON ClassInit where
     toJSON =
         Aeson.genericToJSON
             Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 6
+            { Aeson.fieldLabelModifier = drop 9
             }
 
 -- { class stream id => { property stream id => name } }
