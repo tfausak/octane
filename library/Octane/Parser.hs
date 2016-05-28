@@ -380,17 +380,18 @@ getUniqueId = do
             if remoteId == 0
                 then do
                     localId <- Bits.getWord8 8
-                    return (systemId, SplitscreenId remoteId, localId)
+                    return (systemId, SplitscreenId (Just remoteId), Just localId)
                 else do
-                    -- TODO: Go back 24 bits and return some sentinel value.
-                    error ("unexpected splitscreen id " ++ show remoteId)
+                    -- TODO: Go back 24 bits.
+                    _ <- error ("unexpected splitscreen id " ++ show remoteId)
+                    return (systemId, SplitscreenId Nothing, Nothing)
         1 -> do
             bytes <- Bits.getByteString 8
             let remoteId = Binary.runGet
                     Binary.getWord64le
                     (bytes & BS.map Type.reverseBits & BSL.fromStrict)
             localId <- Bits.getWord8 8
-            return (systemId, SteamId remoteId, localId)
+            return (systemId, SteamId remoteId, Just localId)
         2 -> do
             bytes <- Bits.getByteString 32
             let remoteId = bytes
@@ -399,14 +400,14 @@ getUniqueId = do
                     & concatMap (\ b -> Printf.printf "%02x" b)
                     & Text.pack
             localId <- Bits.getWord8 8
-            return (systemId, PlayStationId remoteId, localId)
+            return (systemId, PlayStationId remoteId, Just localId)
         4 -> do
             bytes <- Bits.getByteString 8
             let remoteId = Binary.runGet
                     Binary.getWord64le
                     (bytes & BS.map Type.reverseBits & BSL.fromStrict)
             localId <- Bits.getWord8 8
-            return (systemId, XboxId remoteId, localId)
+            return (systemId, XboxId remoteId, Just localId)
         _ -> error ("unknown system id " ++ show systemId)
 
 propsWithRigidBodyState :: Set.Set Text.Text
@@ -558,12 +559,12 @@ type SystemId = Word.Word8
 -- is 0, the second is 1, and so on.
 -- - 0 "Someone"
 -- - 1 "Someone (1)"
-type LocalId = Word.Word8
+type LocalId = Maybe Word.Word8
 
 data RemoteId
     = SteamId !Word.Word64
     | PlayStationId !Text.Text
-    | SplitscreenId !Int
+    | SplitscreenId !(Maybe Int)
     | XboxId !Word.Word64
     deriving (Eq, Generics.Generic, Show)
 
