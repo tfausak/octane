@@ -171,16 +171,20 @@ archetypeMap :: Map.Map Text.Text Text.Text
 archetypeMap =
     -- We start by mapping class names to object names of that class. This
     -- allows us to avoid repeating the class name a bunch.
-    [ ( "TAGame.CarComponent_Boost_TA"
-      , [ "Archetypes.CarComponents.CarComponent_Boost"
-        ])
-    , ( "TAGame.CarComponent_Jump_TA"
-      , [ "Archetypes.CarComponents.CarComponent_Jump"
-        ])
-    , ( "TAGame.Ball_TA"
+    [ ( "TAGame.Ball_TA"
       , [ "Archetypes.Ball.Ball_Default"
         , "Archetypes.Ball.Ball_Basketball"
         , "Archetypes.Ball.Ball_Puck"
+        ])
+    , ( "TAGame.CameraSettingsActor_TA"
+      , [ "TAGame.CameraSettingsActor_TA:PRI"
+        , "TAGame.Default__CameraSettingsActor_TA"
+        ])
+    , ( "TAGame.CarComponent_Boost_TA"
+      , [ "Archetypes.CarComponents.CarComponent_Boost"
+        ])
+    , ( "TAGame.CarComponent_Dodge_TA"
+      , [ "Archetypes.CarComponents.CarComponent_Dodge"
         ])
     , ( "TAGame.CarComponent_DoubleJump_TA"
       , [ "Archetypes.CarComponents.CarComponent_DoubleJump"
@@ -188,33 +192,17 @@ archetypeMap =
     , ( "TAGame.CarComponent_FlipCar_TA"
       , [ "Archetypes.CarComponents.CarComponent_FlipCar"
         ])
-    , ( "TAGame.CameraSettingsActor_TA"
-      , [ "TAGame.CameraSettingsActor_TA:PRI"
-        , "TAGame.Default__CameraSettingsActor_TA"
-        ])
-    , ( "TAGame.PRI_TA"
-      , [ "TAGame.Default__PRI_TA"
-        ])
-    , ( "TAGame.GameEvent_Soccar_TA"
-      , [ "Archetypes.GameEvent.GameEvent_Soccar"
-        , "Archetypes.GameEvent.GameEvent_Basketball"
-        ])
-    , ( "TAGame.CarComponent_Dodge_TA"
-      , [ "Archetypes.CarComponents.CarComponent_Dodge"
-        ])
-    , ( "TAGame.Car_TA"
-      , [ "Archetypes.Car.Car_Default"
+    , ( "TAGame.CarComponent_Jump_TA"
+      , [ "Archetypes.CarComponents.CarComponent_Jump"
         ])
     , ( "TAGame.Car_Season_TA"
       , [ "Archetypes.GameEvent.GameEvent_Season:CarArchetype"
         ])
-    , ( "TAGame.GRI_TA"
-      , [ "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype"
-        , "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype"
-        , "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype"
+    , ( "TAGame.Car_TA"
+      , [ "Archetypes.Car.Car_Default"
         ])
-    , ( "TAGame.Team_TA"
-      , [ "Archetypes.Teams.Team"
+    , ( "TAGame.GameEvent_Season_TA"
+      , [ "Archetypes.GameEvent.GameEvent_Season"
         ])
     , ( "TAGame.GameEvent_SoccarPrivate_TA"
       , [ "Archetypes.GameEvent.GameEvent_SoccarPrivate"
@@ -222,8 +210,20 @@ archetypeMap =
     , ( "TAGame.GameEvent_SoccarSplitscreen_TA"
       , [ "Archetypes.GameEvent.GameEvent_SoccarSplitscreen"
         ])
-    , ( "TAGame.GameEvent_Season_TA"
-      , [ "Archetypes.GameEvent.GameEvent_Season"
+    , ( "TAGame.GameEvent_Soccar_TA"
+      , [ "Archetypes.GameEvent.GameEvent_Soccar"
+        , "Archetypes.GameEvent.GameEvent_Basketball"
+        ])
+    , ( "TAGame.GRI_TA"
+      , [ "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype"
+        , "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype"
+        , "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype"
+        ])
+    , ( "TAGame.PRI_TA"
+      , [ "TAGame.Default__PRI_TA"
+        ])
+    , ( "TAGame.Team_TA"
+      , [ "Archetypes.Teams.Team"
         ])
     -- These ones are special. They have specific names for each level.
     , ( "TAGame.VehiclePickup_Boost_TA"
