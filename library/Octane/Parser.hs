@@ -363,9 +363,13 @@ getUniqueId = do
     case systemId of
         0 -> do
             remoteId <- getInt (2 ^ (24 :: Int))
-            if remoteId == 0 then return () else error ("unexpected splitscreen ID: " ++ show remoteId)
-            localId <- Bits.getWord8 8
-            return (systemId, SplitscreenId remoteId, localId)
+            if remoteId == 0
+                then do
+                    localId <- Bits.getWord8 8
+                    return (systemId, SplitscreenId remoteId, localId)
+                else do
+                    -- TODO: Go back 24 bits and return some sentinel value.
+                    error ("unexpected splitscreen id " ++ show remoteId)
         1 -> do
             bytes <- Bits.getByteString 8
             let remoteId = Binary.runGet
