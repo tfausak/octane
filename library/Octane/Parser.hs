@@ -213,11 +213,11 @@ getProp context thing = do
             Just x -> x
     let maxId = props & IntMap.keys & (0 :) & maximum
     pid <- getInt maxId
-    let propName = case props & IntMap.lookup pid of
+    let name = case props & IntMap.lookup pid of
             Nothing -> error ("could not find property name for property id " ++ show pid)
             Just x -> x
-    value <- getPropValue propName
-    return (Prop { propId = pid, propValue = value })
+    value <- getPropValue name
+    return (Prop { propName = name, propValue = value })
 
 getPropValue :: Text.Text -> Bits.BitGet PropValue
 getPropValue name = case Text.unpack name of
@@ -571,7 +571,7 @@ instance DeepSeq.NFData RemoteId
 instance Aeson.ToJSON RemoteId
 
 data Prop = Prop
-    { propId :: !Int
+    { propName :: !Text.Text
     , propValue :: !PropValue
     } deriving (Eq, Generics.Generic, Show)
 
