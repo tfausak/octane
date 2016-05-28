@@ -7,7 +7,7 @@ import qualified Control.Newtype as Newtype
 import qualified Data.Char as Char
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -240,7 +240,8 @@ archetypeMap =
         & map (\ (k, v) -> (Text.pack k, Text.pack v))
         & Map.fromList
 
--- | These are the levels that we know about.
+-- | These are the levels that we know about. The capitalization of these
+-- | drives me nuts.
 levels :: Set.Set String
 levels =
     [ "EuroStadium_Rainy_P"
@@ -256,19 +257,23 @@ levels =
     , "UtopiaStadium_P"
     , "Utopiastadium_p"
     , "Wasteland_P"
+    , "Wasteland_p"
     , "eurostad_oob_audio_map"
     , "eurostadium_p"
     , "eurostadium_rainy_audio"
     , "hoopsstadium_sfx"
     , "labs_doublegoal_p"
+    , "labs_underpass_p"
     , "labs_utopia_p"
     , "park_night_sfx"
     , "park_p"
     , "park_rainy_sfx"
     , "park_sfx"
     , "stadium_oob_audio_map"
+    , "stadium_p"
     , "stadium_winter_p"
     , "trainstation_p"
+    , "utopiastadium_p"
     , "utopiastadium_sfx"
     , "wasteland_sfx"
     ] & Set.fromList
