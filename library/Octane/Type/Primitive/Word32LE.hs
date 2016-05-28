@@ -9,12 +9,12 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import Data.Function ((&))
-import qualified Data.Word as Word
+import qualified Data.Int as Int
 import qualified GHC.Generics as Generics
 
 -- | A 32-bit little-endian integer.
 newtype Word32LE =
-    Word32LE Word.Word32
+    Word32LE Int.Int32
     deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Word32LE where

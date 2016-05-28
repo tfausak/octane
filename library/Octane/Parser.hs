@@ -14,6 +14,7 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
+import qualified Data.Int as Int
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
@@ -835,7 +836,12 @@ getInt maxValue = do
     go 0 0
 
 getInt32 :: Bits.BitGet Int
-getInt32 = getInt (2 ^ (32 :: Int))
+getInt32 = do
+    bytes <- Bits.getByteString 4
+    let word = Binary.runGet
+            Binary.getWord32le
+            (bytes & BSL.fromStrict & BSL.map Type.reverseBits)
+    word & fromIntegral & (\ x -> x :: Int.Int32) & fromIntegral & return
 
 getInt8 :: Bits.BitGet Int
 getInt8 = getInt (2 ^ (8 :: Int))
