@@ -1,11 +1,14 @@
 module Octane.Parser.ClassPropertyMap where
 
 import Data.Function ((&))
+import Debug.Trace
 
 import qualified Control.Newtype as Newtype
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
+import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
+import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Octane.Type as Type
 
@@ -129,3 +132,84 @@ getBasicClassPropertyMap replay = let
                 & IntMap.fromList
             in (classId, properties))
         & IntMap.fromList
+
+-- | The actor map is a mapping from class names to their IDs.
+getActorMap :: Type.Replay -> Map.Map Text.Text Int
+getActorMap replay = replay
+    & Type.replayActors
+    & Newtype.unpack
+    & map (\ x -> let
+        className = x & Type.actorName & Newtype.unpack
+        classId = x & Type.actorStreamId & Newtype.unpack & fromIntegral
+        in (className, classId))
+    & Map.fromList
+
+-- | Gets the class ID and name for a given property ID.
+getClass
+    :: IntMap.IntMap Text.Text -- ^ Property ID to property name
+    -> Map.Map Text.Text Text.Text -- ^ Property name to class name
+    -> Map.Map Text.Text Int -- ^ Class name to class ID
+    -> Int -- ^ property ID
+    -> Maybe (Int, Text.Text) -- ^ Maybe class ID and class name
+getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId =
+    case IntMap.lookup propertyId propertyIdsToNames of
+        Nothing -> trace ("could not find property name for property id " ++ show propertyId) Nothing
+        Just propertyName -> case Map.lookup propertyName propertyNamesToClassNames of
+            Nothing -> trace ("could not find class name for property name " ++ show propertyName) Nothing
+            Just className -> case Map.lookup className classNamesToIds of
+                Nothing -> trace ("could not find class id for class name " ++ show className) Nothing
+                Just classId -> Just (classId, className)
+
+-- | The archetype maps is a mapping from object IDs to their class IDs.
+archetypeMap :: Map.Map Text.Text Text.Text
+archetypeMap =
+    [ ( "TAGame.CarComponent_Boost_TA"
+      , [ "Archetypes.CarComponents.CarComponent_Boost"
+        ])
+    , ( "TAGame.CarComponent_Jump_TA"
+      , [ "Archetypes.CarComponents.CarComponent_Jump"
+        ])
+    , ( "TAGame.Ball_TA"
+      , [ "Archetypes.Ball.Ball_Default"
+        ])
+    , ( "TAGame.CarComponent_DoubleJump_TA"
+      , [ "Archetypes.CarComponents.CarComponent_DoubleJump"
+        ])
+    , ( "TAGame.CarComponent_FlipCar_TA"
+      , [ "Archetypes.CarComponents.CarComponent_FlipCar"
+        ])
+    , ( "TAGame.CameraSettingsActor_TA"
+      , [ "TAGame.CameraSettingsActor_TA:PRI"
+        ])
+    , ( "TAGame.PRI_TA"
+      , [ "TAGame.Default__PRI_TA"
+        ])
+    , ( "TAGame.GameEvent_Soccar_TA"
+      , [ "Archetypes.GameEvent.GameEvent_Soccar"
+        ])
+    , ( "TAGame.CarComponent_Dodge_TA"
+      , [ "Archetypes.CarComponents.CarComponent_Dodge"
+        ])
+    ]
+        & concatMap (\ (v, ks) -> ks & map (\ k -> (k, v)))
+        & map (\ (k, v) -> (Text.pack k, Text.pack v))
+        & Map.fromList
+
+-- | These classes have an initial location vector.
+classesWithLocation :: Set.Set Text.Text
+classesWithLocation =
+    [ "TAGame.CarComponent_Boost_TA"
+    , "TAGame.CarComponent_Jump_TA"
+    , "TAGame.Ball_TA"
+    , "TAGame.CarComponent_DoubleJump_TA"
+    , "TAGame.CarComponent_FlipCar_TA"
+    , "TAGame.PRI_TA"
+    , "TAGame.GameEvent_Soccar_TA"
+    , "TAGame.CarComponent_Dodge_TA"
+    ] & map Text.pack & Set.fromList
+
+-- | These classes have an initial rotation vector.
+classesWithRotation :: Set.Set Text.Text
+classesWithRotation =
+    [ "TAGame.Ball_TA"
+    ] & map Text.pack & Set.fromList

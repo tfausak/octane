@@ -3,6 +3,7 @@
 module Octane.Parser where
 
 import Data.Function ((&))
+import Debug.Trace
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Newtype as Newtype
@@ -24,7 +25,6 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Parser.ClassPropertyMap as CPM
 import qualified Octane.Type as Type
 import qualified Text.Printf as Printf
-import qualified Text.Regex as Regex
 
 parseFrames :: Type.Replay -> [Frame]
 parseFrames replay = let
@@ -116,8 +116,12 @@ getNewReplication context actorId = do
     let objectName = case context & contextObjectMap & IntMap.lookup objectId of
             Nothing -> error ("could not find object name for id " ++ show objectId)
             Just x -> x
-    let (classId,className) = case getClass context objectId of
-            Nothing -> error ("could not find class for object id " ++ show objectId)
+    let (classId,className) = case CPM.getClass (contextObjectMap context) CPM.archetypeMap (contextClassMap context) objectId of
+            Nothing ->
+                trace ("actor id " ++ show actorId) $
+                trace ("object id " ++ show objectId) $
+                trace ("object name " ++ show objectName) $
+                error ("could not find class for object id " ++ show objectId)
             Just x -> x
     classInit <- getClassInit className
     let thing = Thing
@@ -678,9 +682,6 @@ type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
 -- { stream id => object name }
 type ObjectMap = IntMap.IntMap Text.Text
 
--- { archetype (object) name => class name }
-type ArchetypeMap = Map.Map Text.Text Text.Text
-
 -- { class name => class id }
 type ClassMap = Map.Map Text.Text Int
 
@@ -688,83 +689,8 @@ data Context = Context
     { contextObjectMap :: !ObjectMap
     , contextClassPropertyMap :: !ClassPropertyMap
     , contextThings :: !(IntMap.IntMap Thing)
-    , contextArchetypeMap :: !ArchetypeMap
     , contextClassMap :: !ClassMap
     } deriving (Show)
-
-buildObjectMap :: Type.Replay -> ObjectMap
-buildObjectMap replay =
-    replay & Type.replayObjects & Newtype.unpack & map Newtype.unpack &
-    zip [0 ..] &
-    IntMap.fromAscList
-
-buildArchetypeMap :: Type.Replay -> ArchetypeMap
-buildArchetypeMap replay
-    = replay
-    & Type.replayObjects
-    & Newtype.unpack
-    & map Newtype.unpack
-    & map (\ archetype -> let
-        k = archetype
-        v = archetypeToClass archetype
-        in (k, v))
-    & Map.fromList
-    & Map.union specialArchetypes
-
-specialArchetypes :: ArchetypeMap
-specialArchetypes =
-    [ ("GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype", "GRI")
-    , ("GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype", "GRI")
-    ] & map (\ (k, v) -> (Text.pack k, Text.pack v)) & Map.fromList
-
-buildClassMap :: Type.Replay -> ClassMap
-buildClassMap replay
-    = replay
-    & Type.replayObjects
-    & Newtype.unpack
-    & map Newtype.unpack
-    & zip [0 ..]
-    & filter (\ (_, objectName) ->
-        not (Text.isInfixOf (Text.pack ":") objectName))
-    & map (\ (objectId, objectName) -> let
-        k = archetypeToClass objectName
-        v = objectId
-        in (k, v))
-    & reverse
-    & Map.fromList
-
-getClass :: Context -> Int -> Maybe (Int, Text.Text)
-getClass context objectId = let
-    objectMap = contextObjectMap context
-    archetypeMap = contextArchetypeMap context
-    classMap = contextClassMap context
-    in case IntMap.lookup objectId objectMap of
-        Nothing -> Nothing
-        Just archetypeName -> case Map.lookup archetypeName archetypeMap of
-            Nothing -> Nothing
-            Just className -> case Map.lookup className classMap of
-                Nothing -> Nothing
-                Just classId -> Just (classId, className)
-
-archetypeToClass :: Text.Text -> Text.Text
-archetypeToClass text
-    = text
-    & Text.splitOn (Text.pack ".")
-    & last
-    & Text.splitOn (Text.pack ":")
-    & last
-    & Text.unpack
-    & substitute "_?[0-9]+$" ""
-    & substitute "^Default__" ""
-    & substitute "_TA$" ""
-    & substitute "_Default$" ""
-    & substitute "Archetype$" ""
-    & substitute "_Basketball$" ""
-    & Text.pack
-
-substitute :: String -> String -> String -> String
-substitute pattern replacement input =
-    Regex.subRegex (Regex.mkRegex pattern) input replacement
 
 extractContext :: Type.Replay -> Context
 extractContext replay =
@@ -772,38 +698,8 @@ extractContext replay =
     { contextObjectMap = CPM.getPropertyMap replay
     , contextClassPropertyMap = CPM.getClassPropertyMap replay
     , contextThings = IntMap.empty
-    , contextArchetypeMap = buildArchetypeMap replay
-    , contextClassMap = buildClassMap replay
+    , contextClassMap = CPM.getActorMap replay
     }
-
-classesWithLocation :: Set.Set Text.Text
-classesWithLocation =
-    [ "Ball"
-    , "CameraSettingsActor"
-    , "Car"
-    , "CarComponent_Boost"
-    , "CarComponent_Dodge"
-    , "CarComponent_DoubleJump"
-    , "CarComponent_FlipCar"
-    , "CarComponent_Jump"
-    , "GRI"
-    , "GameEvent"
-    , "GameEvent_Season"
-    , "GameEvent_Soccar"
-    , "GameEvent_SoccarPrivate"
-    , "GameEvent_SoccarSplitscreen"
-    , "GameReplicationInfo"
-    , "PRI"
-    , "Team"
-    , "Team_Soccar"
-    ] & map Text.pack & Set.fromList
-
-classesWithRotation :: Set.Set Text.Text
-classesWithRotation =
-    [ "Ball"
-    , "Car_Season"
-    , "Car"
-    ] & map Text.pack & Set.fromList
 
 maxVectorValue :: Int
 maxVectorValue = 19
@@ -888,13 +784,13 @@ getFloat maxValue numBits = do
 getClassInit :: Text.Text -> Bits.BitGet ClassInit
 getClassInit className = do
     location <-
-        if Set.member className classesWithLocation
+        if Set.member className CPM.classesWithLocation
             then do
                 vector <- getVector
                 return (Just vector)
             else return Nothing
     rotation <-
-        if Set.member className classesWithRotation
+        if Set.member className CPM.classesWithRotation
             then do
                 vector <- getVectorBytewise
                 return (Just vector)

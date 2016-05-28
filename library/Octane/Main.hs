@@ -45,8 +45,6 @@ debug (file,contents,result) =
                 ++ show outputSize
                 ))
 
-            -- putStrLn "OBJECT ID => CLASS ID"
-
             let frames = Parser.parseFrames replay
             DeepSeq.deepseq frames (return ())
             let expectedFrames = replay
