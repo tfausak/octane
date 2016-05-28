@@ -35,12 +35,16 @@ parseFrames replay = let
 
 getFrames :: Context -> Bits.BitGet (Context, [Frame])
 getFrames context = do
-    maybeFrame <- getMaybeFrame context
-    case maybeFrame of
-        Nothing -> return (context, [])
-        Just (newContext, frame) -> do
-            (newerContext, frames) <- getFrames newContext
-            return (newerContext, (frame : frames))
+    isEmpty <- Bits.isEmpty
+    if isEmpty
+        then return (context ,[])
+        else do
+            maybeFrame <- getMaybeFrame context
+            case maybeFrame of
+                Nothing -> return (context, [])
+                Just (newContext, frame) -> do
+                    (newerContext, frames) <- getFrames newContext
+                    return (newerContext, (frame : frames))
 
 getMaybeFrame :: Context -> Bits.BitGet (Maybe (Context, Frame))
 getMaybeFrame context = do

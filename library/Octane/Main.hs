@@ -11,6 +11,7 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import Data.Function ((&))
 import qualified Data.Map as Map
+import qualified Data.Maybe as Maybe
 import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
 import qualified Octane.Type as Type
@@ -52,12 +53,12 @@ debug (file,contents,result) =
                     & Type.replayProperties
                     & Newtype.unpack
                     & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
+                    & Maybe.fromMaybe (Type.IntProperty (Newtype.pack 4) (Newtype.pack 0))
             let actualFrames = frames
                     & length
                     & fromIntegral
                     & Newtype.pack
                     & Type.IntProperty (Newtype.pack 4)
-                    & Just
                     & DeepSeq.deepseq frames
             Monad.when (expectedFrames /= actualFrames) (error
                 ( "expected "
