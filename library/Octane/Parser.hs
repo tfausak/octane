@@ -28,22 +28,32 @@ import qualified Text.Printf as Printf
 
 parseFrames :: Type.Replay -> [Frame]
 parseFrames replay = let
-    get = replay & extractContext & getFrames & Bits.runBitGet
+    numFrames = replay
+        & Type.replayProperties
+        & Newtype.unpack
+        & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
+        & (\ property -> case property of
+            Just (Type.IntProperty _ x) -> x & Newtype.unpack & fromIntegral
+            _ -> 0)
+    get = replay & extractContext & getFrames numFrames & Bits.runBitGet
     stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
     (_context, frames) = Binary.runGet get stream
     in frames
 
-getFrames :: Context -> Bits.BitGet (Context, [Frame])
-getFrames context = do
-    isEmpty <- Bits.isEmpty
-    if isEmpty
-        then return (context ,[])
+getFrames :: Int -> Context -> Bits.BitGet (Context, [Frame])
+getFrames numFrames context = do
+    if numFrames < 1
+    then return (context, [])
+    else do
+        isEmpty <- Bits.isEmpty
+        if isEmpty
+        then return (context, [])
         else do
             maybeFrame <- getMaybeFrame context
             case maybeFrame of
                 Nothing -> return (context, [])
                 Just (newContext, frame) -> do
-                    (newerContext, frames) <- getFrames newContext
+                    (newerContext, frames) <- getFrames (numFrames - 1) newContext
                     return (newerContext, (frame : frames))
 
 getMaybeFrame :: Context -> Bits.BitGet (Maybe (Context, Frame))
