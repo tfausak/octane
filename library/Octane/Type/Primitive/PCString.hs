@@ -25,7 +25,26 @@ newtype PCString =
 
 instance Binary.Binary PCString where
     get = do
-        (Word32LE.Word32LE size) <- Binary.get
+        (Word32LE.Word32LE rawSize) <- Binary.get
+        -- In some tiny percentage of replays, this nonsensical string size
+        -- shows up. As far as I can tell the next 3 bytes are always null. And
+        -- the actual string is "None", which is 5 bytes including the null
+        -- terminator.
+        --
+        -- These annoying replays come from around 2015-10-25 to 2015-11-01.
+        size <- if rawSize == 0x05000000
+            then do
+                bytes <- Binary.getByteString 3
+                if BS.all (== 0) bytes
+                    then return 5
+                    else error
+                        ( "read special size "
+                        ++ show rawSize
+                        ++ " but next 3 bytes were "
+                        ++ show bytes
+                        ++ " instead of all null"
+                        )
+            else return rawSize
         string <-
             if size == 0
                 then fail ("invalid PCString size " ++ show size)

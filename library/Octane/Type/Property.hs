@@ -54,8 +54,11 @@ instance Binary.Binary Property where
             _ | kind == byteProperty -> do
                 size <- Binary.get
                 key <- Binary.get
-                value <- Binary.get
-                (key, value) & ByteProperty size & return
+                if key == "OnlinePlatform_Steam"
+                    then ("OnlinePlatform", key) & ByteProperty size & return
+                    else do
+                        value <- Binary.get
+                        (key, value) & ByteProperty size & return
             _ | kind == floatProperty -> do
                 size <- Binary.get
                 value <-

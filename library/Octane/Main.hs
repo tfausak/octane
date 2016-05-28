@@ -16,6 +16,7 @@ import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
 import qualified Octane.Type as Type
 import qualified System.Environment as Environment
+import qualified System.IO as IO
 
 main :: IO ()
 main = do
@@ -41,7 +42,7 @@ debug (file,contents,result) =
                     & Binary.encode
                     & BSL.length
                     & DeepSeq.deepseq replay
-            Monad.when (inputSize /= outputSize) (error
+            Monad.when (inputSize /= outputSize) (IO.hPutStrLn IO.stderr
                 ( "input size "
                 ++ show inputSize
                 ++ " not equal to output size "
