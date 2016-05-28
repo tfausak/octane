@@ -769,7 +769,7 @@ substitute pattern replacement input =
 extractContext :: Type.Replay -> Context
 extractContext replay =
     Context
-    { contextObjectMap = buildObjectMap replay
+    { contextObjectMap = CPM.getPropertyMap replay
     , contextClassPropertyMap = CPM.getClassPropertyMap replay
     , contextThings = IntMap.empty
     , contextArchetypeMap = buildArchetypeMap replay

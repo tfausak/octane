@@ -10,15 +10,11 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import Data.Function ((&))
-import qualified Data.IntMap as IntMap
-import qualified Data.List as List
 import qualified Data.Map as Map
-import qualified Data.Maybe as Maybe
 import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
 import qualified Octane.Type as Type
 import qualified System.Environment as Environment
-import qualified Text.Printf as Printf
 
 main :: IO ()
 main = do
@@ -48,137 +44,6 @@ debug (file,contents,result) =
                 ++ " not equal to output size "
                 ++ show outputSize
                 ))
-
-            let toInt x = x & fromIntegral & (\ y -> y :: Int)
-            let stripBlanks x = x & lines & filter (\ y -> y & null & not) & unlines
-
-            let classCache = replay
-                    & Type.replayCacheItems
-                    & Newtype.unpack
-                    & map (\ cacheItem ->
-                        ( cacheItem & Type.cacheItemClassId & Newtype.unpack & toInt
-                        , cacheItem & Type.cacheItemCacheId & Newtype.unpack & toInt
-                        , cacheItem & Type.cacheItemParentCacheId & Newtype.unpack & toInt
-                        ))
-            let classIds = classCache
-                    & map (\ (classId, _, _) -> classId)
-            let basicClassMap = classCache
-                    & reverse
-                    & List.tails
-                    & Maybe.mapMaybe (\ xs ->
-                        case xs of
-                            [] -> Nothing
-                            (classId, _, parentCacheId) : ys ->
-                                case dropWhile (\ (_, cacheId, _) -> cacheId /= parentCacheId) ys of
-                                    [] -> Nothing
-                                    (parentClassId, _, _) : _ -> Just (classId, parentClassId))
-                    & IntMap.fromList
-            let getParentClassIds k m = case IntMap.lookup k m of
-                    Nothing -> []
-                    Just v -> v : getParentClassIds v m
-            let classMap = classIds
-                    & map (\ classId -> (classId, getParentClassIds classId basicClassMap))
-                    & IntMap.fromList
-            let propertyMap = replay
-                    & Type.replayObjects
-                    & Newtype.unpack
-                    & map Newtype.unpack
-                    & map Text.unpack
-                    & zip [0 ..]
-                    & IntMap.fromDistinctAscList
-            let basicClassPropertyMap = replay
-                    & Type.replayCacheItems
-                    & Newtype.unpack
-                    & map (\ cacheItem -> let
-                        classId = cacheItem & Type.cacheItemClassId & Newtype.unpack & toInt
-                        properties = cacheItem
-                            & Type.cacheItemCacheProperties
-                            & Newtype.unpack
-                            & map (\ cacheProperty -> let
-                                streamId = cacheProperty & Type.cachePropertyStreamId & Newtype.unpack & toInt
-                                propertyId = cacheProperty & Type.cachePropertyObjectId & Newtype.unpack & toInt
-                                name = propertyMap IntMap.! propertyId
-                                in (streamId, name))
-                            & IntMap.fromList
-                        in (classId, properties))
-                    & IntMap.fromList
-            let classPropertyMap = classIds
-                    & map (\ classId -> let
-                        ownProperties = case IntMap.lookup classId basicClassPropertyMap of
-                            Nothing -> IntMap.empty
-                            Just x -> x
-                        parentProperties = case IntMap.lookup classId classMap of
-                            Nothing -> IntMap.empty
-                            Just parentClassIds -> parentClassIds
-                                & map (\ parentClassId ->
-                                    case IntMap.lookup parentClassId basicClassPropertyMap of
-                                        Nothing -> IntMap.empty
-                                        Just x -> x)
-                                & IntMap.unions
-                        properties = IntMap.union ownProperties parentProperties
-                        in (classId, properties))
-                    & IntMap.fromList
-
-            putStrLn "OBJECT STREAM ID => OBJECT NAME"
-            propertyMap
-                & IntMap.toAscList
-                & map (\ (streamId, objectName) ->
-                    Printf.printf " %-3d => %s" streamId objectName)
-                & unlines
-                & putStrLn
-
-            putStrLn "CLASS STREAM ID => CLASS NAME"
-            replay
-                & Type.replayActors
-                & Newtype.unpack
-                & map (\ actor ->
-                    ( actor & Type.actorStreamId & Newtype.unpack & toInt
-                    , actor & Type.actorName & Newtype.unpack & Text.unpack
-                    ))
-                & map (\ (streamId, name) ->
-                    Printf.printf " %-3d => %s" streamId name)
-                & unlines
-                & putStrLn
-
-            putStrLn "CLASS ID => (CACHE ID, PARENT CACHE ID)"
-            classCache
-                & map (\ (classId, cacheId, parentCacheId) ->
-                    Printf.printf " %-3d => (%-2d, %-2d)" classId cacheId parentCacheId)
-                & unlines
-                & putStrLn
-
-            putStrLn "CLASS ID => PARENT CLASS ID"
-            basicClassMap
-                & IntMap.toAscList
-                & map (\ (classId, parentId) ->
-                    Printf.printf " %-3d => %-3d" classId parentId)
-                & unlines
-                & putStrLn
-
-            putStrLn "CLASS ID => [PARENT CLASS ID]"
-            classMap
-                & IntMap.toAscList
-                & map (\ (classId, parentIds) ->
-                    Printf.printf " %-3d => %s" classId (show parentIds))
-                & unlines
-                & putStrLn
-
-            putStrLn "CLASS ID => { PROPERTY STREAM ID => PROPERTY NAME }"
-            classPropertyMap
-                & IntMap.toAscList
-                & map (\ (classId, properties) ->
-                    ( classId
-                    , properties
-                        & IntMap.toAscList
-                        & map (\ (streamId, name) ->
-                            Printf.printf "  %-2d => %s" streamId name)
-                        & unlines
-                    ))
-                & map (\ (classId, properties) ->
-                    Printf.printf " %-3d =>\n%s" classId properties)
-                & unlines
-                & stripBlanks
-                & putStrLn
 
             -- putStrLn "OBJECT ID => CLASS ID"
 

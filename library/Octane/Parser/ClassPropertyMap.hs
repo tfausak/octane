@@ -1,4 +1,4 @@
-module Octane.Parser.ClassPropertyMap (getClassPropertyMap) where
+module Octane.Parser.ClassPropertyMap where
 
 import Data.Function ((&))
 
@@ -51,6 +51,17 @@ getClassIds replay = replay
     & getClassCache
     & map (\ (x, _, _) -> x)
 
+-- | Gets the parent class ID for the given parent cache ID. This is necessary
+-- | because there is not always a class with the given cache ID in the cache.
+-- | When that happens, the parent cache ID is decremented and tried again.
+getParentClassId :: Int -> [(Int, Int, Int)] -> Maybe Int
+getParentClassId parentCacheId xs =
+    case dropWhile (\ (_, cacheId, _) -> cacheId /= parentCacheId) xs of
+        [] -> if parentCacheId <= 0
+            then Nothing
+            else getParentClassId (parentCacheId - 1) xs
+        (parentClassId, _, _) : _ -> Just parentClassId
+
 -- | The basic class map is a naive mapping from class ID to its parent class
 -- | ID. It's naive because it only maps the class ID to its immediate parent.
 -- | It does not chase the inheritance all the way down.
@@ -59,13 +70,11 @@ getBasicClassMap replay = replay
     & getClassCache
     & reverse
     & List.tails
-    & Maybe.mapMaybe (\ xs ->
-        case xs of
-            [] -> Nothing
-            (classId, _, parentCacheId) : ys ->
-                case dropWhile (\ (_, cacheId, _) -> cacheId /= parentCacheId) ys of
-                    [] -> Nothing
-                    (parentClassId, _, _) : _ -> Just (classId, parentClassId))
+    & Maybe.mapMaybe (\ xs -> case xs of
+        [] -> Nothing
+        (classId, _, parentCacheId) : ys -> do
+            parentClassId <- getParentClassId parentCacheId ys
+            return (classId, parentClassId))
     & IntMap.fromList
 
 -- | Given a naive mapping from class ID to its parent class ID, return all of
