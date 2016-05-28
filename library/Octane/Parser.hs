@@ -3,7 +3,6 @@
 module Octane.Parser where
 
 import Data.Function ((&))
-import Debug.Trace
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Newtype as Newtype
@@ -117,11 +116,7 @@ getNewReplication context actorId = do
             Nothing -> error ("could not find object name for id " ++ show objectId)
             Just x -> x
     let (classId,className) = case CPM.getClass (contextObjectMap context) CPM.archetypeMap (contextClassMap context) objectId of
-            Nothing ->
-                trace ("actor id " ++ show actorId) $
-                trace ("object id " ++ show objectId) $
-                trace ("object name " ++ show objectName) $
-                error ("could not find class for object id " ++ show objectId)
+            Nothing -> error ("could not find class for object id " ++ show objectId)
             Just x -> x
     classInit <- getClassInit className
     let thing = Thing

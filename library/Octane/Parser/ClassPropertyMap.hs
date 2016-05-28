@@ -4,6 +4,7 @@ import Data.Function ((&))
 import Debug.Trace
 
 import qualified Control.Newtype as Newtype
+import qualified Data.Char as Char
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
 import qualified Data.Map as Map
@@ -154,11 +155,16 @@ getClass
 getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId =
     case IntMap.lookup propertyId propertyIdsToNames of
         Nothing -> trace ("could not find property name for property id " ++ show propertyId) Nothing
-        Just propertyName -> case Map.lookup propertyName propertyNamesToClassNames of
-            Nothing -> trace ("could not find class name for property name " ++ show propertyName) Nothing
-            Just className -> case Map.lookup className classNamesToIds of
-                Nothing -> trace ("could not find class id for class name " ++ show className) Nothing
-                Just classId -> Just (classId, className)
+        Just rawPropertyName -> let
+            -- There are a large number of properties that end in numbers that
+            -- should all be treated the same. Instead of explicitly mapping
+            -- each of them, we can remove the numbers and treat them the same.
+            propertyName = rawPropertyName & Text.dropWhileEnd Char.isDigit
+            in case Map.lookup propertyName propertyNamesToClassNames of
+                Nothing -> trace ("could not find class name for property name " ++ show propertyName) $ trace (classNamesToIds & Map.toList & map (\ (k, v) -> " " ++ show v ++ " => " ++ show k) & unlines) $ Nothing
+                Just className -> case Map.lookup className classNamesToIds of
+                    Nothing -> trace ("could not find class id for class name " ++ show className) Nothing
+                    Just classId -> Just (classId, className)
 
 -- | The archetype maps is a mapping from object IDs to their class IDs.
 archetypeMap :: Map.Map Text.Text Text.Text
@@ -180,6 +186,7 @@ archetypeMap =
         ])
     , ( "TAGame.CameraSettingsActor_TA"
       , [ "TAGame.CameraSettingsActor_TA:PRI"
+        , "TAGame.Default__CameraSettingsActor_TA"
         ])
     , ( "TAGame.PRI_TA"
       , [ "TAGame.Default__PRI_TA"
@@ -193,31 +200,76 @@ archetypeMap =
     , ( "TAGame.Car_TA"
       , [ "Archetypes.Car.Car_Default"
         ])
-    , ( "Engine.GameReplicationInfo"
+    , ( "TAGame.GRI_TA"
       , [ "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype"
         ])
     , ( "TAGame.Team_TA"
-      , [ "Archetypes.Teams.Team0"
-        , "Archetypes.Teams.Team1"
+      , [ "Archetypes.Teams.Team"
         ])
+    , ( "TAGame.GameEvent_SoccarPrivate_TA"
+      , [ "Archetypes.GameEvent.GameEvent_SoccarPrivate"
+        ])
+    , ( "TAGame.GameEvent_SoccarSplitscreen_TA"
+      , [ "Archetypes.GameEvent.GameEvent_SoccarSplitscreen"
+        ])
+    -- These ones are special. They have specific names for each level.
+    , ( "TAGame.VehiclePickup_Boost_TA"
+      , levels & Set.toList & map (\ level -> level ++ ".TheWorld:PersistentLevel.VehiclePickup_Boost_TA_")
+      )
+    , ( "TAGame.CrowdActor_TA"
+      , levels & Set.toList & map (\ level -> level ++ ".TheWorld:PersistentLevel.CrowdActor_TA_")
+      )
+    , ( "TAGame.CrowdManager_TA"
+      , levels & Set.toList & map (\ level -> level ++ ".TheWorld:PersistentLevel.CrowdManager_TA_")
+      )
     ]
         & concatMap (\ (v, ks) -> ks & map (\ k -> (k, v)))
         & map (\ (k, v) -> (Text.pack k, Text.pack v))
         & Map.fromList
 
+-- | These are the levels that we know about.
+levels :: Set.Set String
+levels =
+    [ "EuroStadium_Rainy_P"
+    , "Park_Night_P"
+    , "Park_Rainy_P"
+    , "Stadium_p"
+    , "TrainStation_Night_P"
+    , "Trainstation_Night_P"
+    , "UtopiaStadium_Dusk_P"
+    , "UtopiaStadium_Dusk_p"
+    , "UtopiaStadium_P"
+    , "Utopiastadium_p"
+    , "Wasteland_P"
+    , "eurostad_oob_audio_map"
+    , "eurostadium_p"
+    , "eurostadium_rainy_audio"
+    , "park_night_sfx"
+    , "park_p"
+    , "park_rainy_sfx"
+    , "park_sfx"
+    , "stadium_oob_audio_map"
+    , "trainstation_p"
+    , "utopiastadium_sfx"
+    , "wasteland_sfx"
+    ] & Set.fromList
+
 -- | These classes have an initial location vector.
 classesWithLocation :: Set.Set Text.Text
 classesWithLocation =
-    [ "TAGame.CarComponent_Boost_TA"
-    , "TAGame.CarComponent_Jump_TA"
-    , "TAGame.Ball_TA"
+    [ "TAGame.Ball_TA"
+    , "TAGame.CameraSettingsActor_TA"
+    , "TAGame.CarComponent_Boost_TA"
+    , "TAGame.CarComponent_Dodge_TA"
     , "TAGame.CarComponent_DoubleJump_TA"
     , "TAGame.CarComponent_FlipCar_TA"
-    , "TAGame.PRI_TA"
-    , "TAGame.GameEvent_Soccar_TA"
-    , "TAGame.CarComponent_Dodge_TA"
+    , "TAGame.CarComponent_Jump_TA"
     , "TAGame.Car_TA"
-    , "Engine.GameReplicationInfo"
+    , "TAGame.GRI_TA"
+    , "TAGame.GameEvent_SoccarPrivate_TA"
+    , "TAGame.GameEvent_SoccarSplitscreen_TA"
+    , "TAGame.GameEvent_Soccar_TA"
+    , "TAGame.PRI_TA"
     , "TAGame.Team_TA"
     ] & map Text.pack & Set.fromList
 

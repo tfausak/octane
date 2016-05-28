@@ -35,9 +35,11 @@ debug (file,contents,result) =
             ++ message
             )
         Right replay -> do
-            DeepSeq.deepseq replay (return ())
             let inputSize = contents & BS.length & fromIntegral
-            let outputSize = replay & Binary.encode & BSL.length
+            let outputSize = replay
+                    & Binary.encode
+                    & BSL.length
+                    & DeepSeq.deepseq replay
             Monad.when (inputSize /= outputSize) (error
                 ( "input size "
                 ++ show inputSize
@@ -46,7 +48,6 @@ debug (file,contents,result) =
                 ))
 
             let frames = Parser.parseFrames replay
-            DeepSeq.deepseq frames (return ())
             let expectedFrames = replay
                     & Type.replayProperties
                     & Newtype.unpack
@@ -57,6 +58,7 @@ debug (file,contents,result) =
                     & Newtype.pack
                     & Type.IntProperty (Newtype.pack 4)
                     & Just
+                    & DeepSeq.deepseq frames
             Monad.when (expectedFrames /= actualFrames) (error
                 ( "expected "
                 ++ show expectedFrames
