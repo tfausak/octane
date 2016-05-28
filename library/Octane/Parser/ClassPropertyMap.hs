@@ -190,6 +190,16 @@ archetypeMap =
     , ( "TAGame.CarComponent_Dodge_TA"
       , [ "Archetypes.CarComponents.CarComponent_Dodge"
         ])
+    , ( "TAGame.Car_TA"
+      , [ "Archetypes.Car.Car_Default"
+        ])
+    , ( "Engine.GameReplicationInfo"
+      , [ "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype"
+        ])
+    , ( "TAGame.Team_TA"
+      , [ "Archetypes.Teams.Team0"
+        , "Archetypes.Teams.Team1"
+        ])
     ]
         & concatMap (\ (v, ks) -> ks & map (\ k -> (k, v)))
         & map (\ (k, v) -> (Text.pack k, Text.pack v))
@@ -206,10 +216,14 @@ classesWithLocation =
     , "TAGame.PRI_TA"
     , "TAGame.GameEvent_Soccar_TA"
     , "TAGame.CarComponent_Dodge_TA"
+    , "TAGame.Car_TA"
+    , "Engine.GameReplicationInfo"
+    , "TAGame.Team_TA"
     ] & map Text.pack & Set.fromList
 
 -- | These classes have an initial rotation vector.
 classesWithRotation :: Set.Set Text.Text
 classesWithRotation =
     [ "TAGame.Ball_TA"
+    , "TAGame.Car_TA"
     ] & map Text.pack & Set.fromList
