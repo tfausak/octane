@@ -411,6 +411,7 @@ propsWithFlaggedInt =
     , "TAGame.PRI_TA:PersistentCamera"
     , "TAGame.PRI_TA:ReplicatedGameEvent"
     , "TAGame.Team_TA:GameEvent"
+    , "TAGame.Team_TA:LogoData"
     ] & map Text.pack & Set.fromList
 
 propsWithString :: Set.Set Text.Text
@@ -419,6 +420,7 @@ propsWithString =
     , "Engine.PlayerReplicationInfo:PlayerName"
     , "Engine.PlayerReplicationInfo:RemoteUserData"
     , "TAGame.GRI_TA:NewDedicatedServerIP"
+    , "TAGame.Team_TA:CustomTeamName"
     ] & map Text.pack & Set.fromList
 
 propsWithBoolean :: Set.Set Text.Text

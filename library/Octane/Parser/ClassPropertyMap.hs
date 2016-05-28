@@ -166,9 +166,11 @@ getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId
                     Nothing -> trace ("could not find class id for class name " ++ show className) Nothing
                     Just classId -> Just (classId, className)
 
--- | The archetype maps is a mapping from object IDs to their class IDs.
+-- | The archetype maps is a mapping from object names to their class names.
 archetypeMap :: Map.Map Text.Text Text.Text
 archetypeMap =
+    -- We start by mapping class names to object names of that class. This
+    -- allows us to avoid repeating the class name a bunch.
     [ ( "TAGame.CarComponent_Boost_TA"
       , [ "Archetypes.CarComponents.CarComponent_Boost"
         ])
@@ -177,6 +179,8 @@ archetypeMap =
         ])
     , ( "TAGame.Ball_TA"
       , [ "Archetypes.Ball.Ball_Default"
+        , "Archetypes.Ball.Ball_Basketball"
+        , "Archetypes.Ball.Ball_Puck"
         ])
     , ( "TAGame.CarComponent_DoubleJump_TA"
       , [ "Archetypes.CarComponents.CarComponent_DoubleJump"
@@ -193,6 +197,7 @@ archetypeMap =
         ])
     , ( "TAGame.GameEvent_Soccar_TA"
       , [ "Archetypes.GameEvent.GameEvent_Soccar"
+        , "Archetypes.GameEvent.GameEvent_Basketball"
         ])
     , ( "TAGame.CarComponent_Dodge_TA"
       , [ "Archetypes.CarComponents.CarComponent_Dodge"
@@ -200,8 +205,13 @@ archetypeMap =
     , ( "TAGame.Car_TA"
       , [ "Archetypes.Car.Car_Default"
         ])
+    , ( "TAGame.Car_Season_TA"
+      , [ "Archetypes.GameEvent.GameEvent_Season:CarArchetype"
+        ])
     , ( "TAGame.GRI_TA"
       , [ "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype"
+        , "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype"
+        , "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype"
         ])
     , ( "TAGame.Team_TA"
       , [ "Archetypes.Teams.Team"
@@ -211,6 +221,9 @@ archetypeMap =
         ])
     , ( "TAGame.GameEvent_SoccarSplitscreen_TA"
       , [ "Archetypes.GameEvent.GameEvent_SoccarSplitscreen"
+        ])
+    , ( "TAGame.GameEvent_Season_TA"
+      , [ "Archetypes.GameEvent.GameEvent_Season"
         ])
     -- These ones are special. They have specific names for each level.
     , ( "TAGame.VehiclePickup_Boost_TA"
@@ -231,10 +244,12 @@ archetypeMap =
 levels :: Set.Set String
 levels =
     [ "EuroStadium_Rainy_P"
+    , "HoopsStadium_P"
     , "Park_Night_P"
     , "Park_Rainy_P"
     , "Stadium_p"
     , "TrainStation_Night_P"
+    , "TrainStation_P"
     , "Trainstation_Night_P"
     , "UtopiaStadium_Dusk_P"
     , "UtopiaStadium_Dusk_p"
@@ -244,11 +259,15 @@ levels =
     , "eurostad_oob_audio_map"
     , "eurostadium_p"
     , "eurostadium_rainy_audio"
+    , "hoopsstadium_sfx"
+    , "labs_doublegoal_p"
+    , "labs_utopia_p"
     , "park_night_sfx"
     , "park_p"
     , "park_rainy_sfx"
     , "park_sfx"
     , "stadium_oob_audio_map"
+    , "stadium_winter_p"
     , "trainstation_p"
     , "utopiastadium_sfx"
     , "wasteland_sfx"
@@ -264,8 +283,10 @@ classesWithLocation =
     , "TAGame.CarComponent_DoubleJump_TA"
     , "TAGame.CarComponent_FlipCar_TA"
     , "TAGame.CarComponent_Jump_TA"
+    , "TAGame.Car_Season_TA"
     , "TAGame.Car_TA"
     , "TAGame.GRI_TA"
+    , "TAGame.GameEvent_Season_TA"
     , "TAGame.GameEvent_SoccarPrivate_TA"
     , "TAGame.GameEvent_SoccarSplitscreen_TA"
     , "TAGame.GameEvent_Soccar_TA"
@@ -277,5 +298,6 @@ classesWithLocation =
 classesWithRotation :: Set.Set Text.Text
 classesWithRotation =
     [ "TAGame.Ball_TA"
+    , "TAGame.Car_Season_TA"
     , "TAGame.Car_TA"
     ] & map Text.pack & Set.fromList
