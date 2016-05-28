@@ -315,12 +315,12 @@ getPropValue name = case Text.unpack name of
         return (PMusicStinger flag cue trigger)
     "TAGame.Car_TA:ReplicatedDemolish" -> do
         hasAtk <- Bits.getBool
-        atk <- if hasAtk then fmap Just getInt32 else return Nothing
+        atk <- getInt32
         hasVic <- Bits.getBool
-        vic <- if hasVic then fmap Just getInt32 else return Nothing
+        vic <- getInt32
         vec1 <- getVector
         vec2 <- getVector
-        return (PDemolish hasAtk atk hasVic vic vec1 vec2)
+        return (PDemolish hasAtk (Just atk) hasVic (Just vic) vec1 vec2)
     "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings" -> do
         mutators <- getString
         joinableBy <- getInt32
