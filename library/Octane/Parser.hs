@@ -346,13 +346,13 @@ getPropValue name = case Text.unpack name of
         trigger <- getInt8
         return (PMusicStinger flag cue trigger)
     "TAGame.Car_TA:ReplicatedDemolish" -> do
-        hasAtk <- Bits.getBool
+        atkFlag <- Bits.getBool
         atk <- getInt32
-        hasVic <- Bits.getBool
+        vicFlag <- Bits.getBool
         vic <- getInt32
         vec1 <- getVector
         vec2 <- getVector
-        return (PDemolish hasAtk (Just atk) hasVic (Just vic) vec1 vec2)
+        return (PDemolish atkFlag atk vicFlag vic vec1 vec2)
     "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings" -> do
         mutators <- getString
         joinableBy <- getInt32
@@ -606,7 +606,7 @@ data PropValue
     = PBoolean !Bool
     | PByte !Int
     | PCamSettings !Float !Float !Float !Float !Float !Float
-    | PDemolish !Bool !(Maybe Int) !Bool !(Maybe Int) !(Vector Int) !(Vector Int)
+    | PDemolish !Bool !Int !Bool !Int !(Vector Int) !(Vector Int)
     | PEnum !Word.Word16
     | PExplosion !Bool !(Maybe Int) !(Vector Int)
     | PFlaggedInt !Bool !Int
