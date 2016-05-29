@@ -376,15 +376,15 @@ getUniqueId = do
     let systemId = Type.reverseBits byte
     case systemId of
         0 -> do
-            remoteId <- getInt (2 ^ (24 :: Int))
-            if remoteId == 0
-                then do
-                    localId <- Bits.getWord8 8
-                    return (systemId, SplitscreenId (Just remoteId), Just localId)
-                else do
-                    -- TODO: Go back 24 bits.
-                    _ <- error ("unexpected splitscreen id " ++ show remoteId)
-                    return (systemId, SplitscreenId Nothing, Nothing)
+            remoteId <- Bits.getByteString 3
+            if BS.all (\ b -> b == 0) remoteId
+            then do
+                localId <- Bits.getWord8 8
+                return (systemId, SplitscreenId (Just 0), Just localId)
+            else do
+                -- TODO: Go back 24 bits.
+                _ <- error ("unexpected splitscreen id " ++ show remoteId)
+                return (systemId, SplitscreenId Nothing, Nothing)
         1 -> do
             bytes <- Bits.getByteString 8
             let remoteId = Binary.runGet
