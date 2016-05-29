@@ -603,29 +603,29 @@ instance Aeson.ToJSON Prop where
     toJSON = Aeson.genericToJSON (toJsonOptions "Prop")
 
 data PropValue
-    = PRigidBodyState !Bool !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
-    | PFlaggedInt !Bool !Int
-    | PString !Text.Text
-    | PBoolean !Bool
-    | PQWord Int !Int
-    | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Text.Text) !Bool !Bool
-    | PInt !Int
+    = PBoolean !Bool
     | PByte !Int
-    | PUniqueId !SystemId !RemoteId !LocalId
-    | PLoadoutOnline !Int !Int !Int !(Maybe Int)
-    | PLoadout !Int !Int !Int !Int !Int !Int !Int !Int !(Maybe Int)
     | PCamSettings !Float !Float !Float !Float !Float !Float
-    | PTeamPaint !Int !Int !Int !Int !Int
-    | PLocation !(Vector Int)
-    | PPickup !Bool !(Maybe Int) !Bool
+    | PDemolish !Bool !(Maybe Int) !Bool !(Maybe Int) !(Vector Int) !(Vector Int)
     | PEnum !Word.Word16
     | PExplosion !Bool !(Maybe Int) !(Vector Int)
-    | PMusicStinger !Bool !Int !Int
+    | PFlaggedInt !Bool !Int
     | PFloat !Float
-    | PDemolish !Bool !(Maybe Int) !Bool !(Maybe Int) !(Vector Int) !(Vector Int)
-    | PPrivateMatchSettings !Text.Text !Int !Int !Text.Text !Text.Text !Bool
-    | PRelativeRotation !(Vector Float)
     | PGameMode !Word.Word8
+    | PInt !Int
+    | PLoadout !Int !Int !Int !Int !Int !Int !Int !Int !(Maybe Int)
+    | PLoadoutOnline !Int !Int !Int !(Maybe Int)
+    | PLocation !(Vector Int)
+    | PMusicStinger !Bool !Int !Int
+    | PPickup !Bool !(Maybe Int) !Bool
+    | PPrivateMatchSettings !Text.Text !Int !Int !Text.Text !Text.Text !Bool
+    | PQWord !Int !Int
+    | PRelativeRotation !(Vector Float)
+    | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Text.Text) !Bool !Bool
+    | PRigidBodyState !Bool !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
+    | PString !Text.Text
+    | PTeamPaint !Int !Int !Int !Int !Int
+    | PUniqueId !SystemId !RemoteId !LocalId
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData PropValue
