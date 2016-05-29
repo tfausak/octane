@@ -150,8 +150,7 @@ getNewReplication context actorId = do
         , Replication
           { replicationObjectName = objectName
           , replicationClassName = className
-          , replicationIsOpen = True
-          , replicationIsNew = Just True
+          , replicationState = RSOpening
           , replicationClassInit = Just classInit
           , replicationProps = []
           })
@@ -167,8 +166,7 @@ getExistingReplication context actorId = do
     return (context, Replication
         { replicationObjectName = thingObjectName thing
         , replicationClassName = thingClassName thing
-        , replicationIsOpen = True
-        , replicationIsNew = Just False
+        , replicationState = RSExisting
         , replicationClassInit = Nothing
         , replicationProps = props
         })
@@ -187,8 +185,7 @@ getClosedReplication context actorId = do
         , Replication
           { replicationObjectName = thingObjectName thing
           , replicationClassName = thingClassName thing
-          , replicationIsOpen = False
-          , replicationIsNew = Nothing
+          , replicationState = RSClosing
           , replicationClassInit = Nothing
           , replicationProps = []
           })
@@ -644,12 +641,24 @@ instance DeepSeq.NFData Frame
 instance Aeson.ToJSON Frame where
     toJSON = Aeson.genericToJSON (toJsonOptions "Frame")
 
+data ReplicationState
+    = RSOpening
+    | RSExisting
+    | RSClosing
+    deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData ReplicationState
+instance Aeson.ToJSON ReplicationState where
+    toJSON rs = Aeson.toJSON (case rs of
+        RSOpening -> "opening"
+        RSExisting -> "existing"
+        RSClosing -> "closing")
+
 -- | Replication information about an actor in the net stream.
 data Replication = Replication
     { replicationObjectName :: !Text.Text
     , replicationClassName :: !Text.Text
-    , replicationIsOpen :: !Bool
-    , replicationIsNew :: !(Maybe Bool)
+    , replicationState :: !ReplicationState
     , replicationClassInit :: !(Maybe ClassInit)
     , replicationProps :: ![Prop]
     } deriving (Eq,Generics.Generic,Show)
