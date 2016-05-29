@@ -151,8 +151,8 @@ getNewReplication context actorId = do
           { replicationObjectName = objectName
           , replicationClassName = className
           , replicationState = RSOpening
-          , replicationClassInit = Just classInit
-          , replicationProps = []
+          , replicationInitialization = Just classInit
+          , replicationProperties = []
           })
 
 getExistingReplication :: Context
@@ -167,8 +167,8 @@ getExistingReplication context actorId = do
         { replicationObjectName = thingObjectName thing
         , replicationClassName = thingClassName thing
         , replicationState = RSExisting
-        , replicationClassInit = Nothing
-        , replicationProps = props
+        , replicationInitialization = Nothing
+        , replicationProperties = props
         })
 
 getClosedReplication :: Context
@@ -186,8 +186,8 @@ getClosedReplication context actorId = do
           { replicationObjectName = thingObjectName thing
           , replicationClassName = thingClassName thing
           , replicationState = RSClosing
-          , replicationClassInit = Nothing
-          , replicationProps = []
+          , replicationInitialization = Nothing
+          , replicationProperties = []
           })
 
 getProps :: Context -> Thing -> Bits.BitGet [Prop]
@@ -659,8 +659,8 @@ data Replication = Replication
     { replicationObjectName :: !Text.Text
     , replicationClassName :: !Text.Text
     , replicationState :: !ReplicationState
-    , replicationClassInit :: !(Maybe ClassInit)
-    , replicationProps :: ![Prop]
+    , replicationInitialization :: !(Maybe ClassInit)
+    , replicationProperties :: ![Prop]
     } deriving (Eq,Generics.Generic,Show)
 
 instance DeepSeq.NFData Replication
