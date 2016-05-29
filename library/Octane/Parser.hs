@@ -333,8 +333,18 @@ getPropValue name = case Text.unpack name of
         pickedUp <- Bits.getBool
         return (PPickup instigator instigatorId pickedUp)
     "Engine.Actor:Role" -> do
-        x <- Bits.getWord16be 11
-        return (PEnum x)
+        a <- Bits.getBool
+        b <- Bits.getBool
+        c <- Bits.getBool
+        d <- Bits.getBool
+        e <- Bits.getBool
+        f <- Bits.getBool
+        g <- Bits.getBool
+        h <- Bits.getBool
+        i <- Bits.getBool
+        j <- Bits.getBool
+        k <- Bits.getBool
+        return (PEnum a b c d e f g h i j k)
     "TAGame.Ball_TA:ReplicatedExplosionData" -> do
         noGoal <- Bits.getBool
         a <- if noGoal then return Nothing else fmap Just getInt32
@@ -608,7 +618,7 @@ data PropValue
     | PByte !Int
     | PCamSettings !Float !Float !Float !Float !Float !Float
     | PDemolish !Bool !Int !Bool !Int !(Vector Int) !(Vector Int)
-    | PEnum !Word.Word16
+    | PEnum !Bool !Bool !Bool !Bool !Bool !Bool !Bool !Bool !Bool !Bool !Bool
     | PExplosion !Bool !(Maybe Int) !(Vector Int)
     | PFlaggedInt !Bool !Int
     | PFloat !Float
