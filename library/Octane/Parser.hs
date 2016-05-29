@@ -570,6 +570,11 @@ propsWithFloat =
     , "TAGame.CrowdActor_TA:ModifiedNoise"
     ] & map Text.pack & Set.fromList
 
+toJsonOptions :: String -> Aeson.Options
+toJsonOptions name = Aeson.defaultOptions
+    { Aeson.fieldLabelModifier = Aeson.camelTo2 '_' . drop (length name)
+    }
+
 type SystemId = Word.Word8
 
 -- This is the number associated with a splitscreen player. So the first player
@@ -595,11 +600,7 @@ data Prop = Prop
 
 instance DeepSeq.NFData Prop
 instance Aeson.ToJSON Prop where
-    toJSON =
-        Aeson.genericToJSON
-            Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 4
-            }
+    toJSON = Aeson.genericToJSON (toJsonOptions "Prop")
 
 data PropValue
     = PRigidBodyState !Bool !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
@@ -629,11 +630,7 @@ data PropValue
 
 instance DeepSeq.NFData PropValue
 instance Aeson.ToJSON PropValue where
-    toJSON =
-        Aeson.genericToJSON
-            Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 9
-            }
+    toJSON = Aeson.genericToJSON (toJsonOptions "PropValue")
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
 -- | the match, the time since the last frame, and a list of replications.
@@ -645,11 +642,7 @@ data Frame = Frame
 
 instance DeepSeq.NFData Frame
 instance Aeson.ToJSON Frame where
-    toJSON =
-        Aeson.genericToJSON
-            Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 5
-            }
+    toJSON = Aeson.genericToJSON (toJsonOptions "Frame")
 
 -- | Replication information about an actor in the net stream.
 data Replication = Replication
@@ -663,11 +656,7 @@ data Replication = Replication
 
 instance DeepSeq.NFData Replication
 instance Aeson.ToJSON Replication where
-    toJSON =
-        Aeson.genericToJSON
-            Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 11
-            }
+    toJSON = Aeson.genericToJSON (toJsonOptions "Replication")
 
 data Thing = Thing
     { thingFlag :: !Bool
@@ -705,11 +694,7 @@ data ClassInit = ClassInit
 
 instance DeepSeq.NFData ClassInit
 instance Aeson.ToJSON ClassInit where
-    toJSON =
-        Aeson.genericToJSON
-            Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 9
-            }
+    toJSON = Aeson.genericToJSON (toJsonOptions "ClassInit")
 
 -- { class stream id => { property stream id => name } }
 type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)
