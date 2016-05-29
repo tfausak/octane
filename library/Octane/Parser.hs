@@ -152,7 +152,7 @@ getNewReplication context actorId = do
           , replicationClassName = className
           , replicationState = RSOpening
           , replicationInitialization = Just classInit
-          , replicationProperties = []
+          , replicationProperties = Map.empty
           })
 
 getExistingReplication :: Context
@@ -187,17 +187,20 @@ getClosedReplication context actorId = do
           , replicationClassName = thingClassName thing
           , replicationState = RSClosing
           , replicationInitialization = Nothing
-          , replicationProperties = []
+          , replicationProperties = Map.empty
           })
 
-getProps :: Context -> Thing -> Bits.BitGet [Prop]
+getProps :: Context -> Thing -> Bits.BitGet (Map.Map Text.Text PropValue)
 getProps context thing = do
     maybeProp <- getMaybeProp context thing
     case maybeProp of
-        Nothing -> return []
+        Nothing -> return Map.empty
         Just prop -> do
+            let k = propName prop
+            let v = propValue prop
+            let m = Map.singleton k v
             props <- getProps context thing
-            return (prop : props)
+            return (Map.union m props)
 
 getMaybeProp :: Context -> Thing -> Bits.BitGet (Maybe Prop)
 getMaybeProp context thing = do
@@ -660,7 +663,7 @@ data Replication = Replication
     , replicationClassName :: !Text.Text
     , replicationState :: !ReplicationState
     , replicationInitialization :: !(Maybe ClassInit)
-    , replicationProperties :: ![Prop]
+    , replicationProperties :: !(Map.Map Text.Text PropValue)
     } deriving (Eq,Generics.Generic,Show)
 
 instance DeepSeq.NFData Replication
