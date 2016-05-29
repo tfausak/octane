@@ -365,8 +365,9 @@ getPropValue name = case Text.unpack name of
         vector <- getFloatVector
         return (PRelativeRotation vector)
     "TAGame.GameEvent_TA:GameMode" -> do
-        mode <- Bits.getWord8 2
-        return (PGameMode mode)
+        a <- Bits.getBool
+        b <- Bits.getBool
+        return (PGameMode a b)
     _ -> fail ("don't know how to read property " ++ show name)
 
 getFloat32 :: Bits.BitGet Float
@@ -611,7 +612,7 @@ data PropValue
     | PExplosion !Bool !(Maybe Int) !(Vector Int)
     | PFlaggedInt !Bool !Int
     | PFloat !Float
-    | PGameMode !Word.Word8
+    | PGameMode !Bool !Bool
     | PInt !Int
     | PLoadout !Int !Int !Int !Int !Int !Int !Int !Int !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
