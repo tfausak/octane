@@ -248,6 +248,17 @@ getPropValue name = case Text.unpack name of
     _ | Set.member name propsWithByte -> do
         int <- getInt8
         return (PByte int)
+    "TAGame.PRI_TA:PartyLeader" -> do
+        systemId <- getSystemId
+        if systemId == 0
+            then do
+                let remoteId = SplitscreenId Nothing
+                let localId = Nothing
+                return (PUniqueId systemId remoteId localId)
+            else do
+                remoteId <- getRemoteId systemId
+                localId <- getLocalId
+                return (PUniqueId systemId remoteId localId)
     _ | Set.member name propsWithUniqueId -> do
         (systemId, remoteId, localId) <- getUniqueId
         return (PUniqueId systemId remoteId localId)
