@@ -863,4 +863,9 @@ getInt32 = do
     word & fromIntegral & (\ x -> x :: Int.Int32) & fromIntegral & return
 
 getInt8 :: Bits.BitGet Int
-getInt8 = getInt (2 ^ (8 :: Int))
+getInt8 = do
+    byte <- Bits.getByteString 1
+    let word = Binary.runGet
+            Binary.getWord8
+            (byte & BSL.fromStrict & BSL.map Type.reverseBits)
+    word & fromIntegral & (\ x -> x :: Int.Int8) & fromIntegral & return
