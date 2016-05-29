@@ -99,7 +99,7 @@ getMaybeReplication context = do
 
 getReplication :: Context -> Bits.BitGet (Context, Replication)
 getReplication context = do
-    actorId <- getInt maxChannels
+    actorId <- getActorId
     isOpen <- Bits.getBool
     let go =
             if isOpen
@@ -267,9 +267,9 @@ getPropValue name = case Text.unpack name of
         return (PFloat float)
     "ProjectX.GRI_X:Reservations" -> do
         -- I think this is the connection order. The first player to connect
-        -- gets number 0, and it goes up from there. The maximum is 8, which
+        -- gets number 0, and it goes up from there. The maximum is 7, which
         -- would be a full 4x4 game.
-        number <- getInt 8
+        number <- getInt7
         (systemId, remoteId, localId) <- getUniqueId
         playerName <- if systemId == 0 then return Nothing else do
             string <- getString
@@ -718,9 +718,6 @@ extractContext replay =
     , contextClassMap = CPM.getActorMap replay
     }
 
-maxVectorValue :: Int
-maxVectorValue = 19
-
 byteStringToFloat :: BS.ByteString -> Float
 byteStringToFloat bytes = Binary.runGet
     IEEE754.getFloat32le
@@ -728,7 +725,7 @@ byteStringToFloat bytes = Binary.runGet
 
 getVector :: Bits.BitGet (Vector Int)
 getVector = do
-    numBits <- getInt maxVectorValue
+    numBits <- getNumVectorBits
     let bias = Bits.shiftL 1 (numBits + 1)
     let maxBits = numBits + 2
     let maxValue = 2 ^ maxBits
@@ -818,11 +815,6 @@ getClassInit className = do
         , classInitRotation = rotation
         }
 
-maxChannels
-    :: (Integral a)
-    => a
-maxChannels = 1024
-
 bitSize
     :: (Integral a)
     => a -> a
@@ -869,3 +861,12 @@ getInt8 = do
             Binary.getWord8
             (byte & BSL.fromStrict & BSL.map Type.reverseBits)
     word & fromIntegral & (\ x -> x :: Int.Int8) & fromIntegral & return
+
+getActorId :: Bits.BitGet Int
+getActorId = getInt 1024
+
+getNumVectorBits :: Bits.BitGet Int
+getNumVectorBits = getInt 19
+
+getInt7 :: Bits.BitGet Int
+getInt7 = getInt 7
