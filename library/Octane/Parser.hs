@@ -372,43 +372,49 @@ getString = do
 
 getUniqueId :: Bits.BitGet (SystemId, RemoteId, LocalId)
 getUniqueId = do
+    systemId <- getSystemId
+    remoteId <- getRemoteId systemId
+    localId <- getLocalId
+    return (systemId, remoteId, localId)
+
+getSystemId :: Bits.BitGet SystemId
+getSystemId = do
     byte <- Bits.getWord8 8
-    let systemId = Type.reverseBits byte
-    case systemId of
-        0 -> do
-            remoteId <- Bits.getByteString 3
-            if BS.all (\ b -> b == 0) remoteId
-            then do
-                localId <- Bits.getWord8 8
-                return (systemId, SplitscreenId (Just 0), Just localId)
-            else do
-                -- TODO: Go back 24 bits.
-                _ <- error ("unexpected splitscreen id " ++ show remoteId)
-                return (systemId, SplitscreenId Nothing, Nothing)
-        1 -> do
-            bytes <- Bits.getByteString 8
-            let remoteId = Binary.runGet
-                    Binary.getWord64le
-                    (bytes & BS.map Type.reverseBits & BSL.fromStrict)
-            localId <- Bits.getWord8 8
-            return (systemId, SteamId remoteId, Just localId)
-        2 -> do
-            bytes <- Bits.getByteString 32
-            let remoteId = bytes
-                    & BS.map Type.reverseBits
-                    & BS.unpack
-                    & concatMap (\ b -> Printf.printf "%02x" b)
-                    & Text.pack
-            localId <- Bits.getWord8 8
-            return (systemId, PlayStationId remoteId, Just localId)
-        4 -> do
-            bytes <- Bits.getByteString 8
-            let remoteId = Binary.runGet
-                    Binary.getWord64le
-                    (bytes & BS.map Type.reverseBits & BSL.fromStrict)
-            localId <- Bits.getWord8 8
-            return (systemId, XboxId remoteId, Just localId)
-        _ -> error ("unknown system id " ++ show systemId)
+    byte & Type.reverseBits & return
+
+getRemoteId :: SystemId -> Bits.BitGet RemoteId
+getRemoteId systemId = case systemId of
+    0 -> do
+        remoteId <- Bits.getByteString 3
+        if BS.all (\ byte -> byte == 0) remoteId
+            then 0 & Just & SplitscreenId & return
+            else error ("unexpected splitscreen id " ++ show remoteId)
+    1 -> do
+        bytes <- Bits.getByteString 8
+        let remoteId = Binary.runGet
+                Binary.getWord64le
+                (bytes & BS.map Type.reverseBits & BSL.fromStrict)
+        remoteId & SteamId & return
+    2 -> do
+        bytes <- Bits.getByteString 32
+        let remoteId = bytes
+                & BS.map Type.reverseBits
+                & BS.unpack
+                & concatMap (\ b -> Printf.printf "%02x" b)
+                & Text.pack
+        remoteId & PlayStationId & return
+    4 -> do
+        bytes <- Bits.getByteString 8
+        let remoteId = Binary.runGet
+                Binary.getWord64le
+                (bytes & BS.map Type.reverseBits & BSL.fromStrict)
+        remoteId & XboxId & return
+    _ -> error ("unknown system id " ++ show systemId)
+
+getLocalId :: Bits.BitGet LocalId
+getLocalId = do
+    localId <- Bits.getWord8 8
+    localId & Just & return
 
 propsWithRigidBodyState :: Set.Set Text.Text
 propsWithRigidBodyState =
