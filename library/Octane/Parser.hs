@@ -248,20 +248,6 @@ getPropValue name = case Text.unpack name of
     _ | Set.member name propsWithByte -> do
         int <- getInt8
         return (PByte int)
-    "TAGame.PRI_TA:PartyLeader" -> do
-        systemId <- getSystemId
-        if systemId == 0
-            then do
-                let remoteId = SplitscreenId Nothing
-                let localId = Nothing
-                return (PUniqueId systemId remoteId localId)
-            else do
-                remoteId <- getRemoteId systemId
-                localId <- getLocalId
-                return (PUniqueId systemId remoteId localId)
-    _ | Set.member name propsWithUniqueId -> do
-        (systemId, remoteId, localId) <- getUniqueId
-        return (PUniqueId systemId remoteId localId)
     _ | Set.member name propsWithCamSettings -> do
         fov <- getFloat32
         height <- getFloat32
@@ -276,6 +262,20 @@ getPropValue name = case Text.unpack name of
     _ | Set.member name propsWithFloat -> do
         float <- getFloat32
         return (PFloat float)
+    "Engine.PlayerReplicationInfo:UniqueId" -> do
+        (systemId, remoteId, localId) <- getUniqueId
+        return (PUniqueId systemId remoteId localId)
+    "TAGame.PRI_TA:PartyLeader" -> do
+        systemId <- getSystemId
+        if systemId == 0
+            then do
+                let remoteId = SplitscreenId Nothing
+                let localId = Nothing
+                return (PUniqueId systemId remoteId localId)
+            else do
+                remoteId <- getRemoteId systemId
+                localId <- getLocalId
+                return (PUniqueId systemId remoteId localId)
     "ProjectX.GRI_X:Reservations" -> do
         -- I think this is the connection order. The first player to connect
         -- gets number 0, and it goes up from there. The maximum is 7, which
@@ -540,12 +540,6 @@ propsWithByte =
     , "TAGame.PRI_TA:CameraYaw"
     , "TAGame.Vehicle_TA:ReplicatedSteer"
     , "TAGame.Vehicle_TA:ReplicatedThrottle"
-    ] & map Text.pack & Set.fromList
-
-propsWithUniqueId :: Set.Set Text.Text
-propsWithUniqueId =
-    [ "Engine.PlayerReplicationInfo:UniqueId"
-    , "TAGame.PRI_TA:PartyLeader"
     ] & map Text.pack & Set.fromList
 
 propsWithCamSettings :: Set.Set Text.Text
