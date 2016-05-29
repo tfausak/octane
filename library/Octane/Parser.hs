@@ -148,7 +148,8 @@ getNewReplication context actorId = do
     return
         ( newContext
         , Replication
-          { replicationActorId = actorId
+          { replicationObjectName = objectName
+          , replicationClassName = className
           , replicationIsOpen = True
           , replicationIsNew = Just True
           , replicationClassInit = Just classInit
@@ -164,7 +165,8 @@ getExistingReplication context actorId = do
             Just x -> x
     props <- getProps context thing
     return (context, Replication
-        { replicationActorId = actorId
+        { replicationObjectName = thingObjectName thing
+        , replicationClassName = thingClassName thing
         , replicationIsOpen = True
         , replicationIsNew = Just False
         , replicationClassInit = Nothing
@@ -175,12 +177,16 @@ getClosedReplication :: Context
                      -> ActorId
                      -> Bits.BitGet (Context, Replication)
 getClosedReplication context actorId = do
+    let thing = case context & contextThings & IntMap.lookup actorId of
+            Nothing -> error ("could not find thing for actor id " ++ show actorId)
+            Just x -> x
     let newThings = context & contextThings & IntMap.delete actorId
     let newContext = context { contextThings = newThings }
     return
         ( newContext
         , Replication
-          { replicationActorId = actorId
+          { replicationObjectName = thingObjectName thing
+          , replicationClassName = thingClassName thing
           , replicationIsOpen = False
           , replicationIsNew = Nothing
           , replicationClassInit = Nothing
@@ -647,7 +653,8 @@ instance Aeson.ToJSON Frame where
 
 -- | Replication information about an actor in the net stream.
 data Replication = Replication
-    { replicationActorId :: !Int
+    { replicationObjectName :: !Text.Text
+    , replicationClassName :: !Text.Text
     , replicationIsOpen :: !Bool
     , replicationIsNew :: !(Maybe Bool)
     , replicationClassInit :: !(Maybe ClassInit)
