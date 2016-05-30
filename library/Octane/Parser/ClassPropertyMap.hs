@@ -1,7 +1,6 @@
 module Octane.Parser.ClassPropertyMap where
 
 import Data.Function ((&))
-import Debug.Trace
 
 import qualified Control.Newtype as Newtype
 import qualified Data.Char as Char
@@ -154,16 +153,16 @@ getClass
     -> Maybe (Int, Text.Text) -- ^ Maybe class ID and class name
 getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId =
     case IntMap.lookup propertyId propertyIdsToNames of
-        Nothing -> trace ("could not find property name for property id " ++ show propertyId) Nothing
+        Nothing -> Nothing
         Just rawPropertyName -> let
             -- There are a large number of properties that end in numbers that
             -- should all be treated the same. Instead of explicitly mapping
             -- each of them, we can remove the numbers and treat them the same.
             propertyName = rawPropertyName & Text.dropWhileEnd Char.isDigit
             in case Map.lookup propertyName propertyNamesToClassNames of
-                Nothing -> trace ("could not find class name for property name " ++ show propertyName) $ trace (classNamesToIds & Map.toList & map (\ (k, v) -> " " ++ show v ++ " => " ++ show k) & unlines) $ Nothing
+                Nothing -> Nothing
                 Just className -> case Map.lookup className classNamesToIds of
-                    Nothing -> trace ("could not find class id for class name " ++ show className) Nothing
+                    Nothing -> Nothing
                     Just classId -> Just (classId, className)
 
 -- | The archetype maps is a mapping from object names to their class names.
