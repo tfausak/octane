@@ -22,6 +22,7 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
+import qualified Octane.Data as Data
 import qualified Octane.Parser.ClassPropertyMap as CPM
 import qualified Octane.Type as Type
 import qualified Text.Printf as Printf
@@ -227,34 +228,34 @@ getProp context thing = do
 
 getPropValue :: Text.Text -> Bits.BitGet PropValue
 getPropValue name = case Text.unpack name of
-    _ | Set.member name propsWithRigidBodyState -> do
+    _ | Set.member name Data.rigidBodyStateProperties -> do
         flag <- Bits.getBool
         position <- getVector
         rotation <- getFloatVector
         x <- if flag then return Nothing else fmap Just getVector
         y <- if flag then return Nothing else fmap Just getVector
         return (PRigidBodyState flag position rotation x y)
-    _ | Set.member name propsWithFlaggedInt -> do
+    _ | Set.member name Data.flaggedIntProperties -> do
         flag <- Bits.getBool
         int <- getInt32
         return (PFlaggedInt flag (fromIntegral int))
-    _ | Set.member name propsWithString -> do
+    _ | Set.member name Data.stringProperties -> do
         string <- getString
         return (PString string)
-    _ | Set.member name propsWithBoolean -> do
+    _ | Set.member name Data.booleanProperties -> do
         bool <- Bits.getBool
         return (PBoolean bool)
-    _ | Set.member name propsWithQWord -> do
+    _ | Set.member name Data.qWordProperties -> do
         x <- getInt32
         y <- getInt32
         return (PQWord x y)
-    _ | Set.member name propsWithInt -> do
+    _ | Set.member name Data.intProperties -> do
         int <- getInt32
         return (PInt int)
-    _ | Set.member name propsWithByte -> do
+    _ | Set.member name Data.byteProperties -> do
         int <- getInt8
         return (PByte int)
-    _ | Set.member name propsWithCamSettings -> do
+    _ | Set.member name Data.camSettingsProperties -> do
         fov <- getFloat32
         height <- getFloat32
         pitch <- getFloat32
@@ -262,10 +263,10 @@ getPropValue name = case Text.unpack name of
         stiff <- getFloat32
         swiv <- getFloat32
         return (PCamSettings fov height pitch dist stiff swiv)
-    _ | Set.member name propsWithLocation -> do
+    _ | Set.member name Data.locationProperties -> do
         vector <- getVector
         return (PLocation vector)
-    _ | Set.member name propsWithFloat -> do
+    _ | Set.member name Data.floatProperties -> do
         float <- getFloat32
         return (PFloat float)
     "Engine.PlayerReplicationInfo:UniqueId" -> do
@@ -437,143 +438,6 @@ getLocalId :: Bits.BitGet LocalId
 getLocalId = do
     localId <- Bits.getWord8 8
     localId & Just & return
-
-propsWithRigidBodyState :: Set.Set Text.Text
-propsWithRigidBodyState =
-    [ "TAGame.RBActor_TA:ReplicatedRBState"
-    ] & map Text.pack & Set.fromList
-
-propsWithFlaggedInt :: Set.Set Text.Text
-propsWithFlaggedInt =
-    [ "Engine.GameReplicationInfo:GameClass"
-    , "Engine.Actor:ReplicatedCollisionType"
-    , "Engine.Pawn:PlayerReplicationInfo"
-    , "Engine.PlayerReplicationInfo:Team"
-    , "TAGame.Ball_TA:GameEvent"
-    , "TAGame.CameraSettingsActor_TA:PRI"
-    , "TAGame.CarComponent_TA:Vehicle"
-    , "TAGame.CrowdActor_TA:GameEvent"
-    , "TAGame.CrowdActor_TA:ReplicatedOneShotSound"
-    , "TAGame.CrowdManager_TA:GameEvent"
-    , "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound"
-    , "TAGame.PRI_TA:PersistentCamera"
-    , "TAGame.PRI_TA:ReplicatedGameEvent"
-    , "TAGame.Team_TA:GameEvent"
-    , "TAGame.Team_TA:LogoData"
-    ] & map Text.pack & Set.fromList
-
-propsWithString :: Set.Set Text.Text
-propsWithString =
-    [ "Engine.GameReplicationInfo:ServerName"
-    , "Engine.PlayerReplicationInfo:PlayerName"
-    , "Engine.PlayerReplicationInfo:RemoteUserData"
-    , "TAGame.GRI_TA:NewDedicatedServerIP"
-    , "TAGame.Team_TA:CustomTeamName"
-    ] & map Text.pack & Set.fromList
-
-propsWithBoolean :: Set.Set Text.Text
-propsWithBoolean =
-    [ "Engine.Actor:bBlockActors"
-    , "Engine.Actor:bCollideActors"
-    , "Engine.Actor:bHardAttach"
-    , "Engine.Actor:bHidden"
-    , "Engine.Actor:bProjTarget"
-    , "Engine.Actor:bTearOff"
-    , "Engine.GameReplicationInfo:bMatchIsOver"
-    , "Engine.Pawn:bCanSwatTurn"
-    , "Engine.Pawn:bRootMotionFromInterpCurve"
-    , "Engine.Pawn:bSimulateGravity"
-    , "Engine.PlayerReplicationInfo:bBot"
-    , "Engine.PlayerReplicationInfo:bIsSpectator"
-    , "Engine.PlayerReplicationInfo:bOnlySpectator"
-    , "Engine.PlayerReplicationInfo:bOutOfLives"
-    , "Engine.PlayerReplicationInfo:bReadyToPlay"
-    , "Engine.PlayerReplicationInfo:bWaitingPlayer"
-    , "ProjectX.GRI_X:bGameStarted"
-    , "TAGame.CameraSettingsActor_TA:bUsingBehindView"
-    , "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera"
-    , "TAGame.CarComponent_FlipCar_TA:bFlipRight"
-    , "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit"
-    , "TAGame.GameEvent_Soccar_TA:bOverTime"
-    , "TAGame.GameEvent_TA:bHasLeaveMatchPenalty"
-    , "TAGame.GameEvent_Team_TA:bDisableMutingOtherTeam"
-    , "TAGame.PRI_TA:bIsInSplitScreen"
-    , "TAGame.PRI_TA:bMatchMVP"
-    , "TAGame.PRI_TA:bOnlineLoadoutSet"
-    , "TAGame.PRI_TA:bReady"
-    , "TAGame.PRI_TA:bUsingBehindView"
-    , "TAGame.PRI_TA:bUsingSecondaryCamera"
-    , "TAGame.RBActor_TA:bFrozen"
-    , "TAGame.RBActor_TA:bReplayActor"
-    , "TAGame.Vehicle_TA:bDriving"
-    , "TAGame.Vehicle_TA:bReplicatedHandbrake"
-    ] & map Text.pack & Set.fromList
-
-propsWithQWord :: Set.Set Text.Text
-propsWithQWord =
-    [ "ProjectX.GRI_X:GameServerID"
-    ] & map Text.pack & Set.fromList
-
-propsWithInt :: Set.Set Text.Text
-propsWithInt =
-    [ "Engine.PlayerReplicationInfo:PlayerID"
-    , "Engine.PlayerReplicationInfo:Score"
-    , "Engine.TeamInfo:Score"
-    , "ProjectX.GRI_X:ReplicatedGameMutatorIndex"
-    , "ProjectX.GRI_X:ReplicatedGamePlaylist"
-    , "TAGame.CrowdActor_TA:ReplicatedCountDownNumber"
-    , "TAGame.GameEvent_Soccar_TA:RoundNum"
-    , "TAGame.GameEvent_Soccar_TA:SecondsRemaining"
-    , "TAGame.GameEvent_TA:BotSkill"
-    , "TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining"
-    , "TAGame.GameEvent_TA:ReplicatedStateName"
-    , "TAGame.GameEvent_Team_TA:MaxTeamSize"
-    , "TAGame.PRI_TA:MatchAssists"
-    , "TAGame.PRI_TA:MatchGoals"
-    , "TAGame.PRI_TA:MatchSaves"
-    , "TAGame.PRI_TA:MatchScore"
-    , "TAGame.PRI_TA:MatchShots"
-    , "TAGame.PRI_TA:Title"
-    , "TAGame.PRI_TA:TotalXP"
-    ] & map Text.pack & Set.fromList
-
-propsWithByte :: Set.Set Text.Text
-propsWithByte =
-    [ "Engine.PlayerReplicationInfo:Ping"
-    , "TAGame.Ball_TA:HitTeamNum"
-    , "TAGame.CameraSettingsActor_TA:CameraPitch"
-    , "TAGame.CameraSettingsActor_TA:CameraYaw"
-    , "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount"
-    , "TAGame.CarComponent_TA:ReplicatedActive"
-    , "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam"
-    , "TAGame.GameEvent_TA:ReplicatedStateIndex"
-    , "TAGame.PRI_TA:CameraPitch"
-    , "TAGame.PRI_TA:CameraYaw"
-    , "TAGame.Vehicle_TA:ReplicatedSteer"
-    , "TAGame.Vehicle_TA:ReplicatedThrottle"
-    ] & map Text.pack & Set.fromList
-
-propsWithCamSettings :: Set.Set Text.Text
-propsWithCamSettings =
-    [ "TAGame.CameraSettingsActor_TA:ProfileSettings"
-    , "TAGame.PRI_TA:CameraSettings"
-    ] & map Text.pack & Set.fromList
-
-propsWithLocation :: Set.Set Text.Text
-propsWithLocation =
-    [ "TAGame.CarComponent_Dodge_TA:DodgeTorque"
-    ] & map Text.pack & Set.fromList
-
-propsWithFloat :: Set.Set Text.Text
-propsWithFloat =
-    [ "Engine.Actor:DrawScale"
-    , "TAGame.Ball_TA:ReplicatedAddedCarBounceScale"
-    , "TAGame.Ball_TA:ReplicatedBallMaxLinearSpeedScale"
-    , "TAGame.Ball_TA:ReplicatedBallScale"
-    , "TAGame.Ball_TA:ReplicatedWorldBounceScale"
-    , "TAGame.CarComponent_FlipCar_TA:FlipCarTime"
-    , "TAGame.CrowdActor_TA:ModifiedNoise"
-    ] & map Text.pack & Set.fromList
 
 toJsonOptions :: String -> Aeson.Options
 toJsonOptions name = Aeson.defaultOptions
