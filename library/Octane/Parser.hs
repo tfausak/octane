@@ -226,157 +226,237 @@ getProp context thing = do
     value <- getPropValue name
     return (Prop { propName = name, propValue = value })
 
+--
+
 getPropValue :: Text.Text -> Bits.BitGet PropValue
-getPropValue name = case Text.unpack name of
-    "TAGame.PRI_TA:PartyLeader" -> do
-        -- Even though this is just a unique ID property, it must be handled
-        -- specially because it sometimes doesn't have the remote or local
-        -- IDs.
-        systemId <- getSystemId
-        if systemId == 0
-            then do
-                let remoteId = SplitscreenId Nothing
-                let localId = Nothing
-                return (PUniqueId systemId remoteId localId)
-            else do
-                remoteId <- getRemoteId systemId
-                localId <- getLocalId
-                return (PUniqueId systemId remoteId localId)
-    _ | Set.member name Data.rigidBodyStateProperties -> do
-        flag <- Bits.getBool
-        position <- getVector
-        rotation <- getFloatVector
-        x <- if flag then return Nothing else fmap Just getVector
-        y <- if flag then return Nothing else fmap Just getVector
-        return (PRigidBodyState flag position rotation x y)
-    _ | Set.member name Data.flaggedIntProperties -> do
-        flag <- Bits.getBool
-        int <- getInt32
-        return (PFlaggedInt flag (fromIntegral int))
-    _ | Set.member name Data.stringProperties -> do
+getPropValue name = case Map.lookup name propertyNameToGet of
+    Nothing -> error ("don't know how to read property " ++ show name)
+    Just get -> get
+
+propertyNameToGet :: Map.Map Text.Text (Bits.BitGet PropValue)
+propertyNameToGet =
+    [ (Data.booleanProperties, getBooleanProperty)
+    , (Data.byteProperties, getByteProperty)
+    , (Data.camSettingsProperties, getCamSettingsProperty)
+    , (Data.demolishProperties, getDemolishProperty)
+    , (Data.enumProperties, getEnumProperty)
+    , (Data.explosionProperties, getExplosionProperty)
+    , (Data.flaggedIntProperties, getFlaggedIntProperty)
+    , (Data.floatProperties, getFloatProperty)
+    , (Data.gameModeProperties, getGameModeProperty)
+    , (Data.intProperties, getIntProperty)
+    , (Data.loadoutOnlineProperties, getLoadoutOnlineProperty)
+    , (Data.loadoutProperties, getLoadoutProperty)
+    , (Data.locationProperties, getLocationProperty)
+    , (Data.musicStingerProperties, getMusicStingerProperty)
+    , (Data.pickupProperties, getPickupProperty)
+    , (Data.privateMatchSettingsProperties, getPrivateMatchSettingsProperty)
+    , (Data.qWordProperties, getQWordProperty)
+    , (Data.relativeRotationProperties, getRelativeRotationProperty)
+    , (Data.reservationProperties, getReservationProperty)
+    , (Data.rigidBodyStateProperties, getRigidBodyStateProperty)
+    , (Data.stringProperties, getStringProperty)
+    , (Data.teamPaintProperties, getTeamPaintProperty)
+    , (Data.uniqueIdProperties, getUniqueIdProperty)
+    , (Set.fromList [Text.pack "TAGame.PRI_TA:PartyLeader"], getPartyLeaderProperty)
+    ]
+        & concatMap (\ (ks, v) -> ks & Set.toList & map (\ k -> (k, v)))
+        & Map.fromList
+
+getBooleanProperty :: Bits.BitGet PropValue
+getBooleanProperty = do
+    bool <- Bits.getBool
+    return (PBoolean bool)
+
+getByteProperty :: Bits.BitGet PropValue
+getByteProperty = do
+    int <- getInt8
+    return (PByte int)
+
+getCamSettingsProperty :: Bits.BitGet PropValue
+getCamSettingsProperty = do
+    fov <- getFloat32
+    height <- getFloat32
+    pitch <- getFloat32
+    dist <- getFloat32
+    stiff <- getFloat32
+    swiv <- getFloat32
+    return (PCamSettings fov height pitch dist stiff swiv)
+
+getDemolishProperty :: Bits.BitGet PropValue
+getDemolishProperty = do
+    atkFlag <- Bits.getBool
+    atk <- getInt32
+    vicFlag <- Bits.getBool
+    vic <- getInt32
+    vec1 <- getVector
+    vec2 <- getVector
+    return (PDemolish atkFlag atk vicFlag vic vec1 vec2)
+
+getEnumProperty :: Bits.BitGet PropValue
+getEnumProperty = do
+    x <- Bits.getWord16be 10
+    y <- if x == 1023
+        then Bits.getBool
+        else error ("unexpected enum value " ++ show x)
+    return (PEnum x y)
+
+getExplosionProperty :: Bits.BitGet PropValue
+getExplosionProperty = do
+    noGoal <- Bits.getBool
+    a <- if noGoal then return Nothing else fmap Just getInt32
+    b <- getVector
+    return (PExplosion noGoal a b)
+
+getFlaggedIntProperty :: Bits.BitGet PropValue
+getFlaggedIntProperty = do
+    flag <- Bits.getBool
+    int <- getInt32
+    return (PFlaggedInt flag (fromIntegral int))
+
+getFloatProperty :: Bits.BitGet PropValue
+getFloatProperty = do
+    float <- getFloat32
+    return (PFloat float)
+
+getGameModeProperty :: Bits.BitGet PropValue
+getGameModeProperty = do
+    x <- Bits.getWord8 2
+    if x == 2
+        then return (PGameMode x)
+        else error ("unexpected game mode value " ++ show x)
+
+getIntProperty :: Bits.BitGet PropValue
+getIntProperty = do
+    int <- getInt32
+    return (PInt int)
+
+getLoadoutOnlineProperty :: Bits.BitGet PropValue
+getLoadoutOnlineProperty = do
+    version <- getInt32
+    x <- getInt32
+    y <- getInt32
+    z <- if version >= 12
+        then do
+            value <- getInt8
+            return (Just value)
+        else return Nothing
+    return (PLoadoutOnline version x y z)
+
+getLoadoutProperty :: Bits.BitGet PropValue
+getLoadoutProperty = do
+    version <- getInt8
+    a <- getInt32
+    b <- getInt32
+    c <- getInt32
+    d <- getInt32
+    e <- getInt32
+    f <- getInt32
+    g <- getInt32
+    h <- if version > 10
+        then do
+            value <- getInt32
+            return (Just value)
+        else return Nothing
+    return (PLoadout version a b c d e f g h)
+
+getLocationProperty :: Bits.BitGet PropValue
+getLocationProperty = do
+    vector <- getVector
+    return (PLocation vector)
+
+getMusicStingerProperty :: Bits.BitGet PropValue
+getMusicStingerProperty = do
+    flag <- Bits.getBool
+    cue <- getInt32
+    trigger <- getInt8
+    return (PMusicStinger flag cue trigger)
+
+getPickupProperty :: Bits.BitGet PropValue
+getPickupProperty = do
+    instigator <- Bits.getBool
+    instigatorId <- if instigator then fmap Just getInt32 else return Nothing
+    pickedUp <- Bits.getBool
+    return (PPickup instigator instigatorId pickedUp)
+
+getPrivateMatchSettingsProperty :: Bits.BitGet PropValue
+getPrivateMatchSettingsProperty = do
+    mutators <- getString
+    joinableBy <- getInt32
+    maxPlayers <- getInt32
+    gameName <- getString
+    password <- getString
+    flag <- Bits.getBool
+    return (PPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
+
+getQWordProperty :: Bits.BitGet PropValue
+getQWordProperty = do
+    x <- getInt32
+    y <- getInt32
+    return (PQWord x y)
+
+getRelativeRotationProperty :: Bits.BitGet PropValue
+getRelativeRotationProperty = do
+    vector <- getFloatVector
+    return (PRelativeRotation vector)
+
+getReservationProperty :: Bits.BitGet PropValue
+getReservationProperty = do
+    -- I think this is the connection order. The first player to connect
+    -- gets number 0, and it goes up from there. The maximum is 7, which
+    -- would be a full 4x4 game.
+    number <- getInt7
+    (systemId, remoteId, localId) <- getUniqueId
+    playerName <- if systemId == 0 then return Nothing else do
         string <- getString
-        return (PString string)
-    _ | Set.member name Data.booleanProperties -> do
-        bool <- Bits.getBool
-        return (PBoolean bool)
-    _ | Set.member name Data.qWordProperties -> do
-        x <- getInt32
-        y <- getInt32
-        return (PQWord x y)
-    _ | Set.member name Data.intProperties -> do
-        int <- getInt32
-        return (PInt int)
-    _ | Set.member name Data.byteProperties -> do
-        int <- getInt8
-        return (PByte int)
-    _ | Set.member name Data.camSettingsProperties -> do
-        fov <- getFloat32
-        height <- getFloat32
-        pitch <- getFloat32
-        dist <- getFloat32
-        stiff <- getFloat32
-        swiv <- getFloat32
-        return (PCamSettings fov height pitch dist stiff swiv)
-    _ | Set.member name Data.locationProperties -> do
-        vector <- getVector
-        return (PLocation vector)
-    _ | Set.member name Data.floatProperties -> do
-        float <- getFloat32
-        return (PFloat float)
-    _ | Set.member name Data.uniqueIdProperties -> do
-        (systemId, remoteId, localId) <- getUniqueId
-        return (PUniqueId systemId remoteId localId)
-    _ | Set.member name Data.reservationProperties -> do
-        -- I think this is the connection order. The first player to connect
-        -- gets number 0, and it goes up from there. The maximum is 7, which
-        -- would be a full 4x4 game.
-        number <- getInt7
-        (systemId, remoteId, localId) <- getUniqueId
-        playerName <- if systemId == 0 then return Nothing else do
-            string <- getString
-            return (Just string)
-        -- No idea what these two flags are. Might be for bots?
-        a <- Bits.getBool
-        b <- Bits.getBool
-        return (PReservation number systemId remoteId localId playerName a b)
-    _ | Set.member name Data.loadoutOnlineProperties -> do
-        version <- getInt32
-        x <- getInt32
-        y <- getInt32
-        z <- if version >= 12
-            then do
-                value <- getInt8
-                return (Just value)
-            else return Nothing
-        return (PLoadoutOnline version x y z)
-    _ | Set.member name Data.loadoutProperties -> do
-        version <- getInt8
-        a <- getInt32
-        b <- getInt32
-        c <- getInt32
-        d <- getInt32
-        e <- getInt32
-        f <- getInt32
-        g <- getInt32
-        h <- if version > 10
-            then do
-                value <- getInt32
-                return (Just value)
-            else return Nothing
-        return (PLoadout version a b c d e f g h)
-    _ | Set.member name Data.teamPaintProperties -> do
-        team <- getInt8
-        teamColor <- getInt8
-        customColor <- getInt8
-        teamFinish <- getInt32
-        customFinish <- getInt32
-        return (PTeamPaint team teamColor customColor teamFinish customFinish)
-    _ | Set.member name Data.pickupProperties -> do
-        instigator <- Bits.getBool
-        instigatorId <- if instigator then fmap Just getInt32 else return Nothing
-        pickedUp <- Bits.getBool
-        return (PPickup instigator instigatorId pickedUp)
-    _ | Set.member name Data.enumProperties -> do
-        x <- Bits.getWord16be 10
-        y <- if x == 1023
-            then Bits.getBool
-            else error ("unexpected enum value " ++ show x)
-        return (PEnum x y)
-    _ | Set.member name Data.explosionProperties -> do
-        noGoal <- Bits.getBool
-        a <- if noGoal then return Nothing else fmap Just getInt32
-        b <- getVector
-        return (PExplosion noGoal a b)
-    _ | Set.member name Data.musicStingerProperties -> do
-        flag <- Bits.getBool
-        cue <- getInt32
-        trigger <- getInt8
-        return (PMusicStinger flag cue trigger)
-    _ | Set.member name Data.demolishProperties -> do
-        atkFlag <- Bits.getBool
-        atk <- getInt32
-        vicFlag <- Bits.getBool
-        vic <- getInt32
-        vec1 <- getVector
-        vec2 <- getVector
-        return (PDemolish atkFlag atk vicFlag vic vec1 vec2)
-    _ | Set.member name Data.privateMatchSettingsProperties -> do
-        mutators <- getString
-        joinableBy <- getInt32
-        maxPlayers <- getInt32
-        gameName <- getString
-        password <- getString
-        flag <- Bits.getBool
-        return (PPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
-    _ | Set.member name Data.relativeRotationProperties -> do
-        vector <- getFloatVector
-        return (PRelativeRotation vector)
-    _ | Set.member name Data.gameModeProperties -> do
-        x <- Bits.getWord8 2
-        if x == 2
-            then return (PGameMode x)
-            else error ("unexpected game mode value " ++ show x)
-    _ -> fail ("don't know how to read property " ++ show name)
+        return (Just string)
+    -- No idea what these two flags are. Might be for bots?
+    a <- Bits.getBool
+    b <- Bits.getBool
+    return (PReservation number systemId remoteId localId playerName a b)
+
+getRigidBodyStateProperty :: Bits.BitGet PropValue
+getRigidBodyStateProperty = do
+    flag <- Bits.getBool
+    position <- getVector
+    rotation <- getFloatVector
+    x <- if flag then return Nothing else fmap Just getVector
+    y <- if flag then return Nothing else fmap Just getVector
+    return (PRigidBodyState flag position rotation x y)
+
+getStringProperty :: Bits.BitGet PropValue
+getStringProperty = do
+    string <- getString
+    return (PString string)
+
+getTeamPaintProperty :: Bits.BitGet PropValue
+getTeamPaintProperty = do
+    team <- getInt8
+    teamColor <- getInt8
+    customColor <- getInt8
+    teamFinish <- getInt32
+    customFinish <- getInt32
+    return (PTeamPaint team teamColor customColor teamFinish customFinish)
+
+getUniqueIdProperty :: Bits.BitGet PropValue
+getUniqueIdProperty = do
+    (systemId, remoteId, localId) <- getUniqueId
+    return (PUniqueId systemId remoteId localId)
+
+-- | Even though this is just a unique ID property, it must be handled
+-- | specially because it sometimes doesn't have the remote or local IDs.
+getPartyLeaderProperty :: Bits.BitGet PropValue
+getPartyLeaderProperty = do
+    systemId <- getSystemId
+    (remoteId, localId) <- if systemId == 0
+        then return (SplitscreenId Nothing, Nothing)
+        else do
+            remoteId <- getRemoteId systemId
+            localId <- getLocalId
+            return (remoteId, localId)
+    return (PUniqueId systemId remoteId localId)
+
+--
 
 getFloat32 :: Bits.BitGet Float
 getFloat32 = do
