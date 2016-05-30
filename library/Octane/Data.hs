@@ -236,6 +236,24 @@ camSettingsProperties =
     , "TAGame.PRI_TA:CameraSettings"
     ] & map Text.pack & Set.fromList
 
+-- | A set of properties that are demolition.
+demolishProperties :: Set.Set Text.Text
+demolishProperties =
+    [ "TAGame.Car_TA:ReplicatedDemolish"
+    ] & map Text.pack & Set.fromList
+
+-- | A set of properties that are enumerations.
+enumProperties :: Set.Set Text.Text
+enumProperties =
+    [ "Engine.Actor:Role"
+    ] & map Text.pack & Set.fromList
+
+-- | A set of properties that are explosions.
+explosionProperties :: Set.Set Text.Text
+explosionProperties =
+    [ "TAGame.Ball_TA:ReplicatedExplosionData"
+    ] & map Text.pack & Set.fromList
+
 -- | A set of properties that are flagged integers.
 flaggedIntProperties :: Set.Set Text.Text
 flaggedIntProperties =
@@ -268,6 +286,12 @@ floatProperties =
     , "TAGame.CrowdActor_TA:ModifiedNoise"
     ] & map Text.pack & Set.fromList
 
+-- | A set of properties that are game modes.
+gameModeProperties :: Set.Set Text.Text
+gameModeProperties =
+    [ "TAGame.GameEvent_TA:GameMode"
+    ] & map Text.pack & Set.fromList
+
 -- | A set of properties that are integers.
 intProperties :: Set.Set Text.Text
 intProperties =
@@ -292,16 +316,58 @@ intProperties =
     , "TAGame.PRI_TA:TotalXP"
     ] & map Text.pack & Set.fromList
 
+-- | A set of properties that are online loadouts.
+loadoutOnlineProperties :: Set.Set Text.Text
+loadoutOnlineProperties =
+    [ "TAGame.PRI_TA:ClientLoadoutOnline"
+    ] & map Text.pack & Set.fromList
+
+-- | A set of properties that are loadouts.
+loadoutProperties :: Set.Set Text.Text
+loadoutProperties =
+    [ "TAGame.PRI_TA:ClientLoadout"
+    ] & map Text.pack & Set.fromList
+
 -- | A set of properties that are locations.
 locationProperties :: Set.Set Text.Text
 locationProperties =
     [ "TAGame.CarComponent_Dodge_TA:DodgeTorque"
     ] & map Text.pack & Set.fromList
 
+-- | A set of properties that are music stingers.
+musicStingerProperties :: Set.Set Text.Text
+musicStingerProperties =
+    [ "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger"
+    ] & map Text.pack & Set.fromList
+
+-- | A set of properties that are pickups.
+pickupProperties :: Set.Set Text.Text
+pickupProperties =
+    [ "TAGame.VehiclePickup_TA:ReplicatedPickupData"
+    ] & map Text.pack & Set.fromList
+
+-- | A set of properties that are private match settings.
+privateMatchSettingsProperties :: Set.Set Text.Text
+privateMatchSettingsProperties =
+    [ "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings"
+    ] & map Text.pack & Set.fromList
+
 -- | A set of properties that are Q words, whatever those are.
 qWordProperties :: Set.Set Text.Text
 qWordProperties =
     [ "ProjectX.GRI_X:GameServerID"
+    ] & map Text.pack & Set.fromList
+
+-- | A set of properties that are relation rotations.
+relativeRotationProperties :: Set.Set Text.Text
+relativeRotationProperties =
+    [ "Engine.Actor:RelativeRotation"
+    ] & map Text.pack & Set.fromList
+
+-- | A set of properties that are reservations.
+reservationProperties :: Set.Set Text.Text
+reservationProperties =
+    [ "ProjectX.GRI_X:Reservations"
     ] & map Text.pack & Set.fromList
 
 -- | A set of properties that are rigid body states.
@@ -318,4 +384,16 @@ stringProperties =
     , "Engine.PlayerReplicationInfo:RemoteUserData"
     , "TAGame.GRI_TA:NewDedicatedServerIP"
     , "TAGame.Team_TA:CustomTeamName"
+    ] & map Text.pack & Set.fromList
+
+-- | A set of properties that are team paints.
+teamPaintProperties :: Set.Set Text.Text
+teamPaintProperties =
+    [ "TAGame.Car_TA:TeamPaint"
+    ] & map Text.pack & Set.fromList
+
+-- | A set of properties that are unique IDs.
+uniqueIdProperties :: Set.Set Text.Text
+uniqueIdProperties =
+    [ "Engine.PlayerReplicationInfo:UniqueId"
     ] & map Text.pack & Set.fromList

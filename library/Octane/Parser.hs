@@ -228,6 +228,20 @@ getProp context thing = do
 
 getPropValue :: Text.Text -> Bits.BitGet PropValue
 getPropValue name = case Text.unpack name of
+    "TAGame.PRI_TA:PartyLeader" -> do
+        -- Even though this is just a unique ID property, it must be handled
+        -- specially because it sometimes doesn't have the remote or local
+        -- IDs.
+        systemId <- getSystemId
+        if systemId == 0
+            then do
+                let remoteId = SplitscreenId Nothing
+                let localId = Nothing
+                return (PUniqueId systemId remoteId localId)
+            else do
+                remoteId <- getRemoteId systemId
+                localId <- getLocalId
+                return (PUniqueId systemId remoteId localId)
     _ | Set.member name Data.rigidBodyStateProperties -> do
         flag <- Bits.getBool
         position <- getVector
@@ -269,21 +283,10 @@ getPropValue name = case Text.unpack name of
     _ | Set.member name Data.floatProperties -> do
         float <- getFloat32
         return (PFloat float)
-    "Engine.PlayerReplicationInfo:UniqueId" -> do
+    _ | Set.member name Data.uniqueIdProperties -> do
         (systemId, remoteId, localId) <- getUniqueId
         return (PUniqueId systemId remoteId localId)
-    "TAGame.PRI_TA:PartyLeader" -> do
-        systemId <- getSystemId
-        if systemId == 0
-            then do
-                let remoteId = SplitscreenId Nothing
-                let localId = Nothing
-                return (PUniqueId systemId remoteId localId)
-            else do
-                remoteId <- getRemoteId systemId
-                localId <- getLocalId
-                return (PUniqueId systemId remoteId localId)
-    "ProjectX.GRI_X:Reservations" -> do
+    _ | Set.member name Data.reservationProperties -> do
         -- I think this is the connection order. The first player to connect
         -- gets number 0, and it goes up from there. The maximum is 7, which
         -- would be a full 4x4 game.
@@ -296,7 +299,7 @@ getPropValue name = case Text.unpack name of
         a <- Bits.getBool
         b <- Bits.getBool
         return (PReservation number systemId remoteId localId playerName a b)
-    "TAGame.PRI_TA:ClientLoadoutOnline" -> do
+    _ | Set.member name Data.loadoutOnlineProperties -> do
         version <- getInt32
         x <- getInt32
         y <- getInt32
@@ -306,7 +309,7 @@ getPropValue name = case Text.unpack name of
                 return (Just value)
             else return Nothing
         return (PLoadoutOnline version x y z)
-    "TAGame.PRI_TA:ClientLoadout" -> do
+    _ | Set.member name Data.loadoutProperties -> do
         version <- getInt8
         a <- getInt32
         b <- getInt32
@@ -321,35 +324,35 @@ getPropValue name = case Text.unpack name of
                 return (Just value)
             else return Nothing
         return (PLoadout version a b c d e f g h)
-    "TAGame.Car_TA:TeamPaint" -> do
+    _ | Set.member name Data.teamPaintProperties -> do
         team <- getInt8
         teamColor <- getInt8
         customColor <- getInt8
         teamFinish <- getInt32
         customFinish <- getInt32
         return (PTeamPaint team teamColor customColor teamFinish customFinish)
-    "TAGame.VehiclePickup_TA:ReplicatedPickupData" -> do
+    _ | Set.member name Data.pickupProperties -> do
         instigator <- Bits.getBool
         instigatorId <- if instigator then fmap Just getInt32 else return Nothing
         pickedUp <- Bits.getBool
         return (PPickup instigator instigatorId pickedUp)
-    "Engine.Actor:Role" -> do
+    _ | Set.member name Data.enumProperties -> do
         x <- Bits.getWord16be 10
         y <- if x == 1023
             then Bits.getBool
             else error ("unexpected enum value " ++ show x)
         return (PEnum x y)
-    "TAGame.Ball_TA:ReplicatedExplosionData" -> do
+    _ | Set.member name Data.explosionProperties -> do
         noGoal <- Bits.getBool
         a <- if noGoal then return Nothing else fmap Just getInt32
         b <- getVector
         return (PExplosion noGoal a b)
-    "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger" -> do
+    _ | Set.member name Data.musicStingerProperties -> do
         flag <- Bits.getBool
         cue <- getInt32
         trigger <- getInt8
         return (PMusicStinger flag cue trigger)
-    "TAGame.Car_TA:ReplicatedDemolish" -> do
+    _ | Set.member name Data.demolishProperties -> do
         atkFlag <- Bits.getBool
         atk <- getInt32
         vicFlag <- Bits.getBool
@@ -357,7 +360,7 @@ getPropValue name = case Text.unpack name of
         vec1 <- getVector
         vec2 <- getVector
         return (PDemolish atkFlag atk vicFlag vic vec1 vec2)
-    "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings" -> do
+    _ | Set.member name Data.privateMatchSettingsProperties -> do
         mutators <- getString
         joinableBy <- getInt32
         maxPlayers <- getInt32
@@ -365,10 +368,10 @@ getPropValue name = case Text.unpack name of
         password <- getString
         flag <- Bits.getBool
         return (PPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
-    "Engine.Actor:RelativeRotation" -> do
+    _ | Set.member name Data.relativeRotationProperties -> do
         vector <- getFloatVector
         return (PRelativeRotation vector)
-    "TAGame.GameEvent_TA:GameMode" -> do
+    _ | Set.member name Data.gameModeProperties -> do
         x <- Bits.getWord8 2
         if x == 2
             then return (PGameMode x)
