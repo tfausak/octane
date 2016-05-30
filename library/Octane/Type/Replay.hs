@@ -20,7 +20,7 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 import qualified Octane.Type.Property as Property
 
 -- | An entire replay. All of the metadata has been parsed, but the actual net
--- | stream has not.
+-- stream has not.
 data Replay = Replay
     -- Number of bytes in the first section.
     { replaySize1 :: !Word32LE.Word32LE

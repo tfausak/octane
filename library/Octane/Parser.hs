@@ -502,7 +502,7 @@ instance Aeson.ToJSON PropValue where
     toJSON = Aeson.genericToJSON (toJsonOptions "PropValue")
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
--- | the match, the time since the last frame, and a list of replications.
+-- the match, the time since the last frame, and a list of replications.
 data Frame = Frame
     { frameTime :: !Float
     , frameDelta :: !Float

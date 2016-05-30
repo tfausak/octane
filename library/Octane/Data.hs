@@ -1,5 +1,5 @@
 -- | This module contains largely static data about Rocket League itself, such
--- | as which classes objects belong to.
+-- as which classes objects belong to.
 module Octane.Data where
 
 import Data.Function ((&))
@@ -12,8 +12,8 @@ import qualified Data.Text as Text
 -- * Classes
 
 -- | A map from class names to a set of object names that are that class. This
--- | is typically not useful by itself, as it is used to build the
--- | 'objectToClass' map.
+-- is typically not useful by itself, as it is used to build the
+-- 'objectToClass' map.
 classToObjects :: Map.Map Text.Text (Set.Set Text.Text)
 classToObjects = let
     normal =
@@ -117,9 +117,9 @@ rotationClasses =
 -- * Levels
 
 -- | A set of level names. This is typically not useful by itself, as it is
--- | used to build the 'classToObjects' map. If you are going to use it, be
--- | aware that many of the levels are duplicated with strange capitalization.
--- | For example, this set contains both @"Wasteland_P"@ and @"Wasteland_p"@.
+-- used to build the 'classToObjects' map. If you are going to use it, be
+-- aware that many of the levels are duplicated with strange capitalization.
+-- For example, this set contains both @Wasteland_P@ and @Wasteland_p@.
 levels :: Set.Set Text.Text
 levels =
     [ "EuroStadium_Rainy_P"
@@ -159,8 +159,8 @@ levels =
 -- * Objects
 
 -- | A map from object names to their class names. Note that any trailing
--- | numbers have been stripped from the object names. So
--- | @"Archetypes.Teams.Team0"@ is in this map as @"Archetypes.Teams.Team"@.
+-- numbers have been stripped from the object names. So
+-- @Archetypes.Teams.Team0@ is in this map as @Archetypes.Teams.Team@.
 objectToClass :: Map.Map Text.Text Text.Text
 objectToClass = Map.foldrWithKey
     (\ klass objects m -> objects

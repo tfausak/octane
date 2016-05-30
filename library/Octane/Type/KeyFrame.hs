@@ -11,8 +11,8 @@ import qualified Octane.Type.Primitive.Float32LE as Float32LE
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A key frame. Each key frame has the time since the beginning of the match,
--- | the frame it corresponds to, and that frame's bit position in the network
--- | stream.
+-- the frame it corresponds to, and that frame's bit position in the network
+-- stream.
 data KeyFrame = KeyFrame
     { keyFrameTime :: !Float32LE.Float32LE
     , keyFrameFrame :: !Word32LE.Word32LE

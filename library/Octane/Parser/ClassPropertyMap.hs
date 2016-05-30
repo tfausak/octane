@@ -1,6 +1,6 @@
 -- | This module is responsible for building the class property map, which maps
--- | class IDs to a map of property IDs to property names. This map is the
--- | cornerstone of the replay stream parser.
+-- class IDs to a map of property IDs to property names. This map is the
+-- cornerstone of the replay stream parser.
 module Octane.Parser.ClassPropertyMap where
 
 import Data.Function ((&))
@@ -15,7 +15,7 @@ import qualified Data.Text as Text
 import qualified Octane.Type as Type
 
 -- | The class property map is a map from class IDs in the stream to a map from
--- | property IDs in the stream to property names.
+-- property IDs in the stream to property names.
 getClassPropertyMap :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
 getClassPropertyMap replay = let
     basicClassPropertyMap = getBasicClassPropertyMap replay
@@ -39,7 +39,7 @@ getClassPropertyMap replay = let
         & IntMap.fromList
 
 -- | The class cache is a list of 3-tuples where the first element is a class
--- | ID, the second is its cache ID, and the third is its parent's cache ID.
+-- ID, the second is its cache ID, and the third is its parent's cache ID.
 getClassCache :: Type.Replay -> [(Int, Int, Int)]
 getClassCache replay = replay
     & Type.replayCacheItems
@@ -57,8 +57,8 @@ getClassIds replay = replay
     & map (\ (x, _, _) -> x)
 
 -- | Gets the parent class ID for the given parent cache ID. This is necessary
--- | because there is not always a class with the given cache ID in the cache.
--- | When that happens, the parent cache ID is decremented and tried again.
+-- because there is not always a class with the given cache ID in the cache.
+-- When that happens, the parent cache ID is decremented and tried again.
 getParentClassId :: Int -> [(Int, Int, Int)] -> Maybe Int
 getParentClassId parentCacheId xs =
     case dropWhile (\ (_, cacheId, _) -> cacheId /= parentCacheId) xs of
@@ -68,8 +68,8 @@ getParentClassId parentCacheId xs =
         (parentClassId, _, _) : _ -> Just parentClassId
 
 -- | The basic class map is a naive mapping from class ID to its parent class
--- | ID. It's naive because it only maps the class ID to its immediate parent.
--- | It does not chase the inheritance all the way down.
+-- ID. It's naive because it only maps the class ID to its immediate parent.
+-- It does not chase the inheritance all the way down.
 getBasicClassMap :: Type.Replay -> IntMap.IntMap Int
 getBasicClassMap replay = replay
     & getClassCache
@@ -83,7 +83,7 @@ getBasicClassMap replay = replay
     & IntMap.fromList
 
 -- | Given a naive mapping from class ID to its parent class ID, return all of
--- | the parent IDs for a given class.
+-- the parent IDs for a given class.
 getParentClassIds :: Int -> IntMap.IntMap Int -> [Int]
 getParentClassIds classId basicClassMap =
     case IntMap.lookup classId basicClassMap of
@@ -112,8 +112,8 @@ getPropertyMap replay = replay
     & IntMap.fromList
 
 -- | The basic class property map is a naive mapping from class IDs to a
--- | mapping from property IDs to property names. It's naive because it does
--- | not include the properties from the class's parents.
+-- mapping from property IDs to property names. It's naive because it does
+-- not include the properties from the class's parents.
 getBasicClassPropertyMap :: Type.Replay -> IntMap.IntMap (IntMap.IntMap Text.Text)
 getBasicClassPropertyMap replay = let
     propertyMap = getPropertyMap replay

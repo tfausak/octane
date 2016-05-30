@@ -13,7 +13,7 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Primitive.PCString as PCString
 
 -- | A dictionary that maps strings to values. The dictionary is terminated by
--- | the key "None".
+-- the key "None".
 newtype Dictionary a =
     Dictionary (Map.Map PCString.PCString a)
     deriving (Eq,Generics.Generic,Show)

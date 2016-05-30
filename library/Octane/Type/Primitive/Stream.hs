@@ -16,7 +16,7 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A length-prefixed stream of bits. The length is given in bytes. Each byte
--- | is reversed such that 0b01234567 is actually 0b76543210.
+-- is reversed such that 0b01234567 is actually 0b76543210.
 newtype Stream =
     Stream BS.ByteString
     deriving (Eq,Generics.Generic,Show)
