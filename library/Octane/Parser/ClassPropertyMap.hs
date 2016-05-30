@@ -1,3 +1,6 @@
+-- | This module is responsible for building the class property map, which maps
+-- | class IDs to a map of property IDs to property names. This map is the
+-- | cornerstone of the replay stream parser.
 module Octane.Parser.ClassPropertyMap where
 
 import Data.Function ((&))
@@ -8,7 +11,6 @@ import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
-import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Octane.Type as Type
 
@@ -164,144 +166,3 @@ getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId
                 Just className -> case Map.lookup className classNamesToIds of
                     Nothing -> Nothing
                     Just classId -> Just (classId, className)
-
--- | The archetype maps is a mapping from object names to their class names.
-archetypeMap :: Map.Map Text.Text Text.Text
-archetypeMap =
-    -- We start by mapping class names to object names of that class. This
-    -- allows us to avoid repeating the class name a bunch.
-    [ ( "TAGame.Ball_TA"
-      , [ "Archetypes.Ball.Ball_Default"
-        , "Archetypes.Ball.Ball_Basketball"
-        , "Archetypes.Ball.Ball_Puck"
-        ])
-    , ( "TAGame.CameraSettingsActor_TA"
-      , [ "TAGame.CameraSettingsActor_TA:PRI"
-        , "TAGame.Default__CameraSettingsActor_TA"
-        ])
-    , ( "TAGame.CarComponent_Boost_TA"
-      , [ "Archetypes.CarComponents.CarComponent_Boost"
-        ])
-    , ( "TAGame.CarComponent_Dodge_TA"
-      , [ "Archetypes.CarComponents.CarComponent_Dodge"
-        ])
-    , ( "TAGame.CarComponent_DoubleJump_TA"
-      , [ "Archetypes.CarComponents.CarComponent_DoubleJump"
-        ])
-    , ( "TAGame.CarComponent_FlipCar_TA"
-      , [ "Archetypes.CarComponents.CarComponent_FlipCar"
-        ])
-    , ( "TAGame.CarComponent_Jump_TA"
-      , [ "Archetypes.CarComponents.CarComponent_Jump"
-        ])
-    , ( "TAGame.Car_Season_TA"
-      , [ "Archetypes.GameEvent.GameEvent_Season:CarArchetype"
-        ])
-    , ( "TAGame.Car_TA"
-      , [ "Archetypes.Car.Car_Default"
-        ])
-    , ( "TAGame.GameEvent_Season_TA"
-      , [ "Archetypes.GameEvent.GameEvent_Season"
-        ])
-    , ( "TAGame.GameEvent_SoccarPrivate_TA"
-      , [ "Archetypes.GameEvent.GameEvent_SoccarPrivate"
-        ])
-    , ( "TAGame.GameEvent_SoccarSplitscreen_TA"
-      , [ "Archetypes.GameEvent.GameEvent_SoccarSplitscreen"
-        ])
-    , ( "TAGame.GameEvent_Soccar_TA"
-      , [ "Archetypes.GameEvent.GameEvent_Soccar"
-        , "Archetypes.GameEvent.GameEvent_Basketball"
-        ])
-    , ( "TAGame.GRI_TA"
-      , [ "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype"
-        , "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype"
-        , "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype"
-        ])
-    , ( "TAGame.PRI_TA"
-      , [ "TAGame.Default__PRI_TA"
-        ])
-    , ( "TAGame.Team_TA"
-      , [ "Archetypes.Teams.Team"
-        ])
-    -- These ones are special. They have specific names for each level.
-    , ( "TAGame.VehiclePickup_Boost_TA"
-      , levels & Set.toList & map (\ level -> level ++ ".TheWorld:PersistentLevel.VehiclePickup_Boost_TA_")
-      )
-    , ( "TAGame.CrowdActor_TA"
-      , levels & Set.toList & map (\ level -> level ++ ".TheWorld:PersistentLevel.CrowdActor_TA_")
-      )
-    , ( "TAGame.CrowdManager_TA"
-      , levels & Set.toList & map (\ level -> level ++ ".TheWorld:PersistentLevel.CrowdManager_TA_")
-      )
-    ]
-        & concatMap (\ (v, ks) -> ks & map (\ k -> (k, v)))
-        & map (\ (k, v) -> (Text.pack k, Text.pack v))
-        & Map.fromList
-
--- | These are the levels that we know about. The capitalization of these
--- | drives me nuts.
-levels :: Set.Set String
-levels =
-    [ "EuroStadium_Rainy_P"
-    , "HoopsStadium_P"
-    , "Park_Night_P"
-    , "Park_Rainy_P"
-    , "Stadium_p"
-    , "TrainStation_Night_P"
-    , "TrainStation_P"
-    , "Trainstation_Night_P"
-    , "UtopiaStadium_Dusk_P"
-    , "UtopiaStadium_Dusk_p"
-    , "UtopiaStadium_P"
-    , "Utopiastadium_p"
-    , "Wasteland_P"
-    , "Wasteland_p"
-    , "eurostad_oob_audio_map"
-    , "eurostadium_p"
-    , "eurostadium_rainy_audio"
-    , "hoopsstadium_sfx"
-    , "labs_doublegoal_p"
-    , "labs_underpass_p"
-    , "labs_utopia_p"
-    , "park_night_sfx"
-    , "park_p"
-    , "park_rainy_sfx"
-    , "park_sfx"
-    , "stadium_oob_audio_map"
-    , "stadium_p"
-    , "stadium_winter_p"
-    , "trainstation_p"
-    , "utopiastadium_p"
-    , "utopiastadium_sfx"
-    , "wasteland_sfx"
-    ] & Set.fromList
-
--- | These classes have an initial location vector.
-classesWithLocation :: Set.Set Text.Text
-classesWithLocation =
-    [ "TAGame.Ball_TA"
-    , "TAGame.CameraSettingsActor_TA"
-    , "TAGame.CarComponent_Boost_TA"
-    , "TAGame.CarComponent_Dodge_TA"
-    , "TAGame.CarComponent_DoubleJump_TA"
-    , "TAGame.CarComponent_FlipCar_TA"
-    , "TAGame.CarComponent_Jump_TA"
-    , "TAGame.Car_Season_TA"
-    , "TAGame.Car_TA"
-    , "TAGame.GRI_TA"
-    , "TAGame.GameEvent_Season_TA"
-    , "TAGame.GameEvent_SoccarPrivate_TA"
-    , "TAGame.GameEvent_SoccarSplitscreen_TA"
-    , "TAGame.GameEvent_Soccar_TA"
-    , "TAGame.PRI_TA"
-    , "TAGame.Team_TA"
-    ] & map Text.pack & Set.fromList
-
--- | These classes have an initial rotation vector.
-classesWithRotation :: Set.Set Text.Text
-classesWithRotation =
-    [ "TAGame.Ball_TA"
-    , "TAGame.Car_Season_TA"
-    , "TAGame.Car_TA"
-    ] & map Text.pack & Set.fromList

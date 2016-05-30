@@ -131,7 +131,7 @@ getNewReplication context actorId = do
     let objectName = case context & contextObjectMap & IntMap.lookup objectId of
             Nothing -> error ("could not find object name for id " ++ show objectId)
             Just x -> x
-    let (classId,className) = case CPM.getClass (contextObjectMap context) CPM.archetypeMap (contextClassMap context) objectId of
+    let (classId,className) = case CPM.getClass (contextObjectMap context) Data.objectToClass (contextClassMap context) objectId of
             Nothing -> error ("could not find class for object id " ++ show objectId)
             Just x -> x
     classInit <- getClassInit className
@@ -682,13 +682,13 @@ getFloat maxValue numBits = do
 getClassInit :: Text.Text -> Bits.BitGet ClassInit
 getClassInit className = do
     location <-
-        if Set.member className CPM.classesWithLocation
+        if Set.member className Data.locationClasses
             then do
                 vector <- getVector
                 return (Just vector)
             else return Nothing
     rotation <-
-        if Set.member className CPM.classesWithRotation
+        if Set.member className Data.rotationClasses
             then do
                 vector <- getVectorBytewise
                 return (Just vector)
