@@ -13,4 +13,4 @@ else
   mv github-release "$HOME/.local/bin/"
 fi
 
-github-release --version
+github-release version
