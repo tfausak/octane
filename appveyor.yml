@@ -8,7 +8,7 @@ cache:
 environment:
   GITHUB_TOKEN:
     secure: CTD2sGkh3EQaLuMJybGza6XNaI+Ews42mdNy9p3U+eShkrjIwYrbUVKnpzra8kIZ
-  PATH: '%APPDATA%/local/bin'
+  PATH: '%PATH%;%APPDATA%/local/bin'
   STACK_ROOT: c:/s
 install:
 - powershell -File ci/install-stack.ps1
