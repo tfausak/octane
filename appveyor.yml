@@ -2,8 +2,9 @@ build_script:
 - stack setup
 - stack --no-terminal build --bench --only-dependencies --test
 cache:
-- 'c:\s -> stack.yaml'
+- 'c:/s -> stack.yaml'
 - '%APPDATA%/local/bin'
+- '%APPDATA%/local/programs/stack'
 environment:
   GITHUB_TOKEN:
     secure: CTD2sGkh3EQaLuMJybGza6XNaI+Ews42mdNy9p3U+eShkrjIwYrbUVKnpzra8kIZ
