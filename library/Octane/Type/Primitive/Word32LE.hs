@@ -3,7 +3,6 @@
 module Octane.Type.Primitive.Word32LE (Word32LE(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
@@ -23,8 +22,6 @@ instance Binary.Binary Word32LE where
         word & fromIntegral & Word32LE & return
     put word = do
         word & unpackWord32LE & fromIntegral & Binary.putWord32le
-
-instance Newtype.Newtype Word32LE
 
 instance DeepSeq.NFData Word32LE
 

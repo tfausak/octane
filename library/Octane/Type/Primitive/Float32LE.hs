@@ -3,7 +3,6 @@
 module Octane.Type.Primitive.Float32LE (Float32LE(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.IEEE754 as IEEE754
@@ -21,8 +20,6 @@ instance Binary.Binary Float32LE where
         float & Float32LE & return
     put float = do
         float & unpackFloat32LE & IEEE754.putFloat32le
-
-instance Newtype.Newtype Float32LE
 
 instance DeepSeq.NFData Float32LE
 

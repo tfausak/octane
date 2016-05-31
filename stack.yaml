@@ -1,6 +1,1 @@
-packages:
-- '.'
-- location:
-    commit: 001f9db314810f7c5fd2a4c6f536f35cceaa277d
-    git: git@github.com:jcristovao/newtype-generics.git
 resolver: nightly-2016-05-30

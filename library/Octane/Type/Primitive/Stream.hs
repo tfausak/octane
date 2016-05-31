@@ -3,7 +3,6 @@
 module Octane.Type.Primitive.Stream (Stream(..), reverseBits) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
@@ -30,8 +29,6 @@ instance Binary.Binary Stream where
         let content = unpackStream stream
         content & BS.length & fromIntegral & Word32LE.Word32LE & Binary.put
         content & BS.map reverseBits & Binary.putByteString
-
-instance Newtype.Newtype Stream
 
 instance DeepSeq.NFData Stream
 

@@ -3,7 +3,6 @@
 module Octane.Type.Primitive.PCString (PCString(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
@@ -71,8 +70,6 @@ instance Binary.Binary PCString where
 
 instance String.IsString PCString where
     fromString string = string & Text.pack & PCString
-
-instance Newtype.Newtype PCString
 
 instance DeepSeq.NFData PCString
 

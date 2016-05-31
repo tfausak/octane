@@ -4,7 +4,6 @@
 module Octane.Type.Primitive.Dictionary (Dictionary(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
@@ -30,8 +29,6 @@ instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
     put dictionary = do
         dictionary & unpackDictionary & Map.assocs & mapM_ putElement
         noneKey & Binary.put
-
-instance Newtype.Newtype (Dictionary a)
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Dictionary a)
 

@@ -4,7 +4,6 @@ module Octane.Type.Primitive.List (List(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
@@ -25,8 +24,6 @@ instance (Binary.Binary a) => Binary.Binary (List a) where
         list & unpackList & length & fromIntegral & Word32LE.Word32LE &
             Binary.put
         list & unpackList & mapM_ Binary.put
-
-instance Newtype.Newtype (List a)
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (List a)
 

@@ -3,7 +3,6 @@
 module Octane.Type.Primitive.Boolean (Boolean(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
@@ -22,8 +21,6 @@ instance Binary.Binary Boolean where
             else boolean & fromIntegral & toEnum & Boolean & return
     put boolean = do
         boolean & unpackBoolean & fromEnum & fromIntegral & Binary.putWord8
-
-instance Newtype.Newtype Boolean
 
 instance DeepSeq.NFData Boolean
 
