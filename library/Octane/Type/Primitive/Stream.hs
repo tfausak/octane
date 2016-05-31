@@ -25,9 +25,9 @@ instance Binary.Binary Stream where
     get = do
         Word32LE.Word32LE size <- Binary.get
         content <- size & fromIntegral & Binary.getByteString
-        content & BS.map reverseBits & Newtype.pack & return
+        content & BS.map reverseBits & Stream & return
     put stream = do
-        let content = Newtype.unpack stream
+        let content = unpackStream stream
         content & BS.length & fromIntegral & Word32LE.Word32LE & Binary.put
         content & BS.map reverseBits & Binary.putByteString
 
@@ -37,7 +37,7 @@ instance DeepSeq.NFData Stream
 
 instance Aeson.ToJSON Stream where
     toJSON stream =
-        let size = stream & Newtype.unpack & BS.length
+        let size = stream & unpackStream & BS.length
             bytes =
                 if size == 1
                     then "byte"

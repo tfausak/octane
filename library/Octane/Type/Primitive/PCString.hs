@@ -57,9 +57,9 @@ instance Binary.Binary PCString where
                          else do
                              bytes <- Binary.getByteString (fromIntegral size)
                              bytes & Encoding.decodeLatin1 & return
-        string & Text.dropEnd 1 & Newtype.pack & return
+        string & Text.dropEnd 1 & PCString & return
     put string = do
-        let cString = string & Newtype.unpack & flip Text.snoc '\NUL'
+        let cString = string & unpackPCString & flip Text.snoc '\NUL'
         let size = cString & Text.length & fromIntegral
         if Text.all Char.isLatin1 cString
             then do
@@ -70,7 +70,7 @@ instance Binary.Binary PCString where
                 cString & Encoding.encodeUtf16LE & Binary.putByteString
 
 instance String.IsString PCString where
-    fromString string = string & Text.pack & Newtype.pack
+    fromString string = string & Text.pack & PCString
 
 instance Newtype.Newtype PCString
 

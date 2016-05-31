@@ -4,7 +4,6 @@
 module Octane.Type.Property (Property(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
@@ -62,14 +61,14 @@ instance Binary.Binary Property where
             _ | kind == floatProperty -> do
                 size <- Binary.get
                 value <-
-                    case Newtype.unpack size of
+                    case Word64LE.unpackWord64LE size of
                         4 -> Binary.get
                         x -> fail ("unknown FloatProperty size " ++ show x)
                 value & FloatProperty size & return
             _ | kind == intProperty -> do
                 size <- Binary.get
                 value <-
-                    case Newtype.unpack size of
+                    case Word64LE.unpackWord64LE size of
                         4 -> Binary.get
                         x -> fail ("unknown IntProperty size " ++ show x)
                 value & IntProperty size & return
@@ -80,7 +79,7 @@ instance Binary.Binary Property where
             _ | kind == qWordProperty -> do
                 size <- Binary.get
                 value <-
-                    case Newtype.unpack size of
+                    case Word64LE.unpackWord64LE size of
                         8 -> Binary.get
                         x -> fail ("unknown QWordProperty size " ++ show x)
                 value & QWordProperty size & return
@@ -88,7 +87,7 @@ instance Binary.Binary Property where
                 size <- Binary.get
                 value <- Binary.get
                 value & StrProperty size & return
-            _ -> fail ("unknown property type " ++ show (Newtype.unpack kind))
+            _ -> fail ("unknown property type " ++ show (PCString.unpackPCString kind))
     put property =
         case property of
             ArrayProperty size value -> do

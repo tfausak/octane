@@ -2,7 +2,6 @@ module Octane.Main (main) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
@@ -52,14 +51,14 @@ debug (file,contents,result) =
             let frames = Parser.parseFrames replay
             let expectedFrames = replay
                     & Type.replayProperties
-                    & Newtype.unpack
-                    & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
-                    & Maybe.fromMaybe (Type.IntProperty (Newtype.pack 4) (Newtype.pack 0))
+                    & Type.unpackDictionary
+                    & Map.lookup ("NumFrames" & Text.pack & Type.PCString)
+                    & Maybe.fromMaybe (Type.IntProperty (Type.Word64LE 4) (Type.Word32LE 0))
             let actualFrames = frames
                     & length
                     & fromIntegral
-                    & Newtype.pack
-                    & Type.IntProperty (Newtype.pack 4)
+                    & Type.Word32LE
+                    & Type.IntProperty (Type.Word64LE 4)
                     & DeepSeq.deepseq frames
             Monad.when (expectedFrames /= actualFrames) (error
                 ( "expected "

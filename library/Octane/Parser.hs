@@ -5,7 +5,6 @@ module Octane.Parser where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Control.Newtype as Newtype
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary.Bits.Get as Bits
@@ -31,13 +30,13 @@ parseFrames :: Type.Replay -> [Frame]
 parseFrames replay = let
     numFrames = replay
         & Type.replayProperties
-        & Newtype.unpack
-        & Map.lookup ("NumFrames" & Text.pack & Newtype.pack)
+        & Type.unpackDictionary
+        & Map.lookup ("NumFrames" & Text.pack & Type.PCString)
         & (\ property -> case property of
-            Just (Type.IntProperty _ x) -> x & Newtype.unpack & fromIntegral
+            Just (Type.IntProperty _ x) -> x & Type.unpackWord32LE & fromIntegral
             _ -> 0)
     get = replay & extractContext & getFrames numFrames & Bits.runBitGet
-    stream = replay & Type.replayStream & Newtype.unpack & BSL.fromStrict
+    stream = replay & Type.replayStream & Type.unpackStream & BSL.fromStrict
     (_context, frames) = Binary.runGet get stream
     in frames
 

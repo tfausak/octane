@@ -18,9 +18,9 @@ newtype Float32LE = Float32LE
 instance Binary.Binary Float32LE where
     get = do
         float <- IEEE754.getFloat32le
-        float & Newtype.pack & return
+        float & Float32LE & return
     put float = do
-        float & Newtype.unpack & IEEE754.putFloat32le
+        float & unpackFloat32LE & IEEE754.putFloat32le
 
 instance Newtype.Newtype Float32LE
 

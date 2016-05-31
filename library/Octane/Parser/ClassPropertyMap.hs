@@ -5,7 +5,6 @@ module Octane.Parser.ClassPropertyMap where
 
 import Data.Function ((&))
 
-import qualified Control.Newtype as Newtype
 import qualified Data.Char as Char
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
@@ -43,11 +42,11 @@ getClassPropertyMap replay = let
 getClassCache :: Type.Replay -> [(Int, Int, Int)]
 getClassCache replay = replay
     & Type.replayCacheItems
-    & Newtype.unpack
+    & Type.unpackList
     & map (\ x ->
-        ( x & Type.cacheItemClassId & Newtype.unpack & fromIntegral
-        , x & Type.cacheItemCacheId & Newtype.unpack & fromIntegral
-        , x & Type.cacheItemParentCacheId & Newtype.unpack & fromIntegral
+        ( x & Type.cacheItemClassId & Type.unpackWord32LE & fromIntegral
+        , x & Type.cacheItemCacheId & Type.unpackWord32LE & fromIntegral
+        , x & Type.cacheItemParentCacheId & Type.unpackWord32LE & fromIntegral
         ))
 
 -- | The class IDs in a replay. Comes from the class cache.
@@ -106,8 +105,8 @@ getClassMap replay = let
 getPropertyMap :: Type.Replay -> IntMap.IntMap Text.Text
 getPropertyMap replay = replay
     & Type.replayObjects
-    & Newtype.unpack
-    & map Newtype.unpack
+    & Type.unpackList
+    & map Type.unpackPCString
     & zip [0 ..]
     & IntMap.fromList
 
@@ -119,15 +118,15 @@ getBasicClassPropertyMap replay = let
     propertyMap = getPropertyMap replay
     in replay
         & Type.replayCacheItems
-        & Newtype.unpack
+        & Type.unpackList
         & map (\ x -> let
-            classId = x & Type.cacheItemClassId & Newtype.unpack & fromIntegral
+            classId = x & Type.cacheItemClassId & Type.unpackWord32LE & fromIntegral
             properties = x
                 & Type.cacheItemCacheProperties
-                & Newtype.unpack
+                & Type.unpackList
                 & Maybe.mapMaybe (\ y -> let
-                    streamId = y & Type.cachePropertyStreamId & Newtype.unpack & fromIntegral
-                    propertyId = y & Type.cachePropertyObjectId & Newtype.unpack & fromIntegral
+                    streamId = y & Type.cachePropertyStreamId & Type.unpackWord32LE & fromIntegral
+                    propertyId = y & Type.cachePropertyObjectId & Type.unpackWord32LE & fromIntegral
                     in case IntMap.lookup propertyId propertyMap of
                         Nothing -> Nothing
                         Just name -> Just (streamId, name))
@@ -139,10 +138,10 @@ getBasicClassPropertyMap replay = let
 getActorMap :: Type.Replay -> Map.Map Text.Text Int
 getActorMap replay = replay
     & Type.replayActors
-    & Newtype.unpack
+    & Type.unpackList
     & map (\ x -> let
-        className = x & Type.actorName & Newtype.unpack
-        classId = x & Type.actorStreamId & Newtype.unpack & fromIntegral
+        className = x & Type.actorName & Type.unpackPCString
+        classId = x & Type.actorStreamId & Type.unpackWord32LE & fromIntegral
         in (className, classId))
     & Map.fromList
 

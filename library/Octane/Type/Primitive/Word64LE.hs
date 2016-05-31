@@ -20,9 +20,9 @@ newtype Word64LE = Word64LE
 instance Binary.Binary Word64LE where
     get = do
         word <- Binary.getWord64le
-        word & fromIntegral & Newtype.pack & return
+        word & fromIntegral & Word64LE & return
     put word = do
-        word & Newtype.unpack & fromIntegral & Binary.putWord64le
+        word & unpackWord64LE & fromIntegral & Binary.putWord64le
 
 instance Newtype.Newtype Word64LE
 

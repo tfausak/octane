@@ -23,12 +23,12 @@ instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
         element <- getElement
         if Map.null element
             then do
-                element & Newtype.pack & return
+                element & Dictionary & return
             else do
                 Dictionary elements <- Binary.get
-                elements & Map.union element & Newtype.pack & return
+                elements & Map.union element & Dictionary & return
     put dictionary = do
-        dictionary & Newtype.unpack & Map.assocs & mapM_ putElement
+        dictionary & unpackDictionary & Map.assocs & mapM_ putElement
         noneKey & Binary.put
 
 instance Newtype.Newtype (Dictionary a)
@@ -37,7 +37,7 @@ instance (DeepSeq.NFData a) => DeepSeq.NFData (Dictionary a)
 
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
     toJSON dictionary =
-        dictionary & Newtype.unpack & Map.mapKeys Newtype.unpack & Aeson.toJSON
+        dictionary & unpackDictionary & Map.mapKeys PCString.unpackPCString & Aeson.toJSON
 
 getElement
     :: (Binary.Binary a)

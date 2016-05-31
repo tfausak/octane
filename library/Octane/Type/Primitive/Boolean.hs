@@ -19,9 +19,9 @@ instance Binary.Binary Boolean where
         boolean <- Binary.getWord8
         if boolean > 1
             then fail ("invalid Boolean value " ++ show boolean)
-            else boolean & fromIntegral & toEnum & Newtype.pack & return
+            else boolean & fromIntegral & toEnum & Boolean & return
     put boolean = do
-        boolean & Newtype.unpack & fromEnum & fromIntegral & Binary.putWord8
+        boolean & unpackBoolean & fromEnum & fromIntegral & Binary.putWord8
 
 instance Newtype.Newtype Boolean
 

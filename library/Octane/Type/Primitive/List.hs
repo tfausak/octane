@@ -20,11 +20,11 @@ instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
         (Word32LE.Word32LE size) <- Binary.get
         elements <- Monad.replicateM (fromIntegral size) Binary.get
-        elements & Newtype.pack & return
+        elements & List & return
     put list = do
-        list & Newtype.unpack & length & fromIntegral & Word32LE.Word32LE &
+        list & unpackList & length & fromIntegral & Word32LE.Word32LE &
             Binary.put
-        list & Newtype.unpack & mapM_ Binary.put
+        list & unpackList & mapM_ Binary.put
 
 instance Newtype.Newtype (List a)
 
