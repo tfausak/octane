@@ -8,4 +8,4 @@ if (Test-Path "$env:APPDATA/local/bin/stack.exe") {
   mv stack.exe "$env:APPDATA/local/bin"
 }
 
-stack --version
+stack.exe --version

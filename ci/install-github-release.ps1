@@ -8,4 +8,4 @@ if (Test-Path "$env:APPDATA/local/bin/github-release.exe") {
   mv github-release.exe "$env:APPDATA/local/bin"
 }
 
-github-release version
+github-release.exe version

@@ -1,6 +1,6 @@
 build_script:
-- stack setup
-- stack --no-terminal build --bench --only-dependencies --test
+- stack.exe setup
+- stack.exe --no-terminal build --bench --only-dependencies --test
 cache:
 - 'c:/s -> stack.yaml'
 - '%APPDATA%/local/bin'
@@ -16,6 +16,6 @@ on_success:
 - powershell -File ci/attach-binary.ps1
 platform: x64
 test_script:
-- stack --no-terminal build --bench --no-run-benchmarks --pedantic --test
-- stack sdist
+- stack.exe --no-terminal build --bench --no-run-benchmarks --pedantic --test
+- stack.exe sdist
 version: '{build}'
