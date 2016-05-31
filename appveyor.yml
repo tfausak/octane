@@ -11,10 +11,10 @@ environment:
   PATH: '%PATH%;%APPDATA%/local/bin'
   STACK_ROOT: c:/s
 install:
-- powershell -File ci/install-stack.ps1
-- powershell -File ci/install-github-release.ps1
+- powershell -File tools/install-stack.ps1
+- powershell -File tools/install-github-release.ps1
 on_success:
-- powershell -File ci/attach-binary.ps1
+- powershell -File tools/attach-binary.ps1
 platform: x64
 test_script:
 - stack.exe --no-terminal build --bench --no-run-benchmarks --pedantic --test

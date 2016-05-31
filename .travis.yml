@@ -3,11 +3,11 @@ addons:
     packages:
     - libgmp-dev
 after_success:
-- sh ci/upload-package.sh
-- sh ci/attach-binary.sh
+- sh tools/upload-package.sh
+- sh tools/attach-binary.sh
 before_install:
-- sh ci/install-stack.sh
-- sh ci/install-github-release.sh
+- sh tools/install-stack.sh
+- sh tools/install-github-release.sh
 cache:
   directories:
   - $HOME/.local/bin
