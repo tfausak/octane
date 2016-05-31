@@ -11,9 +11,9 @@ import Data.Function ((&))
 import qualified GHC.Generics as Generics
 
 -- | A 32-bit little-endian float.
-newtype Float32LE =
-    Float32LE Float
-    deriving (Eq,Generics.Generic,Show)
+newtype Float32LE = Float32LE
+    { unpackFloat32LE :: Float
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Float32LE where
     get = do

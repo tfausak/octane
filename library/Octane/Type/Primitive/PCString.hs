@@ -19,9 +19,9 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A length-prefixed null-terminated string.
-newtype PCString =
-    PCString Text.Text
-    deriving (Eq,Generics.Generic,Ord,Show)
+newtype PCString = PCString
+    { unpackPCString :: Text.Text
+    } deriving (Eq,Generics.Generic,Ord,Show)
 
 instance Binary.Binary PCString where
     get = do

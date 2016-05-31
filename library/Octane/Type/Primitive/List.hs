@@ -12,9 +12,9 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A length-prefixed list.
-newtype List a =
-    List [a]
-    deriving (Eq,Generics.Generic,Show)
+newtype List a = List
+    { unpackList :: [a]
+    } deriving (Eq,Generics.Generic,Show)
 
 instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do

@@ -10,9 +10,9 @@ import Data.Function ((&))
 import qualified GHC.Generics as Generics
 
 -- | A boolean value, stored in the first bit of a byte.
-newtype Boolean =
-    Boolean Bool
-    deriving (Eq,Generics.Generic,Show)
+newtype Boolean = Boolean
+    { unpackBoolean :: Bool
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Boolean where
     get = do

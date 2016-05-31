@@ -13,9 +13,9 @@ import qualified Data.Int as Int
 import qualified GHC.Generics as Generics
 
 -- | A 32-bit little-endian integer.
-newtype Word32LE =
-    Word32LE Int.Int32
-    deriving (Eq,Generics.Generic,Show)
+newtype Word32LE = Word32LE
+    { unpackWord32LE :: Int.Int32
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Word32LE where
     get = do

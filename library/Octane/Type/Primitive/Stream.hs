@@ -17,9 +17,9 @@ import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A length-prefixed stream of bits. The length is given in bytes. Each byte
 -- is reversed such that 0b01234567 is actually 0b76543210.
-newtype Stream =
-    Stream BS.ByteString
-    deriving (Eq,Generics.Generic,Show)
+newtype Stream = Stream
+    { unpackStream :: BS.ByteString
+    } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Stream where
     get = do
