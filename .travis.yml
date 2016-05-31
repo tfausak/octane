@@ -3,37 +3,11 @@ addons:
     packages:
     - libgmp-dev
 after_success:
-- | # Upload package to Hackage.
-  if test "$TRAVIS_TAG" -a "$TRAVIS_OS_NAME" = linux
-  then
-    mkdir -p "$HOME/.stack/upload"
-    echo "{ \"username\": \"$HACKAGE_USERNAME\", \"password\": \"$HACKAGE_PASSWORD\" }" > "$HOME/.stack/upload/credentials.json"
-    stack upload .
-  fi
-- | # Add compressed binary to GitHub release.
-  if test "$TRAVIS_TAG"
-  then
-    gzip --best --to-stdout "$(stack path --local-install-root)/bin/octane" > octane.gz
-    stack install github-release
-    stack exec -- github-release upload \
-      --token "$GITHUB_TOKEN" \
-      --owner tfausak \
-      --repo octane \
-      --tag "$TRAVIS_TAG" \
-      --file octane.gz \
-      --name "octane-$TRAVIS_TAG-$TRAVIS_OS_NAME.gz"
-  fi
+- sh ci/upload-package.sh
+- sh ci/attach-binary.sh
 before_install:
-- | # Install stack.
-  if test ! -f "$HOME/.local/bin/stack"
-  then
-    URL="https://www.stackage.org/stack/$TRAVIS_OS_NAME-x86_64"
-    curl --location "$URL" > stack.tar.gz
-    gunzip stack.tar.gz
-    tar -x -f stack.tar --strip-components 1
-    mkdir -p "$HOME/.local/bin"
-    mv stack "$HOME/.local/bin/"
-  fi
+- sh ci/install-stack.sh
+- sh ci/install-github-release.sh
 cache:
   directories:
   - $HOME/.local/bin
