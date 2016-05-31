@@ -9,6 +9,7 @@ else
   URL="https://github.com/tfausak/github-release/releases/download/$V/github-release-$V-$TRAVIS_OS_NAME.gz"
   curl --location "$URL" > github-release.gz
   gunzip github-release.gz
+  chmod u+x github-release
   mkdir -p "$HOME/.local/bin"
   mv github-release "$HOME/.local/bin/"
 fi
