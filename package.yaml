@@ -31,7 +31,9 @@ extra-source-files:
 - package.yaml
 - README.markdown
 - stack.yaml
-ghc-options: -Wall
+ghc-options:
+- -O2
+- -Wall
 github: tfausak/octane
 library:
   dependencies:
