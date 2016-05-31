@@ -4,6 +4,7 @@ if test ! "$TRAVIS_TAG"
 then
   echo 'This is not a release build.'
 elif test ! "$GITHUB_TOKEN"
+then
   echo 'The GITHUB_TOKEN environment variable is not set!'
   exit 1
 else

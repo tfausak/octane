@@ -4,6 +4,7 @@ if test ! "$TRAVIS_TAG"
 then
   echo 'This is not a release build.'
 elif test "$TRAVIS_OS_NAME" != linux
+then
   echo 'This build is not being run on Linux.'
 else
   echo "Uploading version $TRAVIS_TAG from $TRAVIS_OS_NAME..."
