@@ -3,7 +3,7 @@ build_script:
 cache:
 - 'C:\stack -> stack.yaml'
 - 'C:\bin'
-- '%LOCALAPPDATA%\Programs\stack'
+- '%LOCALAPPDATA%\Programs\stack\x86_64-windows\ghc-8.0.1.tar.xz'
 environment:
   GITHUB_TOKEN:
     secure: CTD2sGkh3EQaLuMJybGza6XNaI+Ews42mdNy9p3U+eShkrjIwYrbUVKnpzra8kIZ
