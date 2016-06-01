@@ -3,10 +3,11 @@
 module Octane.Type.Replay (Replay(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson.Types as Aeson
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
 import qualified GHC.Generics as Generics
+import qualified Octane.Json as Json
 import qualified Octane.Type.Actor as Actor
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.KeyFrame as KeyFrame
@@ -111,8 +112,4 @@ instance Binary.Binary Replay where
 instance DeepSeq.NFData Replay
 
 instance Aeson.ToJSON Replay where
-    toJSON =
-        Aeson.genericToJSON
-            Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 6
-            }
+    toJSON = Aeson.genericToJSON (Json.toJsonOptions "Replay")

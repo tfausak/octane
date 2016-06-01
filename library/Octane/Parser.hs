@@ -6,7 +6,6 @@ import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Get as Binary
@@ -22,6 +21,7 @@ import qualified Data.Text.Encoding as Encoding
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
+import qualified Octane.Json as Json
 import qualified Octane.Parser.ClassPropertyMap as CPM
 import qualified Octane.Type as Type
 import qualified Text.Printf as Printf
@@ -521,11 +521,6 @@ getLocalId = do
     localId <- Bits.getWord8 8
     localId & Just & return
 
-toJsonOptions :: String -> Aeson.Options
-toJsonOptions name = Aeson.defaultOptions
-    { Aeson.fieldLabelModifier = Aeson.camelTo2 '_' . drop (length name)
-    }
-
 type SystemId = Word.Word8
 
 -- This is the number associated with a splitscreen player. So the first player
@@ -551,7 +546,7 @@ data Prop = Prop
 
 instance DeepSeq.NFData Prop
 instance Aeson.ToJSON Prop where
-    toJSON = Aeson.genericToJSON (toJsonOptions "Prop")
+    toJSON = Aeson.genericToJSON (Json.toJsonOptions "Prop")
 
 data PropValue
     = PBoolean !Bool
@@ -581,7 +576,7 @@ data PropValue
 
 instance DeepSeq.NFData PropValue
 instance Aeson.ToJSON PropValue where
-    toJSON = Aeson.genericToJSON (toJsonOptions "PropValue")
+    toJSON = Aeson.genericToJSON (Json.toJsonOptions "PropValue")
 
 -- | A frame in the net stream. Each frame has the time since the beginning of
 -- the match, the time since the last frame, and a list of replications.
@@ -593,7 +588,7 @@ data Frame = Frame
 
 instance DeepSeq.NFData Frame
 instance Aeson.ToJSON Frame where
-    toJSON = Aeson.genericToJSON (toJsonOptions "Frame")
+    toJSON = Aeson.genericToJSON (Json.toJsonOptions "Frame")
 
 data ReplicationState
     = RSOpening
@@ -619,7 +614,7 @@ data Replication = Replication
 
 instance DeepSeq.NFData Replication
 instance Aeson.ToJSON Replication where
-    toJSON = Aeson.genericToJSON (toJsonOptions "Replication")
+    toJSON = Aeson.genericToJSON (Json.toJsonOptions "Replication")
 
 data Thing = Thing
     { thingFlag :: !Bool
@@ -657,7 +652,7 @@ data ClassInit = ClassInit
 
 instance DeepSeq.NFData ClassInit
 instance Aeson.ToJSON ClassInit where
-    toJSON = Aeson.genericToJSON (toJsonOptions "ClassInit")
+    toJSON = Aeson.genericToJSON (Json.toJsonOptions "ClassInit")
 
 -- { class stream id => { property stream id => name } }
 type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap Text.Text)

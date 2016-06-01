@@ -3,10 +3,11 @@
 module Octane.Type.KeyFrame (KeyFrame(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson.Types as Aeson
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
 import qualified GHC.Generics as Generics
+import qualified Octane.Json as Json
 import qualified Octane.Type.Primitive.Float32LE as Float32LE
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
@@ -29,8 +30,4 @@ instance Binary.Binary KeyFrame where
 instance DeepSeq.NFData KeyFrame
 
 instance Aeson.ToJSON KeyFrame where
-    toJSON =
-        Aeson.genericToJSON
-            Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 8
-            }
+    toJSON = Aeson.genericToJSON (Json.toJsonOptions "KeyFrame")

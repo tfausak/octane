@@ -3,10 +3,11 @@
 module Octane.Type.CacheProperty (CacheProperty(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson.Types as Aeson
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import Data.Function ((&))
 import qualified GHC.Generics as Generics
+import qualified Octane.Json as Json
 import qualified Octane.Type.Primitive.Word32LE as Word32LE
 
 -- | A property on an item in the class net cache map.
@@ -24,8 +25,4 @@ instance Binary.Binary CacheProperty where
 instance DeepSeq.NFData CacheProperty
 
 instance Aeson.ToJSON CacheProperty where
-    toJSON =
-        Aeson.genericToJSON
-            Aeson.defaultOptions
-            { Aeson.fieldLabelModifier = drop 13
-            }
+    toJSON = Aeson.genericToJSON (Json.toJsonOptions "CacheProperty")
