@@ -274,12 +274,12 @@ getByteProperty = do
 
 getCamSettingsProperty :: Bits.BitGet PropValue
 getCamSettingsProperty = do
-    fov <- getFloat32
-    height <- getFloat32
-    pitch <- getFloat32
-    dist <- getFloat32
-    stiff <- getFloat32
-    swiv <- getFloat32
+    fov <- getFloat32 -- camera fov
+    height <- getFloat32 -- camera height
+    pitch <- getFloat32 -- camera angle
+    dist <- getFloat32 -- camera distance
+    stiff <- getFloat32 -- camera stiffness
+    swiv <- getFloat32 -- camera swivel speed
     return (PCamSettings fov height pitch dist stiff swiv)
 
 getDemolishProperty :: Bits.BitGet PropValue
