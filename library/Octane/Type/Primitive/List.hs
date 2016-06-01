@@ -27,4 +27,5 @@ instance (Binary.Binary a) => Binary.Binary (List a) where
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (List a)
 
-instance (Aeson.ToJSON a) => Aeson.ToJSON (List a)
+instance (Aeson.ToJSON a) => Aeson.ToJSON (List a) where
+    toJSON list = list & unpackList & Aeson.toJSON

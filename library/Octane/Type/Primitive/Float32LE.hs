@@ -23,4 +23,5 @@ instance Binary.Binary Float32LE where
 
 instance DeepSeq.NFData Float32LE
 
-instance Aeson.ToJSON Float32LE
+instance Aeson.ToJSON Float32LE where
+    toJSON float = float & unpackFloat32LE & Aeson.toJSON

@@ -25,4 +25,5 @@ instance Binary.Binary Word64LE where
 
 instance DeepSeq.NFData Word64LE
 
-instance Aeson.ToJSON Word64LE
+instance Aeson.ToJSON Word64LE where
+    toJSON word = word & unpackWord64LE & Aeson.toJSON

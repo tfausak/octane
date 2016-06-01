@@ -24,4 +24,5 @@ instance Binary.Binary Boolean where
 
 instance DeepSeq.NFData Boolean
 
-instance Aeson.ToJSON Boolean
+instance Aeson.ToJSON Boolean where
+    toJSON boolean = boolean & unpackBoolean & Aeson.toJSON

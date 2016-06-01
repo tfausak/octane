@@ -73,7 +73,8 @@ instance String.IsString PCString where
 
 instance DeepSeq.NFData PCString
 
-instance Aeson.ToJSON PCString
+instance Aeson.ToJSON PCString where
+    toJSON string = string & unpackPCString & Aeson.toJSON
 
 encodeLatin1 :: Text.Text -> BS.ByteString
 encodeLatin1 text = text & Text.unpack & BS8.pack
