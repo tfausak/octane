@@ -1,6 +1,5 @@
 build_script:
 - stack.exe setup
-- stack.exe --no-terminal build --bench --only-dependencies --test
 cache:
 - 'C:\stack -> stack.yaml'
 - 'C:\bin'
@@ -17,6 +16,6 @@ on_success:
 - powershell -File tools/attach-binary.ps1
 platform: x64
 test_script:
-- stack.exe --no-terminal build --bench --no-run-benchmarks --pedantic --test
+- stack.exe --no-terminal build --bench --ghc-options -O2 --no-run-benchmarks --pedantic --test
 - stack.exe sdist
 version: '{build}'
