@@ -321,9 +321,8 @@ getFloatProperty = do
 getGameModeProperty :: Bits.BitGet PropValue
 getGameModeProperty = do
     x <- Bits.getWord8 2
-    if x == 2
-        then return (PGameMode x)
-        else error ("unexpected game mode value " ++ show x)
+    -- 1 is hockey, 2 is hoops
+    return (PGameMode x)
 
 getIntProperty :: Bits.BitGet PropValue
 getIntProperty = do
