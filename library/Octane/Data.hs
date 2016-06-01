@@ -236,7 +236,7 @@ camSettingsProperties =
     , "TAGame.PRI_TA:CameraSettings"
     ] & map Text.pack & Set.fromList
 
--- | A set of properties that are demolition.
+-- | A set of properties that are demolitions.
 demolishProperties :: Set.Set Text.Text
 demolishProperties =
     [ "TAGame.Car_TA:ReplicatedDemolish"
@@ -282,6 +282,9 @@ floatProperties =
     , "TAGame.Ball_TA:ReplicatedBallMaxLinearSpeedScale"
     , "TAGame.Ball_TA:ReplicatedBallScale"
     , "TAGame.Ball_TA:ReplicatedWorldBounceScale"
+    , "TAGame.CarComponent_Boost_TA:BoostModifier"
+    , "TAGame.CarComponent_Boost_TA:RechargeDelay"
+    , "TAGame.CarComponent_Boost_TA:RechargeRate"
     , "TAGame.CarComponent_FlipCar_TA:FlipCarTime"
     , "TAGame.CrowdActor_TA:ModifiedNoise"
     ] & map Text.pack & Set.fromList
