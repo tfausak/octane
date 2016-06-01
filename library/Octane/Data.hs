@@ -21,6 +21,7 @@ classToObjects = let
             [ "Archetypes.Ball.Ball_Default"
             , "Archetypes.Ball.Ball_Basketball"
             , "Archetypes.Ball.Ball_Puck"
+            , "Archetypes.Ball.CubeBall"
             ])
         , ( "TAGame.CameraSettingsActor_TA",
             [ "TAGame.CameraSettingsActor_TA:PRI"
@@ -54,7 +55,9 @@ classToObjects = let
             [ "Archetypes.GameEvent.GameEvent_SoccarPrivate"
             ])
         , ( "TAGame.GameEvent_SoccarSplitscreen_TA",
-            [ "Archetypes.GameEvent.GameEvent_SoccarSplitscreen"
+            [ "Archetypes.GameEvent.GameEvent_BasketballSplitscreen"
+            , "Archetypes.GameEvent.GameEvent_HockeySplitscreen"
+            , "Archetypes.GameEvent.GameEvent_SoccarSplitscreen"
             ])
         , ( "TAGame.GameEvent_Soccar_TA",
             [ "Archetypes.GameEvent.GameEvent_Soccar"
@@ -62,6 +65,7 @@ classToObjects = let
             ])
         , ( "TAGame.GRI_TA",
             [ "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype"
+            , "Gameinfo_Hockey.GameInfo.Gameinfo_Hockey:GameReplicationInfoArchetype"
             , "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype"
             , "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype"
             ])
@@ -140,6 +144,7 @@ levels =
     , "eurostadium_p"
     , "eurostadium_rainy_audio"
     , "hoopsstadium_sfx"
+    , "labs_cosmic_p"
     , "labs_doublegoal_p"
     , "labs_underpass_p"
     , "labs_utopia_p"
@@ -195,6 +200,8 @@ booleanProperties =
     , "ProjectX.GRI_X:bGameStarted"
     , "TAGame.CameraSettingsActor_TA:bUsingBehindView"
     , "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera"
+    , "TAGame.CarComponent_Boost_TA:bNoBoost"
+    , "TAGame.CarComponent_Boost_TA:bUnlimitedBoost"
     , "TAGame.CarComponent_FlipCar_TA:bFlipRight"
     , "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit"
     , "TAGame.GameEvent_Soccar_TA:bOverTime"
