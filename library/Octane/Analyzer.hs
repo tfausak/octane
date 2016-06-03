@@ -7,22 +7,59 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
+import qualified System.Environment as Environment
 
 type Point = (Int, Int, Int)
 type Points = [Point]
 type Frames = [Parser.Frame]
+type ActorId = Int
+
+find :: (a -> Bool) -> [a] -> Maybe a
+find p xs = xs & filter p & Maybe.listToMaybe
+
+getActorId :: (Parser.Replication -> Bool) -> (Parser.Replication -> ActorId) -> Frames -> Maybe ActorId
+getActorId p f frames = frames
+    & Maybe.mapMaybe (\ frame -> frame
+        & Parser.frameReplications
+        & find p
+        & fmap f)
+    & Maybe.listToMaybe
+
+getBallActorId :: Frames -> Maybe ActorId
+getBallActorId frames = getActorId
+    (\ replication -> replication
+        & Parser.replicationClassName
+        & (== ballClassName))
+    Parser.replicationActorId
+    frames
+
+getRigidBodyStatesForActorId :: ActorId -> Frames -> [(Parser.Time, Point)]
+getRigidBodyStatesForActorId actorId frames = frames
+    & concatMap (\ frame -> let
+        time = Parser.frameTime frame
+        in frame
+            & Parser.frameReplications
+            & filter (\ replication -> replication
+                & Parser.replicationActorId
+                & (== actorId))
+            & map Parser.replicationProperties
+            & Maybe.mapMaybe (\ properties -> properties
+                & Map.lookup rbsPropertyName)
+            & Maybe.mapMaybe (\ property -> case property of
+                Parser.PRigidBodyState _ location _ _ _ -> Just location
+                _ -> Nothing)
+            & map (\ (Parser.Vector x y z) -> (x, y, z))
+            & map (\ point -> (time, point)))
 
 getBallLocations :: Frames -> Points
-getBallLocations frames = frames
-    & concatMap Parser.frameReplications
-    & filter (\ replication ->
-        Parser.replicationClassName replication == ballClassName)
-    & map Parser.replicationProperties
-    & Maybe.mapMaybe (\ properties -> Map.lookup rbsPropertyName properties)
-    & Maybe.mapMaybe (\ property -> case property of
-        Parser.PRigidBodyState _ location _ _ _ -> Just location
-        _ -> Nothing)
-    & map (\ (Parser.Vector x y z) -> (x, y, z))
+getBallLocations frames = let
+    ballActorId = frames
+        & getBallActorId
+        & Maybe.fromJust
+    rigidBodyStates = frames
+        & getRigidBodyStatesForActorId ballActorId
+    in rigidBodyStates
+        & map snd
 
 ballClassName :: Text.Text
 ballClassName = Text.pack "TAGame.Ball_TA"
@@ -82,8 +119,11 @@ analyze file = do
     replay <- Binary.decodeFile file
     let frames = Parser.parseFrames replay
 
-    let ballLocations = getBallLocations frames
     putStr "Number of frames: "
+    print (length frames)
+
+    let ballLocations = getBallLocations frames
+    putStr "Number of ball replications: "
     print (length ballLocations) -- 7702
 
     let ballDistance = getBallDistance ballLocations
@@ -127,3 +167,8 @@ analyze file = do
     let speedHisto = getSpeedHisto ballSpeeds
     putStr "(Slow, medium, fast): "
     print speedHisto -- (2250,3630,1821)
+
+main :: IO ()
+main = do
+    args <- Environment.getArgs
+    mapM_ analyze args
