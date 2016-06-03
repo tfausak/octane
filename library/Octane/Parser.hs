@@ -148,7 +148,8 @@ getNewReplication context actorId = do
     return
         ( newContext
         , Replication
-          { replicationObjectName = objectName
+          { replicationActorId = actorId
+          , replicationObjectName = objectName
           , replicationClassName = className
           , replicationState = RSOpening
           , replicationInitialization = Just classInit
@@ -164,7 +165,8 @@ getExistingReplication context actorId = do
             Just x -> x
     props <- getProps context thing
     return (context, Replication
-        { replicationObjectName = thingObjectName thing
+        { replicationActorId = actorId
+        , replicationObjectName = thingObjectName thing
         , replicationClassName = thingClassName thing
         , replicationState = RSExisting
         , replicationInitialization = Nothing
@@ -183,7 +185,8 @@ getClosedReplication context actorId = do
     return
         ( newContext
         , Replication
-          { replicationObjectName = thingObjectName thing
+          { replicationActorId = actorId
+          , replicationObjectName = thingObjectName thing
           , replicationClassName = thingClassName thing
           , replicationState = RSClosing
           , replicationInitialization = Nothing
@@ -604,7 +607,8 @@ instance Aeson.ToJSON ReplicationState where
 
 -- | Replication information about an actor in the net stream.
 data Replication = Replication
-    { replicationObjectName :: !Text.Text
+    { replicationActorId :: !Int
+    , replicationObjectName :: !Text.Text
     , replicationClassName :: !Text.Text
     , replicationState :: !ReplicationState
     , replicationInitialization :: !(Maybe ClassInit)
