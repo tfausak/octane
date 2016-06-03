@@ -33,6 +33,25 @@ getBallActorId frames = getActorId
     Parser.replicationActorId
     frames
 
+getPlayerActorIds :: Frames -> Map.Map ActorId Text.Text
+getPlayerActorIds frames = frames
+    & concatMap Parser.frameReplications
+    & filter (\ replication -> replication
+        & Parser.replicationClassName
+        & (== playerClassName))
+    & Maybe.mapMaybe (\ replication -> let
+        actorId = replication
+            & Parser.replicationActorId
+        maybeProperty = replication
+            & Parser.replicationProperties
+            & Map.lookup playerNamePropertyName
+        in case maybeProperty of
+            Nothing -> Nothing
+            Just property -> case property of
+                Parser.PString name -> Just (actorId, name)
+                _ -> Nothing)
+    & Map.fromList
+
 getRigidBodyStatesForActorId :: ActorId -> Frames -> [(Parser.Time, Point)]
 getRigidBodyStatesForActorId actorId frames = frames
     & concatMap (\ frame -> let
@@ -64,8 +83,14 @@ getBallLocations frames = let
 ballClassName :: Text.Text
 ballClassName = Text.pack "TAGame.Ball_TA"
 
+playerClassName :: Text.Text
+playerClassName = Text.pack "TAGame.PRI_TA"
+
 rbsPropertyName :: Text.Text
 rbsPropertyName = Text.pack "TAGame.RBActor_TA:ReplicatedRBState"
+
+playerNamePropertyName :: Text.Text
+playerNamePropertyName = Text.pack "Engine.PlayerReplicationInfo:PlayerName"
 
 getDistance :: Point -> Point -> Float
 getDistance (x1, y1, z1) (x2, y2, z2) = let
@@ -167,6 +192,10 @@ analyze file = do
     let speedHisto = getSpeedHisto ballSpeeds
     putStr "(Slow, medium, fast): "
     print speedHisto -- (2250,3630,1821)
+
+    let playerActorIds = getPlayerActorIds frames
+    putStrLn "Players:"
+    playerActorIds & Map.toList & mapM_ print
 
 main :: IO ()
 main = do
