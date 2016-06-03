@@ -5,6 +5,7 @@ import Data.Function ((&))
 import qualified Data.Binary as Binary
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
+import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
 import qualified System.Environment as Environment
@@ -14,24 +15,15 @@ type Points = [Point]
 type Frames = [Parser.Frame]
 type ActorId = Int
 
-find :: (a -> Bool) -> [a] -> Maybe a
-find p xs = xs & filter p & Maybe.listToMaybe
-
-getActorId :: (Parser.Replication -> Bool) -> (Parser.Replication -> ActorId) -> Frames -> Maybe ActorId
-getActorId p f frames = frames
-    & Maybe.mapMaybe (\ frame -> frame
-        & Parser.frameReplications
-        & find p
-        & fmap f)
-    & Maybe.listToMaybe
-
-getBallActorId :: Frames -> Maybe ActorId
-getBallActorId frames = getActorId
-    (\ replication -> replication
+getBallActorIds :: Frames -> Set.Set ActorId
+getBallActorIds frames = frames
+    & concatMap Parser.frameReplications
+    & filter (\ replication -> replication
         & Parser.replicationClassName
         & (== ballClassName))
-    Parser.replicationActorId
-    frames
+    & map (\ replication -> replication
+        & Parser.replicationActorId)
+    & Set.fromList
 
 getPlayerActorIds :: Frames -> Map.Map ActorId Text.Text
 getPlayerActorIds frames = frames
@@ -52,8 +44,8 @@ getPlayerActorIds frames = frames
                 _ -> Nothing)
     & Map.fromList
 
-getRigidBodyStatesForActorId :: ActorId -> Frames -> [(Parser.Time, Point)]
-getRigidBodyStatesForActorId actorId frames = frames
+getRigidBodyStatesForActorId :: Frames -> ActorId -> [(Parser.Time, Point)]
+getRigidBodyStatesForActorId frames actorId = frames
     & concatMap (\ frame -> let
         time = Parser.frameTime frame
         in frame
@@ -70,15 +62,18 @@ getRigidBodyStatesForActorId actorId frames = frames
             & map (\ (Parser.Vector x y z) -> (x, y, z))
             & map (\ point -> (time, point)))
 
+getBallRigidBodyStates :: Frames -> [[(Parser.Time, Point)]]
+getBallRigidBodyStates frames = frames
+    & getBallActorIds
+    & Set.toAscList
+    & map (\ actorId -> actorId
+        & getRigidBodyStatesForActorId frames)
+
 getBallLocations :: Frames -> Points
-getBallLocations frames = let
-    ballActorId = frames
-        & getBallActorId
-        & Maybe.fromJust
-    rigidBodyStates = frames
-        & getRigidBodyStatesForActorId ballActorId
-    in rigidBodyStates
-        & map snd
+getBallLocations frames = frames
+    & getBallRigidBodyStates
+    & concat
+    & map snd
 
 ballClassName :: Text.Text
 ballClassName = Text.pack "TAGame.Ball_TA"
