@@ -77,7 +77,7 @@ getFrame context time delta = do
             , frameDelta = delta
             , frameReplications = replications
             }
-    return (newContext, frame)
+    (newContext, frame) & DeepSeq.force & return
 
 getReplications :: Context -> Bits.BitGet (Context, [Replication])
 getReplications context = do
@@ -626,7 +626,9 @@ data Thing = Thing
     , thingClassId :: !Int
     , thingClassName :: !Text.Text
     , thingClassInit :: !ClassInit
-    } deriving (Show)
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData Thing
 
 type Time = Float
 
@@ -671,7 +673,9 @@ data Context = Context
     , contextClassPropertyMap :: !ClassPropertyMap
     , contextThings :: !(IntMap.IntMap Thing)
     , contextClassMap :: !ClassMap
-    } deriving (Show)
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData Context
 
 extractContext :: Type.Replay -> Context
 extractContext replay =
