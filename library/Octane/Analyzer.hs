@@ -15,6 +15,26 @@ type Points = [Point]
 type Frames = [Parser.Frame]
 type ActorId = Int
 
+-- { car actor id => player actor id }
+getCarActorIds :: Frames -> Map.Map ActorId ActorId
+getCarActorIds frames = frames
+    & concatMap Parser.frameReplications
+    & filter (\ replication -> replication
+        & Parser.replicationClassName
+        & flip Set.member carClassNames)
+    & Maybe.mapMaybe (\ replication -> let
+        carActorId = replication
+            & Parser.replicationActorId
+        maybeProperty = replication
+            & Parser.replicationProperties
+            & Map.lookup playerReplicationInfoPropertyName
+        in case maybeProperty of
+            Nothing -> Nothing
+            Just property -> case property of
+                Parser.PFlaggedInt _ playerActorId -> Just (carActorId, playerActorId)
+                _ -> Nothing)
+    & Map.fromList
+
 getBallActorIds :: Frames -> Set.Set ActorId
 getBallActorIds frames = frames
     & concatMap Parser.frameReplications
@@ -25,6 +45,7 @@ getBallActorIds frames = frames
         & Parser.replicationActorId)
     & Set.fromList
 
+-- { player actor id => player name }
 getPlayerActorIds :: Frames -> Map.Map ActorId Text.Text
 getPlayerActorIds frames = frames
     & concatMap Parser.frameReplications
@@ -75,11 +96,20 @@ getBallLocations frames = frames
     & concat
     & map snd
 
+carClassNames :: Set.Set Text.Text
+carClassNames =
+    [ "TAGame.Car_Season_TA"
+    , "TAGame.Car_TA"
+    ] & map Text.pack & Set.fromList
+
 ballClassName :: Text.Text
 ballClassName = Text.pack "TAGame.Ball_TA"
 
 playerClassName :: Text.Text
 playerClassName = Text.pack "TAGame.PRI_TA"
+
+playerReplicationInfoPropertyName :: Text.Text
+playerReplicationInfoPropertyName = Text.pack "Engine.Pawn:PlayerReplicationInfo"
 
 rbsPropertyName :: Text.Text
 rbsPropertyName = Text.pack "TAGame.RBActor_TA:ReplicatedRBState"
@@ -191,6 +221,10 @@ analyze file = do
     let playerActorIds = getPlayerActorIds frames
     putStrLn "Players:"
     playerActorIds & Map.toList & mapM_ print
+
+    let carActorIds = getCarActorIds frames
+    putStrLn "Cars:"
+    carActorIds & Map.toList & mapM_ print
 
 main :: IO ()
 main = do
