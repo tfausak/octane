@@ -272,8 +272,8 @@ getBooleanProperty = do
 
 getByteProperty :: Bits.BitGet PropValue
 getByteProperty = do
-    int <- getInt8
-    return (PByte int)
+    word <- getWord8
+    return (PByte word)
 
 getCamSettingsProperty :: Bits.BitGet PropValue
 getCamSettingsProperty = do
@@ -552,7 +552,7 @@ instance Aeson.ToJSON Prop where
 
 data PropValue
     = PBoolean !Bool
-    | PByte !Int
+    | PByte !Word.Word8
     | PCamSettings !Float !Float !Float !Float !Float !Float
     | PDemolish !Bool !Int !Bool !Int !(Vector Int) !(Vector Int)
     | PEnum !Word.Word16 !Bool
@@ -825,6 +825,14 @@ getInt8 = do
             Binary.getWord8
             (byte & BSL.fromStrict & BSL.map Type.reverseBits)
     word & fromIntegral & (\ x -> x :: Int.Int8) & fromIntegral & return
+
+getWord8 :: Bits.BitGet Word.Word8
+getWord8 = do
+    byte <- Bits.getByteString 1
+    let word = Binary.runGet
+            Binary.getWord8
+            (byte & BSL.fromStrict & BSL.map Type.reverseBits)
+    return word
 
 getActorId :: Bits.BitGet Int
 getActorId = getInt 1024
