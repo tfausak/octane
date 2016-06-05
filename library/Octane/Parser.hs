@@ -2,6 +2,12 @@
 
 module Octane.Parser where
 
+-- TODO: Remove once game events are figured out.
+import Data.Maybe (fromMaybe)
+import Debug.Trace (traceM)
+import System.Environment (lookupEnv)
+import System.IO.Unsafe (unsafePerformIO)
+
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
@@ -261,6 +267,7 @@ propertyNameToGet =
     , (Data.teamPaintProperties, getTeamPaintProperty)
     , (Data.uniqueIdProperties, getUniqueIdProperty)
     , (Set.fromList [Text.pack "TAGame.PRI_TA:PartyLeader"], getPartyLeaderProperty)
+    , (Set.fromList [Text.pack "TAGame.PRI_TA:ReplicatedGameEvent"], getReplicatedGameEvent)
     ]
         & concatMap (\ (ks, v) -> ks & Set.toList & map (\ k -> (k, v)))
         & Map.fromList
@@ -456,6 +463,29 @@ getPartyLeaderProperty = do
             localId <- getLocalId
             return (remoteId, localId)
     return (PUniqueId systemId remoteId localId)
+
+-- TODO: Pretty close to 'getFlaggedIntProperty' most of the time.
+getReplicatedGameEvent :: Bits.BitGet PropValue
+getReplicatedGameEvent = do
+    flag <- Bits.getBool
+    if flag
+    then do
+        int <- getInt32
+        return (PFlaggedInt flag (fromIntegral int))
+    else do
+        otherFlag <- Bits.getBool
+        if otherFlag
+        then do
+            word <- Bits.getWord32be 31
+            if word == 0x7fffffff
+            then return (PFlaggedInt flag (-1))
+            else error ("got unexpected flagged int value " ++ show word)
+        else do
+            -- TODO: Figure out how many bits to read.
+            let n = lookupEnv "BITS" & unsafePerformIO & fromMaybe "0" & read
+            x <- Bits.getBool & replicate n & sequence
+            traceM ("read " ++ show n ++ " bits and got 0b" ++ (x & map fromEnum & map show & concat))
+            return (PFlaggedInt flag 0)
 
 --
 
