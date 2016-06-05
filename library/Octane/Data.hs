@@ -347,7 +347,8 @@ loadoutProperties =
 -- | A set of properties that are locations.
 locationProperties :: Set.Set Text.Text
 locationProperties =
-    [ "TAGame.CarComponent_Dodge_TA:DodgeTorque"
+    [ "Engine.Actor:RelativeLocation"
+    , "TAGame.CarComponent_Dodge_TA:DodgeTorque"
     ] & map Text.pack & Set.fromList
 
 -- | A set of properties that are music stingers.
