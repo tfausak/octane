@@ -269,8 +269,9 @@ explosionProperties =
 -- | A set of properties that are flagged integers.
 flaggedIntProperties :: Set.Set Text.Text
 flaggedIntProperties =
-    [ "Engine.GameReplicationInfo:GameClass"
+    [ "Engine.Actor:Owner"
     , "Engine.Actor:ReplicatedCollisionType"
+    , "Engine.GameReplicationInfo:GameClass"
     , "Engine.Pawn:PlayerReplicationInfo"
     , "Engine.PlayerReplicationInfo:Team"
     , "TAGame.Ball_TA:GameEvent"
