@@ -274,6 +274,7 @@ flaggedIntProperties =
     , "Engine.GameReplicationInfo:GameClass"
     , "Engine.Pawn:PlayerReplicationInfo"
     , "Engine.PlayerReplicationInfo:Team"
+    , "Engine.TeamInfo:TeamIndex"
     , "TAGame.Ball_TA:GameEvent"
     , "TAGame.CameraSettingsActor_TA:PRI"
     , "TAGame.CarComponent_TA:Vehicle"
