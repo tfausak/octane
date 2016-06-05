@@ -52,7 +52,8 @@ classToObjects = let
             [ "Archetypes.GameEvent.GameEvent_Season"
             ])
         , ( "TAGame.GameEvent_SoccarPrivate_TA",
-            [ "Archetypes.GameEvent.GameEvent_HockeyPrivate"
+            [ "Archetypes.GameEvent.GameEvent_BasketballPrivate"
+            , "Archetypes.GameEvent.GameEvent_HockeyPrivate"
             , "Archetypes.GameEvent.GameEvent_SoccarPrivate"
             ])
         , ( "TAGame.GameEvent_SoccarSplitscreen_TA",
