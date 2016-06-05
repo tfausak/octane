@@ -406,4 +406,5 @@ teamPaintProperties =
 uniqueIdProperties :: Set.Set Text.Text
 uniqueIdProperties =
     [ "Engine.PlayerReplicationInfo:UniqueId"
+    -- , "TAGame.PRI_TA:PartyLeader"
     ] & map Text.pack & Set.fromList

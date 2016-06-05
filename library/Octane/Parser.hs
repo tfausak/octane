@@ -445,7 +445,7 @@ getUniqueIdProperty = do
     return (PUniqueId systemId remoteId localId)
 
 -- | Even though this is just a unique ID property, it must be handled
--- | specially because it sometimes doesn't have the remote or local IDs.
+-- specially because it sometimes doesn't have the remote or local IDs.
 getPartyLeaderProperty :: Bits.BitGet PropValue
 getPartyLeaderProperty = do
     systemId <- getSystemId
