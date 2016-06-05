@@ -347,19 +347,19 @@ getLoadoutOnlineProperty = do
 getLoadoutProperty :: Bits.BitGet PropValue
 getLoadoutProperty = do
     version <- getInt8
-    a <- getInt32
-    b <- getInt32
-    c <- getInt32
-    d <- getInt32
-    e <- getInt32
-    f <- getInt32
+    body <- getInt32
+    decal <- getInt32
+    wheels <- getInt32
+    rocketTrail <- getInt32
+    antenna <- getInt32
+    topper <- getInt32
     g <- getInt32
     h <- if version > 10
         then do
             value <- getInt32
             return (Just value)
         else return Nothing
-    return (PLoadout version a b c d e f g h)
+    return (PLoadout version body decal wheels rocketTrail antenna topper g h)
 
 getLocationProperty :: Bits.BitGet PropValue
 getLocationProperty = do
