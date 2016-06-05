@@ -77,6 +77,9 @@ classToObjects = let
         , ( "TAGame.Team_TA",
             [ "Archetypes.Teams.Team"
             ])
+        , ( "TAGame.VoteActor_TA",
+            [ "TAGame.Default__VoteActor_TA"
+            ])
         ] & map (\ (klass, objects) ->
             ( Text.pack klass
             , objects & map Text.pack & Set.fromList
