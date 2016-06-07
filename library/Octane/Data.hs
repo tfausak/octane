@@ -289,7 +289,7 @@ flaggedIntProperties =
     , "TAGame.CrowdManager_TA:GameEvent"
     , "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound"
     , "TAGame.PRI_TA:PersistentCamera"
-    -- , "TAGame.PRI_TA:ReplicatedGameEvent"
+    , "TAGame.PRI_TA:ReplicatedGameEvent"
     , "TAGame.Team_TA:GameEvent"
     , "TAGame.Team_TA:LogoData"
     ] & map Text.pack & Set.fromList
