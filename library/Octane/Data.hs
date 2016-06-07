@@ -318,8 +318,7 @@ gameModeProperties =
 -- | A set of properties that are integers.
 intProperties :: Set.Set Text.Text
 intProperties =
-    [ "Engine.Actor:Instigator" -- TODO: Not sure this is right.
-    , "Engine.PlayerReplicationInfo:PlayerID"
+    [ "Engine.PlayerReplicationInfo:PlayerID"
     , "Engine.PlayerReplicationInfo:Score"
     , "Engine.TeamInfo:Score"
     , "ProjectX.GRI_X:ReplicatedGameMutatorIndex"
