@@ -52,7 +52,9 @@ classToObjects = let
             [ "Archetypes.GameEvent.GameEvent_Season"
             ])
         , ( "TAGame.GameEvent_SoccarPrivate_TA",
-            [ "Archetypes.GameEvent.GameEvent_SoccarPrivate"
+            [ "Archetypes.GameEvent.GameEvent_BasketballPrivate"
+            , "Archetypes.GameEvent.GameEvent_HockeyPrivate"
+            , "Archetypes.GameEvent.GameEvent_SoccarPrivate"
             ])
         , ( "TAGame.GameEvent_SoccarSplitscreen_TA",
             [ "Archetypes.GameEvent.GameEvent_BasketballSplitscreen"
@@ -74,6 +76,9 @@ classToObjects = let
             ])
         , ( "TAGame.Team_TA",
             [ "Archetypes.Teams.Team"
+            ])
+        , ( "TAGame.VoteActor_TA",
+            [ "TAGame.Default__VoteActor_TA"
             ])
         ] & map (\ (klass, objects) ->
             ( Text.pack klass
@@ -183,15 +188,19 @@ booleanProperties :: Set.Set Text.Text
 booleanProperties =
     [ "Engine.Actor:bBlockActors"
     , "Engine.Actor:bCollideActors"
+    , "Engine.Actor:bCollideWorld"
     , "Engine.Actor:bHardAttach"
     , "Engine.Actor:bHidden"
+    , "Engine.Actor:bNetOwner"
     , "Engine.Actor:bProjTarget"
     , "Engine.Actor:bTearOff"
     , "Engine.GameReplicationInfo:bMatchIsOver"
     , "Engine.Pawn:bCanSwatTurn"
     , "Engine.Pawn:bRootMotionFromInterpCurve"
     , "Engine.Pawn:bSimulateGravity"
+    , "Engine.PlayerReplicationInfo:bAdmin"
     , "Engine.PlayerReplicationInfo:bBot"
+    , "Engine.PlayerReplicationInfo:bFromPreviousLevel"
     , "Engine.PlayerReplicationInfo:bIsSpectator"
     , "Engine.PlayerReplicationInfo:bOnlySpectator"
     , "Engine.PlayerReplicationInfo:bOutOfLives"
@@ -212,7 +221,9 @@ booleanProperties =
     , "TAGame.PRI_TA:bOnlineLoadoutSet"
     , "TAGame.PRI_TA:bReady"
     , "TAGame.PRI_TA:bUsingBehindView"
+    , "TAGame.PRI_TA:bUsingFreecam"
     , "TAGame.PRI_TA:bUsingSecondaryCamera"
+    , "TAGame.PRI_TA:bVoteToForfeitDisabled"
     , "TAGame.RBActor_TA:bFrozen"
     , "TAGame.RBActor_TA:bReplayActor"
     , "TAGame.Vehicle_TA:bDriving"
@@ -264,10 +275,12 @@ explosionProperties =
 -- | A set of properties that are flagged integers.
 flaggedIntProperties :: Set.Set Text.Text
 flaggedIntProperties =
-    [ "Engine.GameReplicationInfo:GameClass"
+    [ "Engine.Actor:Owner"
     , "Engine.Actor:ReplicatedCollisionType"
+    , "Engine.GameReplicationInfo:GameClass"
     , "Engine.Pawn:PlayerReplicationInfo"
     , "Engine.PlayerReplicationInfo:Team"
+    , "Engine.TeamInfo:TeamIndex"
     , "TAGame.Ball_TA:GameEvent"
     , "TAGame.CameraSettingsActor_TA:PRI"
     , "TAGame.CarComponent_TA:Vehicle"
@@ -341,7 +354,8 @@ loadoutProperties =
 -- | A set of properties that are locations.
 locationProperties :: Set.Set Text.Text
 locationProperties =
-    [ "TAGame.CarComponent_Dodge_TA:DodgeTorque"
+    [ "Engine.Actor:RelativeLocation"
+    , "TAGame.CarComponent_Dodge_TA:DodgeTorque"
     ] & map Text.pack & Set.fromList
 
 -- | A set of properties that are music stingers.
