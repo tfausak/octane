@@ -353,7 +353,8 @@ getLoadoutProperty = do
     let body = getBody bodyId
     decalId <- getInt32
     let decal = getDecal decalId
-    wheels <- getInt32
+    wheelsId <- getInt32
+    let wheels = getWheels wheelsId
     rocketTrail <- getInt32
     antenna <- getInt32
     topper <- getInt32
@@ -380,6 +381,14 @@ getDecal :: Int -> Decal
 getDecal decalId = Data.decals
     & Bimap.lookup decalId
     & Maybe.fromMaybe (defaultDecal decalId)
+
+defaultWheels :: Int -> Wheels
+defaultWheels wheelsId = Text.pack ("Unknown wheels " ++ show wheelsId)
+
+getWheels :: Int -> Wheels
+getWheels wheelsId = Data.wheels
+    & Bimap.lookup wheelsId
+    & Maybe.fromMaybe (defaultWheels wheelsId)
 
 getLocationProperty :: Bits.BitGet PropValue
 getLocationProperty = do
@@ -572,6 +581,7 @@ instance Aeson.ToJSON Prop where
 
 type Body = Text.Text
 type Decal = Text.Text
+type Wheels = Text.Text
 
 data PropValue
     = PBoolean !Bool
@@ -584,7 +594,7 @@ data PropValue
     | PFloat !Float
     | PGameMode !Word.Word8
     | PInt !Int
-    | PLoadout !Int !Body !Decal !Int !Int !Int !Int !Int !(Maybe Int)
+    | PLoadout !Int !Body !Decal !Wheels !Int !Int !Int !Int !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
     | PLocation !(Vector Int)
     | PMusicStinger !Bool !Int !Int

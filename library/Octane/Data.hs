@@ -499,3 +499,32 @@ decals = let
         & concat
         & map (\ (k, v) -> (k, Text.pack v))
         & Bimap.fromList
+
+-- | A one-to-one mapping between wheels IDs and their names.
+wheels :: Bimap.Bimap Int Text.Text
+wheels =
+    [ (361, "Lucci")
+    , (363, "Dieci")
+    , (364, "Almas")
+    , (366, "Rat Rod")
+    , (369, "Bender")
+    , (369, "Lowrider")
+    , (370, "Neptune")
+    , (372, "Foreman")
+    , (374, "Alchemist")
+    , (375, "Mountaineer")
+    , (376, "OEM")
+    , (379, "Octavian")
+    , (380, "Invader")
+    , (382, "Falco")
+    , (386, "Cristiano")
+    , (388, "Spinner")
+    , (519, "Servergate")
+    , (540, "Scarab")
+    , (549, "Carriage")
+    , (609, "DeLorean Time Machine")
+    , (613, "Grog")
+    , (690, "Ripper")
+    , (874, "Batmobile")
+    -- TODO: This is incomplete.
+    ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
