@@ -6,7 +6,6 @@ import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Bimap as Bimap
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Get as Binary
@@ -16,7 +15,6 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Int as Int
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
-import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
@@ -25,6 +23,7 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Json as Json
 import qualified Octane.Parser.ClassPropertyMap as CPM
+import qualified Octane.Parser.Garage as Garage
 import qualified Octane.Type as Type
 import qualified Text.Printf as Printf
 
@@ -350,17 +349,17 @@ getLoadoutProperty :: Bits.BitGet PropValue
 getLoadoutProperty = do
     version <- getInt8
     bodyId <- getInt32
-    let body = getBody bodyId
+    let body = Garage.getBody bodyId
     decalId <- getInt32
-    let decal = getDecal decalId
+    let decal = Garage.getDecal decalId
     wheelsId <- getInt32
-    let wheels = getWheels wheelsId
+    let wheels = Garage.getWheels wheelsId
     rocketTrailId <- getInt32
-    let rocketTrail = getRocketTrail rocketTrailId
+    let rocketTrail = Garage.getRocketTrail rocketTrailId
     antennaId <- getInt32
-    let antenna = getAntenna antennaId
+    let antenna = Garage.getAntenna antennaId
     topperId <- getInt32
-    let topper = getTopper topperId
+    let topper = Garage.getTopper topperId
     g <- getInt32
     h <- if version > 10
         then do
@@ -368,54 +367,6 @@ getLoadoutProperty = do
             return (Just value)
         else return Nothing
     return (PLoadout version body decal wheels rocketTrail antenna topper g h)
-
-defaultBody :: Int -> Body
-defaultBody bodyId = Text.pack ("Unknown body " ++ show bodyId)
-
-getBody :: Int -> Body
-getBody bodyId = Data.bodies
-    & Bimap.lookup bodyId
-    & Maybe.fromMaybe (defaultBody bodyId)
-
-defaultDecal :: Int -> Decal
-defaultDecal decalId = Text.pack ("Unknown decal " ++ show decalId)
-
-getDecal :: Int -> Decal
-getDecal decalId = Data.decals
-    & Bimap.lookup decalId
-    & Maybe.fromMaybe (defaultDecal decalId)
-
-defaultWheels :: Int -> Wheels
-defaultWheels wheelsId = Text.pack ("Unknown wheels " ++ show wheelsId)
-
-getWheels :: Int -> Wheels
-getWheels wheelsId = Data.wheels
-    & Bimap.lookup wheelsId
-    & Maybe.fromMaybe (defaultWheels wheelsId)
-
-defaultRocketTrail :: Int -> RocketTrail
-defaultRocketTrail rocketTrailId = Text.pack ("Unknown rocket trail " ++ show rocketTrailId)
-
-getRocketTrail :: Int -> RocketTrail
-getRocketTrail rocketTrailId = Data.rocketTrails
-    & Bimap.lookup rocketTrailId
-    & Maybe.fromMaybe (defaultRocketTrail rocketTrailId)
-
-defaultAntenna :: Int -> Antenna
-defaultAntenna antennaId = Text.pack ("Unknown antenna " ++ show antennaId)
-
-getAntenna :: Int -> Antenna
-getAntenna antennaId = Data.antennas
-    & Bimap.lookup antennaId
-    & Maybe.fromMaybe (defaultAntenna antennaId)
-
-defaultTopper :: Int -> Topper
-defaultTopper topperId = Text.pack ("Unknown topper " ++ show topperId)
-
-getTopper :: Int -> Topper
-getTopper topperId = Data.toppers
-    & Bimap.lookup topperId
-    & Maybe.fromMaybe (defaultTopper topperId)
 
 getLocationProperty :: Bits.BitGet PropValue
 getLocationProperty = do
@@ -606,13 +557,6 @@ instance DeepSeq.NFData Prop
 instance Aeson.ToJSON Prop where
     toJSON = Aeson.genericToJSON (Json.toJsonOptions "Prop")
 
-type Body = Text.Text
-type Decal = Text.Text
-type Wheels = Text.Text
-type RocketTrail = Text.Text
-type Antenna = Text.Text
-type Topper = Text.Text
-
 data PropValue
     = PBoolean !Bool
     | PByte !Word.Word8
@@ -624,7 +568,16 @@ data PropValue
     | PFloat !Float
     | PGameMode !Word.Word8
     | PInt !Int
-    | PLoadout !Int !Body !Decal !Wheels !RocketTrail !Antenna !Topper !Int !(Maybe Int)
+    | PLoadout
+        !Int
+        !Garage.Body
+        !Garage.Decal
+        !Garage.Wheels
+        !Garage.RocketTrail
+        !Garage.Antenna
+        !Garage.Topper
+        !Int
+        !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
     | PLocation !(Vector Int)
     | PMusicStinger !Bool !Int !Int
