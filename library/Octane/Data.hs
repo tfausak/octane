@@ -528,3 +528,32 @@ wheels =
     , (874, "Batmobile")
     -- TODO: This is incomplete.
     ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
+
+-- | A one-to-one mapping between rocket trail IDs and their names.
+rocketTrails :: Bimap.Bimap Int Text.Text
+rocketTrails =
+    [ (33, "Bubbles")
+    , (34, "Confetti")
+    , (35, "Datastream")
+    , (36, "Flamethrower")
+    , (37, "Flamethrower Blue")
+    , (38, "Flamethrower Green")
+    , (39, "Flamethrower Pink")
+    , (40, "Flamethrower Purple")
+    , (41, "Flamethrower Red")
+    , (42, "Flowers")
+    , (43, "Grass")
+    , (45, "Ion Blue")
+    , (46, "Ion Green")
+    , (47, "Ion Pink")
+    , (48, "Ion Purple")
+    , (63, "Standard Red")
+    , (69, "Hydro")
+    , (387, "Burnout")
+    , (524, "Accelerato")
+    , (545, "Battle-Stars")
+    , (578, "Candy Corn")
+    , (626, "OutaTime")
+    , (868, "Batmobile")
+    -- TODO: This is incomplete.
+    ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList

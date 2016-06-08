@@ -355,7 +355,8 @@ getLoadoutProperty = do
     let decal = getDecal decalId
     wheelsId <- getInt32
     let wheels = getWheels wheelsId
-    rocketTrail <- getInt32
+    rocketTrailId <- getInt32
+    let rocketTrail = getRocketTrail rocketTrailId
     antenna <- getInt32
     topper <- getInt32
     g <- getInt32
@@ -389,6 +390,14 @@ getWheels :: Int -> Wheels
 getWheels wheelsId = Data.wheels
     & Bimap.lookup wheelsId
     & Maybe.fromMaybe (defaultWheels wheelsId)
+
+defaultRocketTrail :: Int -> RocketTrail
+defaultRocketTrail rocketTrailId = Text.pack ("Unknown rocket trail " ++ show rocketTrailId)
+
+getRocketTrail :: Int -> RocketTrail
+getRocketTrail rocketTrailId = Data.rocketTrails
+    & Bimap.lookup rocketTrailId
+    & Maybe.fromMaybe (defaultRocketTrail rocketTrailId)
 
 getLocationProperty :: Bits.BitGet PropValue
 getLocationProperty = do
@@ -582,6 +591,7 @@ instance Aeson.ToJSON Prop where
 type Body = Text.Text
 type Decal = Text.Text
 type Wheels = Text.Text
+type RocketTrail = Text.Text
 
 data PropValue
     = PBoolean !Bool
@@ -594,7 +604,7 @@ data PropValue
     | PFloat !Float
     | PGameMode !Word.Word8
     | PInt !Int
-    | PLoadout !Int !Body !Decal !Wheels !Int !Int !Int !Int !(Maybe Int)
+    | PLoadout !Int !Body !Decal !Wheels !RocketTrail !Int !Int !Int !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
     | PLocation !(Vector Int)
     | PMusicStinger !Bool !Int !Int
