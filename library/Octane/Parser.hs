@@ -359,7 +359,8 @@ getLoadoutProperty = do
     let rocketTrail = getRocketTrail rocketTrailId
     antennaId <- getInt32
     let antenna = getAntenna antennaId
-    topper <- getInt32
+    topperId <- getInt32
+    let topper = getTopper topperId
     g <- getInt32
     h <- if version > 10
         then do
@@ -407,6 +408,14 @@ getAntenna :: Int -> Antenna
 getAntenna antennaId = Data.antennas
     & Bimap.lookup antennaId
     & Maybe.fromMaybe (defaultAntenna antennaId)
+
+defaultTopper :: Int -> Topper
+defaultTopper topperId = Text.pack ("Unknown topper " ++ show topperId)
+
+getTopper :: Int -> Topper
+getTopper topperId = Data.toppers
+    & Bimap.lookup topperId
+    & Maybe.fromMaybe (defaultTopper topperId)
 
 getLocationProperty :: Bits.BitGet PropValue
 getLocationProperty = do
@@ -602,6 +611,7 @@ type Decal = Text.Text
 type Wheels = Text.Text
 type RocketTrail = Text.Text
 type Antenna = Text.Text
+type Topper = Text.Text
 
 data PropValue
     = PBoolean !Bool
@@ -614,7 +624,7 @@ data PropValue
     | PFloat !Float
     | PGameMode !Word.Word8
     | PInt !Int
-    | PLoadout !Int !Body !Decal !Wheels !RocketTrail !Antenna !Int !Int !(Maybe Int)
+    | PLoadout !Int !Body !Decal !Wheels !RocketTrail !Antenna !Topper !Int !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
     | PLocation !(Vector Int)
     | PMusicStinger !Bool !Int !Int

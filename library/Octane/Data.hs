@@ -584,3 +584,29 @@ antennas =
     -- TODO: This is incomplete.
     ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
 
+-- | A one-to-one mapping between topper IDs and their names.
+toppers :: Bimap.Bimap Int Text.Text
+toppers =
+    [ (0, "None")
+    , (227, "Bobby Helmet")
+    , (237, "Cherry Top")
+    , (241, "Brünnhilde")
+    , (521, "Boombox")
+    , (580, "Cavalier")
+    , (639, "Christmas Tree")
+    , (640, "Blitzen")
+    , (685, "Cow Skull")
+    , (741, "Captain's Hat")
+    , (743, "Brodie Helmet")
+    , (745, "Bowler")
+    , (756, "Chef's Hat")
+    , (769, "Cockroach")
+    , (774, "Antlers")
+    , (775, "Beret")
+    , (776, "Biker Cap")
+    , (789, "Birthday Cake")
+    , (792, "Deerstalker")
+    , (795, "Chainsaw")
+    , (796, "deadmau5")
+    -- TODO: This is incomplete.
+    ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
