@@ -557,3 +557,30 @@ rocketTrails =
     , (868, "Batmobile")
     -- TODO: This is incomplete.
     ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
+
+-- | A one-to-one mapping between antenna IDs and their names.
+antennas :: Bimap.Bimap Int Text.Text
+antennas =
+    [ (0, "None")
+    , (1, "8-Ball")
+    , (3, "Dollar Sign")
+    , (284, "Blue Chequered Flag")
+    , (285, "Camo Flag")
+    , (391, "Dave's Bread")
+    , (392, "Chick Magnet")
+    , (393, "Cupcake")
+    , (394, "Disconnect")
+    , (395, "Donut")
+    , (398, "Foam Finger")
+    , (574, "Calavera")
+    , (614, "Bomb Pole")
+    , (649, "Candy Cane")
+    , (752, "Balloon Dog")
+    , (753, "Alien")
+    , (757, "Candle")
+    , (781, "deadmau5")
+    , (800, "Disco Ball")
+    , (804, "Batman")
+    -- TODO: This is incomplete.
+    ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
+
