@@ -452,53 +452,58 @@ bodies =
 
 -- | A one-to-one mapping between decal IDs and their names.
 decals :: Bimap.Bimap Int Text.Text
-decals = let
-    common =
-        [ (0, "None")
-        , (295, "Flames")
+decals =
+    [ ( "Backfire",
+        [ (295, "Flames")
         , (305, "Stars")
         , (313, "Stripes")
         , (321, "Tech")
         , (324, "Lightning")
         , (336, "Wings")
         , (339, "Skulls")
-        , (344, "Dots")
-        , (356, "Tagged")
-        ]
-    dominus =
+        ])
+    , ( "Dominus",
         [ (504, "Flames")
         , (506, "Scorpions")
         -- TODO: This is incomplete.
-        ] & map (\ (k, v) -> (k, v ++ " [Dominus]"))
-    grog =
+        ])
+    , ( "Grog",
         [ (674, "Bomber")
         , (696, "Tribal")
         -- TODO: This is incomplete.
-        ] & map (\ (k, v) -> (k, v ++ " [Grog]"))
-    ripper =
+        ])
+    , ( "Octane",
+        [ (308, "Wings")
+        , (302, "Flames")
+        -- TODO: This is incomplete.
+        ])
+    , ( "Ripper",
         [ (672, "Tribal")
         , (701, "Bomber")
         -- TODO: This is incomplete.
-        ] & map (\ (k, v) -> (k, v ++ " [Ripper]"))
-    scarab =
+        ])
+    , ( "Scarab",
         [ (585, "Bomani")
         , (588, "Tribal")
         -- TODO: This is incomplete.
-        ] & map (\ (k, v) -> (k, v ++ " [Scarab]"))
-    takumi =
+        ])
+    , ( "Takumi",
         [ (501, "Stripes")
         , (503, "Chaser")
         -- TODO: This is incomplete.
-        ] & map (\ (k, v) -> (k, v ++ " [Takumi]"))
-    zippy =
+        ])
+    , ( "Zippy",
         [ (582, "Tiger")
         , (589, "Caboodle")
         -- TODO: This is incomplete.
-        ] & map (\ (k, v) -> (k, v ++ " [Zippy]"))
-    in [common, dominus, grog, ripper, scarab, takumi, zippy]
+        ])
+    ]
+        & map (\ (body, values) -> values &
+            map (\ (k, v) -> (k, v ++ " [" ++ body ++ "]")))
         & concat
         & map (\ (k, v) -> (k, Text.pack v))
         & Bimap.fromList
+        & Bimap.insert 0 (Text.pack "None")
 
 -- | A one-to-one mapping between wheels IDs and their names.
 wheels :: Bimap.Bimap Int Text.Text
