@@ -456,6 +456,7 @@ decals =
         [ ("Flames", 295)
         , ("Lightning", 324)
         , ("Skulls", 339)
+        , ("Stars", 291)
         , ("Stripes", 313)
         , ("Tech", 321)
         , ("Wings", 336)
@@ -534,6 +535,7 @@ wheels =
     , ("Sunburt", 383)
     , ("Tempest", 377)
     , ("Tomahawk", 362)
+    , ("Trahere", 367)
     -- TODO
     ] & map (\ (v, k) -> (k, Text.pack v)) & Bimap.fromList
 
@@ -567,6 +569,7 @@ rocketTrails =
     , ("Nitrous", 384)
     , ("Nuts & Bolts", 544)
     , ("OutaTime", 626)
+    , ("Plasma", 52)
     , ("Sacred", 44)
     , ("Standard Red", 63)
     -- TODO
@@ -599,6 +602,7 @@ antennas =
     , ("Genie Lamp", 798)
     , ("Gingerbread Man", 5)
     , ("Heart", 7)
+    , ("Holiday Gift", 650)
     , ("None", 0)
     , ("Wonder Woman", 806)
     -- TODO
@@ -632,6 +636,7 @@ toppers =
     , ("Fez", 230)
     , ("Fire Helmet", 231)
     , ("Foam Hat", 390)
+    , ("Fruit Hat", 744)
     , ("Mohawk", 638)
     , ("None", 0)
     -- TODO
