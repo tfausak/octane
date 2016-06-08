@@ -5,6 +5,7 @@ module Octane.Data where
 import Data.Function ((&))
 import Data.Monoid ((<>))
 
+import qualified Data.Bimap as Bimap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -422,3 +423,29 @@ uniqueIdProperties =
     [ "Engine.PlayerReplicationInfo:UniqueId"
     -- , "TAGame.PRI_TA:PartyLeader"
     ] & map Text.pack & Set.fromList
+
+-- * Garage
+
+-- | A one-to-one mapping between body IDs and their names.
+bodies :: Bimap.Bimap Int Text.Text
+bodies =
+    [ (21, "Backfire")
+    , (22, "Breakout")
+    , (23, "Octane")
+    , (24, "Paladin")
+    , (25, "Road Hog")
+    , (26, "Gizmo")
+    -- 27 is conspicuously missing...
+    , (28, "X-Devil")
+    , (29, "Hotshot")
+    , (30, "Merc")
+    , (31, "Venom")
+    , (402, "Takumi")
+    , (403, "Dominus")
+    , (404, "Scarab")
+    , (523, "Zippy")
+    , (597, "DeLorean Time Machine")
+    , (600, "Ripper")
+    , (607, "Grog")
+    , (803, "Batmobile")
+    ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList

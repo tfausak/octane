@@ -6,6 +6,7 @@ import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
+import qualified Data.Bimap as Bimap
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Get as Binary
@@ -15,6 +16,7 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Int as Int
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
+import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
@@ -347,7 +349,8 @@ getLoadoutOnlineProperty = do
 getLoadoutProperty :: Bits.BitGet PropValue
 getLoadoutProperty = do
     version <- getInt8
-    body <- getInt32
+    bodyId <- getInt32
+    let body = getBody bodyId
     decal <- getInt32
     wheels <- getInt32
     rocketTrail <- getInt32
@@ -360,6 +363,14 @@ getLoadoutProperty = do
             return (Just value)
         else return Nothing
     return (PLoadout version body decal wheels rocketTrail antenna topper g h)
+
+defaultBody :: Int -> Body
+defaultBody bodyId = Text.pack ("Unknown body " ++ show bodyId)
+
+getBody :: Int -> Body
+getBody bodyId = Data.bodies
+    & Bimap.lookup bodyId
+    & Maybe.fromMaybe (defaultBody bodyId)
 
 getLocationProperty :: Bits.BitGet PropValue
 getLocationProperty = do
@@ -550,6 +561,8 @@ instance DeepSeq.NFData Prop
 instance Aeson.ToJSON Prop where
     toJSON = Aeson.genericToJSON (Json.toJsonOptions "Prop")
 
+type Body = Text.Text
+
 data PropValue
     = PBoolean !Bool
     | PByte !Word.Word8
@@ -561,7 +574,7 @@ data PropValue
     | PFloat !Float
     | PGameMode !Word.Word8
     | PInt !Int
-    | PLoadout !Int !Int !Int !Int !Int !Int !Int !Int !(Maybe Int)
+    | PLoadout !Int !Body !Int !Int !Int !Int !Int !Int !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
     | PLocation !(Vector Int)
     | PMusicStinger !Bool !Int !Int

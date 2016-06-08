@@ -38,6 +38,7 @@ library:
   - aeson ==0.11.*
   - autoexporter ==0.2.*
   - base ==4.9.*
+  - bimap ==0.3.*
   - binary ==0.8.*
   - binary-bits ==0.5.*
   - bytestring ==0.10.*
