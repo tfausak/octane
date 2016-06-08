@@ -453,9 +453,9 @@ bodies =
 -- | A one-to-one mapping between decal IDs and their names.
 decals :: Bimap.Bimap Int Text.Text
 decals =
+    -- TODO: This is incomplete.
     [ ( "Backfire",
         [ (295, "Flames")
-        , (305, "Stars")
         , (313, "Stripes")
         , (321, "Tech")
         , (324, "Lightning")
@@ -465,37 +465,35 @@ decals =
     , ( "Dominus",
         [ (504, "Flames")
         , (506, "Scorpions")
-        -- TODO: This is incomplete.
         ])
     , ( "Grog",
         [ (674, "Bomber")
         , (696, "Tribal")
-        -- TODO: This is incomplete.
         ])
     , ( "Octane",
         [ (308, "Wings")
         , (302, "Flames")
-        -- TODO: This is incomplete.
+        , (303, "Lightning")
+        , (304, "Skulls")
+        , (305, "Stars")
+        , (306, "Stripes")
+        , (307, "Tech")
         ])
     , ( "Ripper",
         [ (672, "Tribal")
         , (701, "Bomber")
-        -- TODO: This is incomplete.
         ])
     , ( "Scarab",
         [ (585, "Bomani")
         , (588, "Tribal")
-        -- TODO: This is incomplete.
         ])
     , ( "Takumi",
         [ (501, "Stripes")
         , (503, "Chaser")
-        -- TODO: This is incomplete.
         ])
     , ( "Zippy",
         [ (582, "Tiger")
         , (589, "Caboodle")
-        -- TODO: This is incomplete.
         ])
     ]
         & map (\ (body, values) -> values &
@@ -515,6 +513,7 @@ wheels =
     , (369, "Bender")
     , (369, "Lowrider")
     , (370, "Neptune")
+    , (371, "Spyder")
     , (372, "Foreman")
     , (374, "Alchemist")
     , (375, "Mountaineer")
@@ -531,6 +530,11 @@ wheels =
     , (613, "Grog")
     , (690, "Ripper")
     , (874, "Batmobile")
+    , (365, "Stallion")
+    , (368, "Stern")
+    , (383, "Sunburt")
+    , (377, "Tempest")
+    , (362, "Tomahawk")
     -- TODO: This is incomplete.
     ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
 
@@ -560,6 +564,12 @@ rocketTrails =
     , (578, "Candy Corn")
     , (626, "OutaTime")
     , (868, "Batmobile")
+    , (44, "Sacred")
+    , (49, "Ion Red")
+    , (50, "Ion Yellow")
+    , (51, "Money")
+    , (384, "Nitrous")
+    , (544, "Nuts & Bolts")
     -- TODO: This is incomplete.
     ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
 
@@ -586,6 +596,12 @@ antennas =
     , (781, "deadmau5")
     , (800, "Disco Ball")
     , (804, "Batman")
+    , (806, "Wonder Woman")
+    , (593, "Fuzzy Brute")
+    , (595, "Fuzzy Vamp")
+    , (798, "Genie Lamp")
+    , (5, "Gingerbread Man")
+    , (7, "Heart")
     -- TODO: This is incomplete.
     ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
 
@@ -613,5 +629,11 @@ toppers =
     , (792, "Deerstalker")
     , (795, "Chainsaw")
     , (796, "deadmau5")
+    , (638, "Mohawk")
+    , (790, "Derby")
+    , (229, "Devil Horns")
+    , (230, "Fez")
+    , (231, "Fire Helmet")
+    , (390, "Foam Hat")
     -- TODO: This is incomplete.
     ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
