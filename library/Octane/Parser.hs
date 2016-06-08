@@ -351,7 +351,8 @@ getLoadoutProperty = do
     version <- getInt8
     bodyId <- getInt32
     let body = getBody bodyId
-    decal <- getInt32
+    decalId <- getInt32
+    let decal = getDecal decalId
     wheels <- getInt32
     rocketTrail <- getInt32
     antenna <- getInt32
@@ -371,6 +372,14 @@ getBody :: Int -> Body
 getBody bodyId = Data.bodies
     & Bimap.lookup bodyId
     & Maybe.fromMaybe (defaultBody bodyId)
+
+defaultDecal :: Int -> Decal
+defaultDecal decalId = Text.pack ("Unknown decal " ++ show decalId)
+
+getDecal :: Int -> Decal
+getDecal decalId = Data.decals
+    & Bimap.lookup decalId
+    & Maybe.fromMaybe (defaultDecal decalId)
 
 getLocationProperty :: Bits.BitGet PropValue
 getLocationProperty = do
@@ -562,6 +571,7 @@ instance Aeson.ToJSON Prop where
     toJSON = Aeson.genericToJSON (Json.toJsonOptions "Prop")
 
 type Body = Text.Text
+type Decal = Text.Text
 
 data PropValue
     = PBoolean !Bool
@@ -574,7 +584,7 @@ data PropValue
     | PFloat !Float
     | PGameMode !Word.Word8
     | PInt !Int
-    | PLoadout !Int !Body !Int !Int !Int !Int !Int !Int !(Maybe Int)
+    | PLoadout !Int !Body !Decal !Int !Int !Int !Int !Int !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
     | PLocation !(Vector Int)
     | PMusicStinger !Bool !Int !Int

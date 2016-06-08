@@ -449,3 +449,53 @@ bodies =
     , (607, "Grog")
     , (803, "Batmobile")
     ] & map (\ (k, v) -> (k, Text.pack v)) & Bimap.fromList
+
+-- | A one-to-one mapping between decal IDs and their names.
+decals :: Bimap.Bimap Int Text.Text
+decals = let
+    common =
+        [ (0, "None")
+        , (295, "Flames")
+        , (305, "Stars")
+        , (313, "Stripes")
+        , (321, "Tech")
+        , (324, "Lightning")
+        , (336, "Wings")
+        , (339, "Skulls")
+        , (344, "Dots")
+        , (356, "Tagged")
+        ]
+    dominus =
+        [ (504, "Flames")
+        , (506, "Scorpions")
+        -- TODO: This is incomplete.
+        ] & map (\ (k, v) -> (k, v ++ " [Dominus]"))
+    grog =
+        [ (674, "Bomber")
+        , (696, "Tribal")
+        -- TODO: This is incomplete.
+        ] & map (\ (k, v) -> (k, v ++ " [Grog]"))
+    ripper =
+        [ (672, "Tribal")
+        , (701, "Bomber")
+        -- TODO: This is incomplete.
+        ] & map (\ (k, v) -> (k, v ++ " [Ripper]"))
+    scarab =
+        [ (585, "Bomani")
+        , (588, "Tribal")
+        -- TODO: This is incomplete.
+        ] & map (\ (k, v) -> (k, v ++ " [Scarab]"))
+    takumi =
+        [ (501, "Stripes")
+        , (503, "Chaser")
+        -- TODO: This is incomplete.
+        ] & map (\ (k, v) -> (k, v ++ " [Takumi]"))
+    zippy =
+        [ (582, "Tiger")
+        , (589, "Caboodle")
+        -- TODO: This is incomplete.
+        ] & map (\ (k, v) -> (k, v ++ " [Zippy]"))
+    in [common, dominus, grog, ripper, scarab, takumi, zippy]
+        & concat
+        & map (\ (k, v) -> (k, Text.pack v))
+        & Bimap.fromList
