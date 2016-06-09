@@ -1164,6 +1164,7 @@ finishes =
     , ("Camo", 541)
     , ("Carbon Fiber", 272)
     , ("Corroded Metal", 268)
+    , ("DeLorean Time Machine", 623)
     , ("Glossy", 270)
     , ("Matte", 273)
     , ("Metallic", 274)
