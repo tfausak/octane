@@ -75,7 +75,7 @@ classToObjects = let
         , ( "TAGame.PRI_TA",
             [ "TAGame.Default__PRI_TA"
             ])
-        , ( "TAGame.Team_TA",
+        , ( "TAGame.Team_Soccar_TA",
             [ "Archetypes.Teams.Team"
             ])
         , ( "TAGame.VoteActor_TA",
@@ -113,7 +113,7 @@ locationClasses =
     , "TAGame.GameEvent_SoccarSplitscreen_TA"
     , "TAGame.GameEvent_Soccar_TA"
     , "TAGame.PRI_TA"
-    , "TAGame.Team_TA"
+    , "TAGame.Team_Soccar_TA"
     ] & map Text.pack & Set.fromList
 
 -- | A set of classes that have an initial rotation vector.
@@ -338,6 +338,7 @@ intProperties =
     , "TAGame.PRI_TA:MatchShots"
     , "TAGame.PRI_TA:Title"
     , "TAGame.PRI_TA:TotalXP"
+    , "TAGame.Team_Soccar_TA:GameScore"
     ] & map Text.pack & Set.fromList
 
 -- | A set of properties that are online loadouts.
