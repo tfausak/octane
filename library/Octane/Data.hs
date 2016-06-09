@@ -43,11 +43,9 @@ classToObjects = let
         , ( "TAGame.CarComponent_Jump_TA",
             [ "Archetypes.CarComponents.CarComponent_Jump"
             ])
-        , ( "TAGame.Car_Season_TA",
-            [ "Archetypes.GameEvent.GameEvent_Season:CarArchetype"
-            ])
         , ( "TAGame.Car_TA",
             [ "Archetypes.Car.Car_Default"
+            , "Archetypes.GameEvent.GameEvent_Season:CarArchetype"
             ])
         , ( "TAGame.GameEvent_Season_TA",
             [ "Archetypes.GameEvent.GameEvent_Season"
