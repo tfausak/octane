@@ -14,6 +14,7 @@ type Wheels = Text.Text
 type RocketTrail = Text.Text
 type Antenna = Text.Text
 type Topper = Text.Text
+type Finish = Text.Text
 
 
 getDefaultItem :: String -> Int -> Text.Text
@@ -49,3 +50,7 @@ getAntenna = getItem Data.antennas "antenna"
 
 getTopper :: Int -> Topper
 getTopper = getItem Data.toppers "topper"
+
+
+getFinish :: Int -> Finish
+getFinish = getItem Data.finishes "finish"

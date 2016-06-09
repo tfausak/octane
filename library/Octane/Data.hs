@@ -1156,3 +1156,23 @@ toppers =
     , ("Work Boot", 740)
     , ("Worms W.M.D.", 1028)
     ] & map (\ (v, k) -> (k, Text.pack v)) & Bimap.fromList
+
+-- | A one-to-one mapping between paint finish IDs and their names.
+finishes :: Bimap.Bimap Int Text.Text
+finishes =
+    [ ("Brushed Metal", 266)
+    , ("Camo", 541)
+    , ("Carbon Fiber", 272)
+    , ("Corroded Metal", 268)
+    , ("Glossy", 270)
+    , ("Matte", 273)
+    , ("Metallic", 274)
+    , ("Metallic Pearl", 275)
+    , ("Pearlescent", 276)
+    , ("Semigloss", 277)
+    , ("Sun-Damaged", 542)
+    , ("Toon Glossy", 279)
+    , ("Toon Matte", 281)
+    , ("Toon Wood", 280)
+    , ("Wood", 283)
+    ] & map (\ (v, k) -> (k, Text.pack v)) & Bimap.fromList
