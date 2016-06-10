@@ -36,29 +36,29 @@ parseFrames replay = let
         & (\ property -> case property of
             Just (Type.IntProperty _ x) -> x & Type.unpackWord32LE & fromIntegral
             _ -> 0)
-    get = replay & extractContext & getFrames numFrames & Bits.runBitGet
+    get = replay & extractContext & getFrames 0 numFrames & Bits.runBitGet
     stream = replay & Type.replayStream & Type.unpackStream & BSL.fromStrict
     (_context, frames) = Binary.runGet get stream
     in frames
 
-getFrames :: Int -> Context -> Bits.BitGet (Context, [Frame])
-getFrames numFrames context = do
-    if numFrames < 1
+getFrames :: Int -> Int -> Context -> Bits.BitGet (Context, [Frame])
+getFrames number numFrames context = do
+    if number >= numFrames
     then return (context, [])
     else do
         isEmpty <- Bits.isEmpty
         if isEmpty
         then return (context, [])
         else do
-            maybeFrame <- getMaybeFrame context
+            maybeFrame <- getMaybeFrame context number
             case maybeFrame of
                 Nothing -> return (context, [])
                 Just (newContext, frame) -> do
-                    (newerContext, frames) <- getFrames (numFrames - 1) newContext
+                    (newerContext, frames) <- getFrames (number + 1) numFrames newContext
                     return (newerContext, (frame : frames))
 
-getMaybeFrame :: Context -> Bits.BitGet (Maybe (Context, Frame))
-getMaybeFrame context = do
+getMaybeFrame :: Context -> Int -> Bits.BitGet (Maybe (Context, Frame))
+getMaybeFrame context number = do
     time <- getFloat32
     delta <- getFloat32
     if time == 0 && delta == 0
@@ -66,15 +66,16 @@ getMaybeFrame context = do
     else if time < 0.001 || delta < 0.001
     then error ("parsing previous frame probably failed. time: " ++ show time ++ ", delta: " ++ show delta)
     else do
-        (newContext, frame) <- getFrame context time delta
+        (newContext, frame) <- getFrame context number time delta
         return (Just (newContext, frame))
 
-getFrame :: Context -> Time -> Delta -> Bits.BitGet (Context, Frame)
-getFrame context time delta = do
+getFrame :: Context -> Int -> Time -> Delta -> Bits.BitGet (Context, Frame)
+getFrame context number time delta = do
     (newContext, replications) <- getReplications context
     let frame =
             Frame
-            { frameTime = time
+            { frameNumber = number
+            , frameTime = time
             , frameDelta = delta
             , frameReplications = replications
             }
@@ -606,7 +607,8 @@ instance Aeson.ToJSON PropValue where
 -- | A frame in the net stream. Each frame has the time since the beginning of
 -- the match, the time since the last frame, and a list of replications.
 data Frame = Frame
-    { frameTime :: !Float
+    { frameNumber :: !Int
+    , frameTime :: !Float
     , frameDelta :: !Float
     , frameReplications :: ![Replication]
     } deriving (Eq,Generics.Generic,Show)
