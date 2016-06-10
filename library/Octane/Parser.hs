@@ -75,6 +75,7 @@ getFrame context number time delta = do
     let frame =
             Frame
             { frameNumber = number
+            , frameIsKeyFrame = context & contextKeyFrames & Set.member number
             , frameTime = time
             , frameDelta = delta
             , frameReplications = replications
@@ -608,6 +609,7 @@ instance Aeson.ToJSON PropValue where
 -- the match, the time since the last frame, and a list of replications.
 data Frame = Frame
     { frameNumber :: !Int
+    , frameIsKeyFrame :: !Bool
     , frameTime :: !Float
     , frameDelta :: !Float
     , frameReplications :: ![Replication]
@@ -698,6 +700,7 @@ data Context = Context
     , contextClassPropertyMap :: !ClassPropertyMap
     , contextThings :: !(IntMap.IntMap Thing)
     , contextClassMap :: !ClassMap
+    , contextKeyFrames :: !(Set.Set Int)
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData Context
@@ -709,6 +712,13 @@ extractContext replay =
     , contextClassPropertyMap = CPM.getClassPropertyMap replay
     , contextThings = IntMap.empty
     , contextClassMap = CPM.getActorMap replay
+    , contextKeyFrames = replay
+        & Type.replayKeyFrames
+        & Type.unpackList
+        & map Type.keyFrameFrame
+        & map Type.unpackWord32LE
+        & map fromIntegral
+        & Set.fromList
     }
 
 byteStringToFloat :: BS.ByteString -> Float
