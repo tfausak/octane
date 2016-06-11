@@ -12,14 +12,16 @@ module Octane.FullReplay
 import Data.Aeson ((.=))
 import Data.Function ((&))
 import Data.Monoid ((<>))
-import Prelude ((==))
+import Prelude ((==), (/=), (&&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.ByteString.Lazy as ByteString
-import qualified Data.Map as Map
+import qualified Data.Foldable as Foldable
+import qualified Data.IntMap.Strict as IntMap
+import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
@@ -124,6 +126,14 @@ getFrames :: FullReplay -> [Map.Map Text.Text Aeson.Value]
 getFrames fullReplay = fullReplay
     & unpackFullReplay
     & Prelude.snd
+    & Foldable.foldl'
+        (\ (state, frames) frame -> let
+            newState = updateState frame state
+            minimalFrame = getDelta state frame
+            in (newState, minimalFrame : frames))
+        (initialState, [])
+    & Prelude.snd
+    & Prelude.reverse
     & Prelude.map (\ frame -> Map.fromList
         [ ("IsKeyFrame", frame & Parser.frameIsKeyFrame & Aeson.toJSON)
         , ("Number", frame & Parser.frameNumber & Aeson.toJSON)
@@ -133,6 +143,99 @@ getFrames fullReplay = fullReplay
         , ("Updated", getUpdatedActors frame)
         , ("Destroyed", getDestroyedActors frame)
         ])
+
+
+-- { actor id => (alive?, { property name => property value } ) }
+type State = IntMap.IntMap (Prelude.Bool, Map.Map Text.Text Parser.PropValue)
+
+
+initialState :: State
+initialState = IntMap.empty
+
+
+updateState :: Parser.Frame -> State -> State
+updateState frame state1 = let
+    spawned = frame
+        & Parser.frameReplications
+        & Prelude.filter (\ replication -> replication
+            & Parser.replicationState
+            & (== Parser.RSOpening))
+        & Prelude.map Parser.replicationActorId
+    state2 = spawned
+        & Prelude.foldr
+            (IntMap.alter (\ maybeValue -> Prelude.Just (case maybeValue of
+                Prelude.Nothing -> (Prelude.True, Map.empty)
+                Prelude.Just (_, properties) -> (Prelude.True, properties))))
+            state1
+
+    destroyed = frame
+        & Parser.frameReplications
+        & Prelude.filter (\ replication -> replication
+            & Parser.replicationState
+            & (== Parser.RSClosing))
+        & Prelude.map Parser.replicationActorId
+    state3 = destroyed
+        & Prelude.foldr
+            (IntMap.alter (\ maybeValue -> Prelude.Just (case maybeValue of
+                Prelude.Nothing -> (Prelude.False, Map.empty)
+                Prelude.Just (_, properties) -> (Prelude.False, properties))))
+            state2
+
+    updated = frame
+        & Parser.frameReplications
+        & Prelude.filter (\ replication -> replication
+            & Parser.replicationState
+            & (== Parser.RSExisting))
+    state4 = updated
+        & Prelude.foldr
+            (\ replication -> IntMap.alter
+                (\ maybeValue -> Prelude.Just (case maybeValue of
+                    Prelude.Nothing ->
+                        (Prelude.True, Parser.replicationProperties replication)
+                    Prelude.Just (alive, properties) ->
+                        ( alive
+                        , Map.union
+                            (Parser.replicationProperties replication)
+                            properties
+                        )))
+                (Parser.replicationActorId replication))
+            state3
+
+    in state4
+
+
+getDelta :: State -> Parser.Frame -> Parser.Frame
+getDelta state frame = let
+    newReplications = frame
+        & Parser.frameReplications
+        -- Remove replications that aren't actually new.
+        & reject (\ replication -> let
+            isOpening = Parser.replicationState replication == Parser.RSOpening
+            actorId = Parser.replicationActorId replication
+            currentState = IntMap.lookup actorId state
+            isAlive = Prelude.fmap Prelude.fst currentState
+            wasAlreadyAlive = isAlive == Prelude.Just Prelude.True
+            in isOpening && wasAlreadyAlive)
+        -- Remove properties that haven't changed.
+        & Prelude.map (\ replication ->
+            if Parser.replicationState replication == Parser.RSExisting
+            then let
+                actorId = Parser.replicationActorId replication
+                currentState = IntMap.findWithDefault
+                    (Prelude.True, Map.empty) actorId state
+                currentProperties = Prelude.snd currentState
+                newProperties = Parser.replicationProperties replication
+                changes = newProperties
+                    & Map.filterWithKey (\ name newValue -> let
+                        oldValue = Map.lookup name currentProperties
+                        in Prelude.Just newValue /= oldValue)
+                in replication { Parser.replicationProperties = changes }
+            else replication)
+    in frame { Parser.frameReplications = newReplications }
+
+
+reject :: (a -> Prelude.Bool) -> [a] -> [a]
+reject p xs = Prelude.filter (\ x -> Prelude.not (p x)) xs
 
 
 getSpawnedActors :: Parser.Frame -> Aeson.Value
