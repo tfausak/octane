@@ -11,6 +11,7 @@ module Octane.FullReplay
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
+import Prelude ((==))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -39,6 +40,7 @@ instance Aeson.ToJSON FullReplay where
             , "Levels" .= levels fullReplay
             , "Messages" .= messages fullReplay
             , "TickMarks" .= tickMarks fullReplay
+            , "Frames" .= getFrames fullReplay
             ]
 
 
@@ -114,6 +116,25 @@ tickMarks fullReplay = fullReplay
         , mark & Type.markLabel
         ))
     & Map.fromList
+
+
+getFrames :: FullReplay -> [Map.Map Text.Text Aeson.Value]
+getFrames fullReplay = fullReplay
+    & unpackFullReplay
+    & Prelude.snd
+    & Prelude.map (\ frame -> Map.fromList
+        [ ("IsKeyFrame", frame & Parser.frameIsKeyFrame & Aeson.toJSON)
+        , ("Number", frame & Parser.frameNumber & Aeson.toJSON)
+        , ("Time", frame & Parser.frameTime & Aeson.toJSON)
+        , ("Delta", frame & Parser.frameDelta & Aeson.toJSON)
+        , ("Destroyed", frame
+            & Parser.frameReplications
+            & Prelude.filter (\ replication -> replication
+                & Parser.replicationState
+                & (== Parser.RSClosing))
+            & Prelude.map Parser.replicationActorId
+            & Aeson.toJSON)
+        ])
 
 
 parseReplay :: ByteString.ByteString -> Prelude.Either Text.Text FullReplay
