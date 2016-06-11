@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Octane.FullReplay
     ( FullReplay
@@ -7,6 +8,10 @@ module Octane.FullReplay
     , unsafeParseReplay
     , unsafeParseReplayFile
     ) where
+
+import Data.Aeson ((.=))
+import Data.Function ((&))
+import Data.Monoid ((<>))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -25,9 +30,12 @@ newtype FullReplay = FullReplay (Type.Replay, [Parser.Frame])
 instance DeepSeq.NFData FullReplay
 
 instance Aeson.ToJSON FullReplay where
-    toJSON _ = Aeson.object
-        [
-        ]
+    toJSON (FullReplay (replay, _frames)) = do
+        let v1 = replay & Type.replayVersion1 & Type.unpackWord32LE
+        let v2 = replay & Type.replayVersion2 & Type.unpackWord32LE
+        Aeson.object
+            [ "Version" .= (Prelude.show v1 <> "." <> Prelude.show v2)
+            ]
 
 
 fullReplay :: Type.Replay -> [Parser.Frame] -> FullReplay
