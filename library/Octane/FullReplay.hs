@@ -35,11 +35,11 @@ instance DeepSeq.NFData FullReplay
 instance Aeson.ToJSON FullReplay where
     toJSON fullReplay = do
         Aeson.object
-            [ "Version" .= version fullReplay
-            , "Metadata" .= metadata fullReplay
-            , "Levels" .= levels fullReplay
-            , "Messages" .= messages fullReplay
-            , "TickMarks" .= tickMarks fullReplay
+            [ "Version" .= getVersion fullReplay
+            , "Metadata" .= getMetadata fullReplay
+            , "Levels" .= getLevels fullReplay
+            , "Messages" .= getMessages fullReplay
+            , "TickMarks" .= getTickMarks fullReplay
             , "Frames" .= getFrames fullReplay
             ]
 
@@ -48,8 +48,8 @@ newFullReplay :: Type.Replay -> [Parser.Frame] -> FullReplay
 newFullReplay replay frames = FullReplay (replay, frames)
 
 
-version :: FullReplay -> Prelude.String
-version fullReplay =
+getVersion :: FullReplay -> Prelude.String
+getVersion fullReplay =
     [ fullReplay
         & unpackFullReplay
         & Prelude.fst
@@ -65,8 +65,8 @@ version fullReplay =
     ] & Version.makeVersion & Version.showVersion
 
 
-metadata :: FullReplay -> Map.Map Text.Text Aeson.Value
-metadata fullReplay = fullReplay
+getMetadata :: FullReplay -> Map.Map Text.Text Aeson.Value
+getMetadata fullReplay = fullReplay
     & unpackFullReplay
     & Prelude.fst
     & Type.replayProperties
@@ -75,8 +75,8 @@ metadata fullReplay = fullReplay
     & Map.map Aeson.toJSON
 
 
-levels :: FullReplay -> [Text.Text]
-levels fullReplay = fullReplay
+getLevels :: FullReplay -> [Text.Text]
+getLevels fullReplay = fullReplay
     & unpackFullReplay
     & Prelude.fst
     & Type.replayLevels
@@ -84,8 +84,8 @@ levels fullReplay = fullReplay
     & Prelude.map Type.unpackPCString
 
 
-messages :: FullReplay -> Map.Map Text.Text Type.PCString
-messages fullReplay = fullReplay
+getMessages :: FullReplay -> Map.Map Text.Text Type.PCString
+getMessages fullReplay = fullReplay
     & unpackFullReplay
     & Prelude.fst
     & Type.replayMessages
@@ -101,8 +101,8 @@ messages fullReplay = fullReplay
     & Map.fromList
 
 
-tickMarks :: FullReplay -> Map.Map Text.Text Type.PCString
-tickMarks fullReplay = fullReplay
+getTickMarks :: FullReplay -> Map.Map Text.Text Type.PCString
+getTickMarks fullReplay = fullReplay
     & unpackFullReplay
     & Prelude.fst
     & Type.replayMarks
