@@ -11,12 +11,12 @@ module Octane.FullReplay
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
-import Data.Monoid ((<>))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.ByteString.Lazy as ByteString
+import qualified Data.Map as Map
 import qualified Data.Text as Text
 import qualified GHC.Generics as Generics
 import qualified Octane.Parser as Parser
@@ -31,10 +31,17 @@ instance DeepSeq.NFData FullReplay
 
 instance Aeson.ToJSON FullReplay where
     toJSON (FullReplay (replay, _frames)) = do
-        let v1 = replay & Type.replayVersion1 & Type.unpackWord32LE
-        let v2 = replay & Type.replayVersion2 & Type.unpackWord32LE
         Aeson.object
-            [ "Version" .= (Prelude.show v1 <> "." <> Prelude.show v2)
+            [ "Version" .= Prelude.concat
+                [ replay & Type.replayVersion1 & Type.unpackWord32LE & Prelude.show
+                , "."
+                , replay & Type.replayVersion1 & Type.unpackWord32LE & Prelude.show
+                ]
+            , "Metadata" .= (replay
+                & Type.replayProperties
+                & Type.unpackDictionary
+                & Map.mapKeys Type.unpackPCString
+                & Map.map Aeson.toJSON)
             ]
 
 
