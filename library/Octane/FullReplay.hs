@@ -289,8 +289,7 @@ getUpdatedActors frame = frame
                 , ("Value", getPropertyValue property)
                 ])
         ))
-    & Prelude.filter (\ (_, properties) ->
-        Map.null properties)
+    & reject (\ (_, properties) -> Map.null properties)
     & Prelude.map (\ (actorId, properties) ->
         (actorId, Aeson.toJSON properties))
     & Aeson.object
