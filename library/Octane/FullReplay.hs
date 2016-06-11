@@ -14,6 +14,7 @@ import Data.Function ((&))
 import Prelude ((==))
 
 import qualified Control.DeepSeq as DeepSeq
+import qualified Control.Monad as Monad
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.ByteString.Lazy as ByteString
@@ -127,6 +128,36 @@ getFrames fullReplay = fullReplay
         , ("Number", frame & Parser.frameNumber & Aeson.toJSON)
         , ("Time", frame & Parser.frameTime & Aeson.toJSON)
         , ("Delta", frame & Parser.frameDelta & Aeson.toJSON)
+        , ("Spawned", frame
+            & Parser.frameReplications
+            & Prelude.filter (\ replication -> replication
+                & Parser.replicationState
+                & (== Parser.RSOpening))
+            & Prelude.map (\ replication ->
+                ( replication
+                    & Parser.replicationActorId
+                    & Prelude.show
+                    & Text.pack
+                , Aeson.object
+                    [ ("Name", replication
+                        & Parser.replicationObjectName
+                        & Aeson.toJSON)
+                    , ("Class", replication
+                        & Parser.replicationClassName
+                        & Aeson.toJSON)
+                    , ("Position", replication
+                        & Parser.replicationInitialization
+                        & Prelude.fmap Parser.classInitLocation
+                        & Monad.join
+                        & Aeson.toJSON)
+                    , ("Rotation", replication
+                        & Parser.replicationInitialization
+                        & Prelude.fmap Parser.classInitRotation
+                        & Monad.join
+                        & Aeson.toJSON)
+                    ]
+                ))
+            & Aeson.object)
         , ("Destroyed", frame
             & Parser.frameReplications
             & Prelude.filter (\ replication -> replication
