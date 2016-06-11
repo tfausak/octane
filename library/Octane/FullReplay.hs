@@ -11,6 +11,7 @@ module Octane.FullReplay
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
+import Data.Monoid ((<>))
 import Prelude ((==))
 
 import qualified Control.DeepSeq as DeepSeq
@@ -156,6 +157,131 @@ getFrames fullReplay = fullReplay
                         & Monad.join
                         & Aeson.toJSON)
                     ]
+                ))
+            & Aeson.object)
+        , ("Updated", frame
+            & Parser.frameReplications
+            & Prelude.filter (\ replication -> replication
+                & Parser.replicationState
+                & (== Parser.RSExisting))
+            & Prelude.map (\ replication ->
+                ( replication
+                    & Parser.replicationActorId
+                    & Prelude.show
+                    & Text.pack
+                , replication
+                    & Parser.replicationProperties
+                    & Map.map (\ property -> Aeson.object
+                        [ ("Type", case property of
+                            Parser.PBoolean _ -> "Boolean"
+                            Parser.PByte _ -> "Byte"
+                            Parser.PCamSettings _ _ _ _ _ _ -> "CameraSettings"
+                            Parser.PDemolish _ _ _ _ _ _ -> "Demolition"
+                            Parser.PEnum _ _ -> "Enum"
+                            Parser.PExplosion _ _ _ -> "Explosion"
+                            Parser.PFlaggedInt _ _ -> "FlaggedInt"
+                            Parser.PFloat _ -> "Float"
+                            Parser.PGameMode _ -> "GameMode"
+                            Parser.PInt _ -> "Int"
+                            Parser.PLoadout _ _ _ _ _ _ _ _ _ -> "Loadout"
+                            Parser.PLoadoutOnline _ _ _ _ -> "OnlineLoadout"
+                            Parser.PLocation _ -> "Position"
+                            Parser.PMusicStinger _ _ _ -> "MusicStinger"
+                            Parser.PPickup _ _ _ -> "Pickup"
+                            Parser.PPrivateMatchSettings _ _ _ _ _ _ -> "PrivateMatchSettings"
+                            Parser.PQWord _ _ -> "QWord"
+                            Parser.PRelativeRotation _ -> "RelativeRotation"
+                            Parser.PReservation _ _ _ _ _ _ _ -> "Reservation"
+                            Parser.PRigidBodyState _ _ _ _ _ -> "RigidBodyState"
+                            Parser.PString _ -> "String"
+                            Parser.PTeamPaint _ _ _ _ _ -> "Paint"
+                            Parser.PUniqueId _ _ _ -> "UniqueId")
+                        , ("Value", case property of
+                            Parser.PBoolean x -> Aeson.toJSON x
+                            Parser.PByte x -> Aeson.toJSON x
+                            Parser.PCamSettings fov height angle distance stiffness swivelSpeed -> Aeson.object
+                                [ ("FOV", Aeson.toJSON fov)
+                                , ("Height", Aeson.toJSON height)
+                                , ("Angle", Aeson.toJSON angle)
+                                , ("Distance", Aeson.toJSON distance)
+                                , ("Stiffness", Aeson.toJSON stiffness)
+                                , ("SwivelSpeed", Aeson.toJSON swivelSpeed)
+                                ]
+                            Parser.PDemolish a b c d e f -> Aeson.toJSON (a, b, c, d, e, f)
+                            Parser.PEnum x y -> Aeson.toJSON (x, y)
+                            Parser.PExplosion a b c -> Aeson.toJSON (a, b, c)
+                            Parser.PFlaggedInt x y -> Aeson.toJSON (x, y)
+                            Parser.PFloat x -> Aeson.toJSON x
+                            Parser.PGameMode x -> case x of
+                                1 -> "Hockey"
+                                2 -> "Hoops"
+                                _ -> Aeson.String ("Unknown game mode " <> Text.pack (Prelude.show x))
+                            Parser.PInt x -> Aeson.toJSON x
+                            Parser.PLoadout version body decal wheels rocketTrail antenna topper x y -> Aeson.object
+                                [ ("Version", Aeson.toJSON version)
+                                , ("Body", Aeson.toJSON body)
+                                , ("Decal", Aeson.toJSON decal)
+                                , ("Wheels", Aeson.toJSON wheels)
+                                , ("RocketTrail", Aeson.toJSON rocketTrail)
+                                , ("Antenna", Aeson.toJSON antenna)
+                                , ("Topper", Aeson.toJSON topper)
+                                , ("Unknown1", Aeson.toJSON x)
+                                , ("Unknown2", Aeson.toJSON y)
+                                ]
+                            Parser.PLoadoutOnline a b c d -> Aeson.toJSON (a, b, c, d)
+                            Parser.PLocation x -> Aeson.toJSON x
+                            Parser.PMusicStinger a b c -> Aeson.toJSON (a, b, c)
+                            Parser.PPickup a b c -> Aeson.toJSON (a, b, c)
+                            Parser.PPrivateMatchSettings mutators joinableBy maxPlayers name password x -> Aeson.object
+                                [ ("Mutators", Aeson.toJSON mutators)
+                                , ("JoinableBy", Aeson.toJSON joinableBy)
+                                , ("MaxPlayers", Aeson.toJSON maxPlayers)
+                                , ("Name", Aeson.toJSON name)
+                                , ("Password", Aeson.toJSON password)
+                                , ("Unknown", Aeson.toJSON x)
+                                ]
+                            Parser.PQWord a b -> Aeson.toJSON (a, b)
+                            Parser.PRelativeRotation x -> Aeson.toJSON x
+                            Parser.PReservation number systemId remoteId localId name x y -> Aeson.object
+                                [ ("Number", Aeson.toJSON number)
+                                , ("SystemId", Aeson.toJSON systemId)
+                                , ("RemoteId", Aeson.toJSON remoteId)
+                                , ("LocalId", Aeson.toJSON localId)
+                                , ("Name", Aeson.toJSON name)
+                                , ("Unknown1", Aeson.toJSON x)
+                                , ("Unknown2", Aeson.toJSON y)
+                                ]
+                            Parser.PRigidBodyState sleeping position rotation linear angular -> Aeson.object
+                                [ ("Sleeping", Aeson.toJSON sleeping)
+                                , ("Position", Aeson.toJSON position)
+                                , ("Rotation", Aeson.toJSON rotation)
+                                , ("LinearVelocity", Aeson.toJSON linear)
+                                , ("AngularVelocity", Aeson.toJSON angular)
+                                ]
+                            Parser.PString x -> Aeson.toJSON x
+                            Parser.PTeamPaint team color1 color2 finish1 finish2 -> Aeson.object
+                                [ ("Team", Aeson.toJSON team)
+                                , ("PrimaryColor", Aeson.toJSON color1)
+                                , ("AccentColor", Aeson.toJSON color2)
+                                , ("PrimaryFinish", Aeson.toJSON finish1)
+                                , ("AccentFinish", Aeson.toJSON finish2)
+                                ]
+                            Parser.PUniqueId systemId remoteId localId -> Aeson.object
+                                [ ("System", case systemId of
+                                    0 -> "Local"
+                                    1 -> "Steam"
+                                    2 -> "PlayStation"
+                                    4 -> "Xbox"
+                                    _ -> Aeson.String ("Unknown system " <> Text.pack (Prelude.show systemId)))
+                                , ("Remote", case remoteId of
+                                    Parser.SplitscreenId x -> Aeson.toJSON x
+                                    Parser.SteamId x -> Aeson.toJSON x
+                                    Parser.PlayStationId x -> Aeson.toJSON x
+                                    Parser.XboxId x -> Aeson.toJSON x)
+                                , ("Local", Aeson.toJSON localId)
+                                ])
+                        ])
+                    & Aeson.toJSON
                 ))
             & Aeson.object)
         , ("Destroyed", frame
