@@ -37,6 +37,7 @@ instance Aeson.ToJSON FullReplay where
             [ "Version" .= version fullReplay
             , "Metadata" .= metadata fullReplay
             , "Levels" .= levels fullReplay
+            , "Messages" .= messages fullReplay
             ]
 
 
@@ -78,6 +79,23 @@ levels fullReplay = fullReplay
     & Type.replayLevels
     & Type.unpackList
     & Prelude.map Type.unpackPCString
+
+
+messages :: FullReplay -> Map.Map Text.Text Type.PCString
+messages fullReplay = fullReplay
+    & unpackFullReplay
+    & Prelude.fst
+    & Type.replayMessages
+    & Type.unpackList
+    & Prelude.map (\ message ->
+        ( message
+            & Type.messageFrame
+            & Type.unpackWord32LE
+            & Prelude.show
+            & Text.pack
+        , message & Type.messageContent
+        ))
+    & Map.fromList
 
 
 parseReplay :: ByteString.ByteString -> Prelude.Either Text.Text FullReplay
