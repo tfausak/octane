@@ -18,35 +18,56 @@ import qualified Data.Binary as Binary
 import qualified Data.ByteString.Lazy as ByteString
 import qualified Data.Map as Map
 import qualified Data.Text as Text
+import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Parser as Parser
 import qualified Octane.Type as Type
 import qualified Prelude
 
 
-newtype FullReplay = FullReplay (Type.Replay, [Parser.Frame])
-    deriving (Generics.Generic, Prelude.Show)
+newtype FullReplay = FullReplay
+    { unpackFullReplay :: (Type.Replay, [Parser.Frame])
+    } deriving (Generics.Generic, Prelude.Show)
 
 instance DeepSeq.NFData FullReplay
 
 instance Aeson.ToJSON FullReplay where
-    toJSON (FullReplay (replay, _frames)) = do
+    toJSON fullReplay = do
         Aeson.object
-            [ "Version" .= Prelude.concat
-                [ replay & Type.replayVersion1 & Type.unpackWord32LE & Prelude.show
-                , "."
-                , replay & Type.replayVersion1 & Type.unpackWord32LE & Prelude.show
-                ]
-            , "Metadata" .= (replay
-                & Type.replayProperties
-                & Type.unpackDictionary
-                & Map.mapKeys Type.unpackPCString
-                & Map.map Aeson.toJSON)
+            [ "Version" .= version fullReplay
+            , "Metadata" .= metadata fullReplay
             ]
 
 
-fullReplay :: Type.Replay -> [Parser.Frame] -> FullReplay
-fullReplay replay frames = FullReplay (replay, frames)
+newFullReplay :: Type.Replay -> [Parser.Frame] -> FullReplay
+newFullReplay replay frames = FullReplay (replay, frames)
+
+
+version :: FullReplay -> Prelude.String
+version fullReplay =
+    [ fullReplay
+        & unpackFullReplay
+        & Prelude.fst
+        & Type.replayVersion1
+        & Type.unpackWord32LE
+        & Prelude.fromIntegral
+    , fullReplay
+        & unpackFullReplay
+        & Prelude.fst
+        & Type.replayVersion2
+        & Type.unpackWord32LE
+        & Prelude.fromIntegral
+    ] & Version.makeVersion & Version.showVersion
+
+
+metadata :: FullReplay -> Map.Map Text.Text Aeson.Value
+metadata fullReplay = fullReplay
+    & unpackFullReplay
+    & Prelude.fst
+    & Type.replayProperties
+    & Type.unpackDictionary
+    & Map.mapKeys Type.unpackPCString
+    & Map.map Aeson.toJSON
 
 
 parseReplay :: ByteString.ByteString -> Prelude.Either Text.Text FullReplay
@@ -56,7 +77,7 @@ parseReplay bytes = do
             Prelude.Left (Text.pack message)
         Prelude.Right (_, _, replay) -> do
             let frames = Parser.parseFrames replay
-            Prelude.Right (fullReplay replay frames)
+            Prelude.Right (newFullReplay replay frames)
 
 
 parseReplayFile :: Prelude.FilePath -> Prelude.IO (Prelude.Either Text.Text FullReplay)
@@ -67,18 +88,18 @@ parseReplayFile file = do
             Prelude.pure (Prelude.Left (Text.pack message))
         Prelude.Right replay -> do
             let frames = Parser.parseFrames replay
-            Prelude.pure (Prelude.Right (fullReplay replay frames))
+            Prelude.pure (Prelude.Right (newFullReplay replay frames))
 
 
 unsafeParseReplay :: ByteString.ByteString -> FullReplay
 unsafeParseReplay bytes = do
     let replay = Binary.decode bytes
     let frames = Parser.parseFrames replay
-    fullReplay replay frames
+    newFullReplay replay frames
 
 
 unsafeParseReplayFile :: Prelude.FilePath -> Prelude.IO FullReplay
 unsafeParseReplayFile file = do
     replay <- Binary.decodeFile file
     let frames = Parser.parseFrames replay
-    Prelude.pure (fullReplay replay frames)
+    Prelude.pure (newFullReplay replay frames)
