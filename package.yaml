@@ -69,4 +69,4 @@ tests:
     - -with-rtsopts=-N
     main: TestSuite.hs
     source-dirs: test-suite
-version: '0.8.0'
+version: '0.9.0'
