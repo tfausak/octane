@@ -17,6 +17,7 @@ import Prelude ((==), (/=), (&&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Data.Aeson as Aeson
+import qualified Data.Bimap as Bimap
 import qualified Data.Binary as Binary
 import qualified Data.ByteString.Lazy as ByteString
 import qualified Data.Foldable as Foldable
@@ -25,6 +26,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
+import qualified Octane.Data as Data
 import qualified Octane.Parser as Parser
 import qualified Octane.Parser.Garage as Garage
 import qualified Octane.Type as Type
@@ -340,10 +342,13 @@ getPropertyValue property = case property of
     Parser.PExplosion a b c -> Aeson.toJSON (a, b, c)
     Parser.PFlaggedInt x y -> Aeson.toJSON (x, y)
     Parser.PFloat x -> Aeson.toJSON x
-    Parser.PGameMode x -> case x of
-        1 -> "Hockey"
-        2 -> "Hoops"
-        _ -> Aeson.String ("Unknown game mode " <> Text.pack (Prelude.show x))
+    Parser.PGameMode gameMode -> Aeson.object
+        [ ("Id", Aeson.toJSON gameMode)
+        , ("Name", Data.gameModes
+            & Bimap.lookup (Prelude.fromIntegral gameMode)
+            & (\ x -> x :: Prelude.Maybe Text.Text)
+            & Aeson.toJSON)
+        ]
     Parser.PInt x -> Aeson.toJSON x
     Parser.PLoadout version body decal wheels rocketTrail antenna topper x y -> Aeson.object
         [ ("Version", Aeson.toJSON version)

@@ -23,7 +23,6 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Json as Json
 import qualified Octane.Parser.ClassPropertyMap as CPM
-import qualified Octane.Parser.Garage as Garage
 import qualified Octane.Type as Type
 import qualified Text.Printf as Printf
 
@@ -327,7 +326,6 @@ getFloatProperty = do
 getGameModeProperty :: Bits.BitGet PropValue
 getGameModeProperty = do
     x <- Bits.getWord8 2
-    -- 1 is hockey, 2 is hoops
     return (PGameMode x)
 
 getIntProperty :: Bits.BitGet PropValue
