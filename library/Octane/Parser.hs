@@ -23,7 +23,6 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Json as Json
 import qualified Octane.Parser.ClassPropertyMap as CPM
-import qualified Octane.Parser.Garage as Garage
 import qualified Octane.Type as Type
 import qualified Text.Printf as Printf
 
@@ -327,7 +326,6 @@ getFloatProperty = do
 getGameModeProperty :: Bits.BitGet PropValue
 getGameModeProperty = do
     x <- Bits.getWord8 2
-    -- 1 is hockey, 2 is hoops
     return (PGameMode x)
 
 getIntProperty :: Bits.BitGet PropValue
@@ -350,18 +348,12 @@ getLoadoutOnlineProperty = do
 getLoadoutProperty :: Bits.BitGet PropValue
 getLoadoutProperty = do
     version <- getInt8
-    bodyId <- getInt32
-    let body = Garage.getBody bodyId
-    decalId <- getInt32
-    let decal = Garage.getDecal decalId
-    wheelsId <- getInt32
-    let wheels = Garage.getWheels wheelsId
-    rocketTrailId <- getInt32
-    let rocketTrail = Garage.getRocketTrail rocketTrailId
-    antennaId <- getInt32
-    let antenna = Garage.getAntenna antennaId
-    topperId <- getInt32
-    let topper = Garage.getTopper topperId
+    body <- getInt32
+    decal <- getInt32
+    wheels <- getInt32
+    rocketTrail <- getInt32
+    antenna <- getInt32
+    topper <- getInt32
     g <- getInt32
     h <- if version > 10
         then do
@@ -444,10 +436,8 @@ getTeamPaintProperty = do
     team <- getInt8
     primaryColor <- getInt8
     accentColor <- getInt8
-    primaryFinishId <- getInt32
-    let primaryFinish = Garage.getFinish primaryFinishId
-    accentFinishId <- getInt32
-    let accentFinish = Garage.getFinish accentFinishId
+    primaryFinish <- getInt32
+    accentFinish <- getInt32
     return (PTeamPaint team primaryColor accentColor primaryFinish accentFinish)
 
 getUniqueIdProperty :: Bits.BitGet PropValue
@@ -572,16 +562,7 @@ data PropValue
     | PFloat !Float
     | PGameMode !Word.Word8
     | PInt !Int
-    | PLoadout
-        !Int
-        !Garage.Body
-        !Garage.Decal
-        !Garage.Wheels
-        !Garage.RocketTrail
-        !Garage.Antenna
-        !Garage.Topper
-        !Int
-        !(Maybe Int)
+    | PLoadout !Int !Int !Int !Int !Int !Int !Int !Int !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
     | PLocation !(Vector Int)
     | PMusicStinger !Bool !Int !Int
@@ -592,12 +573,7 @@ data PropValue
     | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Text.Text) !Bool !Bool
     | PRigidBodyState !Bool !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
     | PString !Text.Text
-    | PTeamPaint
-        !Int
-        !Int
-        !Int
-        !Garage.Finish
-        !Garage.Finish
+    | PTeamPaint !Int !Int !Int !Int !Int
     | PUniqueId !SystemId !RemoteId !LocalId
     deriving (Eq, Generics.Generic, Show)
 

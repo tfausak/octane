@@ -1285,3 +1285,10 @@ logos =
     , ("Skyhawks", 263)
     , ("Wolves", 264)
     ] & map (\ (v, k) -> (k, Text.pack v)) & Bimap.fromList
+
+gameModes :: Bimap.Bimap Int Text.Text
+gameModes =
+    [ ("Soccar", 0)
+    , ("Hockey", 1)
+    , ("Hoops", 2)
+    ] & map (\ (v, k) -> (k, Text.pack v)) & Bimap.fromList

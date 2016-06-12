@@ -17,6 +17,7 @@ import Prelude ((==), (/=), (&&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Data.Aeson as Aeson
+import qualified Data.Bimap as Bimap
 import qualified Data.Binary as Binary
 import qualified Data.ByteString.Lazy as ByteString
 import qualified Data.Foldable as Foldable
@@ -25,7 +26,9 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
+import qualified Octane.Data as Data
 import qualified Octane.Parser as Parser
+import qualified Octane.Parser.Garage as Garage
 import qualified Octane.Type as Type
 import qualified Prelude
 
@@ -339,19 +342,40 @@ getPropertyValue property = case property of
     Parser.PExplosion a b c -> Aeson.toJSON (a, b, c)
     Parser.PFlaggedInt x y -> Aeson.toJSON (x, y)
     Parser.PFloat x -> Aeson.toJSON x
-    Parser.PGameMode x -> case x of
-        1 -> "Hockey"
-        2 -> "Hoops"
-        _ -> Aeson.String ("Unknown game mode " <> Text.pack (Prelude.show x))
+    Parser.PGameMode gameMode -> Aeson.object
+        [ ("Id", Aeson.toJSON gameMode)
+        , ("Name", Data.gameModes
+            & Bimap.lookup (Prelude.fromIntegral gameMode)
+            & (\ x -> x :: Prelude.Maybe Text.Text)
+            & Aeson.toJSON)
+        ]
     Parser.PInt x -> Aeson.toJSON x
     Parser.PLoadout version body decal wheels rocketTrail antenna topper x y -> Aeson.object
         [ ("Version", Aeson.toJSON version)
-        , ("Body", Aeson.toJSON body)
-        , ("Decal", Aeson.toJSON decal)
-        , ("Wheels", Aeson.toJSON wheels)
-        , ("RocketTrail", Aeson.toJSON rocketTrail)
-        , ("Antenna", Aeson.toJSON antenna)
-        , ("Topper", Aeson.toJSON topper)
+        , ("Body", Aeson.object
+            [ ("Id", Aeson.toJSON body)
+            , ("Name", body & Garage.getBody & Aeson.toJSON)
+            ])
+        , ("Decal", Aeson.object
+            [ ("Id", Aeson.toJSON decal)
+            , ("Name", decal & Garage.getDecal & Aeson.toJSON)
+            ])
+        , ("Wheels", Aeson.object
+            [ ("Id", Aeson.toJSON wheels)
+            , ("Name", wheels & Garage.getWheels & Aeson.toJSON)
+            ])
+        , ("RocketTrail", Aeson.object
+            [ ("Id", Aeson.toJSON rocketTrail)
+            , ("Name", rocketTrail & Garage.getRocketTrail & Aeson.toJSON)
+            ])
+        , ("Antenna", Aeson.object
+            [ ("Id", Aeson.toJSON antenna)
+            , ("Name", antenna & Garage.getAntenna & Aeson.toJSON)
+            ])
+        , ("Topper", Aeson.object
+            [ ("Id", Aeson.toJSON topper)
+            , ("Name", topper & Garage.getTopper & Aeson.toJSON)
+            ])
         , ("Unknown1", Aeson.toJSON x)
         , ("Unknown2", Aeson.toJSON y)
         ]
@@ -390,8 +414,14 @@ getPropertyValue property = case property of
         [ ("Team", Aeson.toJSON team)
         , ("PrimaryColor", Aeson.toJSON color1)
         , ("AccentColor", Aeson.toJSON color2)
-        , ("PrimaryFinish", Aeson.toJSON finish1)
-        , ("AccentFinish", Aeson.toJSON finish2)
+        , ("PrimaryFinish", Aeson.object
+            [ ("Id", Aeson.toJSON finish1)
+            , ("Name", finish1 & Garage.getFinish & Aeson.toJSON)
+            ])
+        , ("AccentFinish", Aeson.object
+            [ ("Id", Aeson.toJSON finish2)
+            , ("Name", finish2 & Garage.getFinish & Aeson.toJSON)
+            ])
         ]
     Parser.PUniqueId systemId remoteId localId -> Aeson.object
         [ ("System", case systemId of
