@@ -52,5 +52,5 @@ getTopper :: Int -> Topper
 getTopper = getItem Data.toppers "topper"
 
 
-getFinish :: Int -> Finish
-getFinish = getItem Data.finishes "finish"
+getFinish :: Int -> Maybe Finish
+getFinish finishId = Bimap.lookup finishId Data.finishes

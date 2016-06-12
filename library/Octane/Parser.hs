@@ -444,10 +444,8 @@ getTeamPaintProperty = do
     team <- getInt8
     primaryColor <- getInt8
     accentColor <- getInt8
-    primaryFinishId <- getInt32
-    let primaryFinish = Garage.getFinish primaryFinishId
-    accentFinishId <- getInt32
-    let accentFinish = Garage.getFinish accentFinishId
+    primaryFinish <- getInt32
+    accentFinish <- getInt32
     return (PTeamPaint team primaryColor accentColor primaryFinish accentFinish)
 
 getUniqueIdProperty :: Bits.BitGet PropValue
@@ -592,12 +590,7 @@ data PropValue
     | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Text.Text) !Bool !Bool
     | PRigidBodyState !Bool !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
     | PString !Text.Text
-    | PTeamPaint
-        !Int
-        !Int
-        !Int
-        !Garage.Finish
-        !Garage.Finish
+    | PTeamPaint !Int !Int !Int !Int !Int
     | PUniqueId !SystemId !RemoteId !LocalId
     deriving (Eq, Generics.Generic, Show)
 

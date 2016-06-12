@@ -26,6 +26,7 @@ import qualified Data.Text as Text
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Parser as Parser
+import qualified Octane.Parser.Garage as Garage
 import qualified Octane.Type as Type
 import qualified Prelude
 
@@ -390,8 +391,14 @@ getPropertyValue property = case property of
         [ ("Team", Aeson.toJSON team)
         , ("PrimaryColor", Aeson.toJSON color1)
         , ("AccentColor", Aeson.toJSON color2)
-        , ("PrimaryFinish", Aeson.toJSON finish1)
-        , ("AccentFinish", Aeson.toJSON finish2)
+        , ("PrimaryFinish", Aeson.object
+            [ ("Id", Aeson.toJSON finish1)
+            , ("Name", finish1 & Garage.getFinish & Aeson.toJSON)
+            ])
+        , ("AccentFinish", Aeson.object
+            [ ("Id", Aeson.toJSON finish2)
+            , ("Name", finish2 & Garage.getFinish & Aeson.toJSON)
+            ])
         ]
     Parser.PUniqueId systemId remoteId localId -> Aeson.object
         [ ("System", case systemId of
