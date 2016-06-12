@@ -350,18 +350,12 @@ getLoadoutOnlineProperty = do
 getLoadoutProperty :: Bits.BitGet PropValue
 getLoadoutProperty = do
     version <- getInt8
-    bodyId <- getInt32
-    let body = Garage.getBody bodyId
-    decalId <- getInt32
-    let decal = Garage.getDecal decalId
-    wheelsId <- getInt32
-    let wheels = Garage.getWheels wheelsId
-    rocketTrailId <- getInt32
-    let rocketTrail = Garage.getRocketTrail rocketTrailId
-    antennaId <- getInt32
-    let antenna = Garage.getAntenna antennaId
-    topperId <- getInt32
-    let topper = Garage.getTopper topperId
+    body <- getInt32
+    decal <- getInt32
+    wheels <- getInt32
+    rocketTrail <- getInt32
+    antenna <- getInt32
+    topper <- getInt32
     g <- getInt32
     h <- if version > 10
         then do
@@ -570,16 +564,7 @@ data PropValue
     | PFloat !Float
     | PGameMode !Word.Word8
     | PInt !Int
-    | PLoadout
-        !Int
-        !Garage.Body
-        !Garage.Decal
-        !Garage.Wheels
-        !Garage.RocketTrail
-        !Garage.Antenna
-        !Garage.Topper
-        !Int
-        !(Maybe Int)
+    | PLoadout !Int !Int !Int !Int !Int !Int !Int !Int !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
     | PLocation !(Vector Int)
     | PMusicStinger !Bool !Int !Int

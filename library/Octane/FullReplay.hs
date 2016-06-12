@@ -347,12 +347,30 @@ getPropertyValue property = case property of
     Parser.PInt x -> Aeson.toJSON x
     Parser.PLoadout version body decal wheels rocketTrail antenna topper x y -> Aeson.object
         [ ("Version", Aeson.toJSON version)
-        , ("Body", Aeson.toJSON body)
-        , ("Decal", Aeson.toJSON decal)
-        , ("Wheels", Aeson.toJSON wheels)
-        , ("RocketTrail", Aeson.toJSON rocketTrail)
-        , ("Antenna", Aeson.toJSON antenna)
-        , ("Topper", Aeson.toJSON topper)
+        , ("Body", Aeson.object
+            [ ("Id", Aeson.toJSON body)
+            , ("Name", body & Garage.getBody & Aeson.toJSON)
+            ])
+        , ("Decal", Aeson.object
+            [ ("Id", Aeson.toJSON decal)
+            , ("Name", decal & Garage.getDecal & Aeson.toJSON)
+            ])
+        , ("Wheels", Aeson.object
+            [ ("Id", Aeson.toJSON wheels)
+            , ("Name", wheels & Garage.getWheels & Aeson.toJSON)
+            ])
+        , ("RocketTrail", Aeson.object
+            [ ("Id", Aeson.toJSON rocketTrail)
+            , ("Name", rocketTrail & Garage.getRocketTrail & Aeson.toJSON)
+            ])
+        , ("Antenna", Aeson.object
+            [ ("Id", Aeson.toJSON antenna)
+            , ("Name", antenna & Garage.getAntenna & Aeson.toJSON)
+            ])
+        , ("Topper", Aeson.object
+            [ ("Id", Aeson.toJSON topper)
+            , ("Name", topper & Garage.getTopper & Aeson.toJSON)
+            ])
         , ("Unknown1", Aeson.toJSON x)
         , ("Unknown2", Aeson.toJSON y)
         ]
