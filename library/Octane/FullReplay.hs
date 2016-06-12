@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Octane.FullReplay
-    ( FullReplay
+    ( FullReplay(..)
     , parseReplay
     , parseReplayFile
     , unsafeParseReplay
