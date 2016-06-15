@@ -10,6 +10,7 @@ then
 else
   echo "Attaching binary for $TRAVIS_OS_NAME to $TRAVIS_TAG..."
   BIN="$(stack path --local-install-root)/bin/octane"
+  chmod +x "$BIN"
   gzip --best --to-stdout "$BIN" > octane.gz
   github-release upload \
     --token "$GITHUB_TOKEN" \
