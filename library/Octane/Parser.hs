@@ -548,7 +548,7 @@ instance Aeson.ToJSON Prop where
 
 data PropValue
     = PBoolean !Type.Boolean
-    | PByte !Word.Word8
+    | PByte !Type.Word8
     | PCamSettings !Type.Float32 !Type.Float32 !Type.Float32 !Type.Float32 !Type.Float32 !Type.Float32
     | PDemolish !Type.Boolean !Type.Int32 !Type.Boolean !Type.Int32 !(Vector Int) !(Vector Int)
     | PEnum !Word.Word16 !Type.Boolean
@@ -821,8 +821,8 @@ getInt32 = BinaryBit.getBits undefined
 getInt8 :: Bits.BitGet Type.Int8
 getInt8 = BinaryBit.getBits undefined
 
-getWord8 :: Bits.BitGet Word.Word8
-getWord8 = fmap Type.unpackWord8 (BinaryBit.getBits undefined)
+getWord8 :: Bits.BitGet Type.Word8
+getWord8 = BinaryBit.getBits undefined
 
 getActorId :: Bits.BitGet Int
 getActorId = getInt 1024
