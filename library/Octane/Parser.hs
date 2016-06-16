@@ -17,7 +17,6 @@ import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Encoding
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
@@ -470,20 +469,10 @@ getPartyLeaderProperty = do
 --
 
 getFloat32 :: Bits.BitGet Type.Float32
-getFloat32 = BinaryBit.getBits 32
+getFloat32 = BinaryBit.getBits undefined
 
 getString :: Bits.BitGet Text.Text
-getString = do
-    rawSize <- fmap Type.fromInt32 getInt32
-    rawText <- if rawSize < 0
-        then do
-            let size = -2 * rawSize
-            bytes <- Bits.getByteString size
-            bytes & BS.map Utility.reverseBits & Encoding.decodeUtf16LE & return
-        else do
-            bytes <- Bits.getByteString rawSize
-            bytes & BS.map Utility.reverseBits & Encoding.decodeLatin1 & return
-    rawText & Text.dropEnd 1 & return
+getString = fmap Type.unpackText (BinaryBit.getBits undefined)
 
 getUniqueId :: Bits.BitGet (SystemId, RemoteId, LocalId)
 getUniqueId = do
@@ -828,7 +817,7 @@ getInt maxValue = do
     go 0 0
 
 getInt32 :: Bits.BitGet Type.Int32
-getInt32 = BinaryBit.getBits 32
+getInt32 = BinaryBit.getBits undefined
 
 getInt8 :: Bits.BitGet Int
 getInt8 = do
@@ -856,4 +845,4 @@ getInt7 :: Bits.BitGet Int
 getInt7 = getInt 7
 
 getBool :: Bits.BitGet Type.Boolean
-getBool = BinaryBit.getBits 1
+getBool = BinaryBit.getBits undefined
