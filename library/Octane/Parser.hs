@@ -8,7 +8,6 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as Bits
-import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Get as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
@@ -471,9 +470,7 @@ getPartyLeaderProperty = do
 --
 
 getFloat32 :: Bits.BitGet Float
-getFloat32 = do
-    bytes <- Bits.getByteString 4
-    bytes & byteStringToFloat & return
+getFloat32 = fmap Type.unpackFloat32 (BinaryBit.getBits 32)
 
 getString :: Bits.BitGet Text.Text
 getString = do
@@ -706,11 +703,6 @@ extractContext replay =
         & map fromIntegral
         & Set.fromList
     }
-
-byteStringToFloat :: BS.ByteString -> Float
-byteStringToFloat bytes = Binary.runGet
-    IEEE754.getFloat32le
-    (bytes & BSL.fromStrict & Utility.reverseBitsInBytes)
 
 getVector :: Bits.BitGet (Vector Int)
 getVector = do
