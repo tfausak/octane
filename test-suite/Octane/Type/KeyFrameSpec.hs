@@ -18,7 +18,7 @@ spec = describe "KeyFrame" $ do
                 \\0\0\0\0\
                 \\0\0\0\0")
             (Right ("", 12, KeyFrame
-                (Float32LE 0.0)
+                (Float32 0.0)
                 (Int32 0)
                 (Int32 0)))
         shouldBe
@@ -27,13 +27,13 @@ spec = describe "KeyFrame" $ do
                 \\2\0\0\0\
                 \\3\0\0\0")
             (Right ("", 12, KeyFrame
-                (Float32LE 1.0)
+                (Float32 1.0)
                 (Int32 2)
                 (Int32 3)))
     it "can be encoded" $ do
         shouldBe
             (Binary.encode (KeyFrame
-                (Float32LE 0.0)
+                (Float32 0.0)
                 (Int32 0)
                 (Int32 0)))
             "\
@@ -42,7 +42,7 @@ spec = describe "KeyFrame" $ do
                 \\0\0\0\0"
         shouldBe
             (Binary.encode (KeyFrame
-                (Float32LE 1.0)
+                (Float32 1.0)
                 (Int32 2)
                 (Int32 3)))
             "\

@@ -16,7 +16,7 @@ benchmarks = bgroup "KeyFrame"
         \\0\0\0\0\
         \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (KeyFrame
-        (Float32LE 0.0)
+        (Float32 0.0)
         (Int32 0)
         (Int32 0)))
     ]

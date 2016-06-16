@@ -10,7 +10,7 @@ import Data.Function ((&))
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Primitive.Boolean as Boolean
 import qualified Octane.Type.Primitive.Dictionary as Dictionary
-import qualified Octane.Type.Primitive.Float32LE as Float32LE
+import qualified Octane.Type.Primitive.Float32 as Float32
 import qualified Octane.Type.Primitive.List as List
 import qualified Octane.Type.Primitive.PCString as PCString
 import qualified Octane.Type.Primitive.Int32 as Int32
@@ -27,7 +27,7 @@ data Property
     | ByteProperty !Word64LE.Word64LE
                    !(PCString.PCString, PCString.PCString)
     | FloatProperty !Word64LE.Word64LE
-                    !Float32LE.Float32LE
+                    !Float32.Float32
     | IntProperty !Word64LE.Word64LE
                   !Int32.Int32
     | NameProperty !Word64LE.Word64LE

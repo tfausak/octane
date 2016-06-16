@@ -46,7 +46,7 @@ benchmarks = bgroup "Property"
             \\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (FloatProperty
             (Word64LE 4)
-            (Float32LE 0.0)))
+            (Float32 0.0)))
         ]
     , bgroup "Int"
         [ bench "decode basic" (nf decodeProperty "\

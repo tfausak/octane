@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Type.Primitive.Float32LE (Float32LE(..)) where
+module Octane.Type.Primitive.Float32 (Float32(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -10,18 +10,18 @@ import Data.Function ((&))
 import qualified GHC.Generics as Generics
 
 -- | A 32-bit little-endian float.
-newtype Float32LE = Float32LE
-    { unpackFloat32LE :: Float
+newtype Float32 = Float32
+    { unpackFloat32 :: Float
     } deriving (Eq,Generics.Generic,Show)
 
-instance Binary.Binary Float32LE where
+instance Binary.Binary Float32 where
     get = do
         float <- IEEE754.getFloat32le
-        float & Float32LE & return
+        float & Float32 & return
     put float = do
-        float & unpackFloat32LE & IEEE754.putFloat32le
+        float & unpackFloat32 & IEEE754.putFloat32le
 
-instance DeepSeq.NFData Float32LE
+instance DeepSeq.NFData Float32
 
-instance Aeson.ToJSON Float32LE where
-    toJSON float = float & unpackFloat32LE & Aeson.toJSON
+instance Aeson.ToJSON Float32 where
+    toJSON float = float & unpackFloat32 & Aeson.toJSON
