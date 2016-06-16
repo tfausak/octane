@@ -94,18 +94,18 @@ getReplications context = do
 getMaybeReplication :: Context -> Bits.BitGet (Maybe (Context, Replication))
 getMaybeReplication context = do
     hasReplication <- getBool
-    if not hasReplication
-        then return Nothing
-        else do
+    if Type.unpackBoolean hasReplication
+        then do
             (newContext,replication) <- getReplication context
             return (Just (newContext, replication))
+        else return Nothing
 
 getReplication :: Context -> Bits.BitGet (Context, Replication)
 getReplication context = do
     actorId <- getActorId
     isOpen <- getBool
     let go =
-            if isOpen
+            if Type.unpackBoolean isOpen
                 then getOpenReplication
                 else getClosedReplication
     go context actorId
@@ -116,7 +116,7 @@ getOpenReplication :: Context
 getOpenReplication context actorId = do
     isNew <- getBool
     let go =
-            if isNew
+            if Type.unpackBoolean isNew
                 then getNewReplication
                 else getExistingReplication
     go context actorId
@@ -126,7 +126,7 @@ getNewReplication :: Context
                   -> Bits.BitGet (Context, Replication)
 getNewReplication context actorId = do
     unknownFlag <- getBool
-    if unknownFlag
+    if Type.unpackBoolean unknownFlag
         then error "the unknown flag in a new replication is true! what does it mean?"
         else return ()
     objectId <- getInt32
@@ -211,7 +211,7 @@ getProps context thing = do
 getMaybeProp :: Context -> Thing -> Bits.BitGet (Maybe Prop)
 getMaybeProp context thing = do
     hasProp <- getBool
-    if hasProp
+    if Type.unpackBoolean hasProp
     then do
         prop <- getProp context thing
         return (Just prop)
@@ -309,7 +309,9 @@ getEnumProperty = do
 getExplosionProperty :: Bits.BitGet PropValue
 getExplosionProperty = do
     noGoal <- getBool
-    a <- if noGoal then return Nothing else fmap Just getInt32
+    a <- if Type.unpackBoolean noGoal
+        then return Nothing
+        else fmap Just getInt32
     b <- getVector
     return (PExplosion noGoal a b)
 
@@ -378,7 +380,9 @@ getMusicStingerProperty = do
 getPickupProperty :: Bits.BitGet PropValue
 getPickupProperty = do
     instigator <- getBool
-    instigatorId <- if instigator then fmap Just getInt32 else return Nothing
+    instigatorId <- if Type.unpackBoolean instigator
+        then fmap Just getInt32
+        else return Nothing
     pickedUp <- getBool
     return (PPickup instigator instigatorId pickedUp)
 
@@ -423,8 +427,12 @@ getRigidBodyStateProperty = do
     flag <- getBool
     position <- getVector
     rotation <- getFloatVector
-    x <- if flag then return Nothing else fmap Just getVector
-    y <- if flag then return Nothing else fmap Just getVector
+    x <- if Type.unpackBoolean flag
+        then return Nothing
+        else fmap Just getVector
+    y <- if Type.unpackBoolean flag
+        then return Nothing
+        else fmap Just getVector
     return (PRigidBodyState flag position rotation x y)
 
 getStringProperty :: Bits.BitGet PropValue
@@ -553,26 +561,26 @@ instance Aeson.ToJSON Prop where
     toJSON = Aeson.genericToJSON (Json.toJsonOptions "Prop")
 
 data PropValue
-    = PBoolean !Bool
+    = PBoolean !Type.Boolean
     | PByte !Word.Word8
     | PCamSettings !Float !Float !Float !Float !Float !Float
-    | PDemolish !Bool !Int !Bool !Int !(Vector Int) !(Vector Int)
-    | PEnum !Word.Word16 !Bool
-    | PExplosion !Bool !(Maybe Int) !(Vector Int)
-    | PFlaggedInt !Bool !Int
+    | PDemolish !Type.Boolean !Int !Type.Boolean !Int !(Vector Int) !(Vector Int)
+    | PEnum !Word.Word16 !Type.Boolean
+    | PExplosion !Type.Boolean !(Maybe Int) !(Vector Int)
+    | PFlaggedInt !Type.Boolean !Int
     | PFloat !Float
     | PGameMode !Word.Word8
     | PInt !Int
     | PLoadout !Int !Int !Int !Int !Int !Int !Int !Int !(Maybe Int)
     | PLoadoutOnline !Int !Int !Int !(Maybe Int)
     | PLocation !(Vector Int)
-    | PMusicStinger !Bool !Int !Int
-    | PPickup !Bool !(Maybe Int) !Bool
-    | PPrivateMatchSettings !Text.Text !Int !Int !Text.Text !Text.Text !Bool
+    | PMusicStinger !Type.Boolean !Int !Int
+    | PPickup !Type.Boolean !(Maybe Int) !Type.Boolean
+    | PPrivateMatchSettings !Text.Text !Int !Int !Text.Text !Text.Text !Type.Boolean
     | PQWord !Int !Int
     | PRelativeRotation !(Vector Float)
-    | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Text.Text) !Bool !Bool
-    | PRigidBodyState !Bool !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
+    | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Text.Text) !Type.Boolean !Type.Boolean
+    | PRigidBodyState !Type.Boolean !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
     | PString !Text.Text
     | PTeamPaint !Int !Int !Int !Int !Int
     | PUniqueId !SystemId !RemoteId !LocalId
@@ -624,7 +632,7 @@ instance Aeson.ToJSON Replication where
     toJSON = Aeson.genericToJSON (Json.toJsonOptions "Replication")
 
 data Thing = Thing
-    { thingFlag :: !Bool
+    { thingFlag :: !Type.Boolean
     , thingObjectId :: !Int
     , thingObjectName :: !Text.Text
     , thingClassId :: !Int
@@ -724,21 +732,21 @@ getVectorBytewise
 getVectorBytewise = do
     hasX <- getBool
     x <-
-        if hasX
+        if Type.unpackBoolean hasX
             then do
                 word <- Bits.getWord8 8
                 word & Type.reverseBits & fromIntegral & return
             else return 0
     hasY <- getBool
     y <-
-        if hasY
+        if Type.unpackBoolean hasY
             then do
                 word <- Bits.getWord8 8
                 word & Type.reverseBits & fromIntegral & return
             else return 0
     hasZ <- getBool
     z <-
-        if hasZ
+        if Type.unpackBoolean hasZ
             then do
                 word <- Bits.getWord8 8
                 word & Type.reverseBits & fromIntegral & return
@@ -819,7 +827,7 @@ getInt maxValue = do
                 then do
                     bit <- getBool
                     let newValue =
-                            if bit
+                            if Type.unpackBoolean bit
                                 then value + x
                                 else value
                     go (i + 1) newValue
@@ -859,5 +867,5 @@ getNumVectorBits = getInt 19
 getInt7 :: Bits.BitGet Int
 getInt7 = getInt 7
 
-getBool :: Bits.BitGet Bool
-getBool = fmap Type.unpackBoolean (BinaryBit.getBits 1)
+getBool :: Bits.BitGet Type.Boolean
+getBool = BinaryBit.getBits 1
