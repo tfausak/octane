@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Octane.Type.Primitive.Int32 (Int32(..)) where
+module Octane.Type.Primitive.Int32 (Int32(..), fromInt32) where
 
 import Data.Function ((&))
 
@@ -23,7 +24,7 @@ import qualified Octane.Utility as Utility
 -- | A 32-bit little-endian integer.
 newtype Int32 = Int32
     { unpackInt32 :: Int.Int32
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generics.Generic, Num, Ord, Show)
 
 instance Binary.Binary Int32 where
     get = do
@@ -64,3 +65,7 @@ instance Aeson.ToJSON Int32 where
     toJSON int32 = int32
         & unpackInt32
         & Aeson.toJSON
+
+
+fromInt32 :: (Integral a) => Int32 -> a
+fromInt32 int32 = int32 & unpackInt32 & fromIntegral

@@ -131,10 +131,10 @@ getNewReplication context actorId = do
         then error "the unknown flag in a new replication is true! what does it mean?"
         else return ()
     objectId <- getInt32
-    let objectName = case context & contextObjectMap & IntMap.lookup objectId of
+    let objectName = case context & contextObjectMap & IntMap.lookup (Type.fromInt32 objectId) of
             Nothing -> error ("could not find object name for id " ++ show objectId)
             Just x -> x
-    let (classId,className) = case CPM.getClass (contextObjectMap context) Data.objectToClass (contextClassMap context) objectId of
+    let (classId,className) = case CPM.getClass (contextObjectMap context) Data.objectToClass (contextClassMap context) (Type.fromInt32 objectId) of
             Nothing -> error ("could not find class for object id " ++ show objectId)
             Just x -> x
     classInit <- getClassInit className
@@ -320,7 +320,7 @@ getFlaggedIntProperty :: Bits.BitGet PropValue
 getFlaggedIntProperty = do
     flag <- getBool
     int <- getInt32
-    return (PFlaggedInt flag (fromIntegral int))
+    return (PFlaggedInt flag int)
 
 getFloatProperty :: Bits.BitGet PropValue
 getFloatProperty = do
@@ -477,7 +477,7 @@ getFloat32 = do
 
 getString :: Bits.BitGet Text.Text
 getString = do
-    rawSize <- getInt32
+    rawSize <- fmap Type.fromInt32 getInt32
     rawText <- if rawSize < 0
         then do
             let size = -2 * rawSize
@@ -565,25 +565,25 @@ data PropValue
     = PBoolean !Type.Boolean
     | PByte !Word.Word8
     | PCamSettings !Float !Float !Float !Float !Float !Float
-    | PDemolish !Type.Boolean !Int !Type.Boolean !Int !(Vector Int) !(Vector Int)
+    | PDemolish !Type.Boolean !Type.Int32 !Type.Boolean !Type.Int32 !(Vector Int) !(Vector Int)
     | PEnum !Word.Word16 !Type.Boolean
-    | PExplosion !Type.Boolean !(Maybe Int) !(Vector Int)
-    | PFlaggedInt !Type.Boolean !Int
+    | PExplosion !Type.Boolean !(Maybe Type.Int32) !(Vector Int)
+    | PFlaggedInt !Type.Boolean !Type.Int32
     | PFloat !Float
     | PGameMode !Word.Word8
-    | PInt !Int
-    | PLoadout !Int !Int !Int !Int !Int !Int !Int !Int !(Maybe Int)
-    | PLoadoutOnline !Int !Int !Int !(Maybe Int)
+    | PInt !Type.Int32
+    | PLoadout !Int !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !(Maybe Type.Int32)
+    | PLoadoutOnline !Type.Int32 !Type.Int32 !Type.Int32 !(Maybe Int)
     | PLocation !(Vector Int)
-    | PMusicStinger !Type.Boolean !Int !Int
-    | PPickup !Type.Boolean !(Maybe Int) !Type.Boolean
-    | PPrivateMatchSettings !Text.Text !Int !Int !Text.Text !Text.Text !Type.Boolean
-    | PQWord !Int !Int
+    | PMusicStinger !Type.Boolean !Type.Int32 !Int
+    | PPickup !Type.Boolean !(Maybe Type.Int32) !Type.Boolean
+    | PPrivateMatchSettings !Text.Text !Type.Int32 !Type.Int32 !Text.Text !Text.Text !Type.Boolean
+    | PQWord !Type.Int32 !Type.Int32
     | PRelativeRotation !(Vector Float)
     | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Text.Text) !Type.Boolean !Type.Boolean
     | PRigidBodyState !Type.Boolean !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
     | PString !Text.Text
-    | PTeamPaint !Int !Int !Int !Int !Int
+    | PTeamPaint !Int !Int !Int !Type.Int32 !Type.Int32
     | PUniqueId !SystemId !RemoteId !LocalId
     deriving (Eq, Generics.Generic, Show)
 
@@ -634,7 +634,7 @@ instance Aeson.ToJSON Replication where
 
 data Thing = Thing
     { thingFlag :: !Type.Boolean
-    , thingObjectId :: !Int
+    , thingObjectId :: !Type.Int32
     , thingObjectName :: !Text.Text
     , thingClassId :: !Int
     , thingClassName :: !Text.Text
@@ -835,8 +835,8 @@ getInt maxValue = do
                 else return value
     go 0 0
 
-getInt32 :: Bits.BitGet Int
-getInt32 = fmap (fromIntegral . Type.unpackInt32) (BinaryBit.getBits 32)
+getInt32 :: Bits.BitGet Type.Int32
+getInt32 = BinaryBit.getBits 32
 
 getInt8 :: Bits.BitGet Int
 getInt8 = do

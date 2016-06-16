@@ -3,6 +3,7 @@ module Octane.Parser.Garage where
 import qualified Data.Bimap as Bimap
 import qualified Data.Text as Text
 import qualified Octane.Data as Data
+import qualified Octane.Type as Type
 
 
 type Body = Text.Text
@@ -14,29 +15,29 @@ type Topper = Text.Text
 type Finish = Text.Text
 
 
-getBody :: Int -> Maybe Body
-getBody bodyId = Bimap.lookup bodyId Data.bodies
+getBody :: Type.Int32 -> Maybe Body
+getBody bodyId = Bimap.lookup (Type.fromInt32 bodyId) Data.bodies
 
 
-getDecal :: Int -> Maybe Decal
-getDecal decalId = Bimap.lookup decalId Data.decals
+getDecal :: Type.Int32 -> Maybe Decal
+getDecal decalId = Bimap.lookup (Type.fromInt32 decalId) Data.decals
 
 
-getWheels :: Int -> Maybe Wheels
-getWheels wheelsId = Bimap.lookup wheelsId Data.wheels
+getWheels :: Type.Int32 -> Maybe Wheels
+getWheels wheelsId = Bimap.lookup (Type.fromInt32 wheelsId) Data.wheels
 
 
-getRocketTrail :: Int -> Maybe RocketTrail
-getRocketTrail rocketTrailId = Bimap.lookup rocketTrailId Data.rocketTrails
+getRocketTrail :: Type.Int32 -> Maybe RocketTrail
+getRocketTrail rocketTrailId = Bimap.lookup (Type.fromInt32 rocketTrailId) Data.rocketTrails
 
 
-getAntenna :: Int -> Maybe Antenna
-getAntenna antennaId = Bimap.lookup antennaId Data.antennas
+getAntenna :: Type.Int32 -> Maybe Antenna
+getAntenna antennaId = Bimap.lookup (Type.fromInt32 antennaId) Data.antennas
 
 
-getTopper :: Int -> Maybe Topper
-getTopper topperId = Bimap.lookup topperId Data.toppers
+getTopper :: Type.Int32 -> Maybe Topper
+getTopper topperId = Bimap.lookup (Type.fromInt32 topperId) Data.toppers
 
 
-getFinish :: Int -> Maybe Finish
-getFinish finishId = Bimap.lookup finishId Data.finishes
+getFinish :: Type.Int32 -> Maybe Finish
+getFinish finishId = Bimap.lookup (Type.fromInt32 finishId) Data.finishes

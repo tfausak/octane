@@ -8,6 +8,7 @@ import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Octane.Parser as Parser
+import qualified Octane.Type as Type
 import qualified System.Environment as Environment
 
 type Point = (Int, Int, Int)
@@ -31,7 +32,7 @@ getCarActorIds frames = frames
         in case maybeProperty of
             Nothing -> Nothing
             Just property -> case property of
-                Parser.PFlaggedInt _ playerActorId -> Just (carActorId, playerActorId)
+                Parser.PFlaggedInt _ playerActorId -> Just (carActorId, Type.fromInt32 playerActorId)
                 _ -> Nothing)
     & Map.fromList
 
