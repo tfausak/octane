@@ -19,8 +19,8 @@ spec = describe "Text" $ do
             (decodeText "\6\0\0\0ascii\0")
             (Right ("", 10, Text "ascii"))
         shouldBe
-            (decodeText "\8\0\0\0\251\241\239\231\248d\233\0")
-            (Right ("", 12, Text "ûñïçødé"))
+            (decodeText "\254\255\255\255\24\35\0\0")
+            (Right ("", 8, Text "\8984"))
     it "can be encoded" $ do
         shouldBe
             (Binary.encode (Text ""))
@@ -29,8 +29,8 @@ spec = describe "Text" $ do
             (Binary.encode (Text "ascii"))
             "\6\0\0\0ascii\0"
         shouldBe
-            (Binary.encode (Text "ûñïçødé"))
-            "\8\0\0\0\251\241\239\231\248d\233\0"
+            (Binary.encode (Text "\8984"))
+            "\254\255\255\255\24\35\0\0"
     it "does not decode strings of length 0" $ do
         shouldBe
             (decodeText "\0\0\0\0")
