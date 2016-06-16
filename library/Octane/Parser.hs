@@ -12,7 +12,6 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import qualified Data.Int as Int
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
@@ -820,12 +819,7 @@ getInt32 :: Bits.BitGet Type.Int32
 getInt32 = BinaryBit.getBits undefined
 
 getInt8 :: Bits.BitGet Int
-getInt8 = do
-    byte <- Bits.getByteString 1
-    let word = Binary.runGet
-            Binary.getWord8
-            (byte & BSL.fromStrict & Utility.reverseBitsInBytes)
-    word & fromIntegral & (\ x -> x :: Int.Int8) & fromIntegral & return
+getInt8 = fmap Type.fromInt8 (BinaryBit.getBits undefined)
 
 getWord8 :: Bits.BitGet Word.Word8
 getWord8 = do
