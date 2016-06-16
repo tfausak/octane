@@ -45,6 +45,7 @@ library:
   - containers ==0.5.*
   - data-binary-ieee754 ==0.4.*
   - deepseq ==1.4.*
+  - scientific ==0.3.*
   - text ==1.2.*
   other-modules: Paths_octane
   source-dirs: library
