@@ -469,8 +469,8 @@ getPartyLeaderProperty = do
 
 --
 
-getFloat32 :: Bits.BitGet Float
-getFloat32 = fmap Type.unpackFloat32 (BinaryBit.getBits 32)
+getFloat32 :: Bits.BitGet Type.Float32
+getFloat32 = BinaryBit.getBits 32
 
 getString :: Bits.BitGet Text.Text
 getString = do
@@ -561,12 +561,12 @@ instance Aeson.ToJSON Prop where
 data PropValue
     = PBoolean !Type.Boolean
     | PByte !Word.Word8
-    | PCamSettings !Float !Float !Float !Float !Float !Float
+    | PCamSettings !Type.Float32 !Type.Float32 !Type.Float32 !Type.Float32 !Type.Float32 !Type.Float32
     | PDemolish !Type.Boolean !Type.Int32 !Type.Boolean !Type.Int32 !(Vector Int) !(Vector Int)
     | PEnum !Word.Word16 !Type.Boolean
     | PExplosion !Type.Boolean !(Maybe Type.Int32) !(Vector Int)
     | PFlaggedInt !Type.Boolean !Type.Int32
-    | PFloat !Float
+    | PFloat !Type.Float32
     | PGameMode !Word.Word8
     | PInt !Type.Int32
     | PLoadout !Int !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !(Maybe Type.Int32)
@@ -593,8 +593,8 @@ instance Aeson.ToJSON PropValue where
 data Frame = Frame
     { frameNumber :: !Int
     , frameIsKeyFrame :: !Bool
-    , frameTime :: !Float
-    , frameDelta :: !Float
+    , frameTime :: !Time
+    , frameDelta :: !Delta
     , frameReplications :: ![Replication]
     } deriving (Eq,Generics.Generic,Show)
 
@@ -640,9 +640,9 @@ data Thing = Thing
 
 instance DeepSeq.NFData Thing
 
-type Time = Float
+type Time = Type.Float32
 
-type Delta = Float
+type Delta = Type.Float32
 
 type ActorId = Int
 

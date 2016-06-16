@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Octane.Type.Primitive.Float32 (Float32(..)) where
 
@@ -22,7 +23,7 @@ import qualified Octane.Utility as Utility
 -- | A 32-bit little-endian float.
 newtype Float32 = Float32
     { unpackFloat32 :: Float
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Fractional, Generics.Generic, Num, Ord, Show)
 
 instance Binary.Binary Float32 where
     get = do
