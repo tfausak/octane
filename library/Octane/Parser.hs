@@ -6,6 +6,7 @@ import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
+import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Get as Binary
@@ -92,7 +93,7 @@ getReplications context = do
 
 getMaybeReplication :: Context -> Bits.BitGet (Maybe (Context, Replication))
 getMaybeReplication context = do
-    hasReplication <- Bits.getBool
+    hasReplication <- getBool
     if not hasReplication
         then return Nothing
         else do
@@ -102,7 +103,7 @@ getMaybeReplication context = do
 getReplication :: Context -> Bits.BitGet (Context, Replication)
 getReplication context = do
     actorId <- getActorId
-    isOpen <- Bits.getBool
+    isOpen <- getBool
     let go =
             if isOpen
                 then getOpenReplication
@@ -113,7 +114,7 @@ getOpenReplication :: Context
                    -> ActorId
                    -> Bits.BitGet (Context, Replication)
 getOpenReplication context actorId = do
-    isNew <- Bits.getBool
+    isNew <- getBool
     let go =
             if isNew
                 then getNewReplication
@@ -124,7 +125,7 @@ getNewReplication :: Context
                   -> ActorId
                   -> Bits.BitGet (Context, Replication)
 getNewReplication context actorId = do
-    unknownFlag <- Bits.getBool
+    unknownFlag <- getBool
     if unknownFlag
         then error "the unknown flag in a new replication is true! what does it mean?"
         else return ()
@@ -209,7 +210,7 @@ getProps context thing = do
 
 getMaybeProp :: Context -> Thing -> Bits.BitGet (Maybe Prop)
 getMaybeProp context thing = do
-    hasProp <- Bits.getBool
+    hasProp <- getBool
     if hasProp
     then do
         prop <- getProp context thing
@@ -269,7 +270,7 @@ propertyNameToGet =
 
 getBooleanProperty :: Bits.BitGet PropValue
 getBooleanProperty = do
-    bool <- Bits.getBool
+    bool <- getBool
     return (PBoolean bool)
 
 getByteProperty :: Bits.BitGet PropValue
@@ -289,9 +290,9 @@ getCamSettingsProperty = do
 
 getDemolishProperty :: Bits.BitGet PropValue
 getDemolishProperty = do
-    atkFlag <- Bits.getBool
+    atkFlag <- getBool
     atk <- getInt32
-    vicFlag <- Bits.getBool
+    vicFlag <- getBool
     vic <- getInt32
     vec1 <- getVector
     vec2 <- getVector
@@ -301,20 +302,20 @@ getEnumProperty :: Bits.BitGet PropValue
 getEnumProperty = do
     x <- Bits.getWord16be 10
     y <- if x == 1023
-        then Bits.getBool
+        then getBool
         else error ("unexpected enum value " ++ show x)
     return (PEnum x y)
 
 getExplosionProperty :: Bits.BitGet PropValue
 getExplosionProperty = do
-    noGoal <- Bits.getBool
+    noGoal <- getBool
     a <- if noGoal then return Nothing else fmap Just getInt32
     b <- getVector
     return (PExplosion noGoal a b)
 
 getFlaggedIntProperty :: Bits.BitGet PropValue
 getFlaggedIntProperty = do
-    flag <- Bits.getBool
+    flag <- getBool
     int <- getInt32
     return (PFlaggedInt flag (fromIntegral int))
 
@@ -369,16 +370,16 @@ getLocationProperty = do
 
 getMusicStingerProperty :: Bits.BitGet PropValue
 getMusicStingerProperty = do
-    flag <- Bits.getBool
+    flag <- getBool
     cue <- getInt32
     trigger <- getInt8
     return (PMusicStinger flag cue trigger)
 
 getPickupProperty :: Bits.BitGet PropValue
 getPickupProperty = do
-    instigator <- Bits.getBool
+    instigator <- getBool
     instigatorId <- if instigator then fmap Just getInt32 else return Nothing
-    pickedUp <- Bits.getBool
+    pickedUp <- getBool
     return (PPickup instigator instigatorId pickedUp)
 
 getPrivateMatchSettingsProperty :: Bits.BitGet PropValue
@@ -388,7 +389,7 @@ getPrivateMatchSettingsProperty = do
     maxPlayers <- getInt32
     gameName <- getString
     password <- getString
-    flag <- Bits.getBool
+    flag <- getBool
     return (PPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
 
 getQWordProperty :: Bits.BitGet PropValue
@@ -413,13 +414,13 @@ getReservationProperty = do
         string <- getString
         return (Just string)
     -- No idea what these two flags are. Might be for bots?
-    a <- Bits.getBool
-    b <- Bits.getBool
+    a <- getBool
+    b <- getBool
     return (PReservation number systemId remoteId localId playerName a b)
 
 getRigidBodyStateProperty :: Bits.BitGet PropValue
 getRigidBodyStateProperty = do
-    flag <- Bits.getBool
+    flag <- getBool
     position <- getVector
     rotation <- getFloatVector
     x <- if flag then return Nothing else fmap Just getVector
@@ -721,21 +722,21 @@ getVector = do
 getVectorBytewise
     :: Bits.BitGet (Vector Int)
 getVectorBytewise = do
-    hasX <- Bits.getBool
+    hasX <- getBool
     x <-
         if hasX
             then do
                 word <- Bits.getWord8 8
                 word & Type.reverseBits & fromIntegral & return
             else return 0
-    hasY <- Bits.getBool
+    hasY <- getBool
     y <-
         if hasY
             then do
                 word <- Bits.getWord8 8
                 word & Type.reverseBits & fromIntegral & return
             else return 0
-    hasZ <- Bits.getBool
+    hasZ <- getBool
     z <-
         if hasZ
             then do
@@ -816,7 +817,7 @@ getInt maxValue = do
             let x = Bits.shiftL 1 i
             if i < maxBits && value + x <= maxValue
                 then do
-                    bit <- Bits.getBool
+                    bit <- getBool
                     let newValue =
                             if bit
                                 then value + x
@@ -857,3 +858,6 @@ getNumVectorBits = getInt 19
 
 getInt7 :: Bits.BitGet Int
 getInt7 = getInt 7
+
+getBool :: Bits.BitGet Bool
+getBool = fmap Type.unpackBoolean (BinaryBit.getBits 1)
