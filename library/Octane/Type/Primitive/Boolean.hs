@@ -45,7 +45,6 @@ instance BinaryBit.BinaryBit Boolean where
         & unpackBoolean
         & BinaryBit.putBool
 
--- | Boolean values are decoded directly from @true@ or @false@.
 instance Aeson.FromJSON Boolean where
     parseJSON json = case json of
         Aeson.Bool value -> pure (Boolean value)
@@ -53,7 +52,6 @@ instance Aeson.FromJSON Boolean where
 
 instance DeepSeq.NFData Boolean where
 
--- | Boolean values are encoded directly as @true@ or @false@.
 instance Aeson.ToJSON Boolean where
     toJSON boolean = boolean
         & unpackBoolean

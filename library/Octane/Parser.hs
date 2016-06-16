@@ -25,6 +25,7 @@ import qualified Octane.Data as Data
 import qualified Octane.Json as Json
 import qualified Octane.Parser.ClassPropertyMap as CPM
 import qualified Octane.Type as Type
+import qualified Octane.Utility as Utility
 import qualified Text.Printf as Printf
 
 parseFrames :: Type.Replay -> [Frame]
@@ -481,10 +482,10 @@ getString = do
         then do
             let size = -2 * rawSize
             bytes <- Bits.getByteString size
-            bytes & BS.map Type.reverseBits & Encoding.decodeUtf16LE & return
+            bytes & BS.map Utility.reverseBits & Encoding.decodeUtf16LE & return
         else do
             bytes <- Bits.getByteString rawSize
-            bytes & BS.map Type.reverseBits & Encoding.decodeLatin1 & return
+            bytes & BS.map Utility.reverseBits & Encoding.decodeLatin1 & return
     rawText & Text.dropEnd 1 & return
 
 getUniqueId :: Bits.BitGet (SystemId, RemoteId, LocalId)
@@ -497,7 +498,7 @@ getUniqueId = do
 getSystemId :: Bits.BitGet SystemId
 getSystemId = do
     byte <- Bits.getWord8 8
-    byte & Type.reverseBits & return
+    byte & Utility.reverseBits & return
 
 getRemoteId :: SystemId -> Bits.BitGet RemoteId
 getRemoteId systemId = case systemId of
@@ -510,12 +511,12 @@ getRemoteId systemId = case systemId of
         bytes <- Bits.getByteString 8
         let remoteId = Binary.runGet
                 Binary.getWord64le
-                (bytes & BS.map Type.reverseBits & BSL.fromStrict)
+                (bytes & BS.map Utility.reverseBits & BSL.fromStrict)
         remoteId & SteamId & return
     2 -> do
         bytes <- Bits.getByteString 32
         let remoteId = bytes
-                & BS.map Type.reverseBits
+                & BS.map Utility.reverseBits
                 & BS.unpack
                 & concatMap (\ b -> Printf.printf "%02x" b)
                 & Text.pack
@@ -524,7 +525,7 @@ getRemoteId systemId = case systemId of
         bytes <- Bits.getByteString 8
         let remoteId = Binary.runGet
                 Binary.getWord64le
-                (bytes & BS.map Type.reverseBits & BSL.fromStrict)
+                (bytes & BS.map Utility.reverseBits & BSL.fromStrict)
         remoteId & XboxId & return
     _ -> error ("unknown system id " ++ show systemId)
 
@@ -709,7 +710,7 @@ extractContext replay =
 byteStringToFloat :: BS.ByteString -> Float
 byteStringToFloat bytes = Binary.runGet
     IEEE754.getFloat32le
-    (bytes & BSL.fromStrict & BSL.map Type.reverseBits)
+    (bytes & BSL.fromStrict & Utility.reverseBitsInBytes)
 
 getVector :: Bits.BitGet (Vector Int)
 getVector = do
@@ -735,21 +736,21 @@ getVectorBytewise = do
         if Type.unpackBoolean hasX
             then do
                 word <- Bits.getWord8 8
-                word & Type.reverseBits & fromIntegral & return
+                word & Utility.reverseBits & fromIntegral & return
             else return 0
     hasY <- getBool
     y <-
         if Type.unpackBoolean hasY
             then do
                 word <- Bits.getWord8 8
-                word & Type.reverseBits & fromIntegral & return
+                word & Utility.reverseBits & fromIntegral & return
             else return 0
     hasZ <- getBool
     z <-
         if Type.unpackBoolean hasZ
             then do
                 word <- Bits.getWord8 8
-                word & Type.reverseBits & fromIntegral & return
+                word & Utility.reverseBits & fromIntegral & return
             else return 0
     return
         Vector
@@ -839,7 +840,7 @@ getInt32 = do
     bytes <- Bits.getByteString 4
     let word = Binary.runGet
             Binary.getWord32le
-            (bytes & BSL.fromStrict & BSL.map Type.reverseBits)
+            (bytes & BSL.fromStrict & Utility.reverseBitsInBytes)
     word & fromIntegral & (\ x -> x :: Int.Int32) & fromIntegral & return
 
 getInt8 :: Bits.BitGet Int
@@ -847,7 +848,7 @@ getInt8 = do
     byte <- Bits.getByteString 1
     let word = Binary.runGet
             Binary.getWord8
-            (byte & BSL.fromStrict & BSL.map Type.reverseBits)
+            (byte & BSL.fromStrict & Utility.reverseBitsInBytes)
     word & fromIntegral & (\ x -> x :: Int.Int8) & fromIntegral & return
 
 getWord8 :: Bits.BitGet Word.Word8
@@ -855,7 +856,7 @@ getWord8 = do
     byte <- Bits.getByteString 1
     let word = Binary.runGet
             Binary.getWord8
-            (byte & BSL.fromStrict & BSL.map Type.reverseBits)
+            (byte & BSL.fromStrict & Utility.reverseBitsInBytes)
     return word
 
 getActorId :: Bits.BitGet Int
