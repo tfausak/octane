@@ -62,7 +62,7 @@ getMaybeFrame context number = do
     if time == 0 && delta == 0
     then return Nothing
     else if time < 0.001 || delta < 0.001
-    then error ("parsing previous frame probably failed. time: " ++ show time ++ ", delta: " ++ show delta)
+    then fail ("parsing previous frame probably failed. time: " ++ show time ++ ", delta: " ++ show delta)
     else do
         (newContext, frame) <- getFrame context number time delta
         return (Just (newContext, frame))
@@ -125,15 +125,15 @@ getNewReplication :: Context
 getNewReplication context actorId = do
     unknownFlag <- getBool
     if Type.unpackBoolean unknownFlag
-        then error "the unknown flag in a new replication is true! what does it mean?"
-        else return ()
+        then fail "the unknown flag in a new replication is true! what does it mean?"
+        else pure ()
     objectId <- getInt32
-    let objectName = case context & contextObjectMap & IntMap.lookup (Type.fromInt32 objectId) of
-            Nothing -> error ("could not find object name for id " ++ show objectId)
-            Just x -> x
-    let (classId,className) = case CPM.getClass (contextObjectMap context) Data.objectToClass (contextClassMap context) (Type.fromInt32 objectId) of
-            Nothing -> error ("could not find class for object id " ++ show objectId)
-            Just x -> x
+    objectName <- case context & contextObjectMap & IntMap.lookup (Type.fromInt32 objectId) of
+        Nothing -> fail ("could not find object name for id " ++ show objectId)
+        Just x -> pure x
+    (classId, className) <- case CPM.getClass (contextObjectMap context) Data.objectToClass (contextClassMap context) (Type.fromInt32 objectId) of
+        Nothing -> fail ("could not find class for object id " ++ show objectId)
+        Just x -> pure x
     classInit <- getClassInit className
     let thing = Thing
             { thingFlag = unknownFlag
@@ -161,9 +161,9 @@ getExistingReplication :: Context
                        -> ActorId
                        -> Bits.BitGet (Context, Replication)
 getExistingReplication context actorId = do
-    let thing = case context & contextThings & IntMap.lookup actorId of
-            Nothing -> error ("could not find thing for actor id " ++ show actorId)
-            Just x -> x
+    thing <- case context & contextThings & IntMap.lookup actorId of
+        Nothing -> fail ("could not find thing for actor id " ++ show actorId)
+        Just x -> pure x
     props <- getProps context thing
     return (context, Replication
         { replicationActorId = actorId
@@ -178,9 +178,9 @@ getClosedReplication :: Context
                      -> ActorId
                      -> Bits.BitGet (Context, Replication)
 getClosedReplication context actorId = do
-    let thing = case context & contextThings & IntMap.lookup actorId of
-            Nothing -> error ("could not find thing for actor id " ++ show actorId)
-            Just x -> x
+    thing <- case context & contextThings & IntMap.lookup actorId of
+        Nothing -> fail ("could not find thing for actor id " ++ show actorId)
+        Just x -> pure x
     let newThings = context & contextThings & IntMap.delete actorId
     let newContext = context { contextThings = newThings }
     return
@@ -218,14 +218,14 @@ getMaybeProp context thing = do
 getProp :: Context -> Thing -> Bits.BitGet Prop
 getProp context thing = do
     let classId = thing & thingClassId
-    let props = case context & contextClassPropertyMap & IntMap.lookup classId of
-            Nothing -> error ("could not find property map for class id " ++ show classId)
-            Just x -> x
+    props <- case context & contextClassPropertyMap & IntMap.lookup classId of
+        Nothing -> fail ("could not find property map for class id " ++ show classId)
+        Just x -> pure x
     let maxId = props & IntMap.keys & (0 :) & maximum
     pid <- getInt maxId
-    let name = case props & IntMap.lookup pid of
-            Nothing -> error ("could not find property name for property id " ++ show pid)
-            Just x -> x
+    name <- case props & IntMap.lookup pid of
+        Nothing -> fail ("could not find property name for property id " ++ show pid)
+        Just x -> pure x
     value <- getPropValue name
     return (Prop { propName = name, propValue = value })
 
@@ -233,7 +233,7 @@ getProp context thing = do
 
 getPropValue :: Text.Text -> Bits.BitGet PropValue
 getPropValue name = case Map.lookup name propertyNameToGet of
-    Nothing -> error ("don't know how to read property " ++ show name)
+    Nothing -> fail ("don't know how to read property " ++ show name)
     Just get -> get
 
 propertyNameToGet :: Map.Map Text.Text (Bits.BitGet PropValue)
@@ -301,7 +301,7 @@ getEnumProperty = do
     x <- Bits.getWord16be 10
     y <- if x == 1023
         then getBool
-        else error ("unexpected enum value " ++ show x)
+        else fail ("unexpected enum value " ++ show x)
     return (PEnum x y)
 
 getExplosionProperty :: Bits.BitGet PropValue
@@ -468,10 +468,10 @@ getPartyLeaderProperty = do
 --
 
 getFloat32 :: Bits.BitGet Type.Float32
-getFloat32 = BinaryBit.getBits undefined
+getFloat32 = BinaryBit.getBits unimportant
 
 getText :: Bits.BitGet Type.Text
-getText = BinaryBit.getBits undefined
+getText = BinaryBit.getBits unimportant
 
 getUniqueId :: Bits.BitGet (SystemId, RemoteId, LocalId)
 getUniqueId = do
@@ -489,7 +489,7 @@ getRemoteId systemId = case systemId of
         remoteId <- Bits.getByteString 3
         if BS.all (\ byte -> byte == 0) remoteId
             then 0 & Just & SplitscreenId & return
-            else error ("unexpected splitscreen id " ++ show remoteId)
+            else fail ("unexpected splitscreen id " ++ show remoteId)
     1 -> do
         bytes <- Bits.getByteString 8
         let remoteId = Binary.runGet
@@ -510,7 +510,7 @@ getRemoteId systemId = case systemId of
                 Binary.getWord64le
                 (bytes & BS.map Utility.reverseBits & BSL.fromStrict)
         remoteId & XboxId & return
-    _ -> error ("unknown system id " ++ show systemId)
+    _ -> fail ("unknown system id " ++ show systemId)
 
 getLocalId :: Bits.BitGet LocalId
 getLocalId = fmap Just getWord8
@@ -797,13 +797,13 @@ getInt maxValue = do
     go 0 0
 
 getInt32 :: Bits.BitGet Type.Int32
-getInt32 = BinaryBit.getBits undefined
+getInt32 = BinaryBit.getBits unimportant
 
 getInt8 :: Bits.BitGet Type.Int8
-getInt8 = BinaryBit.getBits undefined
+getInt8 = BinaryBit.getBits unimportant
 
 getWord8 :: Bits.BitGet Type.Word8
-getWord8 = BinaryBit.getBits undefined
+getWord8 = BinaryBit.getBits unimportant
 
 getActorId :: Bits.BitGet Int
 getActorId = getInt 1024
@@ -815,4 +815,9 @@ getInt7 :: Bits.BitGet Int
 getInt7 = getInt 7
 
 getBool :: Bits.BitGet Type.Boolean
-getBool = BinaryBit.getBits undefined
+getBool = BinaryBit.getBits unimportant
+
+-- | The 'getBits' function from "Data.Binary.Bits" requires a size parameter.
+-- None of Octane's instances use it.
+unimportant :: Int
+unimportant = 0
