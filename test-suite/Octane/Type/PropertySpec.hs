@@ -165,7 +165,7 @@ spec = describe "Property" $ do
                     \\0\0\0\0")
                 (Right ("", 28, IntProperty
                     (Word64LE 4)
-                    (Word32LE 0)))
+                    (Int32 0)))
             shouldBe
                 (decodeProperty "\
                     \\12\0\0\0IntProperty\0\
@@ -173,12 +173,12 @@ spec = describe "Property" $ do
                     \\1\0\0\0")
                 (Right ("", 28, IntProperty
                     (Word64LE 4)
-                    (Word32LE 1)))
+                    (Int32 1)))
         it "can be encoded" $ do
             shouldBe
                 (Binary.encode (IntProperty
                     (Word64LE 4)
-                    (Word32LE 0)))
+                    (Int32 0)))
                 "\
                     \\12\0\0\0IntProperty\0\
                     \\4\0\0\0\0\0\0\0\
@@ -186,7 +186,7 @@ spec = describe "Property" $ do
             shouldBe
                 (Binary.encode (IntProperty
                     (Word64LE 4)
-                    (Word32LE 1)))
+                    (Int32 1)))
                 "\
                     \\12\0\0\0IntProperty\0\
                     \\4\0\0\0\0\0\0\0\

@@ -34,7 +34,7 @@ parseFrames replay = let
         & Type.unpackDictionary
         & Map.lookup ("NumFrames" & Text.pack & Type.PCString)
         & (\ property -> case property of
-            Just (Type.IntProperty _ x) -> x & Type.unpackWord32LE & fromIntegral
+            Just (Type.IntProperty _ x) -> x & Type.unpackInt32 & fromIntegral
             _ -> 0)
     get = replay & extractContext & getFrames 0 numFrames & Bits.runBitGet
     stream = replay & Type.replayStream & Type.unpackStream & BSL.fromStrict
@@ -701,7 +701,7 @@ extractContext replay =
         & Type.replayKeyFrames
         & Type.unpackList
         & map Type.keyFrameFrame
-        & map Type.unpackWord32LE
+        & map Type.unpackInt32
         & map fromIntegral
         & Set.fromList
     }

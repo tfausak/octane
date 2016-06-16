@@ -17,28 +17,28 @@ import qualified Octane.Type.Primitive.Dictionary as Dictionary
 import qualified Octane.Type.Primitive.List as List
 import qualified Octane.Type.Primitive.PCString as PCString
 import qualified Octane.Type.Primitive.Stream as Stream
-import qualified Octane.Type.Primitive.Word32LE as Word32LE
+import qualified Octane.Type.Primitive.Int32 as Int32
 import qualified Octane.Type.Property as Property
 
 -- | An entire replay. All of the metadata has been parsed, but the actual net
 -- stream has not.
 data Replay = Replay
     -- Number of bytes in the first section.
-    { replaySize1 :: !Word32LE.Word32LE
+    { replaySize1 :: !Int32.Int32
     -- CRC to check the first section.
-    , replayCRC1 :: !Word32LE.Word32LE
+    , replayCRC1 :: !Int32.Int32
     -- Major replay version number.
-    , replayVersion1 :: !Word32LE.Word32LE
+    , replayVersion1 :: !Int32.Int32
     -- Minor replay version number.
-    , replayVersion2 :: !Word32LE.Word32LE
+    , replayVersion2 :: !Int32.Int32
     -- Label, which is always "TAGame.Replay_Soccar_TA".
     , replayLabel :: !PCString.PCString
     -- High-level metadata about the replay.
     , replayProperties :: !(Dictionary.Dictionary Property.Property)
     -- Number of bytes in the last section.
-    , replaySize2 :: !Word32LE.Word32LE
+    , replaySize2 :: !Int32.Int32
     -- CRC to check the last section.
-    , replayCRC2 :: !Word32LE.Word32LE
+    , replayCRC2 :: !Int32.Int32
     -- Array of strings for all of the levels that need to be loaded (array
     -- length followed by each string)
     , replayLevels :: !(List.List PCString.PCString)

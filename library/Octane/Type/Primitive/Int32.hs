@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Type.Primitive.Word32LE (Word32LE(..)) where
+module Octane.Type.Primitive.Int32 (Int32(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -12,18 +12,18 @@ import qualified Data.Int as Int
 import qualified GHC.Generics as Generics
 
 -- | A 32-bit little-endian integer.
-newtype Word32LE = Word32LE
-    { unpackWord32LE :: Int.Int32
+newtype Int32 = Int32
+    { unpackInt32 :: Int.Int32
     } deriving (Eq,Generics.Generic,Show)
 
-instance Binary.Binary Word32LE where
+instance Binary.Binary Int32 where
     get = do
         word <- Binary.getWord32le
-        word & fromIntegral & Word32LE & return
+        word & fromIntegral & Int32 & return
     put word = do
-        word & unpackWord32LE & fromIntegral & Binary.putWord32le
+        word & unpackInt32 & fromIntegral & Binary.putWord32le
 
-instance DeepSeq.NFData Word32LE
+instance DeepSeq.NFData Int32
 
-instance Aeson.ToJSON Word32LE where
-    toJSON word = word & unpackWord32LE & Aeson.toJSON
+instance Aeson.ToJSON Int32 where
+    toJSON word = word & unpackInt32 & Aeson.toJSON

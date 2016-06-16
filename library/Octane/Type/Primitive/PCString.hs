@@ -15,7 +15,7 @@ import qualified Data.String as String
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Encoding
 import qualified GHC.Generics as Generics
-import qualified Octane.Type.Primitive.Word32LE as Word32LE
+import qualified Octane.Type.Primitive.Int32 as Int32
 
 -- | A length-prefixed null-terminated string.
 newtype PCString = PCString
@@ -24,7 +24,7 @@ newtype PCString = PCString
 
 instance Binary.Binary PCString where
     get = do
-        (Word32LE.Word32LE rawSize) <- Binary.get
+        (Int32.Int32 rawSize) <- Binary.get
         -- In some tiny percentage of replays, this nonsensical string size
         -- shows up. As far as I can tell the next 3 bytes are always null. And
         -- the actual string is "None", which is 5 bytes including the null
@@ -62,10 +62,10 @@ instance Binary.Binary PCString where
         let size = cString & Text.length & fromIntegral
         if Text.all Char.isLatin1 cString
             then do
-                size & Word32LE.Word32LE & Binary.put
+                size & Int32.Int32 & Binary.put
                 cString & encodeLatin1 & Binary.putByteString
             else do
-                size & negate & Word32LE.Word32LE & Binary.put
+                size & negate & Int32.Int32 & Binary.put
                 cString & Encoding.encodeUtf16LE & Binary.putByteString
 
 instance String.IsString PCString where

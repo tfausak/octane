@@ -8,12 +8,12 @@ import qualified Data.Binary as Binary
 import Data.Function ((&))
 import qualified GHC.Generics as Generics
 import qualified Octane.Json as Json
-import qualified Octane.Type.Primitive.Word32LE as Word32LE
+import qualified Octane.Type.Primitive.Int32 as Int32
 
 -- | A property on an item in the class net cache map.
 data CacheProperty = CacheProperty
-    { cachePropertyObjectId :: !Word32LE.Word32LE
-    , cachePropertyStreamId :: !Word32LE.Word32LE
+    { cachePropertyObjectId :: !Int32.Int32
+    , cachePropertyStreamId :: !Int32.Int32
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary CacheProperty where

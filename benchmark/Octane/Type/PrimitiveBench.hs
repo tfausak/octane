@@ -8,7 +8,7 @@ import qualified Octane.Type.Primitive.Float32LEBench
 import qualified Octane.Type.Primitive.ListBench
 import qualified Octane.Type.Primitive.PCStringBench
 import qualified Octane.Type.Primitive.StreamBench
-import qualified Octane.Type.Primitive.Word32LEBench
+import qualified Octane.Type.Primitive.Int32Bench
 import qualified Octane.Type.Primitive.Word64LEBench
 
 benchmarks :: Benchmark
@@ -19,6 +19,6 @@ benchmarks = bgroup "Primitive"
     , Octane.Type.Primitive.ListBench.benchmarks
     , Octane.Type.Primitive.PCStringBench.benchmarks
     , Octane.Type.Primitive.StreamBench.benchmarks
-    , Octane.Type.Primitive.Word32LEBench.benchmarks
+    , Octane.Type.Primitive.Int32Bench.benchmarks
     , Octane.Type.Primitive.Word64LEBench.benchmarks
     ]

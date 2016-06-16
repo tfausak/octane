@@ -12,7 +12,7 @@ import qualified Data.ByteString as BS
 import Data.Function ((&))
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
-import qualified Octane.Type.Primitive.Word32LE as Word32LE
+import qualified Octane.Type.Primitive.Int32 as Int32
 
 -- | A length-prefixed stream of bits. The length is given in bytes. Each byte
 -- is reversed such that 0b01234567 is actually 0b76543210.
@@ -22,12 +22,12 @@ newtype Stream = Stream
 
 instance Binary.Binary Stream where
     get = do
-        Word32LE.Word32LE size <- Binary.get
+        Int32.Int32 size <- Binary.get
         content <- size & fromIntegral & Binary.getByteString
         content & BS.map reverseBits & Stream & return
     put stream = do
         let content = unpackStream stream
-        content & BS.length & fromIntegral & Word32LE.Word32LE & Binary.put
+        content & BS.length & fromIntegral & Int32.Int32 & Binary.put
         content & BS.map reverseBits & Binary.putByteString
 
 instance DeepSeq.NFData Stream

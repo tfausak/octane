@@ -16,7 +16,7 @@ benchmarks = bgroup "Mark"
         \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (Mark
         (PCString "")
-        (Word32LE 0)))
+        (Int32 0)))
     ]
 
 decodeMark :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Mark)

@@ -10,13 +10,13 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Json as Json
 import qualified Octane.Type.CacheProperty as CacheProperty
 import qualified Octane.Type.Primitive.List as List
-import qualified Octane.Type.Primitive.Word32LE as Word32LE
+import qualified Octane.Type.Primitive.Int32 as Int32
 
 -- | An item in the class net cache map.
 data CacheItem = CacheItem
-    { cacheItemClassId :: !Word32LE.Word32LE
-    , cacheItemParentCacheId :: !Word32LE.Word32LE
-    , cacheItemCacheId :: !Word32LE.Word32LE
+    { cacheItemClassId :: !Int32.Int32
+    , cacheItemParentCacheId :: !Int32.Int32
+    , cacheItemCacheId :: !Int32.Int32
     , cacheItemCacheProperties :: !(List.List CacheProperty.CacheProperty)
     } deriving (Eq,Generics.Generic,Show)
 

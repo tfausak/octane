@@ -15,8 +15,8 @@ benchmarks = bgroup "CacheProperty"
         \\0\0\0\0\
         \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (CacheProperty
-        (Word32LE 0)
-        (Word32LE 0)))
+        (Int32 0)
+        (Int32 0)))
     ]
 
 decodeCacheProperty :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, CacheProperty)

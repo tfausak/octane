@@ -13,7 +13,7 @@ import qualified Octane.Type.Primitive.Dictionary as Dictionary
 import qualified Octane.Type.Primitive.Float32LE as Float32LE
 import qualified Octane.Type.Primitive.List as List
 import qualified Octane.Type.Primitive.PCString as PCString
-import qualified Octane.Type.Primitive.Word32LE as Word32LE
+import qualified Octane.Type.Primitive.Int32 as Int32
 import qualified Octane.Type.Primitive.Word64LE as Word64LE
 
 -- | A metadata property. All properties have a size, but only some actually
@@ -29,7 +29,7 @@ data Property
     | FloatProperty !Word64LE.Word64LE
                     !Float32LE.Float32LE
     | IntProperty !Word64LE.Word64LE
-                  !Word32LE.Word32LE
+                  !Int32.Int32
     | NameProperty !Word64LE.Word64LE
                    !PCString.PCString
     | QWordProperty !Word64LE.Word64LE

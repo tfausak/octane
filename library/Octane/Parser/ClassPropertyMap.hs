@@ -44,9 +44,9 @@ getClassCache replay = replay
     & Type.replayCacheItems
     & Type.unpackList
     & map (\ x ->
-        ( x & Type.cacheItemClassId & Type.unpackWord32LE & fromIntegral
-        , x & Type.cacheItemCacheId & Type.unpackWord32LE & fromIntegral
-        , x & Type.cacheItemParentCacheId & Type.unpackWord32LE & fromIntegral
+        ( x & Type.cacheItemClassId & Type.unpackInt32 & fromIntegral
+        , x & Type.cacheItemCacheId & Type.unpackInt32 & fromIntegral
+        , x & Type.cacheItemParentCacheId & Type.unpackInt32 & fromIntegral
         ))
 
 -- | The class IDs in a replay. Comes from the class cache.
@@ -120,13 +120,13 @@ getBasicClassPropertyMap replay = let
         & Type.replayCacheItems
         & Type.unpackList
         & map (\ x -> let
-            classId = x & Type.cacheItemClassId & Type.unpackWord32LE & fromIntegral
+            classId = x & Type.cacheItemClassId & Type.unpackInt32 & fromIntegral
             properties = x
                 & Type.cacheItemCacheProperties
                 & Type.unpackList
                 & Maybe.mapMaybe (\ y -> let
-                    streamId = y & Type.cachePropertyStreamId & Type.unpackWord32LE & fromIntegral
-                    propertyId = y & Type.cachePropertyObjectId & Type.unpackWord32LE & fromIntegral
+                    streamId = y & Type.cachePropertyStreamId & Type.unpackInt32 & fromIntegral
+                    propertyId = y & Type.cachePropertyObjectId & Type.unpackInt32 & fromIntegral
                     in case IntMap.lookup propertyId propertyMap of
                         Nothing -> Nothing
                         Just name -> Just (streamId, name))
@@ -141,7 +141,7 @@ getActorMap replay = replay
     & Type.unpackList
     & map (\ x -> let
         className = x & Type.actorName & Type.unpackPCString
-        classId = x & Type.actorStreamId & Type.unpackWord32LE & fromIntegral
+        classId = x & Type.actorStreamId & Type.unpackInt32 & fromIntegral
         in (className, classId))
     & Map.fromList
 
