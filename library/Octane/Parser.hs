@@ -822,12 +822,7 @@ getInt8 :: Bits.BitGet Type.Int8
 getInt8 = BinaryBit.getBits undefined
 
 getWord8 :: Bits.BitGet Word.Word8
-getWord8 = do
-    byte <- Bits.getByteString 1
-    let word = Binary.runGet
-            Binary.getWord8
-            (byte & BSL.fromStrict & Utility.reverseBitsInBytes)
-    return word
+getWord8 = fmap Type.unpackWord8 (BinaryBit.getBits undefined)
 
 getActorId :: Bits.BitGet Int
 getActorId = getInt 1024
