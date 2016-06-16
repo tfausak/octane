@@ -557,10 +557,10 @@ data PropValue
     | PFloat !Type.Float32
     | PGameMode !Word.Word8
     | PInt !Type.Int32
-    | PLoadout !Int !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !(Maybe Type.Int32)
-    | PLoadoutOnline !Type.Int32 !Type.Int32 !Type.Int32 !(Maybe Int)
+    | PLoadout !Type.Int8 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !(Maybe Type.Int32)
+    | PLoadoutOnline !Type.Int32 !Type.Int32 !Type.Int32 !(Maybe Type.Int8)
     | PLocation !(Vector Int)
-    | PMusicStinger !Type.Boolean !Type.Int32 !Int
+    | PMusicStinger !Type.Boolean !Type.Int32 !Type.Int8
     | PPickup !Type.Boolean !(Maybe Type.Int32) !Type.Boolean
     | PPrivateMatchSettings !Type.Text !Type.Int32 !Type.Int32 !Type.Text !Type.Text !Type.Boolean
     | PQWord !Type.Int32 !Type.Int32
@@ -568,7 +568,7 @@ data PropValue
     | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Type.Text) !Type.Boolean !Type.Boolean
     | PRigidBodyState !Type.Boolean !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
     | PString !Type.Text
-    | PTeamPaint !Int !Int !Int !Type.Int32 !Type.Int32
+    | PTeamPaint !Type.Int8 !Type.Int8 !Type.Int8 !Type.Int32 !Type.Int32
     | PUniqueId !SystemId !RemoteId !LocalId
     deriving (Eq, Generics.Generic, Show)
 
@@ -818,8 +818,8 @@ getInt maxValue = do
 getInt32 :: Bits.BitGet Type.Int32
 getInt32 = BinaryBit.getBits undefined
 
-getInt8 :: Bits.BitGet Int
-getInt8 = fmap Type.fromInt8 (BinaryBit.getBits undefined)
+getInt8 :: Bits.BitGet Type.Int8
+getInt8 = BinaryBit.getBits undefined
 
 getWord8 :: Bits.BitGet Word.Word8
 getWord8 = do
