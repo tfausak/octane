@@ -3,13 +3,19 @@
 module Octane.Utility where
 
 import qualified Data.Bits as Bits
+import qualified Data.ByteString as StrictBytes
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Word as Word
 
 
--- | Reverses all the bits in each byte.
+-- | Reverses all the bits in each lazy byte.
 reverseBitsInBytes :: LazyBytes.ByteString -> LazyBytes.ByteString
 reverseBitsInBytes bytes = LazyBytes.map reverseBits bytes
+
+
+-- | Reverses all the bits in each strict byte.
+reverseBitsInBytes' :: StrictBytes.ByteString -> StrictBytes.ByteString
+reverseBitsInBytes' bytes = StrictBytes.map reverseBits bytes
 
 
 -- | Reverses the bits in a byte.
