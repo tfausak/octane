@@ -32,7 +32,7 @@ parseFrames replay = let
     numFrames = replay
         & Type.replayProperties
         & Type.unpackDictionary
-        & Map.lookup ("NumFrames" & Text.pack & Type.PCString)
+        & Map.lookup ("NumFrames" & Text.pack & Type.Text)
         & (\ property -> case property of
             Just (Type.IntProperty _ x) -> x & Type.unpackInt32 & fromIntegral
             _ -> 0)

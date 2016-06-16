@@ -8,14 +8,14 @@ import qualified Data.Binary as Binary
 import Data.Function ((&))
 import qualified GHC.Generics as Generics
 import qualified Octane.Json as Json
-import qualified Octane.Type.Primitive.PCString as PCString
+import qualified Octane.Type.Primitive.Text as Text
 import qualified Octane.Type.Primitive.Int32 as Int32
 
 -- | A debugging message. Replays do not have any of these anymore.
 data Message = Message
     { messageFrame :: !Int32.Int32
-    , messageName :: !PCString.PCString
-    , messageContent :: !PCString.PCString
+    , messageName :: !Text.Text
+    , messageContent :: !Text.Text
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Message where

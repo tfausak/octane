@@ -28,7 +28,7 @@ spec = describe "Property" $ do
                     \\1\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0a\0\13\0\0\0BoolProperty\0\2\0\0\0\0\0\0\0\1\5\0\0\0None\0")
                 (Right ("", 71, ArrayProperty
                     (Int64 1)
-                    (List [Dictionary (Map.singleton (PCString "a") (BoolProperty (Int64 2) (Boolean True)))])))
+                    (List [Dictionary (Map.singleton (Text "a") (BoolProperty (Int64 2) (Boolean True)))])))
         it "can be encoded" $ do
             shouldBe
                 (Binary.encode (ArrayProperty
@@ -41,7 +41,7 @@ spec = describe "Property" $ do
             shouldBe
                 (Binary.encode (ArrayProperty
                     (Int64 1)
-                    (List [Dictionary (Map.singleton (PCString "a") (BoolProperty (Int64 2) (Boolean True)))])))
+                    (List [Dictionary (Map.singleton (Text "a") (BoolProperty (Int64 2) (Boolean True)))])))
                 "\
                     \\14\0\0\0ArrayProperty\0\
                     \\1\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0a\0\13\0\0\0BoolProperty\0\2\0\0\0\0\0\0\0\1\5\0\0\0None\0"
@@ -89,7 +89,7 @@ spec = describe "Property" $ do
                     \\1\0\0\0\0\1\0\0\0\0")
                 (Right ("", 35, ByteProperty
                     (Int64 0)
-                    (PCString "", PCString "")))
+                    (Text "", Text "")))
             shouldBe
                 (decodeProperty "\
                     \\13\0\0\0ByteProperty\0\
@@ -97,12 +97,12 @@ spec = describe "Property" $ do
                     \\2\0\0\0a\0\2\0\0\0b\0")
                 (Right ("", 37, ByteProperty
                     (Int64 1)
-                    (PCString "a", PCString "b")))
+                    (Text "a", Text "b")))
         it "can be encoded" $ do
             shouldBe
                 (Binary.encode (ByteProperty
                     (Int64 0)
-                    (PCString "", PCString "")))
+                    (Text "", Text "")))
                 "\
                     \\13\0\0\0ByteProperty\0\
                     \\0\0\0\0\0\0\0\0\
@@ -110,7 +110,7 @@ spec = describe "Property" $ do
             shouldBe
                 (Binary.encode (ByteProperty
                     (Int64 1)
-                    (PCString "a", PCString "b")))
+                    (Text "a", Text "b")))
                 "\
                     \\13\0\0\0ByteProperty\0\
                     \\1\0\0\0\0\0\0\0\
@@ -206,7 +206,7 @@ spec = describe "Property" $ do
                     \\1\0\0\0\0")
                 (Right ("", 30, NameProperty
                     (Int64 0)
-                    (PCString "")))
+                    (Text "")))
             shouldBe
                 (decodeProperty "\
                     \\13\0\0\0NameProperty\0\
@@ -214,12 +214,12 @@ spec = describe "Property" $ do
                     \\2\0\0\0a\0")
                 (Right ("", 31, NameProperty
                     (Int64 1)
-                    (PCString "a")))
+                    (Text "a")))
         it "can be encoded" $ do
             shouldBe
                 (Binary.encode (NameProperty
                     (Int64 0)
-                    (PCString "")))
+                    (Text "")))
                 "\
                     \\13\0\0\0NameProperty\0\
                     \\0\0\0\0\0\0\0\0\
@@ -227,7 +227,7 @@ spec = describe "Property" $ do
             shouldBe
                 (Binary.encode (NameProperty
                     (Int64 1)
-                    (PCString "a")))
+                    (Text "a")))
                 "\
                     \\13\0\0\0NameProperty\0\
                     \\1\0\0\0\0\0\0\0\
@@ -280,7 +280,7 @@ spec = describe "Property" $ do
                     \\1\0\0\0\0")
                 (Right ("", 29, StrProperty
                     (Int64 0)
-                    (PCString "")))
+                    (Text "")))
             shouldBe
                 (decodeProperty "\
                     \\12\0\0\0StrProperty\0\
@@ -288,12 +288,12 @@ spec = describe "Property" $ do
                     \\2\0\0\0a\0")
                 (Right ("", 30, StrProperty
                     (Int64 1)
-                    (PCString "a")))
+                    (Text "a")))
         it "can be encoded" $ do
             shouldBe
                 (Binary.encode (StrProperty
                     (Int64 0)
-                    (PCString "")))
+                    (Text "")))
                 "\
                     \\12\0\0\0StrProperty\0\
                     \\0\0\0\0\0\0\0\0\
@@ -301,7 +301,7 @@ spec = describe "Property" $ do
             shouldBe
                 (Binary.encode (StrProperty
                     (Int64 1)
-                    (PCString "a")))
+                    (Text "a")))
                 "\
                     \\12\0\0\0StrProperty\0\
                     \\1\0\0\0\0\0\0\0\

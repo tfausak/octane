@@ -15,7 +15,7 @@ import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
 import qualified Octane.Type.Primitive.Dictionary as Dictionary
 import qualified Octane.Type.Primitive.List as List
-import qualified Octane.Type.Primitive.PCString as PCString
+import qualified Octane.Type.Primitive.Text as Text
 import qualified Octane.Type.Primitive.Stream as Stream
 import qualified Octane.Type.Primitive.Int32 as Int32
 import qualified Octane.Type.Property as Property
@@ -32,7 +32,7 @@ data Replay = Replay
     -- Minor replay version number.
     , replayVersion2 :: !Int32.Int32
     -- Label, which is always "TAGame.Replay_Soccar_TA".
-    , replayLabel :: !PCString.PCString
+    , replayLabel :: !Text.Text
     -- High-level metadata about the replay.
     , replayProperties :: !(Dictionary.Dictionary Property.Property)
     -- Number of bytes in the last section.
@@ -41,7 +41,7 @@ data Replay = Replay
     , replayCRC2 :: !Int32.Int32
     -- Array of strings for all of the levels that need to be loaded (array
     -- length followed by each string)
-    , replayLevels :: !(List.List PCString.PCString)
+    , replayLevels :: !(List.List Text.Text)
     -- Array of Keyframe information used for timeline scrubbing (array
     -- length followed by each keyframe struct) (Time, Frame, File Position)
     , replayKeyFrames :: !(List.List KeyFrame.KeyFrame)
@@ -56,14 +56,14 @@ data Replay = Replay
     -- scores). (array length followed by each tick struct) (Type, Frame)
     , replayMarks :: !(List.List Mark.Mark)
     -- Array of strings of replicated Packages
-    , replayPackages :: !(List.List PCString.PCString)
+    , replayPackages :: !(List.List Text.Text)
     -- Array of strings for the Object table. Whenever a persistent object gets
     -- referenced in the network stream its path gets added to this array. Then
     -- its index in this array is used in the network stream.
-    , replayObjects :: !(List.List PCString.PCString)
+    , replayObjects :: !(List.List Text.Text)
     -- Array of strings for the Name table. "Names" are commonly used strings
     -- that get assigned an integer for use in the network stream.
-    , replayNames :: !(List.List PCString.PCString)
+    , replayNames :: !(List.List Text.Text)
     -- Map of string, integer pairs for the Class Index Map. Whenever a class
     -- is used in the network stream it is given an integer id by this map.
     , replayActors :: !(List.List Actor.Actor)

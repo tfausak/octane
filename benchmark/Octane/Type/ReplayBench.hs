@@ -36,7 +36,7 @@ benchmarks = bgroup "Replay"
         (Int32 0)
         (Int32 0)
         (Int32 0)
-        (PCString "")
+        (Text "")
         (Dictionary Map.empty)
         (Int32 0)
         (Int32 0)

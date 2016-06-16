@@ -9,12 +9,12 @@ import qualified Data.Binary as Binary
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import qualified GHC.Generics as Generics
-import qualified Octane.Type.Primitive.PCString as PCString
+import qualified Octane.Type.Primitive.Text as Text
 
 -- | A dictionary that maps strings to values. The dictionary is terminated by
 -- the key "None".
 newtype Dictionary a = Dictionary
-    { unpackDictionary :: (Map.Map PCString.PCString a)
+    { unpackDictionary :: (Map.Map Text.Text a)
     } deriving (Eq,Generics.Generic,Show)
 
 instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
@@ -34,11 +34,11 @@ instance (DeepSeq.NFData a) => DeepSeq.NFData (Dictionary a)
 
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
     toJSON dictionary =
-        dictionary & unpackDictionary & Map.mapKeys PCString.unpackPCString & Aeson.toJSON
+        dictionary & unpackDictionary & Map.mapKeys Text.unpackText & Aeson.toJSON
 
 getElement
     :: (Binary.Binary a)
-    => Binary.Get (Map.Map PCString.PCString a)
+    => Binary.Get (Map.Map Text.Text a)
 getElement = do
     key <- Binary.get
     if key == noneKey
@@ -50,10 +50,10 @@ getElement = do
 
 putElement
     :: (Binary.Binary a)
-    => (PCString.PCString, a) -> Binary.Put
+    => (Text.Text, a) -> Binary.Put
 putElement (key,value) = do
     Binary.put key
     Binary.put value
 
-noneKey :: PCString.PCString
+noneKey :: Text.Text
 noneKey = "None"

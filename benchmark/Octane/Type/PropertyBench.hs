@@ -37,7 +37,7 @@ benchmarks = bgroup "Property"
             \\1\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (ByteProperty
             (Int64 0)
-            (PCString "", PCString "")))
+            (Text "", Text "")))
         ]
     , bgroup "Float"
         [ bench "decode basic" (nf decodeProperty "\
@@ -64,7 +64,7 @@ benchmarks = bgroup "Property"
             \\1\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (NameProperty
             (Int64 0)
-            (PCString "")))
+            (Text "")))
         ]
     , bgroup "QWord"
         [ bench "decode basic" (nf decodeProperty "\
@@ -82,7 +82,7 @@ benchmarks = bgroup "Property"
             \\1\0\0\0\0")
         , bench "encode basic" (nf Binary.encode (StrProperty
             (Int64 0)
-            (PCString "")))
+            (Text "")))
         ]
     ]
 

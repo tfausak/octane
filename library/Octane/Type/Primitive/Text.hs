@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Type.Primitive.PCString (PCString(..)) where
+module Octane.Type.Primitive.Text (Text(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -18,11 +18,11 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Primitive.Int32 as Int32
 
 -- | A length-prefixed null-terminated string.
-newtype PCString = PCString
-    { unpackPCString :: Text.Text
+newtype Text = Text
+    { unpackText :: Text.Text
     } deriving (Eq,Generics.Generic,Ord,Show)
 
-instance Binary.Binary PCString where
+instance Binary.Binary Text where
     get = do
         (Int32.Int32 rawSize) <- Binary.get
         -- In some tiny percentage of replays, this nonsensical string size
@@ -46,7 +46,7 @@ instance Binary.Binary PCString where
             else return rawSize
         string <-
             if size == 0
-                then fail ("invalid PCString size " ++ show size)
+                then fail ("invalid Text size " ++ show size)
                 else if size < 0
                          then do
                              let actualSize = 2 * negate size
@@ -56,9 +56,9 @@ instance Binary.Binary PCString where
                          else do
                              bytes <- Binary.getByteString (fromIntegral size)
                              bytes & Encoding.decodeLatin1 & return
-        string & Text.dropEnd 1 & PCString & return
+        string & Text.dropEnd 1 & Text & return
     put string = do
-        let cString = string & unpackPCString & flip Text.snoc '\NUL'
+        let cString = string & unpackText & flip Text.snoc '\NUL'
         let size = cString & Text.length & fromIntegral
         if Text.all Char.isLatin1 cString
             then do
@@ -68,13 +68,13 @@ instance Binary.Binary PCString where
                 size & negate & Int32.Int32 & Binary.put
                 cString & Encoding.encodeUtf16LE & Binary.putByteString
 
-instance String.IsString PCString where
-    fromString string = string & Text.pack & PCString
+instance String.IsString Text where
+    fromString string = string & Text.pack & Text
 
-instance DeepSeq.NFData PCString
+instance DeepSeq.NFData Text
 
-instance Aeson.ToJSON PCString where
-    toJSON string = string & unpackPCString & Aeson.toJSON
+instance Aeson.ToJSON Text where
+    toJSON string = string & unpackText & Aeson.toJSON
 
 encodeLatin1 :: Text.Text -> BS.ByteString
 encodeLatin1 text = text & Text.unpack & BS8.pack

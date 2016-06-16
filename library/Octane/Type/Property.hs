@@ -12,7 +12,7 @@ import qualified Octane.Type.Primitive.Boolean as Boolean
 import qualified Octane.Type.Primitive.Dictionary as Dictionary
 import qualified Octane.Type.Primitive.Float32 as Float32
 import qualified Octane.Type.Primitive.List as List
-import qualified Octane.Type.Primitive.PCString as PCString
+import qualified Octane.Type.Primitive.Text as Text
 import qualified Octane.Type.Primitive.Int32 as Int32
 import qualified Octane.Type.Primitive.Int64 as Int64
 
@@ -25,17 +25,17 @@ data Property
     | BoolProperty !Int64.Int64
                    !Boolean.Boolean
     | ByteProperty !Int64.Int64
-                   !(PCString.PCString, PCString.PCString)
+                   !(Text.Text, Text.Text)
     | FloatProperty !Int64.Int64
                     !Float32.Float32
     | IntProperty !Int64.Int64
                   !Int32.Int32
     | NameProperty !Int64.Int64
-                   !PCString.PCString
+                   !Text.Text
     | QWordProperty !Int64.Int64
                     !Int64.Int64
     | StrProperty !Int64.Int64
-                  !PCString.PCString
+                  !Text.Text
     deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Property where
@@ -87,7 +87,7 @@ instance Binary.Binary Property where
                 size <- Binary.get
                 value <- Binary.get
                 value & StrProperty size & return
-            _ -> fail ("unknown property type " ++ show (PCString.unpackPCString kind))
+            _ -> fail ("unknown property type " ++ show (Text.unpackText kind))
     put property =
         case property of
             ArrayProperty size value -> do
@@ -138,26 +138,26 @@ instance Aeson.ToJSON Property where
             QWordProperty _ x -> Aeson.toJSON x
             StrProperty _ x -> Aeson.toJSON x
 
-arrayProperty :: PCString.PCString
+arrayProperty :: Text.Text
 arrayProperty = "ArrayProperty"
 
-boolProperty :: PCString.PCString
+boolProperty :: Text.Text
 boolProperty = "BoolProperty"
 
-byteProperty :: PCString.PCString
+byteProperty :: Text.Text
 byteProperty = "ByteProperty"
 
-floatProperty :: PCString.PCString
+floatProperty :: Text.Text
 floatProperty = "FloatProperty"
 
-intProperty :: PCString.PCString
+intProperty :: Text.Text
 intProperty = "IntProperty"
 
-nameProperty :: PCString.PCString
+nameProperty :: Text.Text
 nameProperty = "NameProperty"
 
-qWordProperty :: PCString.PCString
+qWordProperty :: Text.Text
 qWordProperty = "QWordProperty"
 
-strProperty :: PCString.PCString
+strProperty :: Text.Text
 strProperty = "StrProperty"

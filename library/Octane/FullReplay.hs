@@ -78,7 +78,7 @@ getMetadata fullReplay = fullReplay
     & Prelude.fst
     & Type.replayProperties
     & Type.unpackDictionary
-    & Map.mapKeys Type.unpackPCString
+    & Map.mapKeys Type.unpackText
     & Map.map Aeson.toJSON
 
 
@@ -88,10 +88,10 @@ getLevels fullReplay = fullReplay
     & Prelude.fst
     & Type.replayLevels
     & Type.unpackList
-    & Prelude.map Type.unpackPCString
+    & Prelude.map Type.unpackText
 
 
-getMessages :: FullReplay -> Map.Map Text.Text Type.PCString
+getMessages :: FullReplay -> Map.Map Text.Text Type.Text
 getMessages fullReplay = fullReplay
     & unpackFullReplay
     & Prelude.fst
@@ -108,7 +108,7 @@ getMessages fullReplay = fullReplay
     & Map.fromList
 
 
-getTickMarks :: FullReplay -> Map.Map Text.Text Type.PCString
+getTickMarks :: FullReplay -> Map.Map Text.Text Type.Text
 getTickMarks fullReplay = fullReplay
     & unpackFullReplay
     & Prelude.fst

@@ -106,7 +106,7 @@ getPropertyMap :: Type.Replay -> IntMap.IntMap Text.Text
 getPropertyMap replay = replay
     & Type.replayObjects
     & Type.unpackList
-    & map Type.unpackPCString
+    & map Type.unpackText
     & zip [0 ..]
     & IntMap.fromList
 
@@ -140,7 +140,7 @@ getActorMap replay = replay
     & Type.replayActors
     & Type.unpackList
     & map (\ x -> let
-        className = x & Type.actorName & Type.unpackPCString
+        className = x & Type.actorName & Type.unpackText
         classId = x & Type.actorStreamId & Type.unpackInt32 & fromIntegral
         in (className, classId))
     & Map.fromList

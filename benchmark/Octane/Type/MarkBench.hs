@@ -15,7 +15,7 @@ benchmarks = bgroup "Mark"
         \\1\0\0\0\0\
         \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (Mark
-        (PCString "")
+        (Text "")
         (Int32 0)))
     ]
 

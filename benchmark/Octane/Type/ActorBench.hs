@@ -15,7 +15,7 @@ benchmarks = bgroup "Actor"
         \\1\0\0\0\0\
         \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (Actor
-        (PCString "")
+        (Text "")
         (Int32 0)))
     ]
 
