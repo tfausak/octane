@@ -481,9 +481,7 @@ getUniqueId = do
     return (systemId, remoteId, localId)
 
 getSystemId :: Bits.BitGet SystemId
-getSystemId = do
-    byte <- Bits.getWord8 8
-    byte & Utility.reverseBits & return
+getSystemId = getWord8
 
 getRemoteId :: SystemId -> Bits.BitGet RemoteId
 getRemoteId systemId = case systemId of
@@ -515,17 +513,15 @@ getRemoteId systemId = case systemId of
     _ -> error ("unknown system id " ++ show systemId)
 
 getLocalId :: Bits.BitGet LocalId
-getLocalId = do
-    localId <- Bits.getWord8 8
-    localId & Just & return
+getLocalId = fmap Just getWord8
 
-type SystemId = Word.Word8
+type SystemId = Type.Word8
 
 -- This is the number associated with a splitscreen player. So the first player
 -- is 0, the second is 1, and so on.
 -- - 0 "Someone"
 -- - 1 "Someone (1)"
-type LocalId = Maybe Word.Word8
+type LocalId = Maybe Type.Word8
 
 data RemoteId
     = SteamId !Word.Word64
@@ -650,7 +646,7 @@ instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
 
 data ClassInit = ClassInit
     { classInitLocation :: !(Maybe (Vector Int))
-    , classInitRotation :: !(Maybe (Vector Int))
+    , classInitRotation :: !(Maybe (Vector Type.Int8))
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData ClassInit
@@ -709,29 +705,14 @@ getVector = do
         }
 
 getVectorBytewise
-    :: Bits.BitGet (Vector Int)
+    :: Bits.BitGet (Vector Type.Int8)
 getVectorBytewise = do
     hasX <- getBool
-    x <-
-        if Type.unpackBoolean hasX
-            then do
-                word <- Bits.getWord8 8
-                word & Utility.reverseBits & fromIntegral & return
-            else return 0
+    x <- if Type.unpackBoolean hasX then getInt8 else return 0
     hasY <- getBool
-    y <-
-        if Type.unpackBoolean hasY
-            then do
-                word <- Bits.getWord8 8
-                word & Utility.reverseBits & fromIntegral & return
-            else return 0
+    y <- if Type.unpackBoolean hasY then getInt8 else return 0
     hasZ <- getBool
-    z <-
-        if Type.unpackBoolean hasZ
-            then do
-                word <- Bits.getWord8 8
-                word & Utility.reverseBits & fromIntegral & return
-            else return 0
+    z <- if Type.unpackBoolean hasZ then getInt8 else return 0
     return
         Vector
         { vectorX = x
