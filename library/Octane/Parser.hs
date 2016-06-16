@@ -836,12 +836,7 @@ getInt maxValue = do
     go 0 0
 
 getInt32 :: Bits.BitGet Int
-getInt32 = do
-    bytes <- Bits.getByteString 4
-    let word = Binary.runGet
-            Binary.getWord32le
-            (bytes & BSL.fromStrict & Utility.reverseBitsInBytes)
-    word & fromIntegral & (\ x -> x :: Int.Int32) & fromIntegral & return
+getInt32 = fmap (fromIntegral . Type.unpackInt32) (BinaryBit.getBits 32)
 
 getInt8 :: Bits.BitGet Int
 getInt8 = do
