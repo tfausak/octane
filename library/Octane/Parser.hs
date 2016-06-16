@@ -387,11 +387,11 @@ getPickupProperty = do
 
 getPrivateMatchSettingsProperty :: Bits.BitGet PropValue
 getPrivateMatchSettingsProperty = do
-    mutators <- getString
+    mutators <- getText
     joinableBy <- getInt32
     maxPlayers <- getInt32
-    gameName <- getString
-    password <- getString
+    gameName <- getText
+    password <- getText
     flag <- getBool
     return (PPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
 
@@ -414,7 +414,7 @@ getReservationProperty = do
     number <- getInt7
     (systemId, remoteId, localId) <- getUniqueId
     playerName <- if systemId == 0 then return Nothing else do
-        string <- getString
+        string <- getText
         return (Just string)
     -- No idea what these two flags are. Might be for bots?
     a <- getBool
@@ -436,7 +436,7 @@ getRigidBodyStateProperty = do
 
 getStringProperty :: Bits.BitGet PropValue
 getStringProperty = do
-    string <- getString
+    string <- getText
     return (PString string)
 
 getTeamPaintProperty :: Bits.BitGet PropValue
@@ -471,8 +471,8 @@ getPartyLeaderProperty = do
 getFloat32 :: Bits.BitGet Type.Float32
 getFloat32 = BinaryBit.getBits undefined
 
-getString :: Bits.BitGet Text.Text
-getString = fmap Type.unpackText (BinaryBit.getBits undefined)
+getText :: Bits.BitGet Text.Text
+getText = fmap Type.unpackText (BinaryBit.getBits undefined)
 
 getUniqueId :: Bits.BitGet (SystemId, RemoteId, LocalId)
 getUniqueId = do
