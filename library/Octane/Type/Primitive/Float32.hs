@@ -20,6 +20,7 @@ import qualified Data.Scientific as Scientific
 import qualified GHC.Generics as Generics
 import qualified Octane.Utility as Utility
 
+
 -- | A 32-bit little-endian float.
 newtype Float32 = Float32
     { unpackFloat32 :: Float
