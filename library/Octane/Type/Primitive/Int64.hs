@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Type.Primitive.Word64LE (Word64LE(..)) where
+module Octane.Type.Primitive.Int64 (Int64(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -12,18 +12,18 @@ import qualified Data.Int as Int
 import qualified GHC.Generics as Generics
 
 -- | A 64-bit little-endian integer.
-newtype Word64LE = Word64LE
-    { unpackWord64LE :: Int.Int64
+newtype Int64 = Int64
+    { unpackInt64 :: Int.Int64
     } deriving (Eq,Generics.Generic,Show)
 
-instance Binary.Binary Word64LE where
+instance Binary.Binary Int64 where
     get = do
         word <- Binary.getWord64le
-        word & fromIntegral & Word64LE & return
+        word & fromIntegral & Int64 & return
     put word = do
-        word & unpackWord64LE & fromIntegral & Binary.putWord64le
+        word & unpackInt64 & fromIntegral & Binary.putWord64le
 
-instance DeepSeq.NFData Word64LE
+instance DeepSeq.NFData Int64
 
-instance Aeson.ToJSON Word64LE where
-    toJSON word = word & unpackWord64LE & Aeson.toJSON
+instance Aeson.ToJSON Int64 where
+    toJSON word = word & unpackInt64 & Aeson.toJSON
