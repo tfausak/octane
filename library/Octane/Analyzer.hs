@@ -62,7 +62,7 @@ getPlayerActorIds frames = frames
         in case maybeProperty of
             Nothing -> Nothing
             Just property -> case property of
-                Parser.PString name -> Just (actorId, name)
+                Parser.PString name -> Just (actorId, Type.unpackText name)
                 _ -> Nothing)
     & Map.fromList
 

@@ -471,8 +471,8 @@ getPartyLeaderProperty = do
 getFloat32 :: Bits.BitGet Type.Float32
 getFloat32 = BinaryBit.getBits undefined
 
-getText :: Bits.BitGet Text.Text
-getText = fmap Type.unpackText (BinaryBit.getBits undefined)
+getText :: Bits.BitGet Type.Text
+getText = BinaryBit.getBits undefined
 
 getUniqueId :: Bits.BitGet (SystemId, RemoteId, LocalId)
 getUniqueId = do
@@ -563,12 +563,12 @@ data PropValue
     | PLocation !(Vector Int)
     | PMusicStinger !Type.Boolean !Type.Int32 !Int
     | PPickup !Type.Boolean !(Maybe Type.Int32) !Type.Boolean
-    | PPrivateMatchSettings !Text.Text !Type.Int32 !Type.Int32 !Text.Text !Text.Text !Type.Boolean
+    | PPrivateMatchSettings !Type.Text !Type.Int32 !Type.Int32 !Type.Text !Type.Text !Type.Boolean
     | PQWord !Type.Int32 !Type.Int32
     | PRelativeRotation !(Vector Float)
-    | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Text.Text) !Type.Boolean !Type.Boolean
+    | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Type.Text) !Type.Boolean !Type.Boolean
     | PRigidBodyState !Type.Boolean !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
-    | PString !Text.Text
+    | PString !Type.Text
     | PTeamPaint !Int !Int !Int !Type.Int32 !Type.Int32
     | PUniqueId !SystemId !RemoteId !LocalId
     deriving (Eq, Generics.Generic, Show)
