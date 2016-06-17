@@ -28,7 +28,7 @@ newtype Int8 = Int8
 
 instance BinaryBit.BinaryBit Int8 where
     getBits _ = do
-        bytes <- BinaryBit.getByteString 4
+        bytes <- BinaryBit.getByteString 1
         let value = Binary.runGet
                 Binary.getWord8
                 (bytes & LazyBytes.fromStrict & Utility.reverseBitsInBytes)
