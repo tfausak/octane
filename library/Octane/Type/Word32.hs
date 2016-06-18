@@ -4,7 +4,10 @@
 
 module Octane.Type.Word32 (Word32(..), fromWord32, toWord32) where
 
+import Data.Function ((&))
+
 import qualified Control.DeepSeq as DeepSeq
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
@@ -16,7 +19,7 @@ import qualified Text.Printf as Printf
 -- | A 32-bit unsigned integer.
 newtype Word32 = Word32
     { unpack :: Word.Word32
-    } deriving (Eq, Generics.Generic, Num)
+    } deriving (Eq, Generics.Generic, Num, Ord)
 
 -- | Stored in little-endian byte order.
 instance Binary.Binary Word32 where
@@ -33,6 +36,11 @@ instance DeepSeq.NFData Word32 where
 -- | Shown as @0x01020304@.
 instance Show Word32 where
     show word32 = Printf.printf "0x%08x" (unpack word32)
+
+instance Aeson.ToJSON Word32 where
+    toJSON word32 = word32
+        & unpack
+        & Aeson.toJSON
 
 
 -- | Converts a 'Word32' into any 'Integral' value.

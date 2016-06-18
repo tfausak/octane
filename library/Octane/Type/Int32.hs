@@ -4,7 +4,10 @@
 
 module Octane.Type.Int32 (Int32(..), fromInt32, toInt32) where
 
+import Data.Function ((&))
+
 import qualified Control.DeepSeq as DeepSeq
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
@@ -15,7 +18,7 @@ import qualified GHC.Generics as Generics
 -- | A 32-bit signed integer.
 newtype Int32 = Int32
     { unpack :: Int.Int32
-    } deriving (Eq, Generics.Generic, Num)
+    } deriving (Eq, Generics.Generic, Num, Ord)
 
 -- | Stored in little-endian byte order.
 instance Binary.Binary Int32 where
@@ -32,6 +35,11 @@ instance DeepSeq.NFData Int32 where
 -- | Shown as @1234@.
 instance Show Int32 where
     show int32 = show (unpack int32)
+
+instance Aeson.ToJSON Int32 where
+    toJSON int32 = int32
+        & unpack
+        & Aeson.toJSON
 
 
 -- | Converts a 'Int32' into any 'Integral' value.

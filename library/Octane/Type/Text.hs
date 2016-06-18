@@ -7,22 +7,23 @@ module Octane.Type.Text (Text(..)) where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
+import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Char8 as StrictBytes
 import qualified Data.Char as Char
 import qualified Data.String as String
-import qualified Data.Text as Text
+import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Int32 as Int32
 
 
--- | A thin wrapper around 'Text.Text'.
+-- | A thin wrapper around 'StrictText.Text'.
 newtype Text = Text
-    { unpack :: Text.Text
-    } deriving (Eq, Generics.Generic)
+    { unpack :: StrictText.Text
+    } deriving (Eq, Generics.Generic, Ord)
 
 -- | Text is both length-prefixed and null-terminated.
 instance Binary.Binary Text where
@@ -34,13 +35,21 @@ instance Binary.Binary Text where
         id
         text
 
+instance Aeson.FromJSON Text where
+    parseJSON json = case json of
+        Aeson.String text -> pure (Text text)
+        _ -> Aeson.typeMismatch "Text" json
+
 instance String.IsString Text where
-    fromString string = Text (Text.pack string)
+    fromString string = Text (StrictText.pack string)
 
 instance DeepSeq.NFData Text where
 
 instance Show Text where
-    show text = Text.unpack (unpack text)
+    show text = StrictText.unpack (unpack text)
+
+instance Aeson.ToJSON Text where
+    toJSON text = text & unpack & Aeson.toJSON
 
 
 getText :: (Monad m) => (m Int32.Int32) -> (Int -> m StrictBytes.ByteString) -> m Text
@@ -64,7 +73,7 @@ getText getInt getBytes = do
         else pure (fromIntegral rawSize, Encoding.decodeLatin1)
     bytes <- getBytes size
     let rawText = decode bytes
-    case Text.splitAt (Text.length rawText - 1) rawText of
+    case StrictText.splitAt (StrictText.length rawText - 1) rawText of
         (text, "") -> text & Text & pure
         (text, "\0") -> text & Text & pure
         _ -> fail ("Unexpected Text value " ++ show rawText)
@@ -72,9 +81,9 @@ getText getInt getBytes = do
 
 putText :: (Monad m) => (Int32.Int32 -> m ()) -> (StrictBytes.ByteString -> m ()) -> (StrictBytes.ByteString -> StrictBytes.ByteString) -> Text -> m ()
 putText putInt putBytes convertBytes text = do
-    let fullText = text & unpack & flip Text.snoc '\NUL'
-    let size = fullText & Text.length & fromIntegral
-    if Text.all Char.isLatin1 fullText
+    let fullText = text & unpack & flip StrictText.snoc '\NUL'
+    let size = fullText & StrictText.length & fromIntegral
+    if StrictText.all Char.isLatin1 fullText
     then do
         size & Int32.Int32 & putInt
         fullText & encodeLatin1 & convertBytes & putBytes
@@ -83,7 +92,7 @@ putText putInt putBytes convertBytes text = do
         fullText & Encoding.encodeUtf16LE & convertBytes & putBytes
 
 
-encodeLatin1 :: Text.Text -> StrictBytes.ByteString
+encodeLatin1 :: StrictText.Text -> StrictBytes.ByteString
 encodeLatin1 text = text
-    & Text.unpack
+    & StrictText.unpack
     & StrictBytes.pack

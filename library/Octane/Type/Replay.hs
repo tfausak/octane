@@ -7,16 +7,21 @@ module Octane.Type.Replay (Replay(..), fromReplayWithoutFrames, toReplayWithoutF
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
+import qualified Data.Map as Map
+import qualified Data.Text as StrictText
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
+import qualified Octane.Type.Dictionary as Dictionary
+import qualified Octane.Type.Property as Property
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
+import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
 
 data Replay = Replay
     { version :: Version.Version
+    , metadata :: Map.Map StrictText.Text Property.Property
     } deriving (Eq, Generics.Generic, Show)
 
 instance Binary.Binary Replay where
@@ -29,14 +34,10 @@ instance Binary.Binary Replay where
         Binary.put replayWithoutFrames
 
 instance Aeson.FromJSON Replay where
-    parseJSON json = case json of
-        Aeson.Object _object -> pure Replay { version = Version.makeVersion [1, 2] }
-        _ -> Aeson.typeMismatch "Replay" json
 
 instance DeepSeq.NFData Replay where
 
 instance Aeson.ToJSON Replay where
-    toJSON _replay = Aeson.object []
 
 
 fromReplayWithoutFrames :: (Monad m) => ReplayWithoutFrames.ReplayWithoutFrames -> m Replay
@@ -45,6 +46,7 @@ fromReplayWithoutFrames replayWithoutFrames = do
             [ ReplayWithoutFrames.version1 replayWithoutFrames
             , ReplayWithoutFrames.version2 replayWithoutFrames
             ])
+    let metadata = Map.mapKeys Text.unpack (Dictionary.unpack (ReplayWithoutFrames.properties replayWithoutFrames))
 
     pure Replay { .. }
 
@@ -54,5 +56,6 @@ toReplayWithoutFrames replay = do
     let [version1, version2] = map Word32.toWord32
             (Version.versionBranch (version replay))
     let label = "TAGame.Replay_Soccar_TA"
+    let properties = Dictionary.Dictionary (Map.mapKeys Text.Text (metadata replay))
 
     pure ReplayWithoutFrames.ReplayWithoutFrames { .. }
