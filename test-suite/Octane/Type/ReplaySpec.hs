@@ -34,14 +34,14 @@ spec = describe "Replay" $ do
                 \\0\0\0\0\
                 \\0\0\0\0")
             (Right ("", 78, Replay
-                (Int32 22)
-                (Int32 (-492359483))
+                (Word32 22)
+                (Word32 3802607813)
                 (Int32 0)
                 (Int32 0)
                 (Text "")
                 (Dictionary Map.empty)
-                (Int32 40)
-                (Int32 327785205)
+                (Word32 40)
+                (Word32 327785205)
                 (List [])
                 (List [])
                 (Stream "")
@@ -55,14 +55,14 @@ spec = describe "Replay" $ do
     it "can be encoded" $ do
         shouldBe
             (Binary.encode (Replay
-                (Int32 0)
-                (Int32 0)
+                (Word32 0)
+                (Word32 0)
                 (Int32 0)
                 (Int32 0)
                 (Text "")
                 (Dictionary Map.empty)
-                (Int32 0)
-                (Int32 0)
+                (Word32 0)
+                (Word32 0)
                 (List [])
                 (List [])
                 (Stream "")

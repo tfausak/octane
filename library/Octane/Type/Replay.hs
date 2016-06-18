@@ -22,6 +22,7 @@ import qualified Octane.Type.Primitive.Int32 as Int32
 import qualified Octane.Type.Primitive.List as List
 import qualified Octane.Type.Primitive.Stream as Stream
 import qualified Octane.Type.Primitive.Text as Text
+import qualified Octane.Type.Primitive.Word32 as Word32
 import qualified Octane.Type.Property as Property
 import qualified Octane.Utility as Utility
 import qualified Text.Printf as Printf
@@ -30,9 +31,9 @@ import qualified Text.Printf as Printf
 -- stream has not.
 data Replay = Replay
     -- Number of bytes in the first section.
-    { replaySize1 :: !Int32.Int32
+    { replaySize1 :: !Word32.Word32
     -- CRC to check the first section.
-    , replayCRC1 :: !Int32.Int32
+    , replayCRC1 :: !Word32.Word32
     -- Major replay version number.
     , replayVersion1 :: !Int32.Int32
     -- Minor replay version number.
@@ -42,9 +43,9 @@ data Replay = Replay
     -- High-level metadata about the replay.
     , replayProperties :: !(Dictionary.Dictionary Property.Property)
     -- Number of bytes in the last section.
-    , replaySize2 :: !Int32.Int32
+    , replaySize2 :: !Word32.Word32
     -- CRC to check the last section.
-    , replayCRC2 :: !Int32.Int32
+    , replayCRC2 :: !Word32.Word32
     -- Array of strings for all of the levels that need to be loaded (array
     -- length followed by each string)
     , replayLevels :: !(List.List Text.Text)
@@ -80,18 +81,20 @@ data Replay = Replay
 
 instance Binary.Binary Replay where
     get = do
-        size1 <- Binary.getWord32le
-        expectedCRC1 <- Binary.getWord32le
-        data1 <- Binary.getLazyByteString (fromIntegral size1)
+        size1 <- Binary.get
+        crc1 <- Binary.get
+        data1 <- Binary.getLazyByteString (Word32.fromWord32 size1)
         let actualCRC1 = Utility.crc32 data1
+        let expectedCRC1 = Word32.fromWord32 crc1
         Monad.when (actualCRC1 /= expectedCRC1) (fail (Printf.printf
             "First CRC 0x%08x does not match expected value 0x%08x"
             actualCRC1 expectedCRC1))
 
-        size2 <- Binary.getWord32le
-        expectedCRC2 <- Binary.getWord32le
-        data2 <- Binary.getLazyByteString (fromIntegral size2)
+        size2 <- Binary.get
+        crc2 <- Binary.get
+        data2 <- Binary.getLazyByteString (Word32.fromWord32 size2)
         let actualCRC2 = Utility.crc32 data2
+        let expectedCRC2 = Word32.fromWord32 crc2
         Monad.when (actualCRC2 /= expectedCRC2) (fail (Printf.printf
             "Second CRC 0x%08x does not match expected value 0x%08x"
             actualCRC2 expectedCRC2))
@@ -114,14 +117,14 @@ instance Binary.Binary Replay where
             cacheItems <- Binary.get
 
             pure Replay
-                { replaySize1 = size1 & fromIntegral & Int32.Int32
-                , replayCRC1 = expectedCRC1 & fromIntegral & Int32.Int32
+                { replaySize1 = size1
+                , replayCRC1 = crc1
                 , replayVersion1 = version1
                 , replayVersion2 = version2
                 , replayLabel = label
                 , replayProperties = properties
-                , replaySize2 = size2 & fromIntegral & Int32.Int32
-                , replayCRC2 = expectedCRC2 & fromIntegral & Int32.Int32
+                , replaySize2 = size2
+                , replayCRC2 = crc2
                 , replayLevels = levels
                 , replayKeyFrames = keyFrames
                 , replayStream = stream

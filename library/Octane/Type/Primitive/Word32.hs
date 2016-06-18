@@ -9,16 +9,11 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
-import qualified Data.Binary.Bits as BinaryBit
-import qualified Data.Binary.Bits.Get as BinaryBit
-import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
-import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Scientific as Scientific
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
-import qualified Octane.Utility as Utility
 
 
 -- | A 32-bit little-endian word.
@@ -29,28 +24,11 @@ newtype Word32 = Word32
 instance Binary.Binary Word32 where
     get = do
         value <- Binary.getWord32le
-        value & fromIntegral & Word32 & pure
+        value & Word32 & pure
 
     put word32 = word32
         & unpackWord32
-        & fromIntegral
         & Binary.putWord32le
-
-instance BinaryBit.BinaryBit Word32 where
-    getBits _ = do
-        bytes <- BinaryBit.getByteString 4
-        let value = Binary.runGet
-                Binary.getWord32le
-                (bytes & LazyBytes.fromStrict & Utility.reverseBitsInBytes)
-        value & fromIntegral & Word32 & pure
-
-    putBits _ word32 = word32
-        & unpackWord32
-        & fromIntegral
-        & Binary.putWord32le
-        & Binary.runPut
-        & LazyBytes.toStrict
-        & BinaryBit.putByteString
 
 instance Aeson.FromJSON Word32 where
     parseJSON json = case json of
