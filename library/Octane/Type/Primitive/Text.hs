@@ -81,14 +81,13 @@ getText getInt getBytes = do
             if Bytes.all (== '\0') bytes
                 then pure (5, Encoding.decodeLatin1)
                 else fail ("Unexpected Text bytes " ++ show bytes ++ " after size " ++ show rawSize)
-        else if rawSize > 0
-        then pure (fromIntegral rawSize, Encoding.decodeLatin1)
         else if rawSize < 0
         then pure (-2 * fromIntegral rawSize, Encoding.decodeUtf16LE)
-        else fail ("Unexpected Text size " ++ show rawSize)
+        else pure (fromIntegral rawSize, Encoding.decodeLatin1)
     bytes <- getBytes size
     let rawText = decode bytes
     case Text.splitAt (Text.length rawText - 1) rawText of
+        (text, "") -> text & Text & pure
         (text, "\0") -> text & Text & pure
         _ -> fail ("Unexpected Text value " ++ show rawText)
 
