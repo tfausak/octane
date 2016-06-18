@@ -24,31 +24,32 @@ data ReplayWithoutFrames = ReplayWithoutFrames
 instance Binary.Binary ReplayWithoutFrames where
     get = do
         rawReplay <- Binary.get
-        pure (fromRawReplay rawReplay)
+        fromRawReplay rawReplay
 
     put replayWithoutFrames = do
-        let rawReplay = toRawReplay replayWithoutFrames
+        rawReplay <- toRawReplay replayWithoutFrames
         Binary.put rawReplay
 
 instance DeepSeq.NFData ReplayWithoutFrames where
 
 
-fromRawReplay :: RawReplay.RawReplay -> ReplayWithoutFrames
+fromRawReplay :: (Monad m) => RawReplay.RawReplay -> m ReplayWithoutFrames
 fromRawReplay rawReplay = do
     let header = RawReplay.header rawReplay
     let content = RawReplay.content rawReplay
 
-    Binary.runGet
-        (do
+    let get = do
             version1 <- Binary.get
             version2 <- Binary.get
             label <- Binary.get
 
-            pure ReplayWithoutFrames { .. })
-        (LazyBytes.append header content)
+            pure ReplayWithoutFrames { .. }
+    let bytes = LazyBytes.append header content
+
+    pure (Binary.runGet get bytes)
 
 
-toRawReplay :: ReplayWithoutFrames -> RawReplay.RawReplay
+toRawReplay :: (Monad m) => ReplayWithoutFrames -> m RawReplay.RawReplay
 toRawReplay replay = do
     let header = Binary.runPut (do
             Binary.put (version1 replay)
@@ -59,4 +60,4 @@ toRawReplay replay = do
 
     let footer = LazyBytes.empty
 
-    RawReplay.newRawReplay header content footer
+    pure (RawReplay.newRawReplay header content footer)

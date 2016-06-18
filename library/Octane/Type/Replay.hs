@@ -22,10 +22,10 @@ data Replay = Replay
 instance Binary.Binary Replay where
     get = do
         replayWithoutFrames <- Binary.get
-        pure (fromReplayWithoutFrames replayWithoutFrames)
+        fromReplayWithoutFrames replayWithoutFrames
 
     put replay = do
-        let replayWithoutFrames = toReplayWithoutFrames replay
+        replayWithoutFrames <- toReplayWithoutFrames replay
         Binary.put replayWithoutFrames
 
 instance Aeson.FromJSON Replay where
@@ -39,14 +39,20 @@ instance Aeson.ToJSON Replay where
     toJSON _replay = Aeson.object []
 
 
-fromReplayWithoutFrames :: ReplayWithoutFrames.ReplayWithoutFrames -> Replay
+fromReplayWithoutFrames :: (Monad m) => ReplayWithoutFrames.ReplayWithoutFrames -> m Replay
 fromReplayWithoutFrames replayWithoutFrames = do
-    let version = Version.makeVersion (map Word32.fromWord32 [ReplayWithoutFrames.version1 replayWithoutFrames, ReplayWithoutFrames.version2 replayWithoutFrames])
-    Replay { .. }
+    let version = Version.makeVersion (map Word32.fromWord32
+            [ ReplayWithoutFrames.version1 replayWithoutFrames
+            , ReplayWithoutFrames.version2 replayWithoutFrames
+            ])
+
+    pure Replay { .. }
 
 
-toReplayWithoutFrames :: Replay -> ReplayWithoutFrames.ReplayWithoutFrames
+toReplayWithoutFrames :: (Monad m) => Replay -> m ReplayWithoutFrames.ReplayWithoutFrames
 toReplayWithoutFrames replay = do
-    let [version1, version2] = map Word32.toWord32 (Version.versionBranch (version replay))
+    let [version1, version2] = map Word32.toWord32
+            (Version.versionBranch (version replay))
     let label = "TAGame.Replay_Soccar_TA"
-    ReplayWithoutFrames.ReplayWithoutFrames { .. }
+
+    pure ReplayWithoutFrames.ReplayWithoutFrames { .. }
