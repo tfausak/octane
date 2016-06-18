@@ -8,6 +8,7 @@ module Octane.Type.Replay (Replay(..), fromReplayWithoutFrames, toReplayWithoutF
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
+import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Map as Map
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
@@ -16,6 +17,7 @@ import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Property as Property
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
+import qualified Octane.Type.Stream as Stream
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -62,5 +64,6 @@ toReplayWithoutFrames replay = do
     let properties = Dictionary.Dictionary (Map.mapKeys Text.Text (metadata replay))
     let levels = List.List (map Text.Text (maps replay))
     let keyFrames = List.List [] -- TODO
+    let stream = Stream.Stream LazyBytes.empty -- TODO
 
     pure ReplayWithoutFrames.ReplayWithoutFrames { .. }
