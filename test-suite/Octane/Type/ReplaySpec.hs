@@ -15,14 +15,14 @@ spec = describe "Replay" $ do
     it "can be decoded" $ do
         shouldBe
             (decodeReplay "\
-                \\0\0\0\0\
-                \\0\0\0\0\
+                \\x16\x00\x00\x00\
+                \\xc5\x30\xa7\xe2\
                 \\0\0\0\0\
                 \\0\0\0\0\
                 \\1\0\0\0\0\
                 \\5\0\0\0None\0\
-                \\0\0\0\0\
-                \\0\0\0\0\
+                \\x28\x00\x00\x00\
+                \\xf5\x9a\x89\x13\
                 \\0\0\0\0\
                 \\0\0\0\0\
                 \\0\0\0\0\
@@ -34,14 +34,14 @@ spec = describe "Replay" $ do
                 \\0\0\0\0\
                 \\0\0\0\0")
             (Right ("", 78, Replay
-                (Int32 0)
-                (Int32 0)
+                (Word32 22)
+                (Word32 3802607813)
                 (Int32 0)
                 (Int32 0)
                 (Text "")
                 (Dictionary Map.empty)
-                (Int32 0)
-                (Int32 0)
+                (Word32 40)
+                (Word32 327785205)
                 (List [])
                 (List [])
                 (Stream "")
@@ -55,14 +55,14 @@ spec = describe "Replay" $ do
     it "can be encoded" $ do
         shouldBe
             (Binary.encode (Replay
-                (Int32 0)
-                (Int32 0)
+                (Word32 0)
+                (Word32 0)
                 (Int32 0)
                 (Int32 0)
                 (Text "")
                 (Dictionary Map.empty)
-                (Int32 0)
-                (Int32 0)
+                (Word32 0)
+                (Word32 0)
                 (List [])
                 (List [])
                 (Stream "")

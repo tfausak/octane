@@ -21,7 +21,7 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Utility as Utility
 
 
--- | An 8-bit little-endian wordeger.
+-- | An 8-bit little-endian word.
 newtype Word8 = Word8
     { unpackWord8 :: Word.Word8
     } deriving (Eq, Generics.Generic, Num, Ord, Show)

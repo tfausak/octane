@@ -32,14 +32,14 @@ benchmarks = bgroup "Replay"
         \\0\0\0\0\
         \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (Replay
-        (Int32 0)
-        (Int32 0)
+        (Word32 0)
+        (Word32 0)
         (Int32 0)
         (Int32 0)
         (Text "")
         (Dictionary Map.empty)
-        (Int32 0)
-        (Int32 0)
+        (Word32 0)
+        (Word32 0)
         (List [])
         (List [])
         (Stream "")
