@@ -3,6 +3,8 @@
 
 module Octane.Type.KeyFrame (KeyFrame(..)) where
 
+import Data.Function ((&))
+
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified GHC.Generics as Generics
@@ -17,5 +19,10 @@ data KeyFrame = KeyFrame
     } deriving (Eq, Generics.Generic, Show)
 
 instance Binary.Binary KeyFrame where
+    get = KeyFrame <$> Binary.get <*> Binary.get <*> Binary.get
+    put keyFrame = do
+        keyFrame & time & Binary.put
+        keyFrame & frame & Binary.put
+        keyFrame & position & Binary.put
 
 instance DeepSeq.NFData KeyFrame where

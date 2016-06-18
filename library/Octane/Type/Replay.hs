@@ -65,5 +65,6 @@ toReplayWithoutFrames replay = do
     let levels = List.List (map Text.Text (maps replay))
     let keyFrames = List.List [] -- TODO
     let stream = Stream.Stream LazyBytes.empty -- TODO
+    let messages = List.List []
 
     pure ReplayWithoutFrames.ReplayWithoutFrames { .. }

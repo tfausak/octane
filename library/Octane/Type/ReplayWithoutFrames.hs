@@ -13,6 +13,7 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.KeyFrame as KeyFrame
 import qualified Octane.Type.List as List
+import qualified Octane.Type.Message as Message
 import qualified Octane.Type.Property as Property
 import qualified Octane.Type.RawReplay as RawReplay
 import qualified Octane.Type.Stream as Stream
@@ -28,6 +29,7 @@ data ReplayWithoutFrames = ReplayWithoutFrames
     , levels :: List.List Text.Text
     , keyFrames :: List.List KeyFrame.KeyFrame
     , stream :: Stream.Stream
+    , messages :: List.List Message.Message
     } deriving (Eq, Generics.Generic, Show)
 
 instance Binary.Binary ReplayWithoutFrames where
@@ -55,6 +57,7 @@ fromRawReplay rawReplay = do
             levels <- Binary.get
             keyFrames <- Binary.get
             stream <- Binary.get
+            messages <- Binary.get
 
             pure ReplayWithoutFrames { .. }
     let bytes = LazyBytes.append header content
@@ -71,7 +74,8 @@ toRawReplay replay = do
             Binary.put (properties replay)
             Binary.put (levels replay)
             Binary.put (keyFrames replay)
-            Binary.put (stream replay))
+            Binary.put (stream replay)
+            Binary.put (messages replay))
 
     let content = LazyBytes.empty
 
