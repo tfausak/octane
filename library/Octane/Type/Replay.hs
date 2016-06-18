@@ -1,37 +1,35 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Type.Replay (Replay(..), fromRawReplay, toRawReplay) where
+module Octane.Type.Replay (Replay(..), fromReplayWithoutFrames, toReplayWithoutFrames) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
-import qualified Data.ByteString.Lazy as LazyBytes
+import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
-import qualified Octane.Type.RawReplay as RawReplay
+import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
+import qualified Octane.Type.Word32 as Word32
 
 
--- | A processed Rocket League replay. Typically this is converted from a
--- 'RawReplay.RawReplay' value.
---
--- Although you can create these values directly, it is easier to use
--- 'fromRawReplay'.
 data Replay = Replay
-    deriving (Eq, Generics.Generic, Show)
+    { version :: Version.Version
+    } deriving (Eq, Generics.Generic, Show)
 
 instance Binary.Binary Replay where
     get = do
-        rawReplay <- Binary.get
-        pure (fromRawReplay rawReplay)
+        replayWithoutFrames <- Binary.get
+        pure (fromReplayWithoutFrames replayWithoutFrames)
 
     put replay = do
-        let rawReplay = toRawReplay replay
-        Binary.put rawReplay
+        let replayWithoutFrames = toReplayWithoutFrames replay
+        Binary.put replayWithoutFrames
 
 instance Aeson.FromJSON Replay where
     parseJSON json = case json of
-        Aeson.Object _object -> pure Replay
+        Aeson.Object _object -> pure Replay { version = Version.makeVersion [1] }
         _ -> Aeson.typeMismatch "Replay" json
 
 instance DeepSeq.NFData Replay where
@@ -40,23 +38,13 @@ instance Aeson.ToJSON Replay where
     toJSON _replay = Aeson.object []
 
 
--- | Converts a 'RawReplay.RawReplay' into a 'Replay'.
---
--- >>> fromRawReplay (RawReplay.RawReplay {RawReplay.headerSize = 0x00000000, RawReplay.headerCRC = 0xefcbf201, RawReplay.header = LazyBytes.empty, RawReplay.contentSize = 0x00000000, RawReplay.contentCRC = 0xefcbf201, RawReplay.content = LazyBytes.empty, RawReplay.footer = LazyBytes.empty})
--- Replay
-fromRawReplay :: RawReplay.RawReplay -> Replay
-fromRawReplay _rawReplay = do
-    Replay
+fromReplayWithoutFrames :: ReplayWithoutFrames.ReplayWithoutFrames -> Replay
+fromReplayWithoutFrames replayWithoutFrames = do
+    let version = Version.makeVersion (map Word32.fromWord32 [ReplayWithoutFrames.version1 replayWithoutFrames])
+    Replay { .. }
 
 
--- | Converts a 'Replay' into a 'RawReplay.RawReplay'. This is generally the
--- easiest way to create 'RawReplay.RawReplay' values that actually make sense.
---
--- >>> toRawReplay (Replay)
--- RawReplay {headerSize = 0x00000000, headerCRC = 0xefcbf201, header = "", contentSize = 0x00000000, contentCRC = 0xefcbf201, content = "", footer = ""}
-toRawReplay :: Replay -> RawReplay.RawReplay
-toRawReplay _replay = do
-    let header = LazyBytes.empty
-    let content = LazyBytes.empty
-    let footer = LazyBytes.empty
-    RawReplay.newRawReplay header content footer
+toReplayWithoutFrames :: Replay -> ReplayWithoutFrames.ReplayWithoutFrames
+toReplayWithoutFrames replay = do
+    let [version1] = map Word32.toWord32 (Version.versionBranch (version replay))
+    ReplayWithoutFrames.ReplayWithoutFrames { .. }

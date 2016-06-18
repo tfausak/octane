@@ -16,10 +16,6 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Text.Printf as Printf
 
 
--- | An unprocessed Rocket League replay. Typically this is read from a file
--- using the 'Binary.Binary' instance.
---
--- Don't create these values directly. Use the 'newRawReplay' helper instead.
 data RawReplay = RawReplay
     { headerSize :: Word32.Word32
     -- ^ The byte size of the first section.
@@ -71,13 +67,6 @@ instance Binary.Binary RawReplay where
 instance DeepSeq.NFData RawReplay where
 
 
--- | Creates a new 'RawReplay' with the given 'header', 'content', and
--- 'footer'. Calculates the sizes and CRCs automatically. This is the
--- recommended way to create 'RawReplay' values; avoid using the default
--- constructor.
---
--- >>> newRawReplay LazyBytes.empty LazyBytes.empty LazyBytes.empty
--- RawReplay {headerSize = 0x00000000, headerCRC = 0xefcbf201, header = "", contentSize = 0x00000000, contentCRC = 0xefcbf201, content = "", footer = ""}
 newRawReplay
     :: LazyBytes.ByteString -- ^ The 'header'.
     -> LazyBytes.ByteString -- ^ The 'content'.
