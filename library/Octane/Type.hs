@@ -1,9 +1,12 @@
 module Octane.Type
     ( module Octane.Type.Boolean
+    , module Octane.Type.CacheItem
+    , module Octane.Type.CacheProperty
+    , module Octane.Type.ClassItem
     , module Octane.Type.Dictionary
     , module Octane.Type.Float32
-    , module Octane.Type.KeyFrame
     , module Octane.Type.Int32
+    , module Octane.Type.KeyFrame
     , module Octane.Type.List
     , module Octane.Type.Mark
     , module Octane.Type.Message
@@ -18,10 +21,13 @@ module Octane.Type
     ) where
 
 import Octane.Type.Boolean
+import Octane.Type.CacheItem
+import Octane.Type.CacheProperty
+import Octane.Type.ClassItem
 import Octane.Type.Dictionary
 import Octane.Type.Float32
-import Octane.Type.KeyFrame
 import Octane.Type.Int32
+import Octane.Type.KeyFrame
 import Octane.Type.List
 import Octane.Type.Mark
 import Octane.Type.Message

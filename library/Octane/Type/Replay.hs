@@ -79,5 +79,7 @@ toReplayWithoutFrames replay = do
     let packages = List.List [] -- TODO
     let objects = List.List [] -- TODO
     let names = List.List [] -- TODO
+    let classes = List.List [] -- TODO
+    let cache = List.List [] -- TODO
 
     pure ReplayWithoutFrames.ReplayWithoutFrames { .. }
