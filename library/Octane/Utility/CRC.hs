@@ -1,4 +1,4 @@
-module Octane.Crc (crc32) where
+module Octane.Utility.CRC (crc32) where
 
 import qualified Data.Bits as Bits
 import qualified Data.ByteString.Lazy as LazyBytes
@@ -8,6 +8,12 @@ import qualified Data.Word as Word
 
 -- | Computes the CRC32 of some bytes. Note that this is a non-standard CRC32.
 -- It probably only works for Rocket League.
+--
+-- >>> crc32 LazyBytes.empty -- ""
+-- 4023120385
+--
+-- >>> crc32 (LazyBytes.pack [49 .. 57]) -- "123456789"
+-- 3690624627
 crc32 :: LazyBytes.ByteString -> Word.Word32
 crc32 bytes = do
     let update = crc32Update crc32Table
@@ -16,13 +22,6 @@ crc32 bytes = do
     Bits.complement crc
 
 
--- | The initial value of the CRC.
-crc32Initial :: Word.Word32
-crc32Initial = 0xefcbf201
-
-
--- | Updates the CRC with a single byte. The lookup table should have exactly
--- 256 values.
 crc32Update :: Vector.Vector Word.Word32 -> Word.Word32 -> Word.Word8 -> Word.Word32
 crc32Update table crc byte = do
     let toWord8 = fromIntegral :: (Integral a) => a -> Word.Word8
@@ -33,7 +32,10 @@ crc32Update table crc byte = do
     Bits.xor left right
 
 
--- | The lookup table of values. Computed from the polynomial @0x04c11db7@.
+crc32Initial :: Word.Word32
+crc32Initial = 0xefcbf201
+
+
 crc32Table :: Vector.Vector Word.Word32
 crc32Table = Vector.fromList
     [

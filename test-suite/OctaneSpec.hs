@@ -1,13 +1,8 @@
 module OctaneSpec (spec) where
 
-import Test.Tasty.Hspec
+import qualified Test.Tasty.Hspec as Hspec
 
-import qualified Octane.MainSpec
-import qualified Octane.TypeSpec
-import qualified Octane.VersionSpec
 
-spec :: Spec
-spec = describe "Octane" $ do
-    Octane.MainSpec.spec
-    Octane.TypeSpec.spec
-    Octane.VersionSpec.spec
+spec :: Hspec.Spec
+spec = Hspec.describe "Octane" (do
+    pure ())
