@@ -30,22 +30,19 @@ main = do
 mainWithoutFiles :: IO ()
 mainWithoutFiles = do
     LazyBytes.interact (\ input -> do
-        let rawReplay = Binary.decode input
-        let replay = Replay.fromRawReplay rawReplay
-        Aeson.encode replay)
+        let replay = Binary.decode input
+        Aeson.encode (replay :: Replay.Replay))
 
 
 mainWithFile :: FilePath -> IO ()
 mainWithFile file = do
-    rawReplay <- Binary.decodeFile file
-    let replay = Replay.fromRawReplay rawReplay
-    let output = Aeson.encode replay
+    replay <- Binary.decodeFile file
+    let output = Aeson.encode (replay :: Replay.Replay)
     LazyBytes.putStr output
 
 
 mainWithFiles :: [FilePath] -> IO ()
 mainWithFiles files = do
-    rawReplays <- mapM Binary.decodeFile files
-    let replays = map Replay.fromRawReplay rawReplays
-    let output = Aeson.encode replays
+    replays <- mapM Binary.decodeFile files
+    let output = Aeson.encode (replays :: [Replay.Replay])
     LazyBytes.putStr output

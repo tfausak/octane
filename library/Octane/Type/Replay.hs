@@ -6,6 +6,7 @@ module Octane.Type.Replay (Replay(..), fromRawReplay, toRawReplay) where
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Types as Aeson
+import qualified Data.Binary as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.RawReplay as RawReplay
@@ -18,6 +19,15 @@ import qualified Octane.Type.RawReplay as RawReplay
 -- 'fromRawReplay'.
 data Replay = Replay
     deriving (Eq, Generics.Generic, Show)
+
+instance Binary.Binary Replay where
+    get = do
+        rawReplay <- Binary.get
+        pure (fromRawReplay rawReplay)
+
+    put replay = do
+        let rawReplay = toRawReplay replay
+        Binary.put rawReplay
 
 instance Aeson.FromJSON Replay where
     parseJSON json = case json of
