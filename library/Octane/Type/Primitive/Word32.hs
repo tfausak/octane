@@ -16,7 +16,7 @@ import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 
 
--- | A 32-bit little-endian word.
+-- | A 32-bit little-endian unsigned integer.
 newtype Word32 = Word32
     { unpackWord32 :: Word.Word32
     } deriving (Eq, Generics.Generic, Num, Ord, Show)
@@ -45,5 +45,7 @@ instance Aeson.ToJSON Word32 where
         & Aeson.toJSON
 
 
+-- | A shortcut for unpacking a 'Word32' and converting it to some other
+-- integral type.
 fromWord32 :: (Integral a) => Word32 -> a
 fromWord32 word32 = word32 & unpackWord32 & fromIntegral

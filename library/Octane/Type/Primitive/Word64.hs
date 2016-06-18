@@ -16,7 +16,7 @@ import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 
 
--- | A 64-bit little-endian word.
+-- | A 64-bit little-endian unsigned integer.
 newtype Word64 = Word64
     { unpackWord64 :: Word.Word64
     } deriving (Eq, Generics.Generic, Num, Show)

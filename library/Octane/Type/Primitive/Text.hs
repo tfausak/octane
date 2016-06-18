@@ -14,7 +14,7 @@ import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
-import qualified Data.ByteString.Char8 as Bytes
+import qualified Data.ByteString.Char8 as StrictBytes
 import qualified Data.Char as Char
 import qualified Data.String as String
 import qualified Data.Text as Text
@@ -65,7 +65,9 @@ instance Aeson.ToJSON Text where
         & Aeson.toJSON
 
 
-getText :: (Monad m) => (m Int32.Int32) -> (Int -> m Bytes.ByteString) -> m Text
+-- | Given functions to get the size and the raw bytes, gets an actual text
+-- value. This handles making sense of the size and decoding the bytes.
+getText :: (Monad m) => (m Int32.Int32) -> (Int -> m StrictBytes.ByteString) -> m Text
 getText getInt getBytes = do
     (Int32.Int32 rawSize) <- getInt
     (size, decode) <-
@@ -78,7 +80,7 @@ getText getInt getBytes = do
         if rawSize == 0x05000000
         then do
             bytes <- getBytes 3
-            if Bytes.all (== '\0') bytes
+            if StrictBytes.all (== '\0') bytes
                 then pure (5, Encoding.decodeLatin1)
                 else fail ("Unexpected Text bytes " ++ show bytes ++ " after size " ++ show rawSize)
         else if rawSize < 0
@@ -92,7 +94,9 @@ getText getInt getBytes = do
         _ -> fail ("Unexpected Text value " ++ show rawText)
 
 
-putText :: (Monad m) => (Int32.Int32 -> m ()) -> (Bytes.ByteString -> m ()) -> (Bytes.ByteString -> Bytes.ByteString) -> Text -> m ()
+-- | Given functions to put the size and the raw bytes, puts an actual text
+-- value. This handles converting the size and encoding the bytes.
+putText :: (Monad m) => (Int32.Int32 -> m ()) -> (StrictBytes.ByteString -> m ()) -> (StrictBytes.ByteString -> StrictBytes.ByteString) -> Text -> m ()
 putText putInt putBytes convertBytes text = do
     let fullText = text & unpackText & flip Text.snoc '\NUL'
     let size = fullText & Text.length & fromIntegral
@@ -105,7 +109,8 @@ putText putInt putBytes convertBytes text = do
             fullText & Encoding.encodeUtf16LE & convertBytes & putBytes
 
 
-encodeLatin1 :: Text.Text -> Bytes.ByteString
+-- | Encodes text as Latin-1.
+encodeLatin1 :: Text.Text -> StrictBytes.ByteString
 encodeLatin1 text = text
     & Text.unpack
-    & Bytes.pack
+    & StrictBytes.pack

@@ -21,7 +21,7 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Utility as Utility
 
 
--- | A 32-bit little-endian integer.
+-- | A 32-bit little-endian signed integer.
 newtype Int32 = Int32
     { unpackInt32 :: Int.Int32
     } deriving (Eq, Generics.Generic, Num, Ord, Show)
@@ -67,5 +67,7 @@ instance Aeson.ToJSON Int32 where
         & Aeson.toJSON
 
 
+-- | A shortcut for unpacking an 'Int32' and converting it to some other
+-- integral type.
 fromInt32 :: (Integral a) => Int32 -> a
 fromInt32 int32 = int32 & unpackInt32 & fromIntegral

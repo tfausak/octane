@@ -21,7 +21,7 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Utility as Utility
 
 
--- | An 8-bit little-endian word.
+-- | An 8-bit little-endian unsigned integer.
 newtype Word8 = Word8
     { unpackWord8 :: Word.Word8
     } deriving (Eq, Generics.Generic, Num, Ord, Show)
@@ -56,5 +56,7 @@ instance Aeson.ToJSON Word8 where
         & Aeson.toJSON
 
 
+-- | A shortcut for unpacking a 'Word8' and converting it to some other
+-- integral type.
 fromWord8 :: (Integral a) => Word8 -> a
 fromWord8 word8 = word8 & unpackWord8 & fromIntegral

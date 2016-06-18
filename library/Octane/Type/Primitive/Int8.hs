@@ -21,7 +21,7 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Utility as Utility
 
 
--- | An 8-bit little-endian integer.
+-- | An 8-bit little-endian signed integer.
 newtype Int8 = Int8
     { unpackInt8 :: Int.Int8
     } deriving (Eq, Generics.Generic, Num, Ord, Show)
@@ -57,5 +57,7 @@ instance Aeson.ToJSON Int8 where
         & Aeson.toJSON
 
 
+-- | A shortcut for unpacking an 'Int8' and converting it to some other
+-- integral type.
 fromInt8 :: (Integral a) => Int8 -> a
 fromInt8 int8 = int8 & unpackInt8 & fromIntegral
