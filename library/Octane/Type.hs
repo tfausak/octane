@@ -5,6 +5,8 @@ module Octane.Type
     , module Octane.Type.KeyFrame
     , module Octane.Type.Int32
     , module Octane.Type.List
+    , module Octane.Type.Mark
+    , module Octane.Type.Message
     , module Octane.Type.Property
     , module Octane.Type.RawReplay
     , module Octane.Type.Replay
@@ -21,6 +23,8 @@ import Octane.Type.Float32
 import Octane.Type.KeyFrame
 import Octane.Type.Int32
 import Octane.Type.List
+import Octane.Type.Mark
+import Octane.Type.Message
 import Octane.Type.Property
 import Octane.Type.RawReplay
 import Octane.Type.Replay

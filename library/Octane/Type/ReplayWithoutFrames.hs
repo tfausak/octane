@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StrictData #-}
 
@@ -13,6 +14,7 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.KeyFrame as KeyFrame
 import qualified Octane.Type.List as List
+import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
 import qualified Octane.Type.Property as Property
 import qualified Octane.Type.RawReplay as RawReplay
@@ -30,6 +32,10 @@ data ReplayWithoutFrames = ReplayWithoutFrames
     , keyFrames :: List.List KeyFrame.KeyFrame
     , stream :: Stream.Stream
     , messages :: List.List Message.Message
+    , marks :: List.List Mark.Mark
+    , packages :: List.List Text.Text
+    , objects :: List.List Text.Text
+    , names :: List.List Text.Text
     } deriving (Eq, Generics.Generic, Show)
 
 instance Binary.Binary ReplayWithoutFrames where
@@ -58,6 +64,10 @@ fromRawReplay rawReplay = do
             keyFrames <- Binary.get
             stream <- Binary.get
             messages <- Binary.get
+            marks <- Binary.get
+            packages <- Binary.get
+            objects <- Binary.get
+            names <- Binary.get
 
             pure ReplayWithoutFrames { .. }
     let bytes = LazyBytes.append header content
@@ -75,7 +85,11 @@ toRawReplay replay = do
             Binary.put (levels replay)
             Binary.put (keyFrames replay)
             Binary.put (stream replay)
-            Binary.put (messages replay))
+            Binary.put (messages replay)
+            Binary.put (marks replay)
+            Binary.put (packages replay)
+            Binary.put (objects replay)
+            Binary.put (names replay))
 
     let content = LazyBytes.empty
 
