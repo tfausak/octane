@@ -11,13 +11,14 @@ import qualified Data.Word as Word
 crc32 :: LazyBytes.ByteString -> Word.Word32
 crc32 bytes = do
     let update = crc32Update crc32Table
-    let crc = LazyBytes.foldl update crc32Initial bytes
+    let initial = Bits.complement crc32Initial
+    let crc = LazyBytes.foldl update initial bytes
     Bits.complement crc
 
 
 -- | The initial value of the CRC.
 crc32Initial :: Word.Word32
-crc32Initial = 0x10340dfe
+crc32Initial = 0xefcbf201
 
 
 -- | Updates the CRC with a single byte. The lookup table should have exactly
