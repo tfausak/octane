@@ -9,7 +9,7 @@ import qualified Octane.Type.Primitive.ListSpec
 import qualified Octane.Type.Primitive.TextSpec
 import qualified Octane.Type.Primitive.StreamSpec
 import qualified Octane.Type.Primitive.Int32Spec
-import qualified Octane.Type.Primitive.Int64Spec
+import qualified Octane.Type.Primitive.Word64Spec
 
 spec :: Spec
 spec = describe "Primitive" $ do
@@ -20,4 +20,4 @@ spec = describe "Primitive" $ do
     Octane.Type.Primitive.TextSpec.spec
     Octane.Type.Primitive.StreamSpec.spec
     Octane.Type.Primitive.Int32Spec.spec
-    Octane.Type.Primitive.Int64Spec.spec
+    Octane.Type.Primitive.Word64Spec.spec

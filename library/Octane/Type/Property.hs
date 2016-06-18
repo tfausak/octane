@@ -14,27 +14,27 @@ import qualified Octane.Type.Primitive.Float32 as Float32
 import qualified Octane.Type.Primitive.List as List
 import qualified Octane.Type.Primitive.Text as Text
 import qualified Octane.Type.Primitive.Int32 as Int32
-import qualified Octane.Type.Primitive.Int64 as Int64
+import qualified Octane.Type.Primitive.Word64 as Word64
 
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
 data Property
-    = ArrayProperty !Int64.Int64
+    = ArrayProperty !Word64.Word64
                     !(List.List (Dictionary.Dictionary Property))
-    | BoolProperty !Int64.Int64
+    | BoolProperty !Word64.Word64
                    !Boolean.Boolean
-    | ByteProperty !Int64.Int64
+    | ByteProperty !Word64.Word64
                    !(Text.Text, Text.Text)
-    | FloatProperty !Int64.Int64
+    | FloatProperty !Word64.Word64
                     !Float32.Float32
-    | IntProperty !Int64.Int64
+    | IntProperty !Word64.Word64
                   !Int32.Int32
-    | NameProperty !Int64.Int64
+    | NameProperty !Word64.Word64
                    !Text.Text
-    | QWordProperty !Int64.Int64
-                    !Int64.Int64
-    | StrProperty !Int64.Int64
+    | QWordProperty !Word64.Word64
+                    !Word64.Word64
+    | StrProperty !Word64.Word64
                   !Text.Text
     deriving (Eq,Generics.Generic,Show)
 
@@ -60,17 +60,17 @@ instance Binary.Binary Property where
                         (key, value) & ByteProperty size & return
             _ | kind == floatProperty -> do
                 size <- Binary.get
-                value <-
-                    case Int64.unpackInt64 size of
-                        4 -> Binary.get
-                        x -> fail ("unknown FloatProperty size " ++ show x)
+                value <- case size of
+                    4 -> Binary.get
+                    (Word64.Word64 x) ->
+                        fail ("unknown FloatProperty size " ++ show x)
                 value & FloatProperty size & return
             _ | kind == intProperty -> do
                 size <- Binary.get
-                value <-
-                    case Int64.unpackInt64 size of
-                        4 -> Binary.get
-                        x -> fail ("unknown IntProperty size " ++ show x)
+                value <- case size of
+                    4 -> Binary.get
+                    (Word64.Word64 x) ->
+                        fail ("unknown IntProperty size " ++ show x)
                 value & IntProperty size & return
             _ | kind == nameProperty -> do
                 size <- Binary.get
@@ -78,10 +78,10 @@ instance Binary.Binary Property where
                 value & NameProperty size & return
             _ | kind == qWordProperty -> do
                 size <- Binary.get
-                value <-
-                    case Int64.unpackInt64 size of
-                        8 -> Binary.get
-                        x -> fail ("unknown QWordProperty size " ++ show x)
+                value <- case size of
+                    8 -> Binary.get
+                    (Word64.Word64 x) ->
+                        fail ("unknown QWordProperty size " ++ show x)
                 value & QWordProperty size & return
             _ | kind == strProperty -> do
                 size <- Binary.get
