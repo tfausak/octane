@@ -84,13 +84,17 @@ instance Binary.Binary Replay where
         expectedCRC1 <- Binary.getWord32le
         data1 <- Binary.getLazyByteString (fromIntegral size1)
         let actualCRC1 = Utility.crc32 data1
-        Monad.when (actualCRC1 /= expectedCRC1) (fail (Printf.printf "First CRC 0x%08x does not match expected value 0x%08x" actualCRC1 expectedCRC1))
+        Monad.when (actualCRC1 /= expectedCRC1) (fail (Printf.printf
+            "First CRC 0x%08x does not match expected value 0x%08x"
+            actualCRC1 expectedCRC1))
 
         size2 <- Binary.getWord32le
         expectedCRC2 <- Binary.getWord32le
         data2 <- Binary.getLazyByteString (fromIntegral size2)
         let actualCRC2 = Utility.crc32 data2
-        Monad.when (actualCRC2 /= expectedCRC2) (fail (Printf.printf "Second CRC 0x%08x does not match expected value 0x%08x" actualCRC2 expectedCRC2))
+        Monad.when (actualCRC2 /= expectedCRC2) (fail (Printf.printf
+            "Second CRC 0x%08x does not match expected value 0x%08x"
+            actualCRC2 expectedCRC2))
 
         pure (flip Binary.runGet (LazyBytes.append data1 data2) (do
             version1 <- Binary.get
