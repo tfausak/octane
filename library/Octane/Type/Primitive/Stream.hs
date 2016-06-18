@@ -11,7 +11,7 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString as StrictBytes
 import qualified GHC.Generics as Generics
-import qualified Octane.Type.Primitive.Int32 as Int32
+import qualified Octane.Type.Primitive.Word32 as Word32
 import qualified Octane.Utility as Utility
 
 
@@ -23,12 +23,12 @@ newtype Stream = Stream
 
 instance Binary.Binary Stream where
     get = do
-        Int32.Int32 size <- Binary.get
-        content <- size & fromIntegral & Binary.getByteString
+        size <- Binary.get
+        content <- size & Word32.fromWord32 & Binary.getByteString
         content & StrictBytes.map Utility.reverseBits & Stream & return
     put stream = do
         let content = unpackStream stream
-        content & StrictBytes.length & fromIntegral & Int32.Int32 & Binary.put
+        content & StrictBytes.length & fromIntegral & Word32.Word32 & Binary.put
         content & StrictBytes.map Utility.reverseBits & Binary.putByteString
 
 instance DeepSeq.NFData Stream where

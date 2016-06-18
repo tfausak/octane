@@ -18,26 +18,26 @@ spec = describe "Actor" $ do
                 \\0\0\0\0")
             (Right ("", 9, Actor
                 (Text "")
-                (Int32 0)))
+                (Word32 0)))
         shouldBe
             (decodeActor "\
                 \\2\0\0\0a\0\
                 \\2\0\0\0")
             (Right ("", 10, Actor
                 (Text "a")
-                (Int32 2)))
+                (Word32 2)))
     it "can be encoded" $ do
         shouldBe
             (Binary.encode (Actor
                 (Text "")
-                (Int32 0)))
+                (Word32 0)))
             "\
                 \\1\0\0\0\0\
                 \\0\0\0\0"
         shouldBe
             (Binary.encode (Actor
                 (Text "a")
-                (Int32 2)))
+                (Word32 2)))
             "\
                 \\2\0\0\0a\0\
                 \\2\0\0\0"

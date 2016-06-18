@@ -9,11 +9,11 @@ import Data.Function ((&))
 import qualified GHC.Generics as Generics
 import qualified Octane.Json as Json
 import qualified Octane.Type.Primitive.Text as Text
-import qualified Octane.Type.Primitive.Int32 as Int32
+import qualified Octane.Type.Primitive.Word32 as Word32
 
 -- | A debugging message. Replays do not have any of these anymore.
 data Message = Message
-    { messageFrame :: !Int32.Int32
+    { messageFrame :: !Word32.Word32
     , messageName :: !Text.Text
     , messageContent :: !Text.Text
     } deriving (Eq,Generics.Generic,Show)

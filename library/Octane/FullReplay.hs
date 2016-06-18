@@ -61,14 +61,12 @@ getVersion fullReplay =
         & unpackFullReplay
         & Prelude.fst
         & Type.replayVersion1
-        & Type.unpackInt32
-        & Prelude.fromIntegral
+        & Type.fromWord32
     , fullReplay
         & unpackFullReplay
         & Prelude.fst
         & Type.replayVersion2
-        & Type.unpackInt32
-        & Prelude.fromIntegral
+        & Type.fromWord32
     ] & Version.makeVersion & Version.showVersion
 
 
@@ -100,7 +98,7 @@ getMessages fullReplay = fullReplay
     & Prelude.map (\ message ->
         ( message
             & Type.messageFrame
-            & Type.unpackInt32
+            & Type.unpackWord32
             & Prelude.show
             & Text.pack
         , message & Type.messageContent
@@ -117,7 +115,7 @@ getTickMarks fullReplay = fullReplay
     & Prelude.map (\ mark ->
         ( mark
             & Type.markFrame
-            & Type.unpackInt32
+            & Type.unpackWord32
             & Prelude.show
             & Text.pack
         , mark & Type.markLabel

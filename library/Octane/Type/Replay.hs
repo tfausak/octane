@@ -11,6 +11,7 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified GHC.Generics as Generics
+import qualified Octane.Crc as Crc
 import qualified Octane.Json as Json
 import qualified Octane.Type.Actor as Actor
 import qualified Octane.Type.CacheItem as CacheItem
@@ -18,13 +19,11 @@ import qualified Octane.Type.KeyFrame as KeyFrame
 import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
 import qualified Octane.Type.Primitive.Dictionary as Dictionary
-import qualified Octane.Type.Primitive.Int32 as Int32
 import qualified Octane.Type.Primitive.List as List
 import qualified Octane.Type.Primitive.Stream as Stream
 import qualified Octane.Type.Primitive.Text as Text
 import qualified Octane.Type.Primitive.Word32 as Word32
 import qualified Octane.Type.Property as Property
-import qualified Octane.Crc as Crc
 import qualified Text.Printf as Printf
 
 -- | An entire replay. All of the metadata has been parsed, but the actual net
@@ -35,9 +34,9 @@ data Replay = Replay
     -- CRC to check the first section.
     , replayCRC1 :: !Word32.Word32
     -- Major replay version number.
-    , replayVersion1 :: !Int32.Int32
+    , replayVersion1 :: !Word32.Word32
     -- Minor replay version number.
-    , replayVersion2 :: !Int32.Int32
+    , replayVersion2 :: !Word32.Word32
     -- Label, which is always "TAGame.Replay_Soccar_TA".
     , replayLabel :: !Text.Text
     -- High-level metadata about the replay.

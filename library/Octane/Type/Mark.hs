@@ -9,12 +9,12 @@ import Data.Function ((&))
 import qualified GHC.Generics as Generics
 import qualified Octane.Json as Json
 import qualified Octane.Type.Primitive.Text as Text
-import qualified Octane.Type.Primitive.Int32 as Int32
+import qualified Octane.Type.Primitive.Word32 as Word32
 
 -- | A tick mark on the replay. Both goals and saves make tick marks.
 data Mark = Mark
     { markLabel :: !Text.Text
-    , markFrame :: !Int32.Int32
+    , markFrame :: !Word32.Word32
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Mark where

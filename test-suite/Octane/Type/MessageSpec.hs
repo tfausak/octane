@@ -18,7 +18,7 @@ spec = describe "Message" $ do
                 \\1\0\0\0\0\
                 \\1\0\0\0\0")
             (Right ("", 14, Message
-                (Int32 0)
+                (Word32 0)
                 (Text "")
                 (Text "")))
         shouldBe
@@ -27,18 +27,18 @@ spec = describe "Message" $ do
                 \\2\0\0\0a\0\
                 \\2\0\0\0b\0")
             (Right ("", 16, Message
-                (Int32 1)
+                (Word32 1)
                 (Text "a")
                 (Text "b")))
     it "can be encoded" $ do
         shouldBe
-            (Binary.encode (Message (Int32 0) (Text "") (Text "")))
+            (Binary.encode (Message (Word32 0) (Text "") (Text "")))
             "\
                 \\0\0\0\0\
                 \\1\0\0\0\0\
                 \\1\0\0\0\0"
         shouldBe
-            (Binary.encode (Message (Int32 1) (Text "a") (Text "b")))
+            (Binary.encode (Message (Word32 1) (Text "a") (Text "b")))
             "\
                 \\1\0\0\0\
                 \\2\0\0\0a\0\

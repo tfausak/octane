@@ -16,7 +16,7 @@ benchmarks = bgroup "Message"
         \\1\0\0\0\0\
         \\1\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (Message
-        (Int32 0)
+        (Word32 0)
         (Text "")
         (Text "")))
     ]

@@ -44,9 +44,9 @@ getClassCache replay = replay
     & Type.replayCacheItems
     & Type.unpackList
     & map (\ x ->
-        ( x & Type.cacheItemClassId & Type.unpackInt32 & fromIntegral
-        , x & Type.cacheItemCacheId & Type.unpackInt32 & fromIntegral
-        , x & Type.cacheItemParentCacheId & Type.unpackInt32 & fromIntegral
+        ( x & Type.cacheItemClassId & Type.fromWord32
+        , x & Type.cacheItemCacheId & Type.fromWord32
+        , x & Type.cacheItemParentCacheId & Type.fromWord32
         ))
 
 -- | The class IDs in a replay. Comes from the class cache.
@@ -120,13 +120,13 @@ getBasicClassPropertyMap replay = let
         & Type.replayCacheItems
         & Type.unpackList
         & map (\ x -> let
-            classId = x & Type.cacheItemClassId & Type.unpackInt32 & fromIntegral
+            classId = x & Type.cacheItemClassId & Type.fromWord32
             properties = x
                 & Type.cacheItemCacheProperties
                 & Type.unpackList
                 & Maybe.mapMaybe (\ y -> let
-                    streamId = y & Type.cachePropertyStreamId & Type.unpackInt32 & fromIntegral
-                    propertyId = y & Type.cachePropertyObjectId & Type.unpackInt32 & fromIntegral
+                    streamId = y & Type.cachePropertyStreamId & Type.fromWord32
+                    propertyId = y & Type.cachePropertyObjectId & Type.fromWord32
                     in case IntMap.lookup propertyId propertyMap of
                         Nothing -> Nothing
                         Just name -> Just (streamId, name))
@@ -141,7 +141,7 @@ getActorMap replay = replay
     & Type.unpackList
     & map (\ x -> let
         className = x & Type.actorName & Type.unpackText
-        classId = x & Type.actorStreamId & Type.unpackInt32 & fromIntegral
+        classId = x & Type.actorStreamId & Type.fromWord32
         in (className, classId))
     & Map.fromList
 

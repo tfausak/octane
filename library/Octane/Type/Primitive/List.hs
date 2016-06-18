@@ -12,8 +12,8 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Vector as Vector
 import qualified GHC.Generics as Generics
-import qualified Octane.Type.Primitive.Int32 as Int32
 import qualified Octane.Type.Primitive.Boolean as Boolean
+import qualified Octane.Type.Primitive.Word32 as Word32
 
 
 -- | A list of valeus.
@@ -24,12 +24,12 @@ newtype List a = List
 -- | Bytewise lists are length-prefixed.
 instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
-        (Int32.Int32 size) <- Binary.get
-        elements <- Monad.replicateM (fromIntegral size) Binary.get
+        size <- Binary.get
+        elements <- Monad.replicateM (Word32.fromWord32 size) Binary.get
         elements & List & return
 
     put list = do
-        list & unpackList & length & fromIntegral & Int32.Int32 & Binary.put
+        list & unpackList & length & fromIntegral & Word32.Word32 & Binary.put
         list & unpackList & mapM_ Binary.put
 
 -- | Bitwise lists use a bit to signify if there is another element.

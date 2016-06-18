@@ -9,13 +9,13 @@ import Data.Function ((&))
 import qualified GHC.Generics as Generics
 import qualified Octane.Json as Json
 import qualified Octane.Type.Primitive.Text as Text
-import qualified Octane.Type.Primitive.Int32 as Int32
+import qualified Octane.Type.Primitive.Word32 as Word32
 
 -- | A class (like @Core.Object@) and it's associated ID in the net stream
 -- (like 0).
 data Actor = Actor
     { actorName :: !Text.Text
-    , actorStreamId :: !Int32.Int32
+    , actorStreamId :: !Word32.Word32
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Actor where

@@ -16,7 +16,7 @@ benchmarks = bgroup "Actor"
         \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (Actor
         (Text "")
-        (Int32 0)))
+        (Word32 0)))
     ]
 
 decodeActor :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, Actor)

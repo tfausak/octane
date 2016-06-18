@@ -18,26 +18,26 @@ spec = describe "Mark" $ do
                 \\0\0\0\0")
             (Right ("", 9, Mark
                 (Text "")
-                (Int32 0)))
+                (Word32 0)))
         shouldBe
             (decodeMark "\
                 \\2\0\0\0a\0\
                 \\1\0\0\0")
             (Right ("", 10, Mark
                 (Text "a")
-                (Int32 1)))
+                (Word32 1)))
     it "can be encoded" $ do
         shouldBe
             (Binary.encode (Mark
                 (Text "")
-                (Int32 0)))
+                (Word32 0)))
             "\
                 \\1\0\0\0\0\
                 \\0\0\0\0"
         shouldBe
             (Binary.encode (Mark
                 (Text "a")
-                (Int32 1)))
+                (Word32 1)))
             "\
                 \\2\0\0\0a\0\
                 \\1\0\0\0"

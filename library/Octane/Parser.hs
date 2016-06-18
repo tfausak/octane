@@ -683,8 +683,7 @@ extractContext replay =
         & Type.replayKeyFrames
         & Type.unpackList
         & map Type.keyFrameFrame
-        & map Type.unpackInt32
-        & map fromIntegral
+        & map Type.fromWord32
         & Set.fromList
     }
 

@@ -17,8 +17,8 @@ benchmarks = bgroup "KeyFrame"
         \\0\0\0\0")
     , bench "encode basic" (nf Binary.encode (KeyFrame
         (Float32 0.0)
-        (Int32 0)
-        (Int32 0)))
+        (Word32 0)
+        (Word32 0)))
     ]
 
 decodeKeyFrame :: BSL.ByteString -> Either (BSL.ByteString, Binary.ByteOffset, String) (BSL.ByteString, Binary.ByteOffset, KeyFrame)

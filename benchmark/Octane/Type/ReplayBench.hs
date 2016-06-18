@@ -34,8 +34,8 @@ benchmarks = bgroup "Replay"
     , bench "encode basic" (nf Binary.encode (Replay
         (Word32 0)
         (Word32 0)
-        (Int32 0)
-        (Int32 0)
+        (Word32 0)
+        (Word32 0)
         (Text "")
         (Dictionary Map.empty)
         (Word32 0)

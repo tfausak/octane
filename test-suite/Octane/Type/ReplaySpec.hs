@@ -36,8 +36,8 @@ spec = describe "Replay" $ do
             (Right ("", 78, Replay
                 (Word32 22)
                 (Word32 3802607813)
-                (Int32 0)
-                (Int32 0)
+                (Word32 0)
+                (Word32 0)
                 (Text "")
                 (Dictionary Map.empty)
                 (Word32 40)
@@ -57,8 +57,8 @@ spec = describe "Replay" $ do
             (Binary.encode (Replay
                 (Word32 0)
                 (Word32 0)
-                (Int32 0)
-                (Int32 0)
+                (Word32 0)
+                (Word32 0)
                 (Text "")
                 (Dictionary Map.empty)
                 (Word32 0)
