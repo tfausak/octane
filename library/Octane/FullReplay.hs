@@ -314,7 +314,7 @@ getPropertyName property = case property of
     Parser.PMusicStinger _ _ _ -> "MusicStinger"
     Parser.PPickup _ _ _ -> "Pickup"
     Parser.PPrivateMatchSettings _ _ _ _ _ _ -> "PrivateMatchSettings"
-    Parser.PQWord _ _ -> "QWord"
+    Parser.PQWord _ -> "QWord"
     Parser.PRelativeRotation _ -> "RelativeRotation"
     Parser.PReservation _ _ _ _ _ _ _ -> "Reservation"
     Parser.PRigidBodyState _ _ _ _ _ -> "RigidBodyState"
@@ -389,7 +389,7 @@ getPropertyValue property = case property of
         , ("Password", Aeson.toJSON password)
         , ("Unknown", Aeson.toJSON x)
         ]
-    Parser.PQWord a b -> Aeson.toJSON (a, b)
+    Parser.PQWord x -> Aeson.toJSON x
     Parser.PRelativeRotation x -> Aeson.toJSON x
     Parser.PReservation number systemId remoteId localId name x y -> Aeson.object
         [ ("Number", Aeson.toJSON number)

@@ -289,9 +289,9 @@ getCamSettingsProperty = do
 getDemolishProperty :: Bits.BitGet PropValue
 getDemolishProperty = do
     atkFlag <- getBool
-    atk <- getInt32
+    atk <- getWord32
     vicFlag <- getBool
-    vic <- getInt32
+    vic <- getWord32
     vec1 <- getVector
     vec2 <- getVector
     return (PDemolish atkFlag atk vicFlag vic vec1 vec2)
@@ -336,29 +336,29 @@ getIntProperty = do
 
 getLoadoutOnlineProperty :: Bits.BitGet PropValue
 getLoadoutOnlineProperty = do
-    version <- getInt32
-    x <- getInt32
-    y <- getInt32
+    version <- getWord32
+    x <- getWord32
+    y <- getWord32
     z <- if version >= 12
         then do
-            value <- getInt8
+            value <- getWord8
             return (Just value)
         else return Nothing
     return (PLoadoutOnline version x y z)
 
 getLoadoutProperty :: Bits.BitGet PropValue
 getLoadoutProperty = do
-    version <- getInt8
-    body <- getInt32
-    decal <- getInt32
-    wheels <- getInt32
-    rocketTrail <- getInt32
-    antenna <- getInt32
-    topper <- getInt32
-    g <- getInt32
+    version <- getWord8
+    body <- getWord32
+    decal <- getWord32
+    wheels <- getWord32
+    rocketTrail <- getWord32
+    antenna <- getWord32
+    topper <- getWord32
+    g <- getWord32
     h <- if version > 10
         then do
-            value <- getInt32
+            value <- getWord32
             return (Just value)
         else return Nothing
     return (PLoadout version body decal wheels rocketTrail antenna topper g h)
@@ -371,15 +371,15 @@ getLocationProperty = do
 getMusicStingerProperty :: Bits.BitGet PropValue
 getMusicStingerProperty = do
     flag <- getBool
-    cue <- getInt32
-    trigger <- getInt8
+    cue <- getWord32
+    trigger <- getWord8
     return (PMusicStinger flag cue trigger)
 
 getPickupProperty :: Bits.BitGet PropValue
 getPickupProperty = do
     instigator <- getBool
     instigatorId <- if Type.unpackBoolean instigator
-        then fmap Just getInt32
+        then fmap Just getWord32
         else return Nothing
     pickedUp <- getBool
     return (PPickup instigator instigatorId pickedUp)
@@ -387,8 +387,8 @@ getPickupProperty = do
 getPrivateMatchSettingsProperty :: Bits.BitGet PropValue
 getPrivateMatchSettingsProperty = do
     mutators <- getText
-    joinableBy <- getInt32
-    maxPlayers <- getInt32
+    joinableBy <- getWord32
+    maxPlayers <- getWord32
     gameName <- getText
     password <- getText
     flag <- getBool
@@ -396,9 +396,8 @@ getPrivateMatchSettingsProperty = do
 
 getQWordProperty :: Bits.BitGet PropValue
 getQWordProperty = do
-    x <- getInt32
-    y <- getInt32
-    return (PQWord x y)
+    qword <- getWord64
+    return (PQWord qword)
 
 getRelativeRotationProperty :: Bits.BitGet PropValue
 getRelativeRotationProperty = do
@@ -440,11 +439,11 @@ getStringProperty = do
 
 getTeamPaintProperty :: Bits.BitGet PropValue
 getTeamPaintProperty = do
-    team <- getInt8
-    primaryColor <- getInt8
-    accentColor <- getInt8
-    primaryFinish <- getInt32
-    accentFinish <- getInt32
+    team <- getWord8
+    primaryColor <- getWord8
+    accentColor <- getWord8
+    primaryFinish <- getWord32
+    accentFinish <- getWord32
     return (PTeamPaint team primaryColor accentColor primaryFinish accentFinish)
 
 getUniqueIdProperty :: Bits.BitGet PropValue
@@ -546,25 +545,25 @@ data PropValue
     = PBoolean !Type.Boolean
     | PByte !Type.Word8
     | PCamSettings !Type.Float32 !Type.Float32 !Type.Float32 !Type.Float32 !Type.Float32 !Type.Float32
-    | PDemolish !Type.Boolean !Type.Int32 !Type.Boolean !Type.Int32 !(Vector Int) !(Vector Int)
+    | PDemolish !Type.Boolean !Type.Word32 !Type.Boolean !Type.Word32 !(Vector Int) !(Vector Int)
     | PEnum !Word.Word16 !Type.Boolean
     | PExplosion !Type.Boolean !(Maybe Type.Int32) !(Vector Int)
     | PFlaggedInt !Type.Boolean !Type.Int32
     | PFloat !Type.Float32
     | PGameMode !Word.Word8
     | PInt !Type.Int32
-    | PLoadout !Type.Int8 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !Type.Int32 !(Maybe Type.Int32)
-    | PLoadoutOnline !Type.Int32 !Type.Int32 !Type.Int32 !(Maybe Type.Int8)
+    | PLoadout !Type.Word8 !Type.Word32 !Type.Word32 !Type.Word32 !Type.Word32 !Type.Word32 !Type.Word32 !Type.Word32 !(Maybe Type.Word32)
+    | PLoadoutOnline !Type.Word32 !Type.Word32 !Type.Word32 !(Maybe Type.Word8)
     | PLocation !(Vector Int)
-    | PMusicStinger !Type.Boolean !Type.Int32 !Type.Int8
-    | PPickup !Type.Boolean !(Maybe Type.Int32) !Type.Boolean
-    | PPrivateMatchSettings !Type.Text !Type.Int32 !Type.Int32 !Type.Text !Type.Text !Type.Boolean
-    | PQWord !Type.Int32 !Type.Int32
+    | PMusicStinger !Type.Boolean !Type.Word32 !Type.Word8
+    | PPickup !Type.Boolean !(Maybe Type.Word32) !Type.Boolean
+    | PPrivateMatchSettings !Type.Text !Type.Word32 !Type.Word32 !Type.Text !Type.Text !Type.Boolean
+    | PQWord !Type.Word64
     | PRelativeRotation !(Vector Float)
     | PReservation !Int !SystemId !RemoteId !LocalId !(Maybe Type.Text) !Type.Boolean !Type.Boolean
     | PRigidBodyState !Type.Boolean !(Vector Int) !(Vector Float) !(Maybe (Vector Int)) !(Maybe (Vector Int))
     | PString !Type.Text
-    | PTeamPaint !Type.Int8 !Type.Int8 !Type.Int8 !Type.Int32 !Type.Int32
+    | PTeamPaint !Type.Word8 !Type.Word8 !Type.Word8 !Type.Word32 !Type.Word32
     | PUniqueId !SystemId !RemoteId !LocalId
     deriving (Eq, Generics.Generic, Show)
 
@@ -800,6 +799,12 @@ getInt32 = BinaryBit.getBits unimportant
 
 getInt8 :: Bits.BitGet Type.Int8
 getInt8 = BinaryBit.getBits unimportant
+
+getWord64 :: Bits.BitGet Type.Word64
+getWord64 = BinaryBit.getBits unimportant
+
+getWord32 :: Bits.BitGet Type.Word32
+getWord32 = BinaryBit.getBits unimportant
 
 getWord8 :: Bits.BitGet Type.Word8
 getWord8 = BinaryBit.getBits unimportant

@@ -15,29 +15,29 @@ type Topper = Text.Text
 type Finish = Text.Text
 
 
-getBody :: Type.Int32 -> Maybe Body
-getBody bodyId = Bimap.lookup (Type.fromInt32 bodyId) Data.bodies
+getBody :: Type.Word32 -> Maybe Body
+getBody bodyId = Bimap.lookup (Type.fromWord32 bodyId) Data.bodies
 
 
-getDecal :: Type.Int32 -> Maybe Decal
-getDecal decalId = Bimap.lookup (Type.fromInt32 decalId) Data.decals
+getDecal :: Type.Word32 -> Maybe Decal
+getDecal decalId = Bimap.lookup (Type.fromWord32 decalId) Data.decals
 
 
-getWheels :: Type.Int32 -> Maybe Wheels
-getWheels wheelsId = Bimap.lookup (Type.fromInt32 wheelsId) Data.wheels
+getWheels :: Type.Word32 -> Maybe Wheels
+getWheels wheelsId = Bimap.lookup (Type.fromWord32 wheelsId) Data.wheels
 
 
-getRocketTrail :: Type.Int32 -> Maybe RocketTrail
-getRocketTrail rocketTrailId = Bimap.lookup (Type.fromInt32 rocketTrailId) Data.rocketTrails
+getRocketTrail :: Type.Word32 -> Maybe RocketTrail
+getRocketTrail rocketTrailId = Bimap.lookup (Type.fromWord32 rocketTrailId) Data.rocketTrails
 
 
-getAntenna :: Type.Int32 -> Maybe Antenna
-getAntenna antennaId = Bimap.lookup (Type.fromInt32 antennaId) Data.antennas
+getAntenna :: Type.Word32 -> Maybe Antenna
+getAntenna antennaId = Bimap.lookup (Type.fromWord32 antennaId) Data.antennas
 
 
-getTopper :: Type.Int32 -> Maybe Topper
-getTopper topperId = Bimap.lookup (Type.fromInt32 topperId) Data.toppers
+getTopper :: Type.Word32 -> Maybe Topper
+getTopper topperId = Bimap.lookup (Type.fromWord32 topperId) Data.toppers
 
 
-getFinish :: Type.Int32 -> Maybe Finish
-getFinish finishId = Bimap.lookup (Type.fromInt32 finishId) Data.finishes
+getFinish :: Type.Word32 -> Maybe Finish
+getFinish finishId = Bimap.lookup (Type.fromWord32 finishId) Data.finishes
