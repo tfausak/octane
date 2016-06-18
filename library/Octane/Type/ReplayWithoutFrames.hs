@@ -11,6 +11,7 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Dictionary as Dictionary
+import qualified Octane.Type.KeyFrame as KeyFrame
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Property as Property
 import qualified Octane.Type.RawReplay as RawReplay
@@ -24,6 +25,7 @@ data ReplayWithoutFrames = ReplayWithoutFrames
     , label :: Text.Text
     , properties :: Dictionary.Dictionary Property.Property
     , levels :: List.List Text.Text
+    , keyFrames :: List.List KeyFrame.KeyFrame
     } deriving (Eq, Generics.Generic, Show)
 
 instance Binary.Binary ReplayWithoutFrames where
@@ -49,6 +51,7 @@ fromRawReplay rawReplay = do
             label <- Binary.get
             properties <- Binary.get
             levels <- Binary.get
+            keyFrames <- Binary.get
 
             pure ReplayWithoutFrames { .. }
     let bytes = LazyBytes.append header content
@@ -63,7 +66,8 @@ toRawReplay replay = do
             Binary.put (version2 replay)
             Binary.put (label replay)
             Binary.put (properties replay)
-            Binary.put (levels replay))
+            Binary.put (levels replay)
+            Binary.put (keyFrames replay))
 
     let content = LazyBytes.empty
 

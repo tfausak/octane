@@ -2,6 +2,7 @@ module Octane.Type
     ( module Octane.Type.Boolean
     , module Octane.Type.Dictionary
     , module Octane.Type.Float32
+    , module Octane.Type.KeyFrame
     , module Octane.Type.Int32
     , module Octane.Type.List
     , module Octane.Type.Property
@@ -16,6 +17,7 @@ module Octane.Type
 import Octane.Type.Boolean
 import Octane.Type.Dictionary
 import Octane.Type.Float32
+import Octane.Type.KeyFrame
 import Octane.Type.Int32
 import Octane.Type.List
 import Octane.Type.Property

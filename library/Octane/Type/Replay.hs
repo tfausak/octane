@@ -61,5 +61,6 @@ toReplayWithoutFrames replay = do
     let label = "TAGame.Replay_Soccar_TA"
     let properties = Dictionary.Dictionary (Map.mapKeys Text.Text (metadata replay))
     let levels = List.List (map Text.Text (maps replay))
+    let keyFrames = List.List [] -- TODO
 
     pure ReplayWithoutFrames.ReplayWithoutFrames { .. }
