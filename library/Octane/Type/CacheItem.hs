@@ -19,7 +19,7 @@ data CacheItem = CacheItem
     { classId :: Word32.Word32
     , parentCacheId :: Word32.Word32
     , cacheId :: Word32.Word32
-    , cacheProperties :: List.List CacheProperty.CacheProperty
+    , properties :: List.List CacheProperty.CacheProperty
     } deriving (Eq, Generics.Generic, Show)
 
 instance Binary.Binary CacheItem where
@@ -28,6 +28,6 @@ instance Binary.Binary CacheItem where
         cacheItem & classId & Binary.put
         cacheItem & parentCacheId & Binary.put
         cacheItem & cacheId & Binary.put
-        cacheItem & cacheProperties & Binary.put
+        cacheItem & properties & Binary.put
 
 instance DeepSeq.NFData CacheItem where

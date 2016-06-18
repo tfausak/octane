@@ -22,8 +22,8 @@ data ClassItem = ClassItem
 
 instance Binary.Binary ClassItem where
     get = ClassItem <$> Binary.get <*> Binary.get
-    put actor = do
-        actor & name & Binary.put
-        actor & streamId & Binary.put
+    put classItem = do
+        classItem & name & Binary.put
+        classItem & streamId & Binary.put
 
 instance DeepSeq.NFData ClassItem where
