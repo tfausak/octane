@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StrictData #-}
 
@@ -29,7 +30,7 @@ instance Binary.Binary Replay where
 
 instance Aeson.FromJSON Replay where
     parseJSON json = case json of
-        Aeson.Object _object -> pure Replay { version = Version.makeVersion [1] }
+        Aeson.Object _object -> pure Replay { version = Version.makeVersion [1, 2] }
         _ -> Aeson.typeMismatch "Replay" json
 
 instance DeepSeq.NFData Replay where
@@ -40,11 +41,12 @@ instance Aeson.ToJSON Replay where
 
 fromReplayWithoutFrames :: ReplayWithoutFrames.ReplayWithoutFrames -> Replay
 fromReplayWithoutFrames replayWithoutFrames = do
-    let version = Version.makeVersion (map Word32.fromWord32 [ReplayWithoutFrames.version1 replayWithoutFrames])
+    let version = Version.makeVersion (map Word32.fromWord32 [ReplayWithoutFrames.version1 replayWithoutFrames, ReplayWithoutFrames.version2 replayWithoutFrames])
     Replay { .. }
 
 
 toReplayWithoutFrames :: Replay -> ReplayWithoutFrames.ReplayWithoutFrames
 toReplayWithoutFrames replay = do
-    let [version1] = map Word32.toWord32 (Version.versionBranch (version replay))
+    let [version1, version2] = map Word32.toWord32 (Version.versionBranch (version replay))
+    let label = "TAGame.Replay_Soccar_TA"
     ReplayWithoutFrames.ReplayWithoutFrames { .. }
