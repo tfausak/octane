@@ -24,7 +24,7 @@ import qualified Octane.Type.Primitive.Stream as Stream
 import qualified Octane.Type.Primitive.Text as Text
 import qualified Octane.Type.Primitive.Word32 as Word32
 import qualified Octane.Type.Property as Property
-import qualified Octane.Utility as Utility
+import qualified Octane.Crc as Crc
 import qualified Text.Printf as Printf
 
 -- | An entire replay. All of the metadata has been parsed, but the actual net
@@ -84,7 +84,7 @@ instance Binary.Binary Replay where
         size1 <- Binary.get
         crc1 <- Binary.get
         data1 <- Binary.getLazyByteString (Word32.fromWord32 size1)
-        let actualCRC1 = Utility.crc32 data1
+        let actualCRC1 = Crc.crc32 data1
         let expectedCRC1 = Word32.fromWord32 crc1
         Monad.when (actualCRC1 /= expectedCRC1) (fail (Printf.printf
             "First CRC 0x%08x does not match expected value 0x%08x"
@@ -93,7 +93,7 @@ instance Binary.Binary Replay where
         size2 <- Binary.get
         crc2 <- Binary.get
         data2 <- Binary.getLazyByteString (Word32.fromWord32 size2)
-        let actualCRC2 = Utility.crc32 data2
+        let actualCRC2 = Crc.crc32 data2
         let expectedCRC2 = Word32.fromWord32 crc2
         Monad.when (actualCRC2 /= expectedCRC2) (fail (Printf.printf
             "Second CRC 0x%08x does not match expected value 0x%08x"
