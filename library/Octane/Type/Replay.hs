@@ -2,10 +2,14 @@
 
 module Octane.Type.Replay (Replay(..)) where
 
+import Data.Function ((&))
+
 import qualified Control.DeepSeq as DeepSeq
+import qualified Control.Monad as Monad
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import Data.Function ((&))
+import qualified Data.Binary.Get as Binary
+import qualified Data.ByteString.Lazy as LazyBytes
 import qualified GHC.Generics as Generics
 import qualified Octane.Json as Json
 import qualified Octane.Type.Actor as Actor
@@ -14,11 +18,13 @@ import qualified Octane.Type.KeyFrame as KeyFrame
 import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
 import qualified Octane.Type.Primitive.Dictionary as Dictionary
-import qualified Octane.Type.Primitive.List as List
-import qualified Octane.Type.Primitive.Text as Text
-import qualified Octane.Type.Primitive.Stream as Stream
 import qualified Octane.Type.Primitive.Int32 as Int32
+import qualified Octane.Type.Primitive.List as List
+import qualified Octane.Type.Primitive.Stream as Stream
+import qualified Octane.Type.Primitive.Text as Text
 import qualified Octane.Type.Property as Property
+import qualified Octane.Utility as Utility
+import qualified Text.Printf as Printf
 
 -- | An entire replay. All of the metadata has been parsed, but the actual net
 -- stream has not.
@@ -73,22 +79,57 @@ data Replay = Replay
     } deriving (Eq,Generics.Generic,Show)
 
 instance Binary.Binary Replay where
-    get =
-        Replay <$> Binary.get <*> Binary.get <*> Binary.get <*> Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get <*>
-        Binary.get
+    get = do
+        size1 <- Binary.getWord32le
+        expectedCRC1 <- Binary.getWord32le
+        data1 <- Binary.getLazyByteString (fromIntegral size1)
+        let actualCRC1 = Utility.crc32 data1
+        Monad.when (actualCRC1 /= expectedCRC1) (fail (Printf.printf "First CRC 0x%08x does not match expected value 0x%08x" actualCRC1 expectedCRC1))
+
+        size2 <- Binary.getWord32le
+        expectedCRC2 <- Binary.getWord32le
+        data2 <- Binary.getLazyByteString (fromIntegral size2)
+        let actualCRC2 = Utility.crc32 data2
+        Monad.when (actualCRC2 /= expectedCRC2) (fail (Printf.printf "Second CRC 0x%08x does not match expected value 0x%08x" actualCRC2 expectedCRC2))
+
+        pure (flip Binary.runGet (LazyBytes.append data1 data2) (do
+            version1 <- Binary.get
+            version2 <- Binary.get
+            label <- Binary.get
+            properties <- Binary.get
+
+            levels <- Binary.get
+            keyFrames <- Binary.get
+            stream <- Binary.get
+            messages <- Binary.get
+            marks <- Binary.get
+            packages <- Binary.get
+            objects <- Binary.get
+            names <- Binary.get
+            actors <- Binary.get
+            cacheItems <- Binary.get
+
+            pure Replay
+                { replaySize1 = size1 & fromIntegral & Int32.Int32
+                , replayCRC1 = expectedCRC1 & fromIntegral & Int32.Int32
+                , replayVersion1 = version1
+                , replayVersion2 = version2
+                , replayLabel = label
+                , replayProperties = properties
+                , replaySize2 = size2 & fromIntegral & Int32.Int32
+                , replayCRC2 = expectedCRC2 & fromIntegral & Int32.Int32
+                , replayLevels = levels
+                , replayKeyFrames = keyFrames
+                , replayStream = stream
+                , replayMessages = messages
+                , replayMarks = marks
+                , replayPackages = packages
+                , replayObjects = objects
+                , replayNames = names
+                , replayActors = actors
+                , replayCacheItems = cacheItems
+                }))
+
     put replay = do
         replay & replaySize1 & Binary.put
         replay & replayCRC1 & Binary.put
