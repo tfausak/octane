@@ -1,7 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StrictData #-}
 
 module Octane.Type.Replay (Replay(..), fromReplayWithoutFrames, toReplayWithoutFrames) where
@@ -30,8 +29,8 @@ import qualified Octane.Type.Word32 as Word32
 data Replay = Replay
     { version :: Version.Version
     , metadata :: Map.Map StrictText.Text Property.Property
-    , maps :: [StrictText.Text]
-    , logs :: [StrictText.Text]
+    , levels :: [StrictText.Text]
+    , messages :: [StrictText.Text]
     , tickMarks :: Map.Map StrictText.Text StrictText.Text
     } deriving (Eq, Generics.Generic, Show)
 
@@ -53,33 +52,72 @@ instance Aeson.ToJSON Replay where
 
 fromReplayWithoutFrames :: (Monad m) => ReplayWithoutFrames.ReplayWithoutFrames -> m Replay
 fromReplayWithoutFrames replayWithoutFrames = do
-    let version = Version.makeVersion (map Word32.fromWord32
+    pure Replay
+        { version =
             [ ReplayWithoutFrames.version1 replayWithoutFrames
             , ReplayWithoutFrames.version2 replayWithoutFrames
-            ])
-    let metadata = Map.mapKeys Text.unpack (Dictionary.unpack (ReplayWithoutFrames.properties replayWithoutFrames))
-    let maps = map Text.unpack (List.unpack (ReplayWithoutFrames.levels replayWithoutFrames))
-    let logs = replayWithoutFrames & ReplayWithoutFrames.messages & List.unpack & map Message.content & map Text.unpack
-    let tickMarks = replayWithoutFrames & ReplayWithoutFrames.marks & List.unpack & map (\ x -> (x & Mark.frame & Word32.unpack & show & StrictText.pack, x & Mark.label & Text.unpack)) & Map.fromList
-
-    pure Replay { .. }
+            ] & map Word32.fromWord32 & Version.makeVersion
+        , metadata = replayWithoutFrames
+            & ReplayWithoutFrames.properties
+            & Dictionary.unpack
+            & Map.mapKeys Text.unpack
+        , levels = replayWithoutFrames
+            & ReplayWithoutFrames.levels
+            & List.unpack
+            & map Text.unpack
+        , messages = replayWithoutFrames
+            & ReplayWithoutFrames.messages
+            & List.unpack
+            & map Message.content
+            & map Text.unpack
+        , tickMarks = replayWithoutFrames
+            & ReplayWithoutFrames.marks
+            & List.unpack & map (\ mark -> do
+                let key = mark
+                        & Mark.frame
+                        & Word32.unpack
+                        & show
+                        & StrictText.pack
+                let value = mark
+                        & Mark.label
+                        & Text.unpack
+                (key, value))
+            & Map.fromList
+        }
 
 
 toReplayWithoutFrames :: (Monad m) => Replay -> m ReplayWithoutFrames.ReplayWithoutFrames
 toReplayWithoutFrames replay = do
-    let [version1, version2] = map Word32.toWord32
-            (Version.versionBranch (version replay))
-    let label = "TAGame.Replay_Soccar_TA"
-    let properties = Dictionary.Dictionary (Map.mapKeys Text.Text (metadata replay))
-    let levels = List.List (map Text.Text (maps replay))
-    let keyFrames = List.List [] -- TODO
-    let stream = Stream.Stream LazyBytes.empty -- TODO
-    let messages = replay & logs & map (\ x -> Message.Message 0 "" (Text.Text x)) & List.List
-    let marks = replay & tickMarks & Map.toList & map (\ (k, v) -> Mark.Mark (Text.Text v) (k & StrictText.unpack & read & Word32.Word32)) & List.List
-    let packages = List.List [] -- TODO
-    let objects = List.List [] -- TODO
-    let names = List.List [] -- TODO
-    let classes = List.List [] -- TODO
-    let cache = List.List [] -- TODO
+    let [version1, version2] = replay
+            & version
+            & Version.versionBranch
+            & map Word32.toWord32
 
-    pure ReplayWithoutFrames.ReplayWithoutFrames { .. }
+    pure ReplayWithoutFrames.ReplayWithoutFrames
+        { ReplayWithoutFrames.version1 = version1
+        , ReplayWithoutFrames.version2 = version2
+        , ReplayWithoutFrames.label = "TAGame.Replay_Soccar_TA"
+        , ReplayWithoutFrames.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
+        , ReplayWithoutFrames.levels = replay & levels & map Text.Text & List.List
+        , ReplayWithoutFrames.keyFrames = List.List [] -- TODO
+        , ReplayWithoutFrames.stream = Stream.Stream LazyBytes.empty -- TODO
+        , ReplayWithoutFrames.messages = replay
+            & messages
+            & map (\ message -> message
+                    & Text.Text
+                    & Message.Message 0 "")
+            & List.List
+        , ReplayWithoutFrames.marks = replay
+            & tickMarks
+            & Map.toList
+            & map (\ (key, value) -> do
+                let label = value & Text.Text
+                let frame = key & StrictText.unpack & read & Word32.Word32
+                Mark.Mark label frame)
+            & List.List
+        , ReplayWithoutFrames.packages = List.List [] -- TODO
+        , ReplayWithoutFrames.objects = List.List [] -- TODO
+        , ReplayWithoutFrames.names = List.List [] -- TODO
+        , ReplayWithoutFrames.classes = List.List [] -- TODO
+        , ReplayWithoutFrames.cache = List.List [] -- TODO
+        }
