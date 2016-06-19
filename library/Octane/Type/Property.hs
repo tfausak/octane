@@ -5,6 +5,7 @@
 
 module Octane.Type.Property (Property(..)) where
 
+import Data.Aeson ((.=))
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
@@ -152,17 +153,48 @@ instance Binary.Binary Property where
 
 instance DeepSeq.NFData Property where
 
--- TODO: This encoding is lossy.
 instance Aeson.ToJSON Property where
     toJSON property = case property of
-        ArrayProperty _size x -> Aeson.toJSON x
-        BoolProperty _size x -> Aeson.toJSON x
-        ByteProperty _size (_key, value) -> Aeson.toJSON value
-        FloatProperty _size x -> Aeson.toJSON x
-        IntProperty _size x -> Aeson.toJSON x
-        NameProperty _size x -> Aeson.toJSON x
-        QWordProperty _size x -> Aeson.toJSON x
-        StrProperty _size x -> Aeson.toJSON x
+        ArrayProperty size x -> Aeson.object
+            [ "Type" .= ("Array" :: Text.Text)
+            , "Size" .= size
+            , "Value" .= x
+            ]
+        BoolProperty size x -> Aeson.object
+            [ "Type" .= ("Bool" :: Text.Text)
+            , "Size" .= size
+            , "Value" .= x
+            ]
+        ByteProperty size x -> Aeson.object
+            [ "Type" .= ("Byte" :: Text.Text)
+            , "Size" .= size
+            , "Value" .= x
+            ]
+        FloatProperty size x -> Aeson.object
+            [ "Type" .= ("Float" :: Text.Text)
+            , "Size" .= size
+            , "Value" .= x
+            ]
+        IntProperty size x -> Aeson.object
+            [ "Type" .= ("Int" :: Text.Text)
+            , "Size" .= size
+            , "Value" .= x
+            ]
+        NameProperty size x -> Aeson.object
+            [ "Type" .= ("Name" :: Text.Text)
+            , "Size" .= size
+            , "Value" .= x
+            ]
+        QWordProperty size x -> Aeson.object
+            [ "Type" .= ("QWord" :: Text.Text)
+            , "Size" .= size
+            , "Value" .= x
+            ]
+        StrProperty size x -> Aeson.object
+            [ "Type" .= ("Str" :: Text.Text)
+            , "Size" .= size
+            , "Value" .= x
+            ]
 
 
 arrayProperty :: Text.Text
