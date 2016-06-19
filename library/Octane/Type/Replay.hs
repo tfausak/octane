@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Type.Replay (Replay(..), fromReplayWithFrames, toReplayWithFrames) where
+module Octane.Type.Replay (Replay(..), fromOptimizedReplay, toOptimizedReplay) where
 
 import Data.Function ((&))
 
@@ -19,8 +19,8 @@ import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
+import qualified Octane.Type.OptimizedReplay as OptimizedReplay
 import qualified Octane.Type.Property as Property
-import qualified Octane.Type.ReplayWithFrames as ReplayWithFrames
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -36,12 +36,12 @@ data Replay = Replay
 
 instance Binary.Binary Replay where
     get = do
-        replayWithFrames <- Binary.get
-        fromReplayWithFrames replayWithFrames
+        optimizedReplay <- Binary.get
+        fromOptimizedReplay optimizedReplay
 
     put replay = do
-        replayWithFrames <- toReplayWithFrames replay
-        Binary.put replayWithFrames
+        optimizedReplay <- toOptimizedReplay replay
+        Binary.put optimizedReplay
 
 instance Aeson.FromJSON Replay where
 
@@ -50,28 +50,28 @@ instance DeepSeq.NFData Replay where
 instance Aeson.ToJSON Replay where
 
 
-fromReplayWithFrames :: (Monad m) => ReplayWithFrames.ReplayWithFrames -> m Replay
-fromReplayWithFrames replayWithFrames = do
+fromOptimizedReplay :: (Monad m) => OptimizedReplay.OptimizedReplay -> m Replay
+fromOptimizedReplay optimizedReplay = do
     pure Replay
         { version =
-            [ ReplayWithFrames.version1 replayWithFrames
-            , ReplayWithFrames.version2 replayWithFrames
+            [ OptimizedReplay.version1 optimizedReplay
+            , OptimizedReplay.version2 optimizedReplay
             ] & map Word32.fromWord32 & Version.makeVersion
-        , metadata = replayWithFrames
-            & ReplayWithFrames.properties
+        , metadata = optimizedReplay
+            & OptimizedReplay.properties
             & Dictionary.unpack
             & Map.mapKeys Text.unpack
-        , levels = replayWithFrames
-            & ReplayWithFrames.levels
+        , levels = optimizedReplay
+            & OptimizedReplay.levels
             & List.unpack
             & map Text.unpack
-        , messages = replayWithFrames
-            & ReplayWithFrames.messages
+        , messages = optimizedReplay
+            & OptimizedReplay.messages
             & List.unpack
             & map Message.content
             & map Text.unpack
-        , tickMarks = replayWithFrames
-            & ReplayWithFrames.marks
+        , tickMarks = optimizedReplay
+            & OptimizedReplay.marks
             & List.unpack
             & map (\ mark -> do
                 let key = mark
@@ -84,33 +84,33 @@ fromReplayWithFrames replayWithFrames = do
                         & Text.unpack
                 (key, value))
             & Map.fromList
-        , frames = replayWithFrames
-            & ReplayWithFrames.frames
+        , frames = optimizedReplay
+            & OptimizedReplay.frames
         }
 
 
-toReplayWithFrames :: (Monad m) => Replay -> m ReplayWithFrames.ReplayWithFrames
-toReplayWithFrames replay = do
+toOptimizedReplay :: (Monad m) => Replay -> m OptimizedReplay.OptimizedReplay
+toOptimizedReplay replay = do
     let [version1, version2] = replay
             & version
             & Version.versionBranch
             & map Word32.toWord32
 
-    pure ReplayWithFrames.ReplayWithFrames
-        { ReplayWithFrames.version1 = version1
-        , ReplayWithFrames.version2 = version2
-        , ReplayWithFrames.label = "TAGame.Replay_Soccar_TA"
-        , ReplayWithFrames.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
-        , ReplayWithFrames.levels = replay & levels & map Text.Text & List.List
-        , ReplayWithFrames.keyFrames = List.List [] -- TODO
-        , ReplayWithFrames.frames = replay & frames
-        , ReplayWithFrames.messages = replay
+    pure OptimizedReplay.OptimizedReplay
+        { OptimizedReplay.version1 = version1
+        , OptimizedReplay.version2 = version2
+        , OptimizedReplay.label = "TAGame.Replay_Soccar_TA"
+        , OptimizedReplay.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
+        , OptimizedReplay.levels = replay & levels & map Text.Text & List.List
+        , OptimizedReplay.keyFrames = List.List [] -- TODO
+        , OptimizedReplay.frames = replay & frames
+        , OptimizedReplay.messages = replay
             & messages
             & map (\ message -> message
                     & Text.Text
                     & Message.Message 0 "")
             & List.List
-        , ReplayWithFrames.marks = replay
+        , OptimizedReplay.marks = replay
             & tickMarks
             & Map.toList
             & map (\ (key, value) -> do
@@ -118,9 +118,9 @@ toReplayWithFrames replay = do
                 let frame = key & StrictText.unpack & read & Word32.Word32
                 Mark.Mark label frame)
             & List.List
-        , ReplayWithFrames.packages = List.List [] -- TODO
-        , ReplayWithFrames.objects = List.List [] -- TODO
-        , ReplayWithFrames.names = List.List [] -- TODO
-        , ReplayWithFrames.classes = List.List [] -- TODO
-        , ReplayWithFrames.cache = List.List [] -- TODO
+        , OptimizedReplay.packages = List.List [] -- TODO
+        , OptimizedReplay.objects = List.List [] -- TODO
+        , OptimizedReplay.names = List.List [] -- TODO
+        , OptimizedReplay.classes = List.List [] -- TODO
+        , OptimizedReplay.cache = List.List [] -- TODO
         }
