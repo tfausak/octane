@@ -8,7 +8,6 @@ import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
-import qualified Data.ByteString.Lazy as LazyBytes
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
@@ -20,9 +19,9 @@ import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
 import qualified Octane.Type.Property as Property
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
-import qualified Octane.Type.Stream as Stream
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
+import qualified Octane.Utility.Generator as Generator
 import qualified Octane.Utility.Parser as Parser
 
 
@@ -70,7 +69,7 @@ fromReplayWithoutFrames replayWithoutFrames = do
         , properties = replayWithoutFrames & ReplayWithoutFrames.properties
         , levels = replayWithoutFrames & ReplayWithoutFrames.levels
         , keyFrames = replayWithoutFrames & ReplayWithoutFrames.keyFrames
-        , frames = replayWithoutFrames & Parser.parseFrames
+        , frames = replayWithoutFrames & Parser.parseStream
         , messages = replayWithoutFrames & ReplayWithoutFrames.messages
         , marks = replayWithoutFrames & ReplayWithoutFrames.marks
         , packages = replayWithoutFrames & ReplayWithoutFrames.packages
@@ -92,7 +91,12 @@ toReplayWithoutFrames replayWithFrames = do
         , ReplayWithoutFrames.properties = replayWithFrames & properties
         , ReplayWithoutFrames.levels = replayWithFrames & levels
         , ReplayWithoutFrames.keyFrames = replayWithFrames & keyFrames
-        , ReplayWithoutFrames.stream = Stream.Stream LazyBytes.empty -- TODO
+        , ReplayWithoutFrames.stream = Generator.generateStream
+            (replayWithFrames & frames)
+            (replayWithFrames & objects)
+            (replayWithFrames & names)
+            (replayWithFrames & classes)
+            (replayWithFrames & cache)
         , ReplayWithoutFrames.messages = replayWithFrames & messages
         , ReplayWithoutFrames.marks = replayWithFrames & marks
         , ReplayWithoutFrames.packages = replayWithFrames & packages

@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Utility.Parser (parseFrames) where
+module Octane.Utility.Parser (parseStream) where
 
 import Data.Function ((&))
 
@@ -46,8 +46,8 @@ import qualified Text.Printf as Printf
 
 
 -- | Parses the network stream and returns a list of frames.
-parseFrames :: ReplayWithoutFrames.ReplayWithoutFrames -> [Frame.Frame]
-parseFrames replay = let
+parseStream :: ReplayWithoutFrames.ReplayWithoutFrames -> [Frame.Frame]
+parseStream replay = let
     numFrames = replay
         & ReplayWithoutFrames.properties
         & Dictionary.unpack
