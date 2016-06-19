@@ -17,6 +17,7 @@ import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Frame as Frame
+import qualified Octane.Type.KeyFrame as KeyFrame
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
@@ -125,7 +126,14 @@ toOptimizedReplay replay = do
         , OptimizedReplay.label = "TAGame.Replay_Soccar_TA"
         , OptimizedReplay.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
         , OptimizedReplay.levels = replay & levels & map Text.Text & List.List
-        , OptimizedReplay.keyFrames = List.List [] -- TODO
+        , OptimizedReplay.keyFrames = replay
+            & frames
+            & filter Frame.isKeyFrame
+            & map (\ frame -> KeyFrame.KeyFrame
+                (Frame.time frame)
+                (frame & Frame.number & Word32.toWord32)
+                0) -- TODO: This is incorrect
+            & List.List
         , OptimizedReplay.frames = replay & frames
         , OptimizedReplay.messages = replay
             & messages
