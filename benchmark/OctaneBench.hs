@@ -1,12 +1,9 @@
-module OctaneBench (benchmarks) where
+module OctaneBench (bench) where
 
-import Criterion
+import qualified Criterion
 
-import qualified Octane.MainBench
-import qualified Octane.TypeBench
 
-benchmarks :: Benchmark
-benchmarks = bgroup "Octane"
-    [ Octane.MainBench.benchmarks
-    , Octane.TypeBench.benchmarks
+bench :: Criterion.Benchmark
+bench = Criterion.bgroup "Octane"
+    [
     ]
