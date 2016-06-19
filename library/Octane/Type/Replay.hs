@@ -36,6 +36,7 @@ data Replay = Replay
     , levels :: [StrictText.Text]
     , messages :: Map.Map StrictText.Text StrictText.Text
     , tickMarks :: Map.Map StrictText.Text StrictText.Text
+    , packages :: [StrictText.Text]
     , frames :: [Frame.Frame]
     } deriving (Eq, Generics.Generic, Show)
 
@@ -57,6 +58,7 @@ instance Aeson.ToJSON Replay where
         , "Levels" .= levels replay
         , "Messages" .= messages replay
         , "TickMarks" .= tickMarks replay
+        , "Packages" .= packages replay
         , "Frames" .= frames replay
         ]
 
@@ -106,6 +108,10 @@ fromOptimizedReplay optimizedReplay = do
                         & Text.unpack
                 (key, value))
             & Map.fromList
+        , packages = optimizedReplay
+            & OptimizedReplay.packages
+            & List.unpack
+            & map Text.unpack
         , frames = optimizedReplay
             & OptimizedReplay.frames
         }
@@ -151,7 +157,10 @@ toOptimizedReplay replay = do
                 let frame = key & StrictText.unpack & read & Word32.Word32
                 Mark.Mark label frame)
             & List.List
-        , OptimizedReplay.packages = List.List [] -- TODO
+        , OptimizedReplay.packages = replay
+            & packages
+            & map Text.Text
+            & List.List
         , OptimizedReplay.objects = List.List [] -- TODO
         , OptimizedReplay.names = List.List [] -- TODO
         , OptimizedReplay.classes = List.List [] -- TODO
