@@ -41,6 +41,8 @@ library:
   - containers ==0.5.*
   - data-binary-ieee754 ==0.4.*
   - deepseq ==1.4.*
+  - http-client ==0.4.*
+  - http-client-tls ==0.2.*
   - text ==1.2.*
   - unordered-containers ==0.2.*
   - vector ==0.11.*
