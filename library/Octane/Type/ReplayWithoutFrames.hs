@@ -25,7 +25,10 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
 
--- TODO
+-- | A partially-processed replay. This has parsed all of the high-level
+-- metadata, but it has not parsed any of the network stream.
+--
+-- See 'Octane.Type.ReplayWithFrames.ReplayWithFrames'.
 data ReplayWithoutFrames = ReplayWithoutFrames
     { version1 :: Word32.Word32
     , version2 :: Word32.Word32
@@ -55,6 +58,8 @@ instance Binary.Binary ReplayWithoutFrames where
 instance DeepSeq.NFData ReplayWithoutFrames where
 
 
+-- | Converts a 'RawReplay.RawReplay' into a 'ReplayWithoutFrames'.
+-- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 fromRawReplay :: (Monad m) => RawReplay.RawReplay -> m ReplayWithoutFrames
 fromRawReplay rawReplay = do
     let header = RawReplay.header rawReplay
@@ -82,6 +87,8 @@ fromRawReplay rawReplay = do
     pure (Binary.runGet get bytes)
 
 
+-- | Converts a 'ReplayWithoutFrames' into a 'RawReplay.RawReplay'.
+-- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 toRawReplay :: (Monad m) => ReplayWithoutFrames -> m RawReplay.RawReplay
 toRawReplay replay = do
     let header = Binary.runPut (do

@@ -26,7 +26,10 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Utility.Parser as Parser
 
 
--- TODO
+-- | A fully-processed replay. This has all of the frames from the network
+-- stream as well as all of the metadata.
+--
+-- See 'Octane.Type.OptimizedReplay.OptimizedReplay'.
 data ReplayWithFrames = ReplayWithFrames
     { version1 :: Word32.Word32
     , version2 :: Word32.Word32
@@ -56,6 +59,8 @@ instance Binary.Binary ReplayWithFrames where
 instance DeepSeq.NFData ReplayWithFrames where
 
 
+-- | Converts a 'ReplayWithoutFrames.ReplayWithoutFrames' into a 'ReplayWithFrames'.
+-- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 fromReplayWithoutFrames :: (Monad m) => ReplayWithoutFrames.ReplayWithoutFrames -> m ReplayWithFrames
 fromReplayWithoutFrames replayWithoutFrames = do
     pure ReplayWithFrames
@@ -76,6 +81,8 @@ fromReplayWithoutFrames replayWithoutFrames = do
         }
 
 
+-- | Converts a 'ReplayWithFrames' into a 'ReplayWithoutFrames.ReplayWithoutFrames'.
+-- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 toReplayWithoutFrames :: (Monad m) => ReplayWithFrames -> m ReplayWithoutFrames.ReplayWithoutFrames
 toReplayWithoutFrames replayWithFrames = do
     pure ReplayWithoutFrames.ReplayWithoutFrames

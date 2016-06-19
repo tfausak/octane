@@ -14,6 +14,7 @@ import qualified Octane.Type.State as State
 import qualified Octane.Type.Value as Value
 
 
+-- | Optimizes frames by removing unnecessary replications.
 optimizeFrames :: [Frame.Frame] -> [Frame.Frame]
 optimizeFrames frames = frames
     & Foldable.foldl'

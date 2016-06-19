@@ -3,7 +3,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Type.OptimizedReplay (OptimizedReplay(..), fromReplayWithFrames, toReplayWithFrames) where
+module Octane.Type.OptimizedReplay
+    ( OptimizedReplay(..)
+    , fromReplayWithFrames
+    , toReplayWithFrames
+    ) where
 
 import Data.Function ((&))
 
@@ -25,7 +29,10 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Utility.Optimizer as Optimizer
 
 
--- TODO
+-- | A fully-processed replay with optimized frames. That means any unnecessary
+-- replications have been removed.
+--
+-- See 'Octane.Type.Replay.Replay'.
 data OptimizedReplay = OptimizedReplay
     { version1 :: Word32.Word32
     , version2 :: Word32.Word32
@@ -55,6 +62,8 @@ instance Binary.Binary OptimizedReplay where
 instance DeepSeq.NFData OptimizedReplay where
 
 
+-- | Converts a 'ReplayWithFrames.ReplayWithFrames' into an 'OptimizedReplay'.
+-- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 fromReplayWithFrames :: (Monad m) => ReplayWithFrames.ReplayWithFrames -> m OptimizedReplay
 fromReplayWithFrames replayWithFrames = do
     pure OptimizedReplay
@@ -75,6 +84,8 @@ fromReplayWithFrames replayWithFrames = do
         }
 
 
+-- | Converts an 'OptimizedReplay' into a 'ReplayWithFrames.ReplayWithFrames'.
+-- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 toReplayWithFrames :: (Monad m) => OptimizedReplay -> m ReplayWithFrames.ReplayWithFrames
 toReplayWithFrames optimizedReplay = do
     pure ReplayWithFrames.ReplayWithFrames

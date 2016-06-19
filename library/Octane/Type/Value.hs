@@ -18,7 +18,7 @@ import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 
 
--- TODO
+-- | A replicated property's value.
 data Value
     = VBoolean
         Boolean.Boolean

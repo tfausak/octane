@@ -45,6 +45,7 @@ import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
 
+-- | Parses the network stream and returns a list of frames.
 parseFrames :: ReplayWithoutFrames.ReplayWithoutFrames -> [Frame.Frame]
 parseFrames replay = let
     numFrames = replay

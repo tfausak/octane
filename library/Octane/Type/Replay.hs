@@ -26,7 +26,9 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
 
--- TODO
+-- | A fully-processed, optimized replay. This is the nicest format for humans
+-- to work with. It can be converted all the way back down to a
+-- 'Octane.Type.RawReplay.RawReplay' for serialization.
 data Replay = Replay
     { version :: Version.Version
     , metadata :: Map.Map StrictText.Text Property.Property
@@ -58,6 +60,8 @@ instance Aeson.ToJSON Replay where
         ]
 
 
+-- | Converts an 'OptimizedReplay.OptimizedReplay' into a 'Replay'.
+-- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 fromOptimizedReplay :: (Monad m) => OptimizedReplay.OptimizedReplay -> m Replay
 fromOptimizedReplay optimizedReplay = do
     pure Replay
@@ -106,6 +110,8 @@ fromOptimizedReplay optimizedReplay = do
         }
 
 
+-- | Converts a 'Replay' into an 'OptimizedReplay.OptimizedReplay'.
+-- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 toOptimizedReplay :: (Monad m) => Replay -> m OptimizedReplay.OptimizedReplay
 toOptimizedReplay replay = do
     let [version1, version2] = replay

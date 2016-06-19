@@ -26,13 +26,18 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word8 as Word8
 
 
--- TODO
+-- | A frame in the network stream. This holds all the interesting game data.
 data Frame = Frame
     { number :: Word
+    -- ^ This frame's number in the network stream. Starts at 0.
     , isKeyFrame :: Bool
+    -- ^ Is this frame a key frame?
     , time :: Float32.Float32
+    -- ^ The since the start of the match that this frame occurred.
     , delta :: Float32.Float32
+    -- ^ The time between the last frame and this one.
     , replications :: [Replication.Replication]
+    -- ^ A list of all the replications in this frame.
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData Frame where

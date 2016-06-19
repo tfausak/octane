@@ -9,8 +9,8 @@ import qualified Data.Aeson as Aeson
 import qualified GHC.Generics as Generics
 
 
--- | Three values packed together. Although the fields are called 'x', 'y', and
--- 'z', that may not be what they actually represent.
+-- | Three values packed together. Although the fields are called @x@, @y@, and
+-- @z@, that may not be what they actually represent.
 data Vector a = Vector
     { x :: a
     , y :: a

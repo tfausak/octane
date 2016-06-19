@@ -3,7 +3,10 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Type.RawReplay (RawReplay(..), newRawReplay) where
+module Octane.Type.RawReplay
+    ( RawReplay(..)
+    , newRawReplay
+    ) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
@@ -17,7 +20,10 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Text.Printf as Printf
 
 
--- TODO
+-- | A raw, unprocessed replay. Only enough parsing is done to make sure that
+-- the CRCs are valid.
+--
+-- See 'Octane.Type.ReplayWithoutFrames.ReplayWithoutFrames'.
 data RawReplay = RawReplay
     { headerSize :: Word32.Word32
     -- ^ The byte size of the first section.
@@ -69,10 +75,12 @@ instance Binary.Binary RawReplay where
 instance DeepSeq.NFData RawReplay where
 
 
+-- | Creates a new 'RawReplay'. You should prefer this over directly using the
+-- constructor so that the sizes and CRCs are set correctly.
 newRawReplay
-    :: LazyBytes.ByteString -- ^ The 'header'.
-    -> LazyBytes.ByteString -- ^ The 'content'.
-    -> LazyBytes.ByteString -- ^ The 'footer'.
+    :: LazyBytes.ByteString -- ^ The header.
+    -> LazyBytes.ByteString -- ^ The content.
+    -> LazyBytes.ByteString -- ^ The footer.
     -> RawReplay
 newRawReplay header content footer = do
     let headerSize = Word32.toWord32 (LazyBytes.length header)

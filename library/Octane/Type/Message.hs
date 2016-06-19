@@ -17,7 +17,7 @@ data Message = Message
     { frame :: Word32.Word32
     -- ^ The frame this message corresponds to.
     , name :: Text.Text
-    -- ^ TODO
+    -- ^ The primary player name.
     , content :: Text.Text
     -- ^ The actual content of the message.
     } deriving (Eq, Generics.Generic, Show)
