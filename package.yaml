@@ -76,4 +76,4 @@ tests:
     - -with-rtsopts=-N
     main: Main.hs
     source-dirs: test-suite
-version: '0.10.0'
+version: '0.11.0'
