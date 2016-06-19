@@ -21,6 +21,7 @@ import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Int32 as Int32
+import qualified Octane.Utility.Endian as Endian
 
 
 -- | A thin wrapper around 'StrictText.Text'.
@@ -33,20 +34,24 @@ instance Binary.Binary Text where
     get = getText
         Binary.get
         Binary.getByteString
+        id
 
     put text = putText
         Binary.put
         Binary.putByteString
+        id
         text
 
 instance BinaryBit.BinaryBit Text where
     getBits _ = getText
         (BinaryBit.getBits 32)
         BinaryBit.getByteString
+        Endian.reverseBitsInBytes'
 
     putBits _ text = putText
         (BinaryBit.putBits 32)
         BinaryBit.putByteString
+        Endian.reverseBitsInBytes'
         text
 
 instance String.IsString Text where
@@ -63,8 +68,8 @@ instance Aeson.ToJSON Text where
         & Aeson.toJSON
 
 
-getText :: (Monad m) => (m Int32.Int32) -> (Int -> m StrictBytes.ByteString) -> m Text
-getText getInt getBytes = do
+getText :: (Monad m) => (m Int32.Int32) -> (Int -> m StrictBytes.ByteString) -> (StrictBytes.ByteString -> StrictBytes.ByteString) -> m Text
+getText getInt getBytes convertBytes = do
     (Int32.Int32 rawSize) <- getInt
     (size, decode) <-
         -- In some tiny percentage of replays, this nonsensical string size
@@ -83,24 +88,24 @@ getText getInt getBytes = do
         then pure (-2 * fromIntegral rawSize, Encoding.decodeUtf16LE)
         else pure (fromIntegral rawSize, Encoding.decodeLatin1)
     bytes <- getBytes size
-    let rawText = bytes & decode
+    let rawText = bytes & convertBytes & decode
     case StrictText.splitAt (StrictText.length rawText - 1) rawText of
         (text, "") -> text & Text & pure
         (text, "\0") -> text & Text & pure
         _ -> fail ("Unexpected Text value " ++ show rawText)
 
 
-putText :: (Monad m) => (Int32.Int32 -> m ()) -> (StrictBytes.ByteString -> m ()) -> Text -> m ()
-putText putInt putBytes text = do
+putText :: (Monad m) => (Int32.Int32 -> m ()) -> (StrictBytes.ByteString -> m ()) -> (StrictBytes.ByteString -> StrictBytes.ByteString) -> Text -> m ()
+putText putInt putBytes convertBytes text = do
     let fullText = text & unpack & flip StrictText.snoc '\NUL'
     let size = fullText & StrictText.length & fromIntegral
     if StrictText.all Char.isLatin1 fullText
     then do
         size & Int32.Int32 & putInt
-        fullText & encodeLatin1 & putBytes
+        fullText & encodeLatin1 & convertBytes & putBytes
     else do
         size & negate & Int32.Int32 & putInt
-        fullText & Encoding.encodeUtf16LE & putBytes
+        fullText & Encoding.encodeUtf16LE & convertBytes & putBytes
 
 
 encodeLatin1 :: StrictText.Text -> StrictBytes.ByteString
