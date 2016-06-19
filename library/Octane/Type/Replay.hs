@@ -3,14 +3,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Type.Replay (Replay(..), fromReplayWithoutFrames, toReplayWithoutFrames) where
+module Octane.Type.Replay (Replay(..), fromReplayWithFrames, toReplayWithFrames) where
 
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Map as Map
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
@@ -20,8 +19,7 @@ import qualified Octane.Type.List as List
 import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
 import qualified Octane.Type.Property as Property
-import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
-import qualified Octane.Type.Stream as Stream
+import qualified Octane.Type.ReplayWithFrames as ReplayWithFrames
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -36,12 +34,12 @@ data Replay = Replay
 
 instance Binary.Binary Replay where
     get = do
-        replayWithoutFrames <- Binary.get
-        fromReplayWithoutFrames replayWithoutFrames
+        replayWithFrames <- Binary.get
+        fromReplayWithFrames replayWithFrames
 
     put replay = do
-        replayWithoutFrames <- toReplayWithoutFrames replay
-        Binary.put replayWithoutFrames
+        replayWithFrames <- toReplayWithFrames replay
+        Binary.put replayWithFrames
 
 instance Aeson.FromJSON Replay where
 
@@ -50,28 +48,28 @@ instance DeepSeq.NFData Replay where
 instance Aeson.ToJSON Replay where
 
 
-fromReplayWithoutFrames :: (Monad m) => ReplayWithoutFrames.ReplayWithoutFrames -> m Replay
-fromReplayWithoutFrames replayWithoutFrames = do
+fromReplayWithFrames :: (Monad m) => ReplayWithFrames.ReplayWithFrames -> m Replay
+fromReplayWithFrames replayWithFrames = do
     pure Replay
         { version =
-            [ ReplayWithoutFrames.version1 replayWithoutFrames
-            , ReplayWithoutFrames.version2 replayWithoutFrames
+            [ ReplayWithFrames.version1 replayWithFrames
+            , ReplayWithFrames.version2 replayWithFrames
             ] & map Word32.fromWord32 & Version.makeVersion
-        , metadata = replayWithoutFrames
-            & ReplayWithoutFrames.properties
+        , metadata = replayWithFrames
+            & ReplayWithFrames.properties
             & Dictionary.unpack
             & Map.mapKeys Text.unpack
-        , levels = replayWithoutFrames
-            & ReplayWithoutFrames.levels
+        , levels = replayWithFrames
+            & ReplayWithFrames.levels
             & List.unpack
             & map Text.unpack
-        , messages = replayWithoutFrames
-            & ReplayWithoutFrames.messages
+        , messages = replayWithFrames
+            & ReplayWithFrames.messages
             & List.unpack
             & map Message.content
             & map Text.unpack
-        , tickMarks = replayWithoutFrames
-            & ReplayWithoutFrames.marks
+        , tickMarks = replayWithFrames
+            & ReplayWithFrames.marks
             & List.unpack & map (\ mark -> do
                 let key = mark
                         & Mark.frame
@@ -86,28 +84,28 @@ fromReplayWithoutFrames replayWithoutFrames = do
         }
 
 
-toReplayWithoutFrames :: (Monad m) => Replay -> m ReplayWithoutFrames.ReplayWithoutFrames
-toReplayWithoutFrames replay = do
+toReplayWithFrames :: (Monad m) => Replay -> m ReplayWithFrames.ReplayWithFrames
+toReplayWithFrames replay = do
     let [version1, version2] = replay
             & version
             & Version.versionBranch
             & map Word32.toWord32
 
-    pure ReplayWithoutFrames.ReplayWithoutFrames
-        { ReplayWithoutFrames.version1 = version1
-        , ReplayWithoutFrames.version2 = version2
-        , ReplayWithoutFrames.label = "TAGame.Replay_Soccar_TA"
-        , ReplayWithoutFrames.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
-        , ReplayWithoutFrames.levels = replay & levels & map Text.Text & List.List
-        , ReplayWithoutFrames.keyFrames = List.List [] -- TODO
-        , ReplayWithoutFrames.stream = Stream.Stream LazyBytes.empty -- TODO
-        , ReplayWithoutFrames.messages = replay
+    pure ReplayWithFrames.ReplayWithFrames
+        { ReplayWithFrames.version1 = version1
+        , ReplayWithFrames.version2 = version2
+        , ReplayWithFrames.label = "TAGame.Replay_Soccar_TA"
+        , ReplayWithFrames.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
+        , ReplayWithFrames.levels = replay & levels & map Text.Text & List.List
+        , ReplayWithFrames.keyFrames = List.List [] -- TODO
+        , ReplayWithFrames.frames = List.List [] -- TODO
+        , ReplayWithFrames.messages = replay
             & messages
             & map (\ message -> message
                     & Text.Text
                     & Message.Message 0 "")
             & List.List
-        , ReplayWithoutFrames.marks = replay
+        , ReplayWithFrames.marks = replay
             & tickMarks
             & Map.toList
             & map (\ (key, value) -> do
@@ -115,9 +113,9 @@ toReplayWithoutFrames replay = do
                 let frame = key & StrictText.unpack & read & Word32.Word32
                 Mark.Mark label frame)
             & List.List
-        , ReplayWithoutFrames.packages = List.List [] -- TODO
-        , ReplayWithoutFrames.objects = List.List [] -- TODO
-        , ReplayWithoutFrames.names = List.List [] -- TODO
-        , ReplayWithoutFrames.classes = List.List [] -- TODO
-        , ReplayWithoutFrames.cache = List.List [] -- TODO
+        , ReplayWithFrames.packages = List.List [] -- TODO
+        , ReplayWithFrames.objects = List.List [] -- TODO
+        , ReplayWithFrames.names = List.List [] -- TODO
+        , ReplayWithFrames.classes = List.List [] -- TODO
+        , ReplayWithFrames.cache = List.List [] -- TODO
         }
