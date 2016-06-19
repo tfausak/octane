@@ -511,13 +511,13 @@ getRemoteId systemId = case systemId of
         bytes <- Bits.getByteString 8
         let remoteId = Binary.runGet
                 Binary.getWord64le
-                (bytes & LazyBytes.fromStrict & Endian.reverseBitsInBytes)
+                (bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes)
         remoteId & Word64.toWord64 & RemoteId.SteamId & return
     2 -> do
         bytes <- Bits.getByteString 32
         let remoteId = bytes
                 & LazyBytes.fromStrict
-                & Endian.reverseBitsInBytes
+                & Endian.reverseBitsInLazyBytes
                 & LazyBytes.unpack
                 & concatMap (\ b -> Printf.printf "%02x" b)
                 & StrictText.pack
@@ -527,7 +527,7 @@ getRemoteId systemId = case systemId of
         bytes <- Bits.getByteString 8
         let remoteId = Binary.runGet
                 Binary.getWord64le
-                (bytes & LazyBytes.fromStrict & Endian.reverseBitsInBytes)
+                (bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes)
         remoteId & Word64.toWord64 & RemoteId.XboxId & return
     _ -> fail ("unknown system id " ++ show systemId)
 

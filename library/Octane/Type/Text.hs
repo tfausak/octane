@@ -48,12 +48,12 @@ instance BinaryBit.BinaryBit Text where
     getBits _ = getText
         (BinaryBit.getBits 32)
         BinaryBit.getByteString
-        Endian.reverseBitsInBytes'
+        Endian.reverseBitsInStrictBytes
 
     putBits _ text = putText
         (BinaryBit.putBits 32)
         BinaryBit.putByteString
-        Endian.reverseBitsInBytes'
+        Endian.reverseBitsInStrictBytes
         text
 
 -- | Allows you to write 'Text' as string literals with @OverloadedStrings@.

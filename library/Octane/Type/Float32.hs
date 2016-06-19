@@ -41,14 +41,14 @@ instance BinaryBit.BinaryBit Float32 where
         bytes <- BinaryBit.getByteString 4
         bytes
             & LazyBytes.fromStrict
-            & Endian.reverseBitsInBytes
+            & Endian.reverseBitsInLazyBytes
             & Binary.runGet Binary.get
             & pure
 
     putBits _ float32 = float32
         & Binary.put
         & Binary.runPut
-        & Endian.reverseBitsInBytes
+        & Endian.reverseBitsInLazyBytes
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 

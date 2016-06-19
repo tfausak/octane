@@ -42,14 +42,14 @@ instance BinaryBit.BinaryBit Word32 where
         bytes <- BinaryBit.getByteString 4
         bytes
             & LazyBytes.fromStrict
-            & Endian.reverseBitsInBytes
+            & Endian.reverseBitsInLazyBytes
             & Binary.runGet Binary.get
             & pure
 
     putBits _ word32 = word32
         & Binary.put
         & Binary.runPut
-        & Endian.reverseBitsInBytes
+        & Endian.reverseBitsInLazyBytes
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 

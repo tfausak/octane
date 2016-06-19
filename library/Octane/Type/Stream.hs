@@ -26,10 +26,10 @@ instance Binary.Binary Stream where
     get = do
         size <- Binary.get
         content <- size & Word32.fromWord32 & Binary.getLazyByteString
-        content & Endian.reverseBitsInBytes & Stream & return
+        content & Endian.reverseBitsInLazyBytes & Stream & return
     put stream = do
         let content = unpack stream
         content & LazyBytes.length & Word32.toWord32 & Binary.put
-        content & Endian.reverseBitsInBytes & Binary.putLazyByteString
+        content & Endian.reverseBitsInLazyBytes & Binary.putLazyByteString
 
 instance DeepSeq.NFData Stream where
