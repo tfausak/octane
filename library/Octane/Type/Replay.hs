@@ -30,7 +30,7 @@ data Replay = Replay
     { version :: Version.Version
     , metadata :: Map.Map StrictText.Text Property.Property
     , levels :: [StrictText.Text]
-    , messages :: [StrictText.Text]
+    , messages :: Map.Map StrictText.Text StrictText.Text
     , tickMarks :: Map.Map StrictText.Text StrictText.Text
     , frames :: [Frame.Frame]
     } deriving (Eq, Generics.Generic, Show)
@@ -75,8 +75,17 @@ fromOptimizedReplay optimizedReplay = do
         , messages = optimizedReplay
             & OptimizedReplay.messages
             & List.unpack
-            & map Message.content
-            & map Text.unpack
+            & map (\ message -> do
+                let key = message
+                        & Message.frame
+                        & Word32.unpack
+                        & show
+                        & StrictText.pack
+                let value = message
+                        & Message.content
+                        & Text.unpack
+                (key, value))
+            & Map.fromList
         , tickMarks = optimizedReplay
             & OptimizedReplay.marks
             & List.unpack
@@ -113,9 +122,11 @@ toOptimizedReplay replay = do
         , OptimizedReplay.frames = replay & frames
         , OptimizedReplay.messages = replay
             & messages
-            & map (\ message -> message
-                    & Text.Text
-                    & Message.Message 0 "")
+            & Map.toList
+            & map (\ (key, value) -> do
+                let frame = key & StrictText.unpack & read & Word32.Word32
+                let content = value & Text.Text
+                Message.Message frame "" content)
             & List.List
         , OptimizedReplay.marks = replay
             & tickMarks
