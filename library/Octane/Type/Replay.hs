@@ -15,6 +15,7 @@ import qualified Data.Text as StrictText
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Dictionary as Dictionary
+import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
@@ -30,6 +31,7 @@ data Replay = Replay
     , levels :: [StrictText.Text]
     , messages :: [StrictText.Text]
     , tickMarks :: Map.Map StrictText.Text StrictText.Text
+    , frames :: [Frame.Frame]
     } deriving (Eq, Generics.Generic, Show)
 
 instance Binary.Binary Replay where
@@ -70,7 +72,8 @@ fromReplayWithFrames replayWithFrames = do
             & map Text.unpack
         , tickMarks = replayWithFrames
             & ReplayWithFrames.marks
-            & List.unpack & map (\ mark -> do
+            & List.unpack
+            & map (\ mark -> do
                 let key = mark
                         & Mark.frame
                         & Word32.unpack
@@ -81,6 +84,9 @@ fromReplayWithFrames replayWithFrames = do
                         & Text.unpack
                 (key, value))
             & Map.fromList
+        , frames = replayWithFrames
+            & ReplayWithFrames.frames
+            & List.unpack
         }
 
 
@@ -98,7 +104,7 @@ toReplayWithFrames replay = do
         , ReplayWithFrames.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
         , ReplayWithFrames.levels = replay & levels & map Text.Text & List.List
         , ReplayWithFrames.keyFrames = List.List [] -- TODO
-        , ReplayWithFrames.frames = List.List [] -- TODO
+        , ReplayWithFrames.frames = replay & frames & List.List
         , ReplayWithFrames.messages = replay
             & messages
             & map (\ message -> message

@@ -29,6 +29,11 @@ instance Binary.Binary Int8 where
         let value = unpack int8
         Binary.putInt8 value
 
+instance Aeson.FromJSON Int8 where
+    parseJSON json = do
+        value <- Aeson.parseJSON json
+        pure (Int8 value)
+
 instance DeepSeq.NFData Int8 where
 
 -- | Shown as @1234@.

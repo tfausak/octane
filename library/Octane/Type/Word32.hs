@@ -31,6 +31,11 @@ instance Binary.Binary Word32 where
         let value = unpack word32
         Binary.putWord32le value
 
+instance Aeson.FromJSON Word32 where
+    parseJSON json = do
+        value <- Aeson.parseJSON json
+        pure (Word32 value)
+
 instance DeepSeq.NFData Word32 where
 
 -- | Shown as @0x01020304@.

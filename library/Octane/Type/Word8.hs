@@ -28,6 +28,11 @@ instance Binary.Binary Word8 where
         let value = unpack word8
         Binary.putWord8 value
 
+instance Aeson.FromJSON Word8 where
+    parseJSON json = do
+        value <- Aeson.parseJSON json
+        pure (Word8 value)
+
 instance DeepSeq.NFData Word8 where
 
 -- | Shown as @0x01@.

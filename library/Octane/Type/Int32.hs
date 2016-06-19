@@ -30,6 +30,11 @@ instance Binary.Binary Int32 where
         let value = unpack int32
         Binary.putInt32le value
 
+instance Aeson.FromJSON Int32 where
+    parseJSON json = do
+        value <- Aeson.parseJSON json
+        pure (Int32 value)
+
 instance DeepSeq.NFData Int32 where
 
 -- | Shown as @1234@.

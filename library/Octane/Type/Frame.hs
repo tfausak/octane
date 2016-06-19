@@ -5,6 +5,7 @@
 module Octane.Type.Frame (Frame(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
+import qualified Data.Aeson as Aeson
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.List as List
@@ -19,4 +20,8 @@ data Frame = Frame
     , replications :: List.List Replication.Replication
     } deriving (Eq, Generics.Generic, Show)
 
+instance Aeson.FromJSON Frame where
+
 instance DeepSeq.NFData Frame where
+
+instance Aeson.ToJSON Frame where

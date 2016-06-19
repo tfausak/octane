@@ -5,6 +5,7 @@
 module Octane.Type.Replication (Replication(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
+import qualified Data.Aeson as Aeson
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
@@ -22,4 +23,8 @@ data Replication = Replication
     , properties :: Map.Map StrictText.Text Value.Value
     } deriving (Eq, Generics.Generic, Show)
 
+instance Aeson.FromJSON Replication where
+
 instance DeepSeq.NFData Replication where
+
+instance Aeson.ToJSON Replication where
