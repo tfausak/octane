@@ -137,17 +137,17 @@ instance Aeson.FromJSON Property where
             value <- Aeson.parseJSON json
             pure (BoolProperty 0 value)
         Aeson.Number _ -> do
-            -- TODO: What about int and qword properties?
             value <- Aeson.parseJSON json
             pure (FloatProperty 4 value)
         Aeson.String _ -> do
-            -- TODO: What about byte and name properties?
             value <- Aeson.parseJSON json
             pure (StrProperty 0 value)
         _ -> Aeson.typeMismatch "Property" json
 
 instance DeepSeq.NFData Property where
 
+-- TODO: This is a lossy encoding. Float, Int, and QWord properties all look
+-- the same. So do Byte, Name, and Str properties.
 instance Aeson.ToJSON Property where
     toJSON property =
         case property of
