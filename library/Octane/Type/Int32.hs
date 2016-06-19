@@ -51,11 +51,6 @@ instance BinaryBit.BinaryBit Int32 where
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 
-instance Aeson.FromJSON Int32 where
-    parseJSON json = do
-        value <- Aeson.parseJSON json
-        pure (Int32 value)
-
 instance DeepSeq.NFData Int32 where
 
 -- | Shown as @1234@.

@@ -7,7 +7,7 @@ module Octane.Type.Float32 (Float32(..)) where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson.Types as Aeson
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -16,7 +16,6 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
-import qualified Data.Scientific as Scientific
 import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 
@@ -51,13 +50,6 @@ instance BinaryBit.BinaryBit Float32 where
         & Endian.reverseBitsInBytes
         & LazyBytes.toStrict
         & BinaryBit.putByteString
-
-instance Aeson.FromJSON Float32 where
-    parseJSON json = case json of
-        Aeson.Number number -> case Scientific.toBoundedRealFloat number of
-            Left _ -> Aeson.typeMismatch "Float32" json
-            Right float -> pure (Float32 float)
-        _ -> Aeson.typeMismatch "Float32" json
 
 instance DeepSeq.NFData Float32
 

@@ -6,7 +6,7 @@ module Octane.Type.Boolean (Boolean(..)) where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson.Types as Aeson
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -44,12 +44,9 @@ instance BinaryBit.BinaryBit Boolean where
         & unpack
         & BinaryBit.putBool
 
-instance Aeson.FromJSON Boolean where
-    parseJSON json = case json of
-        Aeson.Bool x -> pure (Boolean x)
-        _ -> Aeson.typeMismatch "Boolean" json
-
 instance DeepSeq.NFData Boolean where
 
 instance Aeson.ToJSON Boolean where
-    toJSON boolean = boolean & unpack & Aeson.toJSON
+    toJSON boolean = boolean
+        & unpack
+        & Aeson.toJSON

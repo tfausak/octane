@@ -8,7 +8,7 @@ module Octane.Type.Property (Property(..)) where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson.Types as Aeson
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
@@ -128,37 +128,19 @@ instance Binary.Binary Property where
                 Binary.put size
                 Binary.put value
 
-instance Aeson.FromJSON Property where
-    parseJSON json = case json of
-        Aeson.Array _ -> do
-            value <- Aeson.parseJSON json
-            pure (ArrayProperty 0 value)
-        Aeson.Bool _ -> do
-            value <- Aeson.parseJSON json
-            pure (BoolProperty 0 value)
-        Aeson.Number _ -> do
-            value <- Aeson.parseJSON json
-            pure (FloatProperty 4 value)
-        Aeson.String _ -> do
-            value <- Aeson.parseJSON json
-            pure (StrProperty 0 value)
-        _ -> Aeson.typeMismatch "Property" json
-
 instance DeepSeq.NFData Property where
 
--- TODO: This is a lossy encoding. Float, Int, and QWord properties all look
--- the same. So do Byte, Name, and Str properties.
+-- TODO: This encoding is lossy.
 instance Aeson.ToJSON Property where
-    toJSON property =
-        case property of
-            ArrayProperty _ x -> Aeson.toJSON x
-            BoolProperty _ x -> Aeson.toJSON x
-            ByteProperty _ (_, x) -> Aeson.toJSON x
-            FloatProperty _ x -> Aeson.toJSON x
-            IntProperty _ x -> Aeson.toJSON x
-            NameProperty _ x -> Aeson.toJSON x
-            QWordProperty _ x -> Aeson.toJSON x
-            StrProperty _ x -> Aeson.toJSON x
+    toJSON property = case property of
+        ArrayProperty _size x -> Aeson.toJSON x
+        BoolProperty _size x -> Aeson.toJSON x
+        ByteProperty _size (_key, value) -> Aeson.toJSON value
+        FloatProperty _size x -> Aeson.toJSON x
+        IntProperty _size x -> Aeson.toJSON x
+        NameProperty _size x -> Aeson.toJSON x
+        QWordProperty _size x -> Aeson.toJSON x
+        StrProperty _size x -> Aeson.toJSON x
 
 
 arrayProperty :: Text.Text

@@ -8,9 +8,8 @@ module Octane.Type.Dictionary (Dictionary(..)) where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson.Types as Aeson
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Map.Strict as Map
 import qualified GHC.Exts as Exts
 import qualified GHC.Generics as Generics
@@ -37,18 +36,6 @@ instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
         dictionary & unpack & Map.assocs & mapM_ putElement
         noneKey & Binary.put
 
-instance (Aeson.FromJSON a) => Aeson.FromJSON (Dictionary a) where
-    parseJSON json = case json of
-        Aeson.Object object -> object
-            & HashMap.toList
-            & mapM (\ (k, v) -> do
-                let k' = Text.Text k
-                v' <- Aeson.parseJSON v
-                pure (k', v'))
-            & fmap Map.fromList
-            & fmap Dictionary
-        _ -> Aeson.typeMismatch "Dictionary" json
-
 instance Exts.IsList (Dictionary a) where
     type Item (Dictionary a) = (Text.Text, a)
 
@@ -62,7 +49,10 @@ instance (Show a) => Show (Dictionary a) where
     show dictionary = show (unpack dictionary)
 
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
-    toJSON dictionary = dictionary & unpack & Map.mapKeys Text.unpack & Aeson.toJSON
+    toJSON dictionary = dictionary
+        & unpack
+        & Map.mapKeys Text.unpack
+        & Aeson.toJSON
 
 
 getElement :: (Binary.Binary a) => Binary.Get (Map.Map Text.Text a)

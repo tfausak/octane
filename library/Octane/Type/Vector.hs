@@ -15,8 +15,11 @@ data Vector a = Vector
     , z :: a
     } deriving (Eq, Generics.Generic, Show)
 
-instance Aeson.FromJSON a => Aeson.FromJSON (Vector a) where
-
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a) where
 
-instance Aeson.ToJSON a => Aeson.ToJSON (Vector a) where
+instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
+    toJSON vector = Aeson.toJSON
+        [ x vector
+        , y vector
+        , z vector
+        ]

@@ -5,7 +5,6 @@
 module Octane.Type.Value (Value(..)) where
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson as Aeson
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.Float32 as Float32
@@ -118,8 +117,4 @@ data Value
         (Maybe Word8.Word8)
     deriving (Eq, Generics.Generic, Show)
 
-instance Aeson.FromJSON Value where
-
 instance DeepSeq.NFData Value where
-
-instance Aeson.ToJSON Value where

@@ -51,11 +51,6 @@ instance BinaryBit.BinaryBit Word8 where
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 
-instance Aeson.FromJSON Word8 where
-    parseJSON json = do
-        value <- Aeson.parseJSON json
-        pure (Word8 value)
-
 instance DeepSeq.NFData Word8 where
 
 -- | Shown as @0x01@.

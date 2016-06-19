@@ -18,8 +18,6 @@ data RemoteId
     | XboxId Word64.Word64
     deriving (Eq, Generics.Generic, Show)
 
-instance Aeson.FromJSON RemoteId where
-
 instance DeepSeq.NFData RemoteId where
 
 instance Aeson.ToJSON RemoteId where

@@ -7,7 +7,7 @@ module Octane.Type.Text (Text(..)) where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson.Types as Aeson
+import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -54,11 +54,6 @@ instance BinaryBit.BinaryBit Text where
         Endian.reverseBitsInBytes'
         text
 
-instance Aeson.FromJSON Text where
-    parseJSON json = case json of
-        Aeson.String text -> pure (Text text)
-        _ -> Aeson.typeMismatch "Text" json
-
 instance String.IsString Text where
     fromString string = Text (StrictText.pack string)
 
@@ -68,7 +63,9 @@ instance Show Text where
     show text = StrictText.unpack (unpack text)
 
 instance Aeson.ToJSON Text where
-    toJSON text = text & unpack & Aeson.toJSON
+    toJSON text = text
+        & unpack
+        & Aeson.toJSON
 
 
 getText :: (Monad m) => (m Int32.Int32) -> (Int -> m StrictBytes.ByteString) -> (StrictBytes.ByteString -> StrictBytes.ByteString) -> m Text

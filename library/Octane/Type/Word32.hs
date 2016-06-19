@@ -52,11 +52,6 @@ instance BinaryBit.BinaryBit Word32 where
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 
-instance Aeson.FromJSON Word32 where
-    parseJSON json = do
-        value <- Aeson.parseJSON json
-        pure (Word32 value)
-
 instance DeepSeq.NFData Word32 where
 
 -- | Shown as @0x01020304@.

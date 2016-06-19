@@ -5,6 +5,7 @@
 
 module Octane.Type.Replay (Replay(..), fromOptimizedReplay, toOptimizedReplay) where
 
+import Data.Aeson ((.=))
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
@@ -43,11 +44,17 @@ instance Binary.Binary Replay where
         optimizedReplay <- toOptimizedReplay replay
         Binary.put optimizedReplay
 
-instance Aeson.FromJSON Replay where
-
 instance DeepSeq.NFData Replay where
 
 instance Aeson.ToJSON Replay where
+    toJSON replay = Aeson.object
+        [ "Version" .= version replay
+        , "Metadata" .= metadata replay
+        , "Levels" .= levels replay
+        , "Messages" .= messages replay
+        , "TickMarks" .= tickMarks replay
+        , "Frames" .= frames replay
+        ]
 
 
 fromOptimizedReplay :: (Monad m) => OptimizedReplay.OptimizedReplay -> m Replay
