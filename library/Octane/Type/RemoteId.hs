@@ -1,8 +1,11 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 
 module Octane.Type.RemoteId (RemoteId(..)) where
+
+import Data.Aeson ((.=))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -19,12 +22,28 @@ data RemoteId
     | PlayStationId Text.Text
     -- ^ A PlayStation Network ID.
     | SplitscreenId (Maybe Int)
-    -- TODO
+    -- ^ A local splitscreen ID.
     | XboxId Word64.Word64
     -- ^ An Xbox Live ID.
     deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData RemoteId where
 
--- TODO: Better encoding.
 instance Aeson.ToJSON RemoteId where
+    toJSON remoteId = case remoteId of
+        PlayStationId x -> Aeson.object
+            [ "Type" .= ("PlayStation" :: Text.Text)
+            , "Value" .= x
+            ]
+        SplitscreenId x -> Aeson.object
+            [ "Type" .= ("Splitscreen" :: Text.Text)
+            , "Value" .= x
+            ]
+        SteamId x -> Aeson.object
+            [ "Type" .= ("Steam" :: Text.Text)
+            , "Value" .= x
+            ]
+        XboxId x -> Aeson.object
+            [ "Type" .= ("Xbox" :: Text.Text)
+            , "Value" .= x
+            ]
