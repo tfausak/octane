@@ -22,6 +22,7 @@ import qualified Octane.Type.Property as Property
 import qualified Octane.Type.ReplayWithFrames as ReplayWithFrames
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
+import qualified Octane.Utility.Optimizer as Optimizer
 
 
 data OptimizedReplay = OptimizedReplay
@@ -62,7 +63,7 @@ fromReplayWithFrames replayWithFrames = do
         , properties = replayWithFrames & ReplayWithFrames.properties
         , levels = replayWithFrames & ReplayWithFrames.levels
         , keyFrames = replayWithFrames & ReplayWithFrames.keyFrames
-        , frames = replayWithFrames & ReplayWithFrames.frames & optimizeFrames
+        , frames = replayWithFrames & ReplayWithFrames.frames & Optimizer.optimizeFrames
         , messages = replayWithFrames & ReplayWithFrames.messages
         , marks = replayWithFrames & ReplayWithFrames.marks
         , packages = replayWithFrames & ReplayWithFrames.packages
@@ -91,7 +92,3 @@ toReplayWithFrames optimizedReplay = do
         , ReplayWithFrames.classes = optimizedReplay & classes
         , ReplayWithFrames.cache = optimizedReplay & cache
         }
-
-
-optimizeFrames :: [Frame.Frame] -> [Frame.Frame]
-optimizeFrames = id -- TODO
