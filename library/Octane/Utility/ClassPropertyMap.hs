@@ -94,11 +94,11 @@ getBasicClassMap replay = replay
         [] -> Nothing
         (classId, _, parentCacheId) : ys -> do
             parentClassId <- getParentClassId parentCacheId ys
-            return (classId, parentClassId))
+            pure (classId, parentClassId))
     & IntMap.fromList
 
 
--- | Given a naive mapping from class ID to its parent class ID, return all of
+-- | Given a naive mapping from class ID to its parent class ID, pure all of
 -- the parent IDs for a given class.
 getParentClassIds :: Int -> IntMap.IntMap Int -> [Int]
 getParentClassIds classId basicClassMap =

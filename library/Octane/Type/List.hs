@@ -23,7 +23,7 @@ instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
         size <- Binary.get
         elements <- Monad.replicateM (Word32.fromWord32 size) Binary.get
-        elements & List & return
+        elements & List & pure
 
     put list = do
         list & unpack & length & fromIntegral & Word32.Word32 & Binary.put

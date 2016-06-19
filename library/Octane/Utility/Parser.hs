@@ -63,18 +63,18 @@ parseFrames replay = let
 getFrames :: Word -> Int -> Context -> Bits.BitGet (Context, [Frame.Frame])
 getFrames number numFrames context = do
     if fromIntegral number >= numFrames
-    then return (context, [])
+    then pure (context, [])
     else do
         isEmpty <- Bits.isEmpty
         if isEmpty
-        then return (context, [])
+        then pure (context, [])
         else do
             maybeFrame <- getMaybeFrame context number
             case maybeFrame of
-                Nothing -> return (context, [])
+                Nothing -> pure (context, [])
                 Just (newContext, frame) -> do
                     (newerContext, frames) <- getFrames (number + 1) numFrames newContext
-                    return (newerContext, (frame : frames))
+                    pure (newerContext, (frame : frames))
 
 
 getMaybeFrame :: Context -> Word -> Bits.BitGet (Maybe (Context, Frame.Frame))
@@ -82,12 +82,12 @@ getMaybeFrame context number = do
     time <- getFloat32
     delta <- getFloat32
     if time == 0 && delta == 0
-    then return Nothing
+    then pure Nothing
     else if time < 0.001 || delta < 0.001
     then fail ("parsing previous frame probably failed. time: " ++ show time ++ ", delta: " ++ show delta)
     else do
         (newContext, frame) <- getFrame context number time delta
-        return (Just (newContext, frame))
+        pure (Just (newContext, frame))
 
 
 getFrame :: Context -> Word -> Float32.Float32 -> Float32.Float32 -> Bits.BitGet (Context, Frame.Frame)
@@ -101,17 +101,17 @@ getFrame context number time delta = do
             , Frame.delta = delta
             , Frame.replications = replications
             }
-    (newContext, frame) & DeepSeq.force & return
+    (newContext, frame) & DeepSeq.force & pure
 
 
 getReplications :: Context -> Bits.BitGet (Context, [Replication.Replication])
 getReplications context = do
     maybeReplication <- getMaybeReplication context
     case maybeReplication of
-        Nothing -> return (context, [])
+        Nothing -> pure (context, [])
         Just (newContext, replication) -> do
             (newerContext, replications) <- getReplications newContext
-            return (newerContext, replication : replications)
+            pure (newerContext, replication : replications)
 
 
 getMaybeReplication :: Context -> Bits.BitGet (Maybe (Context, Replication.Replication))
@@ -120,8 +120,8 @@ getMaybeReplication context = do
     if Boolean.unpack hasReplication
         then do
             (newContext,replication) <- getReplication context
-            return (Just (newContext, replication))
-        else return Nothing
+            pure (Just (newContext, replication))
+        else pure Nothing
 
 
 getReplication :: Context -> Bits.BitGet (Context, Replication.Replication)
@@ -174,7 +174,7 @@ getNewReplication context actorId = do
     let things = contextThings context
     let newThings = IntMap.insert actorId thing things
     let newContext = context { contextThings = newThings }
-    return
+    pure
         ( newContext
         , Replication.Replication
           { Replication.actorId = fromIntegral actorId
@@ -194,7 +194,7 @@ getExistingReplication context actorId = do
         Nothing -> fail ("could not find thing for actor id " ++ show actorId)
         Just x -> pure x
     props <- getProps context thing
-    return (context, Replication.Replication
+    pure (context, Replication.Replication
         { Replication.actorId = fromIntegral actorId
         , Replication.objectName = thingObjectName thing
         , Replication.className = thingClassName thing
@@ -213,7 +213,7 @@ getClosedReplication context actorId = do
         Just x -> pure x
     let newThings = context & contextThings & IntMap.delete actorId
     let newContext = context { contextThings = newThings }
-    return
+    pure
         ( newContext
         , Replication.Replication
           { Replication.actorId = fromIntegral actorId
@@ -229,11 +229,11 @@ getProps :: Context -> Thing -> Bits.BitGet (Map.Map StrictText.Text Value.Value
 getProps context thing = do
     maybeProp <- getMaybeProp context thing
     case maybeProp of
-        Nothing -> return Map.empty
+        Nothing -> pure Map.empty
         Just (k, v) -> do
             let m = Map.singleton k v
             props <- getProps context thing
-            return (Map.union m props)
+            pure (Map.union m props)
 
 
 getMaybeProp :: Context -> Thing -> Bits.BitGet (Maybe (StrictText.Text, Value.Value))
@@ -242,8 +242,8 @@ getMaybeProp context thing = do
     if Boolean.unpack hasProp
     then do
         prop <- getProp context thing
-        return (Just prop)
-    else return Nothing
+        pure (Just prop)
+    else pure Nothing
 
 
 getProp :: Context -> Thing -> Bits.BitGet (StrictText.Text, Value.Value)
@@ -258,7 +258,7 @@ getProp context thing = do
         Nothing -> fail ("could not find property name for property id " ++ show pid)
         Just x -> pure x
     value <- getPropValue name
-    return (name, value)
+    pure (name, value)
 
 
 getPropValue :: StrictText.Text -> Bits.BitGet Value.Value
@@ -301,13 +301,13 @@ propertyNameToGet =
 getBooleanProperty :: Bits.BitGet Value.Value
 getBooleanProperty = do
     bool <- getBool
-    return (Value.VBoolean bool)
+    pure (Value.VBoolean bool)
 
 
 getByteProperty :: Bits.BitGet Value.Value
 getByteProperty = do
     word <- getWord8
-    return (Value.VByte word)
+    pure (Value.VByte word)
 
 
 getCamSettingsProperty :: Bits.BitGet Value.Value
@@ -318,7 +318,7 @@ getCamSettingsProperty = do
     distance <- getFloat32
     stiffness <- getFloat32
     swivelSpeed <- getFloat32
-    return (Value.VCamSettings fov height angle distance stiffness swivelSpeed)
+    pure (Value.VCamSettings fov height angle distance stiffness swivelSpeed)
 
 
 getDemolishProperty :: Bits.BitGet Value.Value
@@ -329,7 +329,7 @@ getDemolishProperty = do
     vic <- getWord32
     vec1 <- getVector
     vec2 <- getVector
-    return (Value.VDemolish atkFlag atk vicFlag vic vec1 vec2)
+    pure (Value.VDemolish atkFlag atk vicFlag vic vec1 vec2)
 
 
 getEnumProperty :: Bits.BitGet Value.Value
@@ -338,42 +338,42 @@ getEnumProperty = do
     y <- if x == 1023
         then getBool
         else fail ("unexpected enum value " ++ show x)
-    return (Value.VEnum (Word16.toWord16 x) y)
+    pure (Value.VEnum (Word16.toWord16 x) y)
 
 
 getExplosionProperty :: Bits.BitGet Value.Value
 getExplosionProperty = do
     noGoal <- getBool
     a <- if Boolean.unpack noGoal
-        then return Nothing
+        then pure Nothing
         else fmap Just getInt32
     b <- getVector
-    return (Value.VExplosion noGoal a b)
+    pure (Value.VExplosion noGoal a b)
 
 
 getFlaggedIntProperty :: Bits.BitGet Value.Value
 getFlaggedIntProperty = do
     flag <- getBool
     int <- getInt32
-    return (Value.VFlaggedInt flag int)
+    pure (Value.VFlaggedInt flag int)
 
 
 getFloatProperty :: Bits.BitGet Value.Value
 getFloatProperty = do
     float <- getFloat32
-    return (Value.VFloat float)
+    pure (Value.VFloat float)
 
 
 getGameModeProperty :: Bits.BitGet Value.Value
 getGameModeProperty = do
     x <- Bits.getWord8 2
-    return (Value.VGameMode (Word8.toWord8 x))
+    pure (Value.VGameMode (Word8.toWord8 x))
 
 
 getIntProperty :: Bits.BitGet Value.Value
 getIntProperty = do
     int <- getInt32
-    return (Value.VInt int)
+    pure (Value.VInt int)
 
 
 getLoadoutOnlineProperty :: Bits.BitGet Value.Value
@@ -384,9 +384,9 @@ getLoadoutOnlineProperty = do
     z <- if version >= 12
         then do
             value <- getWord8
-            return (Just value)
-        else return Nothing
-    return (Value.VLoadoutOnline version x y z)
+            pure (Just value)
+        else pure Nothing
+    pure (Value.VLoadoutOnline version x y z)
 
 
 getLoadoutProperty :: Bits.BitGet Value.Value
@@ -402,15 +402,15 @@ getLoadoutProperty = do
     h <- if version > 10
         then do
             value <- getWord32
-            return (Just value)
-        else return Nothing
-    return (Value.VLoadout version body decal wheels rocketTrail antenna topper g h)
+            pure (Just value)
+        else pure Nothing
+    pure (Value.VLoadout version body decal wheels rocketTrail antenna topper g h)
 
 
 getLocationProperty :: Bits.BitGet Value.Value
 getLocationProperty = do
     vector <- getVector
-    return (Value.VLocation vector)
+    pure (Value.VLocation vector)
 
 
 getMusicStingerProperty :: Bits.BitGet Value.Value
@@ -418,7 +418,7 @@ getMusicStingerProperty = do
     flag <- getBool
     cue <- getWord32
     trigger <- getWord8
-    return (Value.VMusicStinger flag cue trigger)
+    pure (Value.VMusicStinger flag cue trigger)
 
 
 getPickupProperty :: Bits.BitGet Value.Value
@@ -426,9 +426,9 @@ getPickupProperty = do
     instigator <- getBool
     instigatorId <- if Boolean.unpack instigator
         then fmap Just getWord32
-        else return Nothing
+        else pure Nothing
     pickedUp <- getBool
-    return (Value.VPickup instigator instigatorId pickedUp)
+    pure (Value.VPickup instigator instigatorId pickedUp)
 
 
 getPrivateMatchSettingsProperty :: Bits.BitGet Value.Value
@@ -439,19 +439,19 @@ getPrivateMatchSettingsProperty = do
     gameName <- getText
     password <- getText
     flag <- getBool
-    return (Value.VPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
+    pure (Value.VPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
 
 
 getQWordProperty :: Bits.BitGet Value.Value
 getQWordProperty = do
     qword <- getWord64
-    return (Value.VQWord qword)
+    pure (Value.VQWord qword)
 
 
 getRelativeRotationProperty :: Bits.BitGet Value.Value
 getRelativeRotationProperty = do
     vector <- getFloatVector
-    return (Value.VRelativeRotation vector)
+    pure (Value.VRelativeRotation vector)
 
 getReservationProperty :: Bits.BitGet Value.Value
 getReservationProperty = do
@@ -460,13 +460,13 @@ getReservationProperty = do
     -- would be a full 4x4 game.
     number <- getInt7
     (systemId, remoteId, localId) <- getUniqueId
-    playerName <- if systemId == 0 then return Nothing else do
+    playerName <- if systemId == 0 then pure Nothing else do
         string <- getText
-        return (Just string)
+        pure (Just string)
     -- No idea what these two flags are. Might be for bots?
     a <- getBool
     b <- getBool
-    return (Value.VReservation number systemId remoteId localId playerName a b)
+    pure (Value.VReservation number systemId remoteId localId playerName a b)
 
 
 getRigidBodyStateProperty :: Bits.BitGet Value.Value
@@ -475,18 +475,18 @@ getRigidBodyStateProperty = do
     position <- getVector
     rotation <- getFloatVector
     x <- if Boolean.unpack flag
-        then return Nothing
+        then pure Nothing
         else fmap Just getVector
     y <- if Boolean.unpack flag
-        then return Nothing
+        then pure Nothing
         else fmap Just getVector
-    return (Value.VRigidBodyState flag position rotation x y)
+    pure (Value.VRigidBodyState flag position rotation x y)
 
 
 getStringProperty :: Bits.BitGet Value.Value
 getStringProperty = do
     string <- getText
-    return (Value.VString string)
+    pure (Value.VString string)
 
 
 getTeamPaintProperty :: Bits.BitGet Value.Value
@@ -496,13 +496,13 @@ getTeamPaintProperty = do
     accentColor <- getWord8
     primaryFinish <- getWord32
     accentFinish <- getWord32
-    return (Value.VTeamPaint team primaryColor accentColor primaryFinish accentFinish)
+    pure (Value.VTeamPaint team primaryColor accentColor primaryFinish accentFinish)
 
 
 getUniqueIdProperty :: Bits.BitGet Value.Value
 getUniqueIdProperty = do
     (systemId, remoteId, localId) <- getUniqueId
-    return (Value.VUniqueId systemId remoteId localId)
+    pure (Value.VUniqueId systemId remoteId localId)
 
 
 -- | Even though this is just a unique ID property, it must be handled
@@ -511,12 +511,12 @@ getPartyLeaderProperty :: Bits.BitGet Value.Value
 getPartyLeaderProperty = do
     systemId <- getSystemId
     (remoteId, localId) <- if systemId == 0
-        then return (RemoteId.SplitscreenId Nothing, Nothing)
+        then pure (RemoteId.SplitscreenId Nothing, Nothing)
         else do
             remoteId <- getRemoteId systemId
             localId <- getLocalId
-            return (remoteId, localId)
-    return (Value.VUniqueId systemId remoteId localId)
+            pure (remoteId, localId)
+    pure (Value.VUniqueId systemId remoteId localId)
 
 
 getFloat32 :: Bits.BitGet Float32.Float32
@@ -532,7 +532,7 @@ getUniqueId = do
     systemId <- getSystemId
     remoteId <- getRemoteId systemId
     localId <- getLocalId
-    return (systemId, remoteId, localId)
+    pure (systemId, remoteId, localId)
 
 
 getSystemId :: Bits.BitGet Word8.Word8
@@ -544,14 +544,14 @@ getRemoteId systemId = case systemId of
     0 -> do
         remoteId <- Bits.getByteString 3
         if StrictBytes.all (\ byte -> byte == 0) remoteId
-            then 0 & Just & RemoteId.SplitscreenId & return
+            then 0 & Just & RemoteId.SplitscreenId & pure
             else fail ("unexpected splitscreen id " ++ show remoteId)
     1 -> do
         bytes <- Bits.getByteString 8
         let remoteId = Binary.runGet
                 Binary.getWord64le
                 (bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes)
-        remoteId & Word64.toWord64 & RemoteId.SteamId & return
+        remoteId & Word64.toWord64 & RemoteId.SteamId & pure
     2 -> do
         bytes <- Bits.getByteString 32
         let remoteId = bytes
@@ -561,13 +561,13 @@ getRemoteId systemId = case systemId of
                 & concatMap (\ b -> Printf.printf "%02x" b)
                 & StrictText.pack
                 & Text.Text
-        remoteId & RemoteId.PlayStationId & return
+        remoteId & RemoteId.PlayStationId & pure
     4 -> do
         bytes <- Bits.getByteString 8
         let remoteId = Binary.runGet
                 Binary.getWord64le
                 (bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes)
-        remoteId & Word64.toWord64 & RemoteId.XboxId & return
+        remoteId & Word64.toWord64 & RemoteId.XboxId & pure
     _ -> fail ("unknown system id " ++ show systemId)
 
 
@@ -635,7 +635,7 @@ getVector = do
     dx <- getInt maxValue
     dy <- getInt maxValue
     dz <- getInt maxValue
-    return
+    pure
         Vector.Vector
         { Vector.x = dx - bias
         , Vector.y = dy - bias
@@ -647,12 +647,12 @@ getVectorBytewise
     :: Bits.BitGet (Vector.Vector Int8.Int8)
 getVectorBytewise = do
     hasX <- getBool
-    x <- if Boolean.unpack hasX then getInt8 else return 0
+    x <- if Boolean.unpack hasX then getInt8 else pure 0
     hasY <- getBool
-    y <- if Boolean.unpack hasY then getInt8 else return 0
+    y <- if Boolean.unpack hasY then getInt8 else pure 0
     hasZ <- getBool
-    z <- if Boolean.unpack hasZ then getInt8 else return 0
-    return
+    z <- if Boolean.unpack hasZ then getInt8 else pure 0
+    pure
         Vector.Vector
         { Vector.x = x
         , Vector.y = y
@@ -667,7 +667,7 @@ getFloatVector = do
     x <- getFloat maxValue numBits
     y <- getFloat maxValue numBits
     z <- getFloat maxValue numBits
-    return Vector.Vector { Vector.x = x, Vector.y = y, Vector.z = z }
+    pure Vector.Vector { Vector.x = x, Vector.y = y, Vector.z = z }
 
 
 getFloat :: Int -> Int -> Bits.BitGet Float
@@ -680,11 +680,11 @@ getFloat maxValue numBits = do
     if maxValue > maxBitValue
     then do
         let invScale = fromIntegral maxValue / fromIntegral maxBitValue
-        return (fromIntegral unscaledValue * invScale)
+        pure (fromIntegral unscaledValue * invScale)
     else do
         let scale = fromIntegral maxBitValue / fromIntegral maxValue
         let invScale = 1.0 / scale
-        return (fromIntegral unscaledValue * invScale)
+        pure (fromIntegral unscaledValue * invScale)
 
 
 getInitialization :: StrictText.Text -> Bits.BitGet Initialization.Initialization
@@ -693,15 +693,15 @@ getInitialization className = do
         if Set.member className Data.locationClasses
             then do
                 vector <- getVector
-                return (Just vector)
-            else return Nothing
+                pure (Just vector)
+            else pure Nothing
     rotation <-
         if Set.member className Data.rotationClasses
             then do
                 vector <- getVectorBytewise
-                return (Just vector)
-            else return Nothing
-    return
+                pure (Just vector)
+            else pure Nothing
+    pure
         Initialization.Initialization
         { Initialization.location = location
         , Initialization.rotation = rotation
@@ -737,7 +737,7 @@ getInt maxValue = do
                                 then value + x
                                 else value
                     go (i + 1) newValue
-                else return value
+                else pure value
     go 0 0
 
 
