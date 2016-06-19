@@ -87,7 +87,9 @@ toRawReplay replay = do
             Binary.put (version1 replay)
             Binary.put (version2 replay)
             Binary.put (label replay)
-            Binary.put (properties replay)
+            Binary.put (properties replay))
+
+    let content = Binary.runPut (do
             Binary.put (levels replay)
             Binary.put (keyFrames replay)
             Binary.put (stream replay)
@@ -98,8 +100,6 @@ toRawReplay replay = do
             Binary.put (names replay)
             Binary.put (classes replay)
             Binary.put (cache replay))
-
-    let content = LazyBytes.empty
 
     let footer = LazyBytes.empty
 
