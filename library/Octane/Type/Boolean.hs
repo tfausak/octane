@@ -9,6 +9,8 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
+import qualified Data.Binary.Bits.Get as BinaryBit
+import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified GHC.Generics as Generics
 
 
@@ -34,9 +36,13 @@ instance Binary.Binary Boolean where
         & Binary.putWord8
 
 instance BinaryBit.BinaryBit Boolean where
-    getBits _ = undefined
+    getBits _ = do
+        value <- BinaryBit.getBool
+        value & Boolean & pure
 
-    putBits _ _ = undefined
+    putBits _ boolean = boolean
+        & unpack
+        & BinaryBit.putBool
 
 instance Aeson.FromJSON Boolean where
     parseJSON json = case json of

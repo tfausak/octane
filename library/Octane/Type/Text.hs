@@ -10,6 +10,8 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
+import qualified Data.Binary.Bits.Get as BinaryBit
+import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Char8 as StrictBytes
@@ -19,6 +21,7 @@ import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Int32 as Int32
+import qualified Octane.Utility.Endian as Endian
 
 
 -- | A thin wrapper around 'StrictText.Text'.
@@ -28,7 +31,10 @@ newtype Text = Text
 
 -- | Text is both length-prefixed and null-terminated.
 instance Binary.Binary Text where
-    get = getText Binary.get Binary.getByteString
+    get = getText
+        Binary.get
+        Binary.getByteString
+        id
 
     put text = putText
         Binary.put
@@ -37,9 +43,16 @@ instance Binary.Binary Text where
         text
 
 instance BinaryBit.BinaryBit Text where
-    getBits _ = undefined
+    getBits _ = getText
+        (BinaryBit.getBits 32)
+        BinaryBit.getByteString
+        Endian.reverseBitsInBytes'
 
-    putBits _ _ = undefined
+    putBits _ text = putText
+        (BinaryBit.putBits 32)
+        BinaryBit.putByteString
+        Endian.reverseBitsInBytes'
+        text
 
 instance Aeson.FromJSON Text where
     parseJSON json = case json of
@@ -58,8 +71,8 @@ instance Aeson.ToJSON Text where
     toJSON text = text & unpack & Aeson.toJSON
 
 
-getText :: (Monad m) => (m Int32.Int32) -> (Int -> m StrictBytes.ByteString) -> m Text
-getText getInt getBytes = do
+getText :: (Monad m) => (m Int32.Int32) -> (Int -> m StrictBytes.ByteString) -> (StrictBytes.ByteString -> StrictBytes.ByteString) -> m Text
+getText getInt getBytes convertBytes = do
     (Int32.Int32 rawSize) <- getInt
     (size, decode) <-
         -- In some tiny percentage of replays, this nonsensical string size
@@ -78,7 +91,7 @@ getText getInt getBytes = do
         then pure (-2 * fromIntegral rawSize, Encoding.decodeUtf16LE)
         else pure (fromIntegral rawSize, Encoding.decodeLatin1)
     bytes <- getBytes size
-    let rawText = decode bytes
+    let rawText = bytes & convertBytes & decode
     case StrictText.splitAt (StrictText.length rawText - 1) rawText of
         (text, "") -> text & Text & pure
         (text, "\0") -> text & Text & pure

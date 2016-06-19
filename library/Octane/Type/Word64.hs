@@ -10,10 +10,14 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
+import qualified Data.Binary.Bits.Get as BinaryBit
+import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
+import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
+import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
 
@@ -33,9 +37,20 @@ instance Binary.Binary Word64 where
         Binary.putWord64le value
 
 instance BinaryBit.BinaryBit Word64 where
-    getBits _ = undefined
+    getBits _ = do
+        bytes <- BinaryBit.getByteString 8
+        bytes
+            & LazyBytes.fromStrict
+            & Endian.reverseBitsInBytes
+            & Binary.runGet Binary.get
+            & pure
 
-    putBits _ _ = undefined
+    putBits _ word64 = word64
+        & Binary.put
+        & Binary.runPut
+        & Endian.reverseBitsInBytes
+        & LazyBytes.toStrict
+        & BinaryBit.putByteString
 
 instance Aeson.FromJSON Word64 where
     parseJSON json = do

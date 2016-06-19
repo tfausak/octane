@@ -10,8 +10,11 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
+import qualified Data.Binary.Bits.Get as BinaryBit
+import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
+import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Int as Int
 import qualified GHC.Generics as Generics
 
@@ -31,9 +34,18 @@ instance Binary.Binary Int8 where
         Binary.putInt8 value
 
 instance BinaryBit.BinaryBit Int8 where
-    getBits _ = undefined
+    getBits _ = do
+        bytes <- BinaryBit.getByteString 1
+        bytes
+            & LazyBytes.fromStrict
+            & Binary.runGet Binary.get
+            & pure
 
-    putBits _ _ = undefined
+    putBits _ int8 = int8
+        & Binary.put
+        & Binary.runPut
+        & LazyBytes.toStrict
+        & BinaryBit.putByteString
 
 instance Aeson.FromJSON Int8 where
     parseJSON json = do

@@ -10,9 +10,15 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
+import qualified Data.Binary.Bits.Get as BinaryBit
+import qualified Data.Binary.Bits.Put as BinaryBit
+import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.IEEE754 as IEEE754
+import qualified Data.Binary.Put as Binary
+import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Scientific as Scientific
 import qualified GHC.Generics as Generics
+import qualified Octane.Utility.Endian as Endian
 
 
 -- | A 32-bit float.
@@ -31,9 +37,20 @@ instance Binary.Binary Float32 where
         & IEEE754.putFloat32le
 
 instance BinaryBit.BinaryBit Float32 where
-    getBits _ = undefined
+    getBits _ = do
+        bytes <- BinaryBit.getByteString 4
+        bytes
+            & LazyBytes.fromStrict
+            & Endian.reverseBitsInBytes
+            & Binary.runGet Binary.get
+            & pure
 
-    putBits _ _ = undefined
+    putBits _ float32 = float32
+        & Binary.put
+        & Binary.runPut
+        & Endian.reverseBitsInBytes
+        & LazyBytes.toStrict
+        & BinaryBit.putByteString
 
 instance Aeson.FromJSON Float32 where
     parseJSON json = case json of
