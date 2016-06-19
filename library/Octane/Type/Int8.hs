@@ -17,6 +17,7 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Int as Int
 import qualified GHC.Generics as Generics
+import qualified Octane.Utility.Endian as Endian
 
 
 -- | A 8-bit signed integer.
@@ -38,12 +39,14 @@ instance BinaryBit.BinaryBit Int8 where
         bytes <- BinaryBit.getByteString 1
         bytes
             & LazyBytes.fromStrict
+            & Endian.reverseBitsInBytes
             & Binary.runGet Binary.get
             & pure
 
     putBits _ int8 = int8
         & Binary.put
         & Binary.runPut
+        & Endian.reverseBitsInBytes
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 

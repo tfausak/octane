@@ -86,7 +86,6 @@ fromReplayWithFrames replayWithFrames = do
             & Map.fromList
         , frames = replayWithFrames
             & ReplayWithFrames.frames
-            & List.unpack
         }
 
 
@@ -104,7 +103,7 @@ toReplayWithFrames replay = do
         , ReplayWithFrames.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
         , ReplayWithFrames.levels = replay & levels & map Text.Text & List.List
         , ReplayWithFrames.keyFrames = List.List [] -- TODO
-        , ReplayWithFrames.frames = replay & frames & List.List
+        , ReplayWithFrames.frames = replay & frames
         , ReplayWithFrames.messages = replay
             & messages
             & map (\ message -> message

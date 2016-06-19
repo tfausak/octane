@@ -23,6 +23,7 @@ import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
 import qualified Octane.Type.Stream as Stream
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
+import qualified Octane.Utility.Parser as Parser
 
 
 data ReplayWithFrames = ReplayWithFrames
@@ -32,7 +33,7 @@ data ReplayWithFrames = ReplayWithFrames
     , properties :: Dictionary.Dictionary Property.Property
     , levels :: List.List Text.Text
     , keyFrames :: List.List KeyFrame.KeyFrame
-    , frames :: List.List Frame.Frame
+    , frames :: [Frame.Frame]
     , messages :: List.List Message.Message
     , marks :: List.List Mark.Mark
     , packages :: List.List Text.Text
@@ -63,7 +64,7 @@ fromReplayWithoutFrames replayWithoutFrames = do
         , properties = replayWithoutFrames & ReplayWithoutFrames.properties
         , levels = replayWithoutFrames & ReplayWithoutFrames.levels
         , keyFrames = replayWithoutFrames & ReplayWithoutFrames.keyFrames
-        , frames = List.List [] -- TODO
+        , frames = replayWithoutFrames & Parser.parseFrames
         , messages = replayWithoutFrames & ReplayWithoutFrames.messages
         , marks = replayWithoutFrames & ReplayWithoutFrames.marks
         , packages = replayWithoutFrames & ReplayWithoutFrames.packages

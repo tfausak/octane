@@ -17,6 +17,7 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
+import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
 
@@ -39,12 +40,14 @@ instance BinaryBit.BinaryBit Word8 where
         bytes <- BinaryBit.getByteString 1
         bytes
             & LazyBytes.fromStrict
+            & Endian.reverseBitsInBytes
             & Binary.runGet Binary.get
             & pure
 
     putBits _ word8 = word8
         & Binary.put
         & Binary.runPut
+        & Endian.reverseBitsInBytes
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 
