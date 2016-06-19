@@ -1,7 +1,12 @@
 -- | This module is responsible for building the class property map, which maps
 -- class IDs to a map of property IDs to property names. This map is the
 -- cornerstone of the replay stream parser.
-module Octane.Utility.ClassPropertyMap where
+module Octane.Utility.ClassPropertyMap
+    ( getClassPropertyMap
+    , getPropertyMap
+    , getActorMap
+    , getClass
+    ) where
 
 import Data.Function ((&))
 
@@ -44,6 +49,7 @@ getClassPropertyMap replay = let
             in (classId, properties))
         & IntMap.fromList
 
+
 -- | The class cache is a list of 3-tuples where the first element is a class
 -- ID, the second is its cache ID, and the third is its parent's cache ID.
 getClassCache :: ReplayWithoutFrames.ReplayWithoutFrames -> [(Int, Int, Int)]
@@ -56,11 +62,13 @@ getClassCache replay = replay
         , x & CacheItem.parentCacheId & Word32.fromWord32
         ))
 
+
 -- | The class IDs in a replay. Comes from the class cache.
 getClassIds :: ReplayWithoutFrames.ReplayWithoutFrames -> [Int]
 getClassIds replay = replay
     & getClassCache
     & map (\ (x, _, _) -> x)
+
 
 -- | Gets the parent class ID for the given parent cache ID. This is necessary
 -- because there is not always a class with the given cache ID in the cache.
@@ -72,6 +80,7 @@ getParentClassId parentCacheId xs =
             then Nothing
             else getParentClassId (parentCacheId - 1) xs
         (parentClassId, _, _) : _ -> Just parentClassId
+
 
 -- | The basic class map is a naive mapping from class ID to its parent class
 -- ID. It's naive because it only maps the class ID to its immediate parent.
@@ -88,6 +97,7 @@ getBasicClassMap replay = replay
             return (classId, parentClassId))
     & IntMap.fromList
 
+
 -- | Given a naive mapping from class ID to its parent class ID, return all of
 -- the parent IDs for a given class.
 getParentClassIds :: Int -> IntMap.IntMap Int -> [Int]
@@ -95,6 +105,7 @@ getParentClassIds classId basicClassMap =
     case IntMap.lookup classId basicClassMap of
         Nothing -> []
         Just parentClassId -> parentClassId : getParentClassIds parentClassId basicClassMap
+
 
 -- | The class map is a mapping from a class ID to all of its parent class IDs.
 getClassMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap [Int]
@@ -108,6 +119,7 @@ getClassMap replay = let
             ))
         & IntMap.fromList
 
+
 -- | The property map is a mapping from property IDs to property names.
 getPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap StrictText.Text
 getPropertyMap replay = replay
@@ -116,6 +128,7 @@ getPropertyMap replay = replay
     & map Text.unpack
     & zip [0 ..]
     & IntMap.fromList
+
 
 -- | The basic class property map is a naive mapping from class IDs to a
 -- mapping from property IDs to property names. It's naive because it does
@@ -141,6 +154,7 @@ getBasicClassPropertyMap replay = let
             in (classId, properties))
         & IntMap.fromList
 
+
 -- | The actor map is a mapping from class names to their IDs.
 getActorMap :: ReplayWithoutFrames.ReplayWithoutFrames -> Map.Map StrictText.Text Int
 getActorMap replay = replay
@@ -151,6 +165,7 @@ getActorMap replay = replay
         classId = x & ClassItem.streamId & Word32.fromWord32
         in (className, classId))
     & Map.fromList
+
 
 -- | Gets the class ID and name for a given property ID.
 getClass

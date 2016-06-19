@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Utility.Parser where
+module Octane.Utility.Parser (parseFrames) where
 
 import Data.Function ((&))
 
@@ -59,6 +59,7 @@ parseFrames replay = let
     (_context, frames) = Binary.runGet get stream
     in frames
 
+
 getFrames :: Word -> Int -> Context -> Bits.BitGet (Context, [Frame.Frame])
 getFrames number numFrames context = do
     if fromIntegral number >= numFrames
@@ -75,6 +76,7 @@ getFrames number numFrames context = do
                     (newerContext, frames) <- getFrames (number + 1) numFrames newContext
                     return (newerContext, (frame : frames))
 
+
 getMaybeFrame :: Context -> Word -> Bits.BitGet (Maybe (Context, Frame.Frame))
 getMaybeFrame context number = do
     time <- getFloat32
@@ -86,6 +88,7 @@ getMaybeFrame context number = do
     else do
         (newContext, frame) <- getFrame context number time delta
         return (Just (newContext, frame))
+
 
 getFrame :: Context -> Word -> Float32.Float32 -> Float32.Float32 -> Bits.BitGet (Context, Frame.Frame)
 getFrame context number time delta = do
@@ -100,6 +103,7 @@ getFrame context number time delta = do
             }
     (newContext, frame) & DeepSeq.force & return
 
+
 getReplications :: Context -> Bits.BitGet (Context, [Replication.Replication])
 getReplications context = do
     maybeReplication <- getMaybeReplication context
@@ -109,6 +113,7 @@ getReplications context = do
             (newerContext, replications) <- getReplications newContext
             return (newerContext, replication : replications)
 
+
 getMaybeReplication :: Context -> Bits.BitGet (Maybe (Context, Replication.Replication))
 getMaybeReplication context = do
     hasReplication <- getBool
@@ -117,6 +122,7 @@ getMaybeReplication context = do
             (newContext,replication) <- getReplication context
             return (Just (newContext, replication))
         else return Nothing
+
 
 getReplication :: Context -> Bits.BitGet (Context, Replication.Replication)
 getReplication context = do
@@ -128,6 +134,7 @@ getReplication context = do
                 else getClosedReplication
     go context actorId
 
+
 getOpenReplication :: Context
                    -> Int
                    -> Bits.BitGet (Context, Replication.Replication)
@@ -138,6 +145,7 @@ getOpenReplication context actorId = do
                 then getNewReplication
                 else getExistingReplication
     go context actorId
+
 
 getNewReplication :: Context
                   -> Int
@@ -177,6 +185,7 @@ getNewReplication context actorId = do
           , Replication.properties = Map.empty
           })
 
+
 getExistingReplication :: Context
                        -> Int
                        -> Bits.BitGet (Context, Replication.Replication)
@@ -193,6 +202,7 @@ getExistingReplication context actorId = do
         , Replication.initialization = Nothing
         , Replication.properties = props
         })
+
 
 getClosedReplication :: Context
                      -> Int
@@ -214,6 +224,7 @@ getClosedReplication context actorId = do
           , Replication.properties = Map.empty
           })
 
+
 getProps :: Context -> Thing -> Bits.BitGet (Map.Map StrictText.Text Value.Value)
 getProps context thing = do
     maybeProp <- getMaybeProp context thing
@@ -224,6 +235,7 @@ getProps context thing = do
             props <- getProps context thing
             return (Map.union m props)
 
+
 getMaybeProp :: Context -> Thing -> Bits.BitGet (Maybe (StrictText.Text, Value.Value))
 getMaybeProp context thing = do
     hasProp <- getBool
@@ -232,6 +244,7 @@ getMaybeProp context thing = do
         prop <- getProp context thing
         return (Just prop)
     else return Nothing
+
 
 getProp :: Context -> Thing -> Bits.BitGet (StrictText.Text, Value.Value)
 getProp context thing = do
@@ -247,12 +260,12 @@ getProp context thing = do
     value <- getPropValue name
     return (name, value)
 
---
 
 getPropValue :: StrictText.Text -> Bits.BitGet Value.Value
 getPropValue name = case Map.lookup name propertyNameToGet of
     Nothing -> fail ("don't know how to read property " ++ show name)
     Just get -> get
+
 
 propertyNameToGet :: Map.Map StrictText.Text (Bits.BitGet Value.Value)
 propertyNameToGet =
@@ -284,15 +297,18 @@ propertyNameToGet =
         & concatMap (\ (ks, v) -> ks & Set.toList & map (\ k -> (k, v)))
         & Map.fromList
 
+
 getBooleanProperty :: Bits.BitGet Value.Value
 getBooleanProperty = do
     bool <- getBool
     return (Value.VBoolean bool)
 
+
 getByteProperty :: Bits.BitGet Value.Value
 getByteProperty = do
     word <- getWord8
     return (Value.VByte word)
+
 
 getCamSettingsProperty :: Bits.BitGet Value.Value
 getCamSettingsProperty = do
@@ -304,6 +320,7 @@ getCamSettingsProperty = do
     swivelSpeed <- getFloat32
     return (Value.VCamSettings fov height angle distance stiffness swivelSpeed)
 
+
 getDemolishProperty :: Bits.BitGet Value.Value
 getDemolishProperty = do
     atkFlag <- getBool
@@ -314,6 +331,7 @@ getDemolishProperty = do
     vec2 <- getVector
     return (Value.VDemolish atkFlag atk vicFlag vic vec1 vec2)
 
+
 getEnumProperty :: Bits.BitGet Value.Value
 getEnumProperty = do
     x <- Bits.getWord16be 10
@@ -321,6 +339,7 @@ getEnumProperty = do
         then getBool
         else fail ("unexpected enum value " ++ show x)
     return (Value.VEnum (Word16.toWord16 x) y)
+
 
 getExplosionProperty :: Bits.BitGet Value.Value
 getExplosionProperty = do
@@ -331,26 +350,31 @@ getExplosionProperty = do
     b <- getVector
     return (Value.VExplosion noGoal a b)
 
+
 getFlaggedIntProperty :: Bits.BitGet Value.Value
 getFlaggedIntProperty = do
     flag <- getBool
     int <- getInt32
     return (Value.VFlaggedInt flag int)
 
+
 getFloatProperty :: Bits.BitGet Value.Value
 getFloatProperty = do
     float <- getFloat32
     return (Value.VFloat float)
+
 
 getGameModeProperty :: Bits.BitGet Value.Value
 getGameModeProperty = do
     x <- Bits.getWord8 2
     return (Value.VGameMode (Word8.toWord8 x))
 
+
 getIntProperty :: Bits.BitGet Value.Value
 getIntProperty = do
     int <- getInt32
     return (Value.VInt int)
+
 
 getLoadoutOnlineProperty :: Bits.BitGet Value.Value
 getLoadoutOnlineProperty = do
@@ -363,6 +387,7 @@ getLoadoutOnlineProperty = do
             return (Just value)
         else return Nothing
     return (Value.VLoadoutOnline version x y z)
+
 
 getLoadoutProperty :: Bits.BitGet Value.Value
 getLoadoutProperty = do
@@ -381,10 +406,12 @@ getLoadoutProperty = do
         else return Nothing
     return (Value.VLoadout version body decal wheels rocketTrail antenna topper g h)
 
+
 getLocationProperty :: Bits.BitGet Value.Value
 getLocationProperty = do
     vector <- getVector
     return (Value.VLocation vector)
+
 
 getMusicStingerProperty :: Bits.BitGet Value.Value
 getMusicStingerProperty = do
@@ -392,6 +419,7 @@ getMusicStingerProperty = do
     cue <- getWord32
     trigger <- getWord8
     return (Value.VMusicStinger flag cue trigger)
+
 
 getPickupProperty :: Bits.BitGet Value.Value
 getPickupProperty = do
@@ -401,6 +429,7 @@ getPickupProperty = do
         else return Nothing
     pickedUp <- getBool
     return (Value.VPickup instigator instigatorId pickedUp)
+
 
 getPrivateMatchSettingsProperty :: Bits.BitGet Value.Value
 getPrivateMatchSettingsProperty = do
@@ -412,10 +441,12 @@ getPrivateMatchSettingsProperty = do
     flag <- getBool
     return (Value.VPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
 
+
 getQWordProperty :: Bits.BitGet Value.Value
 getQWordProperty = do
     qword <- getWord64
     return (Value.VQWord qword)
+
 
 getRelativeRotationProperty :: Bits.BitGet Value.Value
 getRelativeRotationProperty = do
@@ -437,6 +468,7 @@ getReservationProperty = do
     b <- getBool
     return (Value.VReservation number systemId remoteId localId playerName a b)
 
+
 getRigidBodyStateProperty :: Bits.BitGet Value.Value
 getRigidBodyStateProperty = do
     flag <- getBool
@@ -450,10 +482,12 @@ getRigidBodyStateProperty = do
         else fmap Just getVector
     return (Value.VRigidBodyState flag position rotation x y)
 
+
 getStringProperty :: Bits.BitGet Value.Value
 getStringProperty = do
     string <- getText
     return (Value.VString string)
+
 
 getTeamPaintProperty :: Bits.BitGet Value.Value
 getTeamPaintProperty = do
@@ -464,10 +498,12 @@ getTeamPaintProperty = do
     accentFinish <- getWord32
     return (Value.VTeamPaint team primaryColor accentColor primaryFinish accentFinish)
 
+
 getUniqueIdProperty :: Bits.BitGet Value.Value
 getUniqueIdProperty = do
     (systemId, remoteId, localId) <- getUniqueId
     return (Value.VUniqueId systemId remoteId localId)
+
 
 -- | Even though this is just a unique ID property, it must be handled
 -- specially because it sometimes doesn't have the remote or local IDs.
@@ -482,13 +518,14 @@ getPartyLeaderProperty = do
             return (remoteId, localId)
     return (Value.VUniqueId systemId remoteId localId)
 
---
 
 getFloat32 :: Bits.BitGet Float32.Float32
 getFloat32 = BinaryBit.getBits unimportant
 
+
 getText :: Bits.BitGet Text.Text
 getText = BinaryBit.getBits unimportant
+
 
 getUniqueId :: Bits.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
 getUniqueId = do
@@ -497,8 +534,10 @@ getUniqueId = do
     localId <- getLocalId
     return (systemId, remoteId, localId)
 
+
 getSystemId :: Bits.BitGet Word8.Word8
 getSystemId = getWord8
+
 
 getRemoteId :: Word8.Word8 -> Bits.BitGet RemoteId.RemoteId
 getRemoteId systemId = case systemId of
@@ -531,6 +570,7 @@ getRemoteId systemId = case systemId of
         remoteId & Word64.toWord64 & RemoteId.XboxId & return
     _ -> fail ("unknown system id " ++ show systemId)
 
+
 getLocalId :: Bits.BitGet (Maybe Word8.Word8)
 getLocalId = fmap Just getWord8
 
@@ -546,14 +586,18 @@ data Thing = Thing
 
 instance DeepSeq.NFData Thing
 
+
 -- { class stream id => { property stream id => name } }
 type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap StrictText.Text)
+
 
 -- { stream id => object name }
 type ObjectMap = IntMap.IntMap StrictText.Text
 
+
 -- { class name => class id }
 type ClassMap = Map.Map StrictText.Text Int
+
 
 data Context = Context
     { contextObjectMap :: ObjectMap
@@ -564,6 +608,7 @@ data Context = Context
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData Context
+
 
 extractContext :: ReplayWithoutFrames.ReplayWithoutFrames -> Context
 extractContext replay =
@@ -579,6 +624,7 @@ extractContext replay =
         & map Word32.fromWord32
         & Set.fromList
     }
+
 
 getVector :: Bits.BitGet (Vector.Vector Int)
 getVector = do
@@ -596,6 +642,7 @@ getVector = do
         , Vector.z = dz - bias
         }
 
+
 getVectorBytewise
     :: Bits.BitGet (Vector.Vector Int8.Int8)
 getVectorBytewise = do
@@ -612,6 +659,7 @@ getVectorBytewise = do
         , Vector.z = z
         }
 
+
 getFloatVector :: Bits.BitGet (Vector.Vector Float)
 getFloatVector = do
     let maxValue = 1
@@ -620,6 +668,7 @@ getFloatVector = do
     y <- getFloat maxValue numBits
     z <- getFloat maxValue numBits
     return Vector.Vector { Vector.x = x, Vector.y = y, Vector.z = z }
+
 
 getFloat :: Int -> Int -> Bits.BitGet Float
 getFloat maxValue numBits = do
@@ -636,6 +685,7 @@ getFloat maxValue numBits = do
         let scale = fromIntegral maxBitValue / fromIntegral maxValue
         let invScale = 1.0 / scale
         return (fromIntegral unscaledValue * invScale)
+
 
 getInitialization :: StrictText.Text -> Bits.BitGet Initialization.Initialization
 getInitialization className = do
@@ -657,10 +707,12 @@ getInitialization className = do
         , Initialization.rotation = rotation
         }
 
+
 bitSize
     :: (Integral a)
     => a -> a
 bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling
+
 
 -- Reads an integer bitwise. The bits of the integer are backwards, so the
 -- least significant bit is first. The argument is the maximum value this
@@ -688,32 +740,42 @@ getInt maxValue = do
                 else return value
     go 0 0
 
+
 getInt32 :: Bits.BitGet Int32.Int32
 getInt32 = BinaryBit.getBits unimportant
+
 
 getInt8 :: Bits.BitGet Int8.Int8
 getInt8 = BinaryBit.getBits unimportant
 
+
 getWord64 :: Bits.BitGet Word64.Word64
 getWord64 = BinaryBit.getBits unimportant
+
 
 getWord32 :: Bits.BitGet Word32.Word32
 getWord32 = BinaryBit.getBits unimportant
 
+
 getWord8 :: Bits.BitGet Word8.Word8
 getWord8 = BinaryBit.getBits unimportant
+
 
 getActorId :: Bits.BitGet Int
 getActorId = getInt 1024
 
+
 getNumVectorBits :: Bits.BitGet Int
 getNumVectorBits = getInt 19
+
 
 getInt7 :: Bits.BitGet Int
 getInt7 = getInt 7
 
+
 getBool :: Bits.BitGet Boolean.Boolean
 getBool = BinaryBit.getBits unimportant
+
 
 -- | The 'getBits' function from "Data.Binary.Bits" requires a size parameter.
 -- None of Octane's instances use it.
