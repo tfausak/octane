@@ -15,11 +15,17 @@ import qualified Octane.Type.Word32 as Word32
 -- | A property on an item in the class net cache map.
 data CacheProperty = CacheProperty
     { objectId :: Word32.Word32
+    -- ^ The object's ID.
     , streamId :: Word32.Word32
+    -- ^ The object's ID in the network stream.
     } deriving (Eq, Generics.Generic, Show)
 
+-- | Fields are stored one after the other in order.
 instance Binary.Binary CacheProperty where
-    get = CacheProperty <$> Binary.get <*> Binary.get
+    get = CacheProperty
+        <$> Binary.get
+        <*> Binary.get
+
     put cacheProperty = do
         cacheProperty & objectId & Binary.put
         cacheProperty & streamId & Binary.put

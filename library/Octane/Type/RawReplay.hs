@@ -17,6 +17,7 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Text.Printf as Printf
 
 
+-- TODO
 data RawReplay = RawReplay
     { headerSize :: Word32.Word32
     -- ^ The byte size of the first section.

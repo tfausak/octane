@@ -17,13 +17,23 @@ import qualified Octane.Type.Word32 as Word32
 -- | An item in the class net cache map.
 data CacheItem = CacheItem
     { classId :: Word32.Word32
+    -- ^ The class ID.
     , parentCacheId :: Word32.Word32
+    -- ^ The cache ID of the parent class.
     , cacheId :: Word32.Word32
+    -- ^ The cache ID of the class.
     , properties :: List.List CacheProperty.CacheProperty
+    -- ^ The properties that belong to this class.
     } deriving (Eq, Generics.Generic, Show)
 
+-- | Fields are stored one after the other in order.
 instance Binary.Binary CacheItem where
-    get = CacheItem <$> Binary.get <*> Binary.get <*> Binary.get <*> Binary.get
+    get = CacheItem
+        <$> Binary.get
+        <*> Binary.get
+        <*> Binary.get
+        <*> Binary.get
+
     put cacheItem = do
         cacheItem & classId & Binary.put
         cacheItem & parentCacheId & Binary.put

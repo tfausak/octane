@@ -34,6 +34,7 @@ instance Binary.Binary Int8 where
         let value = unpack int8
         Binary.putInt8 value
 
+-- | Stored with the bits reversed.
 instance BinaryBit.BinaryBit Int8 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 1
@@ -56,6 +57,7 @@ instance DeepSeq.NFData Int8 where
 instance Show Int8 where
     show int8 = show (unpack int8)
 
+-- | Encoded directly as a JSON number.
 instance Aeson.ToJSON Int8 where
     toJSON int8 = int8
         & unpack

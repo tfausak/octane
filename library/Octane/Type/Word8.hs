@@ -35,6 +35,7 @@ instance Binary.Binary Word8 where
         let value = unpack word8
         Binary.putWord8 value
 
+-- | The bits are reversed.
 instance BinaryBit.BinaryBit Word8 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 1
@@ -57,6 +58,7 @@ instance DeepSeq.NFData Word8 where
 instance Show Word8 where
     show word8 = Printf.printf "0x%02x" (unpack word8)
 
+-- | Encoded as a JSON number.
 instance Aeson.ToJSON Word8 where
     toJSON word8 = word8
         & unpack

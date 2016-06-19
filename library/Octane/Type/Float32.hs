@@ -35,6 +35,7 @@ instance Binary.Binary Float32 where
         & unpack
         & IEEE754.putFloat32le
 
+-- | Stored little-endian with the bits in each byte reversed.
 instance BinaryBit.BinaryBit Float32 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 4
@@ -53,9 +54,11 @@ instance BinaryBit.BinaryBit Float32 where
 
 instance DeepSeq.NFData Float32
 
+-- | Shown as @12.34@.
 instance Show Float32 where
     show float32 = show (unpack float32)
 
+-- | Encoded directly as a JSON number.
 instance Aeson.ToJSON Float32 where
     toJSON float32 = float32
         & unpack

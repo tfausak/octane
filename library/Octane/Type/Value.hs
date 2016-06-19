@@ -18,6 +18,7 @@ import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 
 
+-- TODO
 data Value
     = VBoolean
         Boolean.Boolean

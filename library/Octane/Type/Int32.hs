@@ -35,6 +35,7 @@ instance Binary.Binary Int32 where
         let value = unpack int32
         Binary.putInt32le value
 
+-- | Store little-endian with the bits in each byte reversed.
 instance BinaryBit.BinaryBit Int32 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 4
@@ -57,6 +58,7 @@ instance DeepSeq.NFData Int32 where
 instance Show Int32 where
     show int32 = show (unpack int32)
 
+-- | Encoded as a JSON number directly.
 instance Aeson.ToJSON Int32 where
     toJSON int32 = int32
         & unpack

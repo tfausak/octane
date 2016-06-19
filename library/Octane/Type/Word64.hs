@@ -36,6 +36,7 @@ instance Binary.Binary Word64 where
         let value = unpack word64
         Binary.putWord64le value
 
+-- | Little-endian with the bits in each byte reversed.
 instance BinaryBit.BinaryBit Word64 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 8
@@ -58,6 +59,7 @@ instance DeepSeq.NFData Word64 where
 instance Show Word64 where
     show word64 = Printf.printf "0x%016x" (unpack word64)
 
+-- | Encoded as a JSON number.
 instance Aeson.ToJSON Word64 where
     toJSON word64 = word64
         & unpack

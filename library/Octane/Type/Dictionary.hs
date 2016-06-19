@@ -16,13 +16,13 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
 
 
--- | A dictionary that maps text to values.
+-- | A mapping between text and arbitrary values.
 newtype Dictionary a = Dictionary
     { unpack :: (Map.Map Text.Text a)
     } deriving (Eq, Generics.Generic)
 
--- | Reads elements are stored with the key first, then the value. The
--- dictionary ends when a key is @"None"@.
+-- | Elements are stored with the key first, then the value. The dictionary
+-- ends when a key is @"None"@.
 instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
     get = do
         element <- getElement
@@ -36,6 +36,8 @@ instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
         dictionary & unpack & Map.assocs & mapM_ putElement
         noneKey & Binary.put
 
+-- | Allows creating 'Dictionary' values with 'Exts.fromList'. Also allows
+-- 'Dictionary' literals with the @OverloadedLists@ extension.
 instance Exts.IsList (Dictionary a) where
     type Item (Dictionary a) = (Text.Text, a)
 
@@ -45,9 +47,11 @@ instance Exts.IsList (Dictionary a) where
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Dictionary a) where
 
+-- | Shown as @fromList [("key", "value")]@.
 instance (Show a) => Show (Dictionary a) where
     show dictionary = show (unpack dictionary)
 
+-- | Encoded directly as a JSON object.
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
     toJSON dictionary = dictionary
         & unpack

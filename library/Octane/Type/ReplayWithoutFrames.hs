@@ -25,6 +25,7 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
 
+-- TODO
 data ReplayWithoutFrames = ReplayWithoutFrames
     { version1 :: Word32.Word32
     , version2 :: Word32.Word32

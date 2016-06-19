@@ -18,7 +18,7 @@ newtype List a = List
     { unpack :: [a]
     } deriving (Eq, Generics.Generic, Ord, Show)
 
--- | Bytewise lists are length-prefixed.
+-- | Prefixed with the number of elements in the list.
 instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
         size <- Binary.get
@@ -31,6 +31,7 @@ instance (Binary.Binary a) => Binary.Binary (List a) where
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (List a) where
 
+-- | Encoded as a JSON array directly.
 instance (Aeson.ToJSON a) => Aeson.ToJSON (List a) where
     toJSON list = list
         & unpack

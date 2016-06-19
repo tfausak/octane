@@ -42,6 +42,8 @@ instance Binary.Binary Text where
         id
         text
 
+-- | Both length-prefixed and null-terminated. The bits in each byte are
+-- reversed.
 instance BinaryBit.BinaryBit Text where
     getBits _ = getText
         (BinaryBit.getBits 32)
@@ -54,14 +56,18 @@ instance BinaryBit.BinaryBit Text where
         Endian.reverseBitsInBytes'
         text
 
+-- | Allows you to write 'Text' as string literals with @OverloadedStrings@.
+-- Also allows using the 'String.fromString' helper function.
 instance String.IsString Text where
     fromString string = Text (StrictText.pack string)
 
 instance DeepSeq.NFData Text where
 
+-- | Shown as a string literal, like @"this"@.
 instance Show Text where
     show text = StrictText.unpack (unpack text)
 
+-- | Encoded directly as a JSON string.
 instance Aeson.ToJSON Text where
     toJSON text = text
         & unpack

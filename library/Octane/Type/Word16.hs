@@ -37,6 +37,7 @@ instance DeepSeq.NFData Word16 where
 instance Show Word16 where
     show word16 = Printf.printf "0x%04x" (unpack word16)
 
+-- | Encoded as a JSON number.
 instance Aeson.ToJSON Word16 where
     toJSON word16 = word16
         & unpack

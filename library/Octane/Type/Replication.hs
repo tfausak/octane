@@ -13,6 +13,7 @@ import qualified Octane.Type.State as State
 import qualified Octane.Type.Value as Value
 
 
+-- TODO
 data Replication = Replication
     { actorId :: Word
     , objectName :: StrictText.Text

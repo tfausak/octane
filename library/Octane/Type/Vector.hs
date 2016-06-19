@@ -9,6 +9,8 @@ import qualified Data.Aeson as Aeson
 import qualified GHC.Generics as Generics
 
 
+-- | Three values packed together. Although the fields are called 'x', 'y', and
+-- 'z', that may not be what they actually represent.
 data Vector a = Vector
     { x :: a
     , y :: a
@@ -17,6 +19,7 @@ data Vector a = Vector
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a) where
 
+-- | Encoded as a JSON array with 3 elements.
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
     toJSON vector = Aeson.toJSON
         [ x vector

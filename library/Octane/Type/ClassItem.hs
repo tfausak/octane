@@ -17,11 +17,17 @@ import qualified Octane.Type.Word32 as Word32
 -- (like 0).
 data ClassItem = ClassItem
     { name :: Text.Text
+    -- ^ The class's name.
     , streamId :: Word32.Word32
-    } deriving (Eq,Generics.Generic,Show)
+    -- ^ The class's ID in the network stream.
+    } deriving (Eq, Generics.Generic, Show)
 
+-- | Fields are stored one after the other in order.
 instance Binary.Binary ClassItem where
-    get = ClassItem <$> Binary.get <*> Binary.get
+    get = ClassItem
+        <$> Binary.get
+        <*> Binary.get
+
     put classItem = do
         classItem & name & Binary.put
         classItem & streamId & Binary.put

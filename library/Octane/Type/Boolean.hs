@@ -19,8 +19,8 @@ newtype Boolean = Boolean
     { unpack :: Bool
     } deriving (Eq, Generics.Generic, Show)
 
--- | Boolean values are stored in the last bit of a byte. Decoding will fail if
--- the byte is anything other than @0b00000000@ or @0b00000001@.
+-- | Stored in the last bit of a byte. Decoding will fail if the byte is
+-- anything other than @0b00000000@ or @0b00000001@.
 instance Binary.Binary Boolean where
     get = do
         value <- Binary.getWord8
@@ -35,6 +35,7 @@ instance Binary.Binary Boolean where
         & fromIntegral
         & Binary.putWord8
 
+-- | Stored as a bit.
 instance BinaryBit.BinaryBit Boolean where
     getBits _ = do
         value <- BinaryBit.getBool
@@ -46,6 +47,7 @@ instance BinaryBit.BinaryBit Boolean where
 
 instance DeepSeq.NFData Boolean where
 
+-- | Encoded directly as a JSON boolean.
 instance Aeson.ToJSON Boolean where
     toJSON boolean = boolean
         & unpack

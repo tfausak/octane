@@ -26,6 +26,7 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word8 as Word8
 
 
+-- TODO
 data Frame = Frame
     { number :: Word
     , isKeyFrame :: Bool

@@ -15,12 +15,13 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Utility.Endian as Endian
 
 
--- | A length-prefixed stream of bits. The length is given in bytes. Each byte
--- is reversed such that @0b01234567@ is actually @0b76543210@.
+-- | A stream of bits.
 newtype Stream = Stream
     { unpack :: LazyBytes.ByteString
     } deriving (Eq, Generics.Generic, Show)
 
+-- | Prefixed by a length in bytes. Each byte is reversed such that
+-- @0b01234567@ is actually @0b76543210@.
 instance Binary.Binary Stream where
     get = do
         size <- Binary.get

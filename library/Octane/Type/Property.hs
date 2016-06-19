@@ -24,24 +24,33 @@ import qualified Octane.Type.Word64 as Word64
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
 data Property
-    = ArrayProperty Word64.Word64
-                    (List.List (Dictionary.Dictionary Property))
-    | BoolProperty Word64.Word64
-                   Boolean.Boolean
-    | ByteProperty Word64.Word64
-                   (Text.Text, Text.Text)
-    | FloatProperty Word64.Word64
-                    Float32.Float32
-    | IntProperty Word64.Word64
-                  Int32.Int32
-    | NameProperty Word64.Word64
-                   Text.Text
-    | QWordProperty Word64.Word64
-                    Word64.Word64
-    | StrProperty Word64.Word64
-                  Text.Text
+    = ArrayProperty
+        Word64.Word64
+        (List.List (Dictionary.Dictionary Property))
+    | BoolProperty
+        Word64.Word64
+        Boolean.Boolean
+    | ByteProperty
+        Word64.Word64
+        (Text.Text, Text.Text)
+    | FloatProperty
+        Word64.Word64
+        Float32.Float32
+    | IntProperty
+        Word64.Word64
+        Int32.Int32
+    | NameProperty
+        Word64.Word64
+        Text.Text
+    | QWordProperty
+        Word64.Word64
+        Word64.Word64
+    | StrProperty
+        Word64.Word64
+        Text.Text
     deriving (Eq, Generics.Generic, Show)
 
+-- | Stored with the size first, then the value.
 instance Binary.Binary Property where
     get = do
         kind <- Binary.get
@@ -49,80 +58,93 @@ instance Binary.Binary Property where
             _ | kind == arrayProperty -> do
                 size <- Binary.get
                 value <- Binary.get
-                value & ArrayProperty size & return
+                value & ArrayProperty size & pure
+
             _ | kind == boolProperty -> do
                 size <- Binary.get
                 value <- Binary.get
-                value & BoolProperty size & return
+                value & BoolProperty size & pure
+
             _ | kind == byteProperty -> do
                 size <- Binary.get
                 key <- Binary.get
                 if key == "OnlinePlatform_Steam"
-                    then ("OnlinePlatform", key) & ByteProperty size & return
+                    then ("OnlinePlatform", key) & ByteProperty size & pure
                     else do
                         value <- Binary.get
-                        (key, value) & ByteProperty size & return
+                        (key, value) & ByteProperty size & pure
+
             _ | kind == floatProperty -> do
                 size <- Binary.get
-                value <- case size of
+                value <- case Word64.unpack size of
                     4 -> Binary.get
-                    (Word64.Word64 x) ->
-                        fail ("unknown FloatProperty size " ++ show x)
-                value & FloatProperty size & return
+                    x -> fail ("unknown FloatProperty size " ++ show x)
+                value & FloatProperty size & pure
+
             _ | kind == intProperty -> do
                 size <- Binary.get
-                value <- case size of
+                value <- case Word64.unpack size of
                     4 -> Binary.get
-                    (Word64.Word64 x) ->
-                        fail ("unknown IntProperty size " ++ show x)
-                value & IntProperty size & return
+                    x -> fail ("unknown IntProperty size " ++ show x)
+                value & IntProperty size & pure
+
             _ | kind == nameProperty -> do
                 size <- Binary.get
                 value <- Binary.get
-                value & NameProperty size & return
+                value & NameProperty size & pure
+
             _ | kind == qWordProperty -> do
                 size <- Binary.get
-                value <- case size of
+                value <- case Word64.unpack size of
                     8 -> Binary.get
-                    (Word64.Word64 x) ->
-                        fail ("unknown QWordProperty size " ++ show x)
-                value & QWordProperty size & return
+                    x -> fail ("unknown QWordProperty size " ++ show x)
+                value & QWordProperty size & pure
+
             _ | kind == strProperty -> do
                 size <- Binary.get
                 value <- Binary.get
-                value & StrProperty size & return
+                value & StrProperty size & pure
+
             _ -> fail ("unknown property type " ++ show (Text.unpack kind))
+
     put property =
         case property of
             ArrayProperty size value -> do
                 Binary.put arrayProperty
                 Binary.put size
                 Binary.put value
+
             BoolProperty size value -> do
                 Binary.put boolProperty
                 Binary.put size
                 Binary.put value
-            ByteProperty size (key,value) -> do
+
+            ByteProperty size (key, value) -> do
                 Binary.put byteProperty
                 Binary.put size
                 Binary.put key
                 Binary.put value
+
             FloatProperty size value -> do
                 Binary.put floatProperty
                 Binary.put size
                 Binary.put value
+
             IntProperty size value -> do
                 Binary.put intProperty
                 Binary.put size
                 Binary.put value
+
             NameProperty size value -> do
                 Binary.put nameProperty
                 Binary.put size
                 Binary.put value
+
             QWordProperty size value -> do
                 Binary.put qWordProperty
                 Binary.put size
                 Binary.put value
+
             StrProperty size value -> do
                 Binary.put strProperty
                 Binary.put size
@@ -146,23 +168,30 @@ instance Aeson.ToJSON Property where
 arrayProperty :: Text.Text
 arrayProperty = "ArrayProperty"
 
+
 boolProperty :: Text.Text
 boolProperty = "BoolProperty"
+
 
 byteProperty :: Text.Text
 byteProperty = "ByteProperty"
 
+
 floatProperty :: Text.Text
 floatProperty = "FloatProperty"
+
 
 intProperty :: Text.Text
 intProperty = "IntProperty"
 
+
 nameProperty :: Text.Text
 nameProperty = "NameProperty"
 
+
 qWordProperty :: Text.Text
 qWordProperty = "QWordProperty"
+
 
 strProperty :: Text.Text
 strProperty = "StrProperty"
