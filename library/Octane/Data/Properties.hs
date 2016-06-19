@@ -1,4 +1,28 @@
-module Octane.Data.Properties where
+module Octane.Data.Properties
+    ( booleanProperties
+    , byteProperties
+    , camSettingsProperties
+    , demolishProperties
+    , enumProperties
+    , explosionProperties
+    , flaggedIntProperties
+    , floatProperties
+    , gameModeProperties
+    , intProperties
+    , loadoutOnlineProperties
+    , loadoutProperties
+    , locationProperties
+    , musicStingerProperties
+    , pickupProperties
+    , privateMatchSettingsProperties
+    , qWordProperties
+    , relativeRotationProperties
+    , reservationProperties
+    , rigidBodyStateProperties
+    , stringProperties
+    , teamPaintProperties
+    , uniqueIdProperties
+    ) where
 
 import Data.Function ((&))
 
@@ -53,6 +77,7 @@ booleanProperties =
     , "TAGame.Vehicle_TA:bReplicatedHandbrake"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are bytes.
 byteProperties :: Set.Set StrictText.Text
 byteProperties =
@@ -70,6 +95,7 @@ byteProperties =
     , "TAGame.Vehicle_TA:ReplicatedThrottle"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are camera settings.
 camSettingsProperties :: Set.Set StrictText.Text
 camSettingsProperties =
@@ -77,11 +103,13 @@ camSettingsProperties =
     , "TAGame.PRI_TA:CameraSettings"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are demolitions.
 demolishProperties :: Set.Set StrictText.Text
 demolishProperties =
     [ "TAGame.Car_TA:ReplicatedDemolish"
     ] & map StrictText.pack & Set.fromList
+
 
 -- | A set of properties that are enumerations.
 enumProperties :: Set.Set StrictText.Text
@@ -89,11 +117,13 @@ enumProperties =
     [ "Engine.Actor:Role"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are explosions.
 explosionProperties :: Set.Set StrictText.Text
 explosionProperties =
     [ "TAGame.Ball_TA:ReplicatedExplosionData"
     ] & map StrictText.pack & Set.fromList
+
 
 -- | A set of properties that are flagged integers.
 flaggedIntProperties :: Set.Set StrictText.Text
@@ -117,6 +147,7 @@ flaggedIntProperties =
     , "TAGame.Team_TA:LogoData"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are floats.
 floatProperties :: Set.Set StrictText.Text
 floatProperties =
@@ -132,11 +163,13 @@ floatProperties =
     , "TAGame.CrowdActor_TA:ModifiedNoise"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are game modes.
 gameModeProperties :: Set.Set StrictText.Text
 gameModeProperties =
     [ "TAGame.GameEvent_TA:GameMode"
     ] & map StrictText.pack & Set.fromList
+
 
 -- | A set of properties that are integers.
 intProperties :: Set.Set StrictText.Text
@@ -163,17 +196,20 @@ intProperties =
     , "TAGame.Team_Soccar_TA:GameScore"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are online loadouts.
 loadoutOnlineProperties :: Set.Set StrictText.Text
 loadoutOnlineProperties =
     [ "TAGame.PRI_TA:ClientLoadoutOnline"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are loadouts.
 loadoutProperties :: Set.Set StrictText.Text
 loadoutProperties =
     [ "TAGame.PRI_TA:ClientLoadout"
     ] & map StrictText.pack & Set.fromList
+
 
 -- | A set of properties that are locations.
 locationProperties :: Set.Set StrictText.Text
@@ -182,11 +218,13 @@ locationProperties =
     , "TAGame.CarComponent_Dodge_TA:DodgeTorque"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are music stingers.
 musicStingerProperties :: Set.Set StrictText.Text
 musicStingerProperties =
     [ "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger"
     ] & map StrictText.pack & Set.fromList
+
 
 -- | A set of properties that are pickups.
 pickupProperties :: Set.Set StrictText.Text
@@ -194,17 +232,20 @@ pickupProperties =
     [ "TAGame.VehiclePickup_TA:ReplicatedPickupData"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are private match settings.
 privateMatchSettingsProperties :: Set.Set StrictText.Text
 privateMatchSettingsProperties =
     [ "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings"
     ] & map StrictText.pack & Set.fromList
 
--- | A set of properties that are Q words, whatever those are.
+
+-- | A set of properties that are qwords.
 qWordProperties :: Set.Set StrictText.Text
 qWordProperties =
     [ "ProjectX.GRI_X:GameServerID"
     ] & map StrictText.pack & Set.fromList
+
 
 -- | A set of properties that are relation rotations.
 relativeRotationProperties :: Set.Set StrictText.Text
@@ -212,17 +253,20 @@ relativeRotationProperties =
     [ "Engine.Actor:RelativeRotation"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are reservations.
 reservationProperties :: Set.Set StrictText.Text
 reservationProperties =
     [ "ProjectX.GRI_X:Reservations"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are rigid body states.
 rigidBodyStateProperties :: Set.Set StrictText.Text
 rigidBodyStateProperties =
     [ "TAGame.RBActor_TA:ReplicatedRBState"
     ] & map StrictText.pack & Set.fromList
+
 
 -- | A set of properties that are strings.
 stringProperties :: Set.Set StrictText.Text
@@ -234,11 +278,13 @@ stringProperties =
     , "TAGame.Team_TA:CustomTeamName"
     ] & map StrictText.pack & Set.fromList
 
+
 -- | A set of properties that are team paints.
 teamPaintProperties :: Set.Set StrictText.Text
 teamPaintProperties =
     [ "TAGame.Car_TA:TeamPaint"
     ] & map StrictText.pack & Set.fromList
+
 
 -- | A set of properties that are unique IDs.
 uniqueIdProperties :: Set.Set StrictText.Text

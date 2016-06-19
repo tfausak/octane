@@ -1,4 +1,4 @@
-module Octane.Data.RocketTrails where
+module Octane.Data.RocketTrails (rocketTrails) where
 
 import Data.Function ((&))
 

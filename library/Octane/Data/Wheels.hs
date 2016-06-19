@@ -1,4 +1,4 @@
-module Octane.Data.Wheels where
+module Octane.Data.Wheels (wheels) where
 
 import Data.Function ((&))
 

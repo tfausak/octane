@@ -1,4 +1,4 @@
-module Octane.Data.Bodies where
+module Octane.Data.Bodies (bodies) where
 
 import Data.Function ((&))
 

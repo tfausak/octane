@@ -1,4 +1,4 @@
-module Octane.Data.Antennas where
+module Octane.Data.Antennas (antennas) where
 
 import Data.Function ((&))
 
@@ -79,8 +79,17 @@ antennas =
     , ("Psyonix", 287)
     , ("TourneyChamp", 539)
     , ("Translator", 530)
-    -- Community Flags
-    , ("9GAG", 799)
+    ]
+        ++ communityFlags
+        ++ countryFlags
+        ++ videoGames
+        ++ nbaFlags
+        & map (\ (v, k) -> (k, StrictText.pack v)) & Bimap.fromList
+
+
+communityFlags :: [(String, Int)]
+communityFlags =
+    [ ("9GAG", 799)
     , ("AbleGamers", 814)
     , ("Achievement Hunter", 610)
     , ("Angry Army", 548) -- AgryJoe
@@ -119,8 +128,12 @@ antennas =
     , ("The Game Awards - Logo", 693) -- VGX
     , ("Twitch", 221)
     , ("YouTube Gaming", 516)
-    -- Country Flags
-    , ("Afghanistan", 407)
+    ]
+
+
+countryFlags :: [(String, Int)]
+countryFlags =
+    [ ("Afghanistan", 407)
     , ("Albania", 408)
     , ("Algeria", 124)
     , ("American Samoa", 409)
@@ -342,8 +355,12 @@ antennas =
     , ("Yemen", 210)
     , ("Zambia", 482)
     , ("Zimbabwe", 483)
-    -- NBA Flags
-    , ("NBA", 1263)
+    ]
+
+
+nbaFlags :: [(String, Int)]
+nbaFlags =
+    [ ("NBA", 1263)
     , ("Atlanta Hawks", 1245)
     , ("Boston Celtics", 1246)
     , ("Brooklyn Nets", 1247)
@@ -374,8 +391,12 @@ antennas =
     , ("Toronto Raptors", 1273)
     , ("Utah Jazz", 1274)
     , ("Washington Wizards", 1275)
-    -- Video Games
-    , ("Blacklight", 385)
+    ]
+
+
+videoGames :: [(String, Int)]
+videoGames =
+    [ ("Blacklight", 385)
     , ("Blacklight: Retribution", 211)
     , ("Chivalry - Agatha Knights", 525)
     , ("Chivalry - Mason Order", 526)
@@ -411,4 +432,4 @@ antennas =
     , ("Witcher Medallion", 749)
     , ("Worms W.M.D", 1008)
     , ("Worms W.M.D. Grenade", 1000)
-    ] & map (\ (v, k) -> (k, StrictText.pack v)) & Bimap.fromList
+    ]

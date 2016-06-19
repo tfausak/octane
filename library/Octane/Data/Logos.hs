@@ -1,4 +1,4 @@
-module Octane.Data.Logos where
+module Octane.Data.Logos (logos) where
 
 import Data.Function ((&))
 

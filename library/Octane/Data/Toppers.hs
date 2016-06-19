@@ -1,4 +1,4 @@
-module Octane.Data.Toppers where
+module Octane.Data.Toppers (toppers) where
 
 import Data.Function ((&))
 

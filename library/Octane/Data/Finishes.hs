@@ -1,4 +1,4 @@
-module Octane.Data.Finishes where
+module Octane.Data.Finishes (finishes) where
 
 import Data.Function ((&))
 

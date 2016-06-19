@@ -1,4 +1,4 @@
-module Octane.Data.Bots where
+module Octane.Data.Bots (bots) where
 
 import Data.Function ((&))
 

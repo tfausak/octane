@@ -1,4 +1,4 @@
-module Octane.Data.GameModes where
+module Octane.Data.GameModes (gameModes) where
 
 import Data.Function ((&))
 
@@ -6,6 +6,7 @@ import qualified Data.Bimap as Bimap
 import qualified Data.Text as StrictText
 
 
+-- | A one-to-one mapping between game mode IDs and their names.
 gameModes :: Bimap.Bimap Int StrictText.Text
 gameModes =
     [ ("Soccar", 0)
