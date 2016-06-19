@@ -6,7 +6,6 @@ module Octane.Utility.Parser where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.Get as Binary
@@ -17,7 +16,6 @@ import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
-import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
@@ -57,13 +55,13 @@ parseFrames replay = let
             Just (Property.IntProperty _ x) -> x & Int32.unpack & fromIntegral
             _ -> 0)
     get = replay & extractContext & getFrames 0 numFrames & Bits.runBitGet
-    stream = replay & ReplayWithoutFrames.stream & Stream.unpack & LazyBytes.fromStrict
+    stream = replay & ReplayWithoutFrames.stream & Stream.unpack
     (_context, frames) = Binary.runGet get stream
     in frames
 
-getFrames :: Int -> Int -> Context -> Bits.BitGet (Context, [Frame.Frame])
+getFrames :: Word -> Int -> Context -> Bits.BitGet (Context, [Frame.Frame])
 getFrames number numFrames context = do
-    if number >= numFrames
+    if fromIntegral number >= numFrames
     then return (context, [])
     else do
         isEmpty <- Bits.isEmpty
@@ -77,7 +75,7 @@ getFrames number numFrames context = do
                     (newerContext, frames) <- getFrames (number + 1) numFrames newContext
                     return (newerContext, (frame : frames))
 
-getMaybeFrame :: Context -> Int -> Bits.BitGet (Maybe (Context, Frame.Frame))
+getMaybeFrame :: Context -> Word -> Bits.BitGet (Maybe (Context, Frame.Frame))
 getMaybeFrame context number = do
     time <- getFloat32
     delta <- getFloat32
@@ -89,7 +87,7 @@ getMaybeFrame context number = do
         (newContext, frame) <- getFrame context number time delta
         return (Just (newContext, frame))
 
-getFrame :: Context -> Int -> Float32.Float32 -> Float32.Float32 -> Bits.BitGet (Context, Frame.Frame)
+getFrame :: Context -> Word -> Float32.Float32 -> Float32.Float32 -> Bits.BitGet (Context, Frame.Frame)
 getFrame context number time delta = do
     (newContext, replications) <- getReplications context
     let frame =
@@ -562,7 +560,7 @@ data Context = Context
     , contextClassPropertyMap :: ClassPropertyMap
     , contextThings :: (IntMap.IntMap Thing)
     , contextClassMap :: ClassMap
-    , contextKeyFrames :: (Set.Set Int)
+    , contextKeyFrames :: (Set.Set Word)
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData Context

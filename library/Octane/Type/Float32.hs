@@ -9,6 +9,7 @@ import Data.Function ((&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
+import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Scientific as Scientific
 import qualified GHC.Generics as Generics
@@ -28,6 +29,11 @@ instance Binary.Binary Float32 where
     put float32 = float32
         & unpack
         & IEEE754.putFloat32le
+
+instance BinaryBit.BinaryBit Float32 where
+    getBits _ = undefined
+
+    putBits _ _ = undefined
 
 instance Aeson.FromJSON Float32 where
     parseJSON json = case json of

@@ -8,6 +8,7 @@ import Data.Function ((&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
+import qualified Data.Binary.Bits as BinaryBit
 import qualified GHC.Generics as Generics
 
 
@@ -31,6 +32,11 @@ instance Binary.Binary Boolean where
         & fromEnum
         & fromIntegral
         & Binary.putWord8
+
+instance BinaryBit.BinaryBit Boolean where
+    getBits _ = undefined
+
+    putBits _ _ = undefined
 
 instance Aeson.FromJSON Boolean where
     parseJSON json = case json of

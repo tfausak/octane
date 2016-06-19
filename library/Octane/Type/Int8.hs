@@ -9,6 +9,7 @@ import Data.Function ((&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
+import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.Int as Int
@@ -28,6 +29,11 @@ instance Binary.Binary Int8 where
     put int8 = do
         let value = unpack int8
         Binary.putInt8 value
+
+instance BinaryBit.BinaryBit Int8 where
+    getBits _ = undefined
+
+    putBits _ _ = undefined
 
 instance Aeson.FromJSON Int8 where
     parseJSON json = do

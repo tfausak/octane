@@ -9,6 +9,7 @@ import Data.Function ((&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
+import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 import qualified Text.Printf as Printf
@@ -27,6 +28,11 @@ instance Binary.Binary Word8 where
     put word8 = do
         let value = unpack word8
         Binary.putWord8 value
+
+instance BinaryBit.BinaryBit Word8 where
+    getBits _ = undefined
+
+    putBits _ _ = undefined
 
 instance Aeson.FromJSON Word8 where
     parseJSON json = do

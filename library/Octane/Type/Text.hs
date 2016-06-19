@@ -9,6 +9,7 @@ import Data.Function ((&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Binary as Binary
+import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Char8 as StrictBytes
@@ -34,6 +35,11 @@ instance Binary.Binary Text where
         Binary.putByteString
         id
         text
+
+instance BinaryBit.BinaryBit Text where
+    getBits _ = undefined
+
+    putBits _ _ = undefined
 
 instance Aeson.FromJSON Text where
     parseJSON json = case json of
