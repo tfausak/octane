@@ -12,6 +12,7 @@ import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Replication as Replication
+import qualified Octane.Type.State as State
 import qualified Octane.Type.Stream as Stream
 import qualified Octane.Type.Text as Text
 
@@ -62,7 +63,30 @@ putReplication :: Replication.Replication -> BinaryBit.BitPut ()
 putReplication replication = do
     replication & Replication.actorId & putActorId
     case Replication.state replication of
-        _ -> pure ()
+        State.SOpening -> putNewReplication replication
+        State.SExisting -> putExistingReplication replication
+        State.SClosing -> putClosedReplication replication
+
+
+putNewReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putNewReplication _replication = do
+    True & Boolean.Boolean & BinaryBit.putBits 1 -- open
+    True & Boolean.Boolean & BinaryBit.putBits 1 -- new
+    False & Boolean.Boolean & BinaryBit.putBits 1 -- unknown
+    -- TODO: put 32-bit object id
+    -- TODO: put class init
+
+
+putExistingReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putExistingReplication _replication = do
+    True & Boolean.Boolean & BinaryBit.putBits 1 -- open
+    False & Boolean.Boolean & BinaryBit.putBits 1 -- existing
+    -- TODO: put props
+
+
+putClosedReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putClosedReplication _replication = do
+    False & Boolean.Boolean & BinaryBit.putBits 1 -- closed
 
 
 --
