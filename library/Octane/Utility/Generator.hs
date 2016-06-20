@@ -2,6 +2,7 @@ module Octane.Utility.Generator (generateStream) where
 
 import Data.Function ((&))
 
+import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Put as Binary
@@ -76,5 +77,25 @@ maxActorId = 1024
 
 
 putCompressedWord :: Word -> Word -> BinaryBit.BitPut ()
-putCompressedWord _maxValue _value = do
-    pure () -- TODO
+putCompressedWord maxValue value = do
+    Monad.when (value > maxValue) (do
+        fail (show value ++ " is greater than " ++ show maxValue))
+
+    let maxBits = bitSize maxValue
+    Monad.when (maxBits > 64) (do
+        fail (show maxValue ++ " requires more than 64 bits"))
+
+    let upper = (2 ^ (maxBits - 1)) - 1
+    let lower = maxValue - upper
+    let numBits = if lower > value || value > upper
+            then maxBits
+            else maxBits - 1
+
+    BinaryBit.putWord64be (fromIntegral numBits) (fromIntegral value)
+
+
+bitSize :: (Integral a) => a -> a
+bitSize x = x
+    & fromIntegral
+    & logBase (2 :: Float)
+    & ceiling
