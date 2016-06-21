@@ -1,3 +1,4 @@
+{-# LANGUAGE BinaryLiterals #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE StrictData #-}
 
@@ -6,6 +7,7 @@ module Octane.Utility.Parser (parseFrames) where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
+import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.Get as Binary
@@ -456,7 +458,7 @@ getRelativeRotationProperty = do
     pure (Value.VRelativeRotation vector)
 
 getReservationProperty :: Context -> Bits.BitGet Value.Value
-getReservationProperty _context = do
+getReservationProperty context = do
     -- I think this is the connection order. The first player to connect
     -- gets number 0, and it goes up from there. The maximum is 7, which
     -- would be a full 4x4 game.
@@ -468,7 +470,20 @@ getReservationProperty _context = do
     -- No idea what these two flags are. Might be for bots?
     a <- getBool
     b <- getBool
+
+    -- The Neo Tokyo update added 6 bits to the reservation property that are
+    -- always (as far as I can tell) 0. The only way to know about these bits
+    -- is to check the top-level version number in the replay.
+    Monad.when (contextVersion context >= neoTokyoVersion) (do
+        x <- Bits.getWord8 6
+        Monad.when (x /= 0b000000) (do
+            fail (Printf.printf "Read 6 reservation bits and they weren't all 0! 0b%06b" x)))
+
     pure (Value.VReservation number systemId remoteId localId playerName a b)
+
+
+neoTokyoVersion :: Version.Version
+neoTokyoVersion = Version.makeVersion [868, 12]
 
 
 getRigidBodyStateProperty :: Bits.BitGet Value.Value
