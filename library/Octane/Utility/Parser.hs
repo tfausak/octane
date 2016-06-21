@@ -1,3 +1,4 @@
+{-# LANGUAGE BinaryLiterals #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE StrictData #-}
 
@@ -6,6 +7,7 @@ module Octane.Utility.Parser (parseFrames) where
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
+import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.Get as Binary
@@ -16,6 +18,7 @@ import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
+import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
@@ -258,18 +261,18 @@ getProp context thing = do
     name <- case props & IntMap.lookup pid of
         Nothing -> fail ("could not find property name for property id " ++ show pid)
         Just x -> pure x
-    value <- getPropValue name
+    value <- getPropValue context name
     pure (name, value)
 
 
-getPropValue :: StrictText.Text -> Bits.BitGet Value.Value
-getPropValue name = case Map.lookup name propertyNameToGet of
+getPropValue :: Context -> StrictText.Text -> Bits.BitGet Value.Value
+getPropValue context name = case Map.lookup name (propertyNameToGet context) of
     Nothing -> fail ("don't know how to read property " ++ show name)
     Just get -> get
 
 
-propertyNameToGet :: Map.Map StrictText.Text (Bits.BitGet Value.Value)
-propertyNameToGet =
+propertyNameToGet :: Context -> Map.Map StrictText.Text (Bits.BitGet Value.Value)
+propertyNameToGet context =
     [ (Data.booleanProperties, getBooleanProperty)
     , (Data.byteProperties, getByteProperty)
     , (Data.camSettingsProperties, getCamSettingsProperty)
@@ -288,7 +291,7 @@ propertyNameToGet =
     , (Data.privateMatchSettingsProperties, getPrivateMatchSettingsProperty)
     , (Data.qWordProperties, getQWordProperty)
     , (Data.relativeRotationProperties, getRelativeRotationProperty)
-    , (Data.reservationProperties, getReservationProperty)
+    , (Data.reservationProperties, getReservationProperty context)
     , (Data.rigidBodyStateProperties, getRigidBodyStateProperty)
     , (Data.stringProperties, getStringProperty)
     , (Data.teamPaintProperties, getTeamPaintProperty)
@@ -385,6 +388,15 @@ getLoadoutOnlineProperty = do
     z <- if version >= 12
         then do
             value <- getWord8
+
+            -- After the Neo Tokyo update, online loadouts could have this
+            -- ridiculously high "version". I think it means the player is
+            -- using an item with an unusual color.
+            Monad.when (version == 0x0100000c) (do
+                unknown <- Bits.getWord64be 37
+                Monad.when (unknown /= 0) (do
+                    fail (Printf.printf "Read 37 online loadout bits and they weren't all 0! 0b%037b" unknown)))
+
             pure (Just value)
         else pure Nothing
     pure (Value.VLoadoutOnline version x y z)
@@ -454,8 +466,8 @@ getRelativeRotationProperty = do
     vector <- getFloatVector
     pure (Value.VRelativeRotation vector)
 
-getReservationProperty :: Bits.BitGet Value.Value
-getReservationProperty = do
+getReservationProperty :: Context -> Bits.BitGet Value.Value
+getReservationProperty context = do
     -- I think this is the connection order. The first player to connect
     -- gets number 0, and it goes up from there. The maximum is 7, which
     -- would be a full 4x4 game.
@@ -467,7 +479,20 @@ getReservationProperty = do
     -- No idea what these two flags are. Might be for bots?
     a <- getBool
     b <- getBool
+
+    -- The Neo Tokyo update added 6 bits to the reservation property that are
+    -- always (as far as I can tell) 0. The only way to know about these bits
+    -- is to check the top-level version number in the replay.
+    Monad.when (contextVersion context >= neoTokyoVersion) (do
+        x <- Bits.getWord8 6
+        Monad.when (x /= 0b000000) (do
+            fail (Printf.printf "Read 6 reservation bits and they weren't all 0! 0b%06b" x)))
+
     pure (Value.VReservation number systemId remoteId localId playerName a b)
+
+
+neoTokyoVersion :: Version.Version
+neoTokyoVersion = Version.makeVersion [868, 12]
 
 
 getRigidBodyStateProperty :: Bits.BitGet Value.Value
@@ -606,6 +631,7 @@ data Context = Context
     , contextThings :: (IntMap.IntMap Thing)
     , contextClassMap :: ClassMap
     , contextKeyFrames :: (Set.Set Word)
+    , contextVersion :: Version.Version
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData Context
@@ -624,6 +650,10 @@ extractContext replay =
         & map KeyFrame.frame
         & map Word32.fromWord32
         & Set.fromList
+    , contextVersion =
+        [ replay & ReplayWithoutFrames.version1
+        , replay & ReplayWithoutFrames.version2
+        ] & map Word32.fromWord32 & Version.makeVersion
     }
 
 
