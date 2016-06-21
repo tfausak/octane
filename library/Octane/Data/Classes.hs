@@ -128,6 +128,7 @@ classToObjects = let
     special =
         [ ("TAGame.CrowdActor_TA", ".TheWorld:PersistentLevel.CrowdActor_TA_")
         , ("TAGame.CrowdManager_TA", ".TheWorld:PersistentLevel.CrowdManager_TA_")
+        , ("TAGame.InMapScoreboard_TA", ".TheWorld:PersistentLevel.InMapScoreboard_TA_")
         , ("TAGame.VehiclePickup_Boost_TA", ".TheWorld:PersistentLevel.VehiclePickup_Boost_TA_")
         ] & map (\ (klass, suffix) ->
             ( StrictText.pack klass
@@ -140,6 +141,7 @@ levels :: Set.Set StrictText.Text
 levels =
     [ "EuroStadium_Rainy_P"
     , "HoopsStadium_P"
+    , "Neotokyo_p"
     , "Park_Night_P"
     , "Park_Rainy_P"
     , "Stadium_p"
@@ -162,6 +164,7 @@ levels =
     , "labs_sfx"
     , "labs_underpass_p"
     , "labs_utopia_p"
+    , "neotokyo_sfx"
     , "park_night_sfx"
     , "park_p"
     , "park_rainy_sfx"
