@@ -388,6 +388,15 @@ getLoadoutOnlineProperty = do
     z <- if version >= 12
         then do
             value <- getWord8
+
+            -- After the Neo Tokyo update, online loadouts could have this
+            -- ridiculously high "version". I think it means the player is
+            -- using an item with an unusual color.
+            Monad.when (version == 0x0100000c) (do
+                unknown <- Bits.getWord64be 37
+                Monad.when (unknown /= 0) (do
+                    fail (Printf.printf "Read 37 online loadout bits and they weren't all 0! 0b%037b" unknown)))
+
             pure (Just value)
         else pure Nothing
     pure (Value.VLoadoutOnline version x y z)
