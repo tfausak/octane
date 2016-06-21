@@ -16,7 +16,7 @@ import qualified Octane.Type.Word32 as Word32
 data Mark = Mark
     { label :: Text.Text
     -- ^ The description of the tick mark. Typically something like
-    -- @"Team0Goal"@ or @"Team1Save"@.
+    -- @"Team0Goal"@ or @"Team1Save"@ or @"User"@.
     , frame :: Word32.Word32
     -- ^ Which frame this tick mark corresponds to.
     } deriving (Eq, Generics.Generic, Show)

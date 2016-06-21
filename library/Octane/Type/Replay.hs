@@ -33,6 +33,44 @@ import qualified Octane.Type.Word32 as Word32
 data Replay = Replay
     { version :: Version.Version
     , metadata :: Map.Map StrictText.Text Property.Property
+    -- ^ High-level metadata about the replay. Only one key is actually
+    -- required to be able to view the replay in Rocket League:
+    --
+    -- - MapName: This is a 'Property.NameProperty'. It is a case-insensitive
+    --   map identifier, like @"Stadium_P"@.
+    --
+    -- There are many other properties that affect how the replay looks in the
+    -- list of replays in Rocket League:
+    --
+    -- - Date: A 'Property.StrProperty' with the format @"YYYY-mm-dd:HH-MM"@.
+    --   Dates are not validated, but the month must be between 1 and 12 to
+    --   show up. The hour is shown modulo 12 with AM or PM.
+    --
+    -- - MatchType: A 'Property.NameProperty'. If this is not one of the
+    --   expected values, nothing will be shown next to the replay's map. The
+    --   expected values are: @"Online"@, @"Offline"@, @"Private"@, and
+    --   @"Season"@.
+    --
+    -- - NumFrames: This 'Property.IntProperty' is used to calculate the length
+    --   of the match. There are 30 frames per second, meaning @9000@ frames is
+    --   a 5-minute match.
+    --
+    -- - PrimaryPlayerTeam: This is an 'Property.IntProperty'. It is either 0
+    --   (blue) or 1 (orange). Any other value is ignored. If this would be 0,
+    --   you don't have to set it at all.
+    --
+    -- - ReplayName: An optional 'Property.StrProperty' with a user-supplied
+    --   name for the replay.
+    --
+    -- - Team0Score: The blue team's score as an 'Property.IntProperty'. Can be
+    --   omitted if the score is 0.
+    --
+    -- - Team1Score: The orange team's score as an 'Property.IntProperty'. Can
+    --   also be omitted if the score is 0.
+    --
+    -- - TeamSize: An 'Property.IntProperty' with the number of players per
+    --   team. This value is not validated, so you can put absurd values like
+    --   @99@.
     , levels :: [StrictText.Text]
     , messages :: Map.Map StrictText.Text StrictText.Text
     , tickMarks :: Map.Map StrictText.Text StrictText.Text
