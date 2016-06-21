@@ -65,7 +65,7 @@ instance DeepSeq.NFData Text where
 
 -- | Shown as a string literal, like @"this"@.
 instance Show Text where
-    show text = StrictText.unpack (unpack text)
+    show text = show (unpack text)
 
 -- | Encoded directly as a JSON string.
 instance Aeson.ToJSON Text where
