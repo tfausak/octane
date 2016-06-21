@@ -16,6 +16,7 @@ module Octane.Data.Properties
     , loadoutProperties
     , locationProperties
     , musicStingerProperties
+    , partyLeaderProperties
     , pickupProperties
     , privateMatchSettingsProperties
     , qWordProperties
@@ -150,6 +151,14 @@ locationProperties = Map.findWithDefault Set.empty "location" properties
 -- True
 musicStingerProperties :: Set.Set StrictText.Text
 musicStingerProperties = Map.findWithDefault Set.empty "music_stinger" properties
+
+
+-- | A set of properties that are party leaders.
+--
+-- >>> Set.member "TAGame.PRI_TA:PartyLeader" partyLeaderProperties
+-- True
+partyLeaderProperties :: Set.Set StrictText.Text
+partyLeaderProperties = Map.findWithDefault Set.empty "party_leader" properties
 
 
 -- | A set of properties that are pickups.

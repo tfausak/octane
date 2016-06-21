@@ -139,6 +139,9 @@
   "music_stinger": [
     "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger"
   ],
+  "party_leader": [
+    "TAGame.PRI_TA:PartyLeader"
+  ],
   "pickup": [
     "TAGame.VehiclePickup_TA:ReplicatedPickupData"
   ],

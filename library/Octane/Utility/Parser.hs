@@ -287,6 +287,7 @@ propertyNameToGet context =
     , (Data.loadoutProperties, getLoadoutProperty)
     , (Data.locationProperties, getLocationProperty)
     , (Data.musicStingerProperties, getMusicStingerProperty)
+    , (Data.partyLeaderProperties, getPartyLeaderProperty)
     , (Data.pickupProperties, getPickupProperty)
     , (Data.privateMatchSettingsProperties, getPrivateMatchSettingsProperty)
     , (Data.qWordProperties, getQWordProperty)
@@ -296,7 +297,6 @@ propertyNameToGet context =
     , (Data.stringProperties, getStringProperty)
     , (Data.teamPaintProperties, getTeamPaintProperty)
     , (Data.uniqueIdProperties, getUniqueIdProperty)
-    , (Set.fromList [StrictText.pack "TAGame.PRI_TA:PartyLeader"], getPartyLeaderProperty)
     ]
         & concatMap (\ (ks, v) -> ks & Set.toList & map (\ k -> (k, v)))
         & Map.fromList
