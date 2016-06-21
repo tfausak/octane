@@ -16,6 +16,7 @@ import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
+import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
@@ -606,6 +607,7 @@ data Context = Context
     , contextThings :: (IntMap.IntMap Thing)
     , contextClassMap :: ClassMap
     , contextKeyFrames :: (Set.Set Word)
+    , contextVersion :: Version.Version
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData Context
@@ -624,6 +626,10 @@ extractContext replay =
         & map KeyFrame.frame
         & map Word32.fromWord32
         & Set.fromList
+    , contextVersion =
+        [ replay & ReplayWithoutFrames.version1
+        , replay & ReplayWithoutFrames.version2
+        ] & map Word32.fromWord32 & Version.makeVersion
     }
 
 
