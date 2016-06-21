@@ -70,7 +70,8 @@ data Replay = Replay
     --
     -- - TeamSize: An 'Property.IntProperty' with the number of players per
     --   team. This value is not validated, so you can put absurd values like
-    --   @99@.
+    --   @99@. To get an "unfair" team size like 1v4, you must set the
+    --   @"bUnfairBots"@ 'Property.BoolProperty' to @True@.
     , levels :: [StrictText.Text]
     , messages :: Map.Map StrictText.Text StrictText.Text
     , tickMarks :: Map.Map StrictText.Text StrictText.Text
