@@ -259,18 +259,18 @@ getProp context thing = do
     name <- case props & IntMap.lookup pid of
         Nothing -> fail ("could not find property name for property id " ++ show pid)
         Just x -> pure x
-    value <- getPropValue name
+    value <- getPropValue context name
     pure (name, value)
 
 
-getPropValue :: StrictText.Text -> Bits.BitGet Value.Value
-getPropValue name = case Map.lookup name propertyNameToGet of
+getPropValue :: Context -> StrictText.Text -> Bits.BitGet Value.Value
+getPropValue context name = case Map.lookup name (propertyNameToGet context) of
     Nothing -> fail ("don't know how to read property " ++ show name)
     Just get -> get
 
 
-propertyNameToGet :: Map.Map StrictText.Text (Bits.BitGet Value.Value)
-propertyNameToGet =
+propertyNameToGet :: Context -> Map.Map StrictText.Text (Bits.BitGet Value.Value)
+propertyNameToGet context =
     [ (Data.booleanProperties, getBooleanProperty)
     , (Data.byteProperties, getByteProperty)
     , (Data.camSettingsProperties, getCamSettingsProperty)
@@ -289,7 +289,7 @@ propertyNameToGet =
     , (Data.privateMatchSettingsProperties, getPrivateMatchSettingsProperty)
     , (Data.qWordProperties, getQWordProperty)
     , (Data.relativeRotationProperties, getRelativeRotationProperty)
-    , (Data.reservationProperties, getReservationProperty)
+    , (Data.reservationProperties, getReservationProperty context)
     , (Data.rigidBodyStateProperties, getRigidBodyStateProperty)
     , (Data.stringProperties, getStringProperty)
     , (Data.teamPaintProperties, getTeamPaintProperty)
@@ -455,8 +455,8 @@ getRelativeRotationProperty = do
     vector <- getFloatVector
     pure (Value.VRelativeRotation vector)
 
-getReservationProperty :: Bits.BitGet Value.Value
-getReservationProperty = do
+getReservationProperty :: Context -> Bits.BitGet Value.Value
+getReservationProperty _context = do
     -- I think this is the connection order. The first player to connect
     -- gets number 0, and it goes up from there. The maximum is 7, which
     -- would be a full 4x4 game.
