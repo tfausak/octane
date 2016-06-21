@@ -1,66 +1,16 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Octane.Data.Bots (bots) where
 
-import Data.Function ((&))
-
 import qualified Data.Bimap as Bimap
+import qualified Data.FileEmbed as FileEmbed
 import qualified Data.Text as StrictText
+import qualified Octane.Utility.Embed as Embed
 
 
 -- | A one-to-one mapping between bot IDs and their names.
+--
+-- >>> Bimap.lookup 70 bots :: Maybe StrictText.Text
+-- Just "Astro"
 bots :: Bimap.Bimap Int StrictText.Text
-bots =
-    [ ("Astro", 70)
-    , ("Bane", 71)
-    , ("Beast", 72)
-    , ("Blade", 73)
-    , ("C-Block", 74)
-    , ("Captain", 75)
-    , ("Caveman", 76)
-    , ("Cougar", 77)
-    , ("Devil", 78)
-    , ("Diesel", 79)
-    , ("Dotty", 80)
-    , ("Dude", 81)
-    , ("Duke", 82)
-    , ("Dynamite", 83)
-    , ("Flame", 84)
-    , ("Flash", 85)
-    , ("Fossil", 86)
-    , ("Fury", 87)
-    , ("Hawk", 88)
-    , ("Hunter", 89)
-    , ("Imp", 90)
-    , ("Jet", 91)
-    , ("JM", 92)
-    , ("Kidd", 93)
-    , ("Laser", 94)
-    , ("Lightning", 95)
-    , ("Lucky", 96)
-    , ("Middy", 97)
-    , ("Mountain", 98)
-    , ("Nitro", 99)
-    , ("Outlaw", 100)
-    , ("Phoenix", 101)
-    , ("Raja", 102)
-    , ("Razor", 103)
-    , ("Retro", 104)
-    , ("Roundhouse", 105)
-    , ("Sabre", 106)
-    , ("Samson", 107)
-    , ("Savage", 108)
-    , ("Shadow", 109)
-    , ("Shield", 110)
-    , ("Siren", 111)
-    , ("Sky", 112)
-    , ("Squall", 113)
-    , ("Tank", 114)
-    , ("Thunder", 115)
-    , ("Titan", 116)
-    , ("Turbo", 117)
-    , ("Tusk", 118)
-    , ("Viper", 119)
-    , ("Warrior", 120)
-    , ("Wolf", 121)
-    , ("Yuri", 122)
-    , ("Zap", 123)
-    ] & map (\ (v, k) -> (k, StrictText.pack v)) & Bimap.fromList
+bots = Embed.decodeBimap $(FileEmbed.embedFile "data/bots.json")
