@@ -193,7 +193,7 @@ getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId
 normalizeName :: StrictText.Text -> StrictText.Text
 normalizeName name = name
     & StrictText.unpack
-    & replace "[[:digit:]]+$" ""
+    & replace "_[[:digit:]]+$" ""
     & StrictText.pack
 
 

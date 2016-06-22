@@ -12,9 +12,10 @@ import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 
 
--- | A map from object names to their class names. Note that any trailing
--- numbers have been stripped from the object names. So
--- @Archetypes.Teams.Team0@ is in this map as @Archetypes.Teams.Team@.
+-- | A map from object names to their class names. Note that some names have
+-- been normalized. For example,
+-- @Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0@ is in this map as
+-- @Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA@.
 objectToClass :: Map.Map StrictText.Text StrictText.Text
 objectToClass = Map.foldrWithKey
     (\ klass objects m -> objects
@@ -116,7 +117,8 @@ classToObjects = let
             [ "TAGame.Default__PRI_TA"
             ])
         , ( "TAGame.Team_Soccar_TA",
-            [ "Archetypes.Teams.Team"
+            [ "Archetypes.Teams.Team0"
+            , "Archetypes.Teams.Team1"
             ])
         , ( "TAGame.VoteActor_TA",
             [ "TAGame.Default__VoteActor_TA"
@@ -126,10 +128,10 @@ classToObjects = let
             , objects & map StrictText.pack & Set.fromList
             ))
     special =
-        [ ("TAGame.CrowdActor_TA", ".TheWorld:PersistentLevel.CrowdActor_TA_")
-        , ("TAGame.CrowdManager_TA", ".TheWorld:PersistentLevel.CrowdManager_TA_")
-        , ("TAGame.InMapScoreboard_TA", ".TheWorld:PersistentLevel.InMapScoreboard_TA_")
-        , ("TAGame.VehiclePickup_Boost_TA", ".TheWorld:PersistentLevel.VehiclePickup_Boost_TA_")
+        [ ("TAGame.CrowdActor_TA", ".TheWorld:PersistentLevel.CrowdActor_TA")
+        , ("TAGame.CrowdManager_TA", ".TheWorld:PersistentLevel.CrowdManager_TA")
+        , ("TAGame.InMapScoreboard_TA", ".TheWorld:PersistentLevel.InMapScoreboard_TA")
+        , ("TAGame.VehiclePickup_Boost_TA", ".TheWorld:PersistentLevel.VehiclePickup_Boost_TA")
         ] & map (\ (klass, suffix) ->
             ( StrictText.pack klass
             , levels & Set.map (\ level -> level <> StrictText.pack suffix)
