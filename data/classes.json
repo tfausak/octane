@@ -32,5 +32,5 @@
   "TheWorld:PersistentLevel.CrowdActor_TA": "TAGame.CrowdActor_TA",
   "TheWorld:PersistentLevel.CrowdManager_TA": "TAGame.CrowdManager_TA",
   "TheWorld:PersistentLevel.InMapScoreboard_TA": "TAGame.InMapScoreboard_TA",
-  "TheWorld:PersistentLevel.VehiclePickup_Boost_TA": "TAGame.VehiclePickup_Boost_TA",
+  "TheWorld:PersistentLevel.VehiclePickup_Boost_TA": "TAGame.VehiclePickup_Boost_TA"
 }

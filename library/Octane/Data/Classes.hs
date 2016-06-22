@@ -13,7 +13,7 @@ import qualified Data.Text as StrictText
 import qualified Octane.Utility.Embed as Embed
 
 -- $
--- :set -XOverloadedStrings
+-- >>> :set -XOverloadedStrings
 
 
 -- | A map from object names to their class names.
@@ -25,7 +25,7 @@ import qualified Octane.Utility.Embed as Embed
 --
 -- >>> Map.lookup "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0@" classes
 -- Nothing
--- >>> Map.lookup "TheWorld:PersistentLevel.InMapScoreboard_TA@" classes
+-- >>> Map.lookup "TheWorld:PersistentLevel.InMapScoreboard_TA" classes
 -- Just "TAGame.InMapScoreboard_TA"
 classes :: Map.Map StrictText.Text StrictText.Text
 classes = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
