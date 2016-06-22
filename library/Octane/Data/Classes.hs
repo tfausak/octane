@@ -8,12 +8,11 @@ module Octane.Data.Classes
 
 import Data.Function ((&))
 
-import qualified Data.Aeson as Aeson
 import qualified Data.FileEmbed as FileEmbed
 import qualified Data.Map.Strict as Map
-import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
+import qualified Octane.Utility.Embed as Embed
 
 
 -- | A map from object names to their class names. Note that some names have
@@ -21,9 +20,7 @@ import qualified Data.Text as StrictText
 -- @Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0@ is in this map as
 -- @TheWorld:PersistentLevel.InMapScoreboard_TA@.
 objectToClass :: Map.Map StrictText.Text StrictText.Text
-objectToClass = $(FileEmbed.embedFile "data/classes.json")
-    & Aeson.decodeStrict
-    & Maybe.fromMaybe Map.empty
+objectToClass = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
 
 
 -- | A set of classes that have an initial location vector.
