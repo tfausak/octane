@@ -45,6 +45,7 @@ library:
   - file-embed ==0.0.*
   - http-client ==0.4.*
   - http-client-tls ==0.2.*
+  - regex-compat ==0.95.*
   - text ==1.2.*
   - unordered-containers ==0.2.*
   - vector ==0.11.*

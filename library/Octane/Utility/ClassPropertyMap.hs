@@ -23,6 +23,7 @@ import qualified Octane.Type.List as List
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
+import qualified Text.Regex as Regex
 
 
 -- | The class property map is a map from class IDs in the stream to a map from
@@ -181,9 +182,21 @@ getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId
             -- There are a large number of properties that end in numbers that
             -- should all be treated the same. Instead of explicitly mapping
             -- each of them, we can remove the numbers and treat them the same.
-            propertyName = rawPropertyName & StrictText.dropWhileEnd Char.isDigit
+            propertyName = normalizeName rawPropertyName
             in case Map.lookup propertyName propertyNamesToClassNames of
                 Nothing -> Nothing
                 Just className -> case Map.lookup className classNamesToIds of
                     Nothing -> Nothing
                     Just classId -> Just (classId, className)
+
+
+normalizeName :: StrictText.Text -> StrictText.Text
+normalizeName name = name
+    & StrictText.unpack
+    & replace "[[:digit:]]+$" ""
+    & StrictText.pack
+
+
+replace :: String -> String -> String -> String
+replace pattern replacement input =
+    Regex.subRegex (Regex.mkRegex pattern) input replacement
