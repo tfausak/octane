@@ -6,49 +6,42 @@ module Octane.Data.Classes
     , rotationClasses
     ) where
 
-import Data.Function ((&))
-
 import qualified Data.FileEmbed as FileEmbed
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 import qualified Octane.Utility.Embed as Embed
 
+-- $
+-- :set -XOverloadedStrings
 
--- | A map from object names to their class names. Note that some names have
--- been normalized. For example,
--- @Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0@ is in this map as
--- @TheWorld:PersistentLevel.InMapScoreboard_TA@.
+
+-- | A map from object names to their class names.
+--
+-- >>> Map.lookup "Archetypes.Ball.Ball_Default" objectToClass
+-- Just "TAGame.Ball_TA"
+--
+-- Note that some object names have been normalized to make lookup easier.
+--
+-- >>> Map.lookup "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0@" objectToClass
+-- Nothing
+-- >>> Map.lookup "TheWorld:PersistentLevel.InMapScoreboard_TA@" objectToClass
+-- Just "TAGame.InMapScoreboard_TA"
 objectToClass :: Map.Map StrictText.Text StrictText.Text
 objectToClass = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
 
 
 -- | A set of classes that have an initial location vector.
+--
+-- >>> Set.member "TAGame.Ball_TA" locationClasses
+-- True
 locationClasses :: Set.Set StrictText.Text
-locationClasses =
-    [ "TAGame.Ball_TA"
-    , "TAGame.CameraSettingsActor_TA"
-    , "TAGame.CarComponent_Boost_TA"
-    , "TAGame.CarComponent_Dodge_TA"
-    , "TAGame.CarComponent_DoubleJump_TA"
-    , "TAGame.CarComponent_FlipCar_TA"
-    , "TAGame.CarComponent_Jump_TA"
-    , "TAGame.Car_Season_TA"
-    , "TAGame.Car_TA"
-    , "TAGame.GRI_TA"
-    , "TAGame.GameEvent_Season_TA"
-    , "TAGame.GameEvent_SoccarPrivate_TA"
-    , "TAGame.GameEvent_SoccarSplitscreen_TA"
-    , "TAGame.GameEvent_Soccar_TA"
-    , "TAGame.PRI_TA"
-    , "TAGame.Team_Soccar_TA"
-    ] & map StrictText.pack & Set.fromList
+locationClasses = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-location.json")
 
 
 -- | A set of classes that have an initial rotation vector.
+--
+-- >>> Set.member "TAGame.Ball_TA" rotationClasses
+-- True
 rotationClasses :: Set.Set StrictText.Text
-rotationClasses =
-    [ "TAGame.Ball_TA"
-    , "TAGame.Car_Season_TA"
-    , "TAGame.Car_TA"
-    ] & map StrictText.pack & Set.fromList
+rotationClasses = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-rotation.json")

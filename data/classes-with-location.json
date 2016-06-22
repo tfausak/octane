@@ -1,0 +1,18 @@
+[
+  "TAGame.Ball_TA",
+  "TAGame.CameraSettingsActor_TA",
+  "TAGame.Car_Season_TA",
+  "TAGame.Car_TA",
+  "TAGame.CarComponent_Boost_TA",
+  "TAGame.CarComponent_Dodge_TA",
+  "TAGame.CarComponent_DoubleJump_TA",
+  "TAGame.CarComponent_FlipCar_TA",
+  "TAGame.CarComponent_Jump_TA",
+  "TAGame.GameEvent_Season_TA",
+  "TAGame.GameEvent_Soccar_TA",
+  "TAGame.GameEvent_SoccarPrivate_TA",
+  "TAGame.GameEvent_SoccarSplitscreen_TA",
+  "TAGame.GRI_TA",
+  "TAGame.PRI_TA",
+  "TAGame.Team_Soccar_TA"
+]
