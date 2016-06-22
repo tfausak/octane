@@ -163,7 +163,7 @@ getNewReplication context actorId = do
     objectName <- case context & contextObjectMap & IntMap.lookup (Int32.fromInt32 objectId) of
         Nothing -> fail ("could not find object name for id " ++ show objectId)
         Just x -> pure x
-    (classId, className) <- case CPM.getClass (contextObjectMap context) Data.objectToClass (contextClassMap context) (Int32.fromInt32 objectId) of
+    (classId, className) <- case CPM.getClass (contextObjectMap context) Data.classes (contextClassMap context) (Int32.fromInt32 objectId) of
         Nothing -> fail ("could not find class for object id " ++ show objectId)
         Just x -> pure x
     classInit <- getInitialization className

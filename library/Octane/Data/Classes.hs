@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Octane.Data.Classes
-    ( objectToClass
+    ( classes
     , locationClasses
     , rotationClasses
     ) where
@@ -18,17 +18,17 @@ import qualified Octane.Utility.Embed as Embed
 
 -- | A map from object names to their class names.
 --
--- >>> Map.lookup "Archetypes.Ball.Ball_Default" objectToClass
+-- >>> Map.lookup "Archetypes.Ball.Ball_Default" classes
 -- Just "TAGame.Ball_TA"
 --
 -- Note that some object names have been normalized to make lookup easier.
 --
--- >>> Map.lookup "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0@" objectToClass
+-- >>> Map.lookup "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0@" classes
 -- Nothing
--- >>> Map.lookup "TheWorld:PersistentLevel.InMapScoreboard_TA@" objectToClass
+-- >>> Map.lookup "TheWorld:PersistentLevel.InMapScoreboard_TA@" classes
 -- Just "TAGame.InMapScoreboard_TA"
-objectToClass :: Map.Map StrictText.Text StrictText.Text
-objectToClass = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
+classes :: Map.Map StrictText.Text StrictText.Text
+classes = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
 
 
 -- | A set of classes that have an initial location vector.
