@@ -716,13 +716,13 @@ getFloat maxValue numBits = do
 getInitialization :: StrictText.Text -> Bits.BitGet Initialization.Initialization
 getInitialization className = do
     location <-
-        if Set.member className Data.locationClasses
+        if Set.member className Data.classesWithLocation
             then do
                 vector <- getVector
                 pure (Just vector)
             else pure Nothing
     rotation <-
-        if Set.member className Data.rotationClasses
+        if Set.member className Data.classesWithRotation
             then do
                 vector <- getVectorBytewise
                 pure (Just vector)

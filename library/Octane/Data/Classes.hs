@@ -2,8 +2,8 @@
 
 module Octane.Data.Classes
     ( classes
-    , locationClasses
-    , rotationClasses
+    , classesWithLocation
+    , classesWithRotation
     ) where
 
 import qualified Data.FileEmbed as FileEmbed
@@ -33,15 +33,15 @@ classes = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
 
 -- | A set of classes that have an initial location vector.
 --
--- >>> Set.member "TAGame.Ball_TA" locationClasses
+-- >>> Set.member "TAGame.Ball_TA" classesWithLocation
 -- True
-locationClasses :: Set.Set StrictText.Text
-locationClasses = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-location.json")
+classesWithLocation :: Set.Set StrictText.Text
+classesWithLocation = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-location.json")
 
 
 -- | A set of classes that have an initial rotation vector.
 --
--- >>> Set.member "TAGame.Ball_TA" rotationClasses
+-- >>> Set.member "TAGame.Ball_TA" classesWithRotation
 -- True
-rotationClasses :: Set.Set StrictText.Text
-rotationClasses = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-rotation.json")
+classesWithRotation :: Set.Set StrictText.Text
+classesWithRotation = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-rotation.json")
