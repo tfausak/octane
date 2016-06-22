@@ -10,7 +10,6 @@ module Octane.Utility.ClassPropertyMap
 
 import Data.Function ((&))
 
-import qualified Data.Char as Char
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
@@ -194,6 +193,7 @@ normalizeName :: StrictText.Text -> StrictText.Text
 normalizeName name = name
     & StrictText.unpack
     & replace "_[[:digit:]]+$" ""
+    & replace "^[[:word:]]+[.]TheWorld:" "TheWorld:"
     & StrictText.pack
 
 

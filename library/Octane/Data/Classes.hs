@@ -5,7 +5,6 @@ module Octane.Data.Classes
     ) where
 
 import Data.Function ((&))
-import Data.Monoid ((<>))
 
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
@@ -15,7 +14,7 @@ import qualified Data.Text as StrictText
 -- | A map from object names to their class names. Note that some names have
 -- been normalized. For example,
 -- @Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0@ is in this map as
--- @Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA@.
+-- @TheWorld:PersistentLevel.InMapScoreboard_TA@.
 objectToClass :: Map.Map StrictText.Text StrictText.Text
 objectToClass = Map.foldrWithKey
     (\ klass objects m -> objects
@@ -123,59 +122,20 @@ classToObjects = let
         , ( "TAGame.VoteActor_TA",
             [ "TAGame.Default__VoteActor_TA"
             ])
+        , ( "TAGame.CrowdActor_TA",
+            [ "TheWorld:PersistentLevel.CrowdActor_TA"
+            ])
+        , ( "TAGame.CrowdManager_TA",
+            [ "TheWorld:PersistentLevel.CrowdManager_TA"
+            ])
+        , ( "TAGame.InMapScoreboard_TA",
+            [ "TheWorld:PersistentLevel.InMapScoreboard_TA"
+            ])
+        , ( "TAGame.VehiclePickup_Boost_TA",
+            [ "TheWorld:PersistentLevel.VehiclePickup_Boost_TA"
+            ])
         ] & map (\ (klass, objects) ->
             ( StrictText.pack klass
             , objects & map StrictText.pack & Set.fromList
             ))
-    special =
-        [ ("TAGame.CrowdActor_TA", ".TheWorld:PersistentLevel.CrowdActor_TA")
-        , ("TAGame.CrowdManager_TA", ".TheWorld:PersistentLevel.CrowdManager_TA")
-        , ("TAGame.InMapScoreboard_TA", ".TheWorld:PersistentLevel.InMapScoreboard_TA")
-        , ("TAGame.VehiclePickup_Boost_TA", ".TheWorld:PersistentLevel.VehiclePickup_Boost_TA")
-        ] & map (\ (klass, suffix) ->
-            ( StrictText.pack klass
-            , levels & Set.map (\ level -> level <> StrictText.pack suffix)
-            ))
-    in Map.fromList (normal ++ special)
-
-
-levels :: Set.Set StrictText.Text
-levels =
-    [ "EuroStadium_Rainy_P"
-    , "HoopsStadium_P"
-    , "Neotokyo_p"
-    , "Park_Night_P"
-    , "Park_Rainy_P"
-    , "Stadium_p"
-    , "TrainStation_Night_P"
-    , "TrainStation_P"
-    , "Trainstation_Night_P"
-    , "UtopiaStadium_Dusk_P"
-    , "UtopiaStadium_Dusk_p"
-    , "UtopiaStadium_P"
-    , "Utopiastadium_p"
-    , "Wasteland_P"
-    , "Wasteland_p"
-    , "eurostad_oob_audio_map"
-    , "eurostadium_p"
-    , "eurostadium_rainy_audio"
-    , "hoopsstadium_sfx"
-    , "labs_circlepillars_p"
-    , "labs_cosmic_p"
-    , "labs_doublegoal_p"
-    , "labs_sfx"
-    , "labs_underpass_p"
-    , "labs_utopia_p"
-    , "neotokyo_sfx"
-    , "park_night_sfx"
-    , "park_p"
-    , "park_rainy_sfx"
-    , "park_sfx"
-    , "stadium_oob_audio_map"
-    , "stadium_p"
-    , "stadium_winter_p"
-    , "trainstation_p"
-    , "utopiastadium_p"
-    , "utopiastadium_sfx"
-    , "wasteland_sfx"
-    ] & map StrictText.pack & Set.fromList
+    in Map.fromList normal
