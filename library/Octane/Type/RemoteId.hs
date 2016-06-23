@@ -19,7 +19,7 @@ import qualified Octane.Type.Word64 as Word64
 data RemoteId
     = SteamId Word64.Word64
     -- ^ A Steam ID.
-    | PlayStationId Text.Text
+    | PlayStationId Text.Text Text.Text
     -- ^ A PlayStation Network ID.
     | SplitscreenId (Maybe Int)
     -- ^ A local splitscreen ID.
@@ -31,9 +31,12 @@ instance DeepSeq.NFData RemoteId where
 
 instance Aeson.ToJSON RemoteId where
     toJSON remoteId = case remoteId of
-        PlayStationId x -> Aeson.object
+        PlayStationId x y -> Aeson.object
             [ "Type" .= ("PlayStation" :: Text.Text)
-            , "Value" .= x
+            , "Value" .= Aeson.object
+                [ "Name" .= x
+                , "Unknown" .= y
+                ]
             ]
         SplitscreenId x -> Aeson.object
             [ "Type" .= ("Splitscreen" :: Text.Text)
