@@ -195,8 +195,8 @@ getPropertyName propertyNames propertyId = do
 normalizeName :: StrictText.Text -> StrictText.Text
 normalizeName name = name
     & StrictText.unpack
-    & replace "_[[:digit:]]+$" ""
-    & replace "^[[:word:]]+[.]TheWorld:" "TheWorld:"
+    & replace "_[0-9]+$" ""
+    & replace "^[A-Z_a-z]+[.]TheWorld:" "TheWorld:"
     & StrictText.pack
 
 
