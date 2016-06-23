@@ -25,6 +25,7 @@ executables:
     source-dirs: executable
 extra-source-files:
 - CHANGELOG.markdown
+- data/*.json
 - package.yaml
 - README.markdown
 - stack.yaml
@@ -41,8 +42,10 @@ library:
   - containers ==0.5.*
   - data-binary-ieee754 ==0.4.*
   - deepseq ==1.4.*
+  - file-embed ==0.0.*
   - http-client ==0.4.*
   - http-client-tls ==0.2.*
+  - regex-compat ==0.95.*
   - text ==1.2.*
   - unordered-containers ==0.2.*
   - vector ==0.11.*

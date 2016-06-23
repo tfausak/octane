@@ -163,7 +163,7 @@ getNewReplication context actorId = do
     objectName <- case context & contextObjectMap & IntMap.lookup (Int32.fromInt32 objectId) of
         Nothing -> fail ("could not find object name for id " ++ show objectId)
         Just x -> pure x
-    (classId, className) <- case CPM.getClass (contextObjectMap context) Data.objectToClass (contextClassMap context) (Int32.fromInt32 objectId) of
+    (classId, className) <- case CPM.getClass (contextObjectMap context) Data.classes (contextClassMap context) (Int32.fromInt32 objectId) of
         Nothing -> fail ("could not find class for object id " ++ show objectId)
         Just x -> pure x
     classInit <- getInitialization className
@@ -266,40 +266,35 @@ getProp context thing = do
 
 
 getPropValue :: Context -> StrictText.Text -> Bits.BitGet Value.Value
-getPropValue context name = case Map.lookup name (propertyNameToGet context) of
-    Nothing -> fail ("don't know how to read property " ++ show name)
-    Just get -> get
-
-
-propertyNameToGet :: Context -> Map.Map StrictText.Text (Bits.BitGet Value.Value)
-propertyNameToGet context =
-    [ (Data.booleanProperties, getBooleanProperty)
-    , (Data.byteProperties, getByteProperty)
-    , (Data.camSettingsProperties, getCamSettingsProperty)
-    , (Data.demolishProperties, getDemolishProperty)
-    , (Data.enumProperties, getEnumProperty)
-    , (Data.explosionProperties, getExplosionProperty)
-    , (Data.flaggedIntProperties, getFlaggedIntProperty)
-    , (Data.floatProperties, getFloatProperty)
-    , (Data.gameModeProperties, getGameModeProperty)
-    , (Data.intProperties, getIntProperty)
-    , (Data.loadoutOnlineProperties, getLoadoutOnlineProperty)
-    , (Data.loadoutProperties, getLoadoutProperty)
-    , (Data.locationProperties, getLocationProperty)
-    , (Data.musicStingerProperties, getMusicStingerProperty)
-    , (Data.pickupProperties, getPickupProperty)
-    , (Data.privateMatchSettingsProperties, getPrivateMatchSettingsProperty)
-    , (Data.qWordProperties, getQWordProperty)
-    , (Data.relativeRotationProperties, getRelativeRotationProperty)
-    , (Data.reservationProperties, getReservationProperty context)
-    , (Data.rigidBodyStateProperties, getRigidBodyStateProperty)
-    , (Data.stringProperties, getStringProperty)
-    , (Data.teamPaintProperties, getTeamPaintProperty)
-    , (Data.uniqueIdProperties, getUniqueIdProperty)
-    , (Set.fromList [StrictText.pack "TAGame.PRI_TA:PartyLeader"], getPartyLeaderProperty)
-    ]
-        & concatMap (\ (ks, v) -> ks & Set.toList & map (\ k -> (k, v)))
-        & Map.fromList
+getPropValue context name = case Map.lookup name Data.properties of
+    Just property -> case StrictText.unpack property of
+        "boolean" -> getBooleanProperty
+        "byte" -> getByteProperty
+        "cam_settings" -> getCamSettingsProperty
+        "demolish" -> getDemolishProperty
+        "enum" -> getEnumProperty
+        "explosion" -> getExplosionProperty
+        "flagged_int" -> getFlaggedIntProperty
+        "float" -> getFloatProperty
+        "game_mode" -> getGameModeProperty
+        "int" -> getIntProperty
+        "loadout_online" -> getLoadoutOnlineProperty
+        "loadout" -> getLoadoutProperty
+        "location" -> getLocationProperty
+        "music_stinger" -> getMusicStingerProperty
+        "party_leader" -> getPartyLeaderProperty
+        "pickup" -> getPickupProperty
+        "private_match_settings" -> getPrivateMatchSettingsProperty
+        "qword" -> getQWordProperty
+        "relative_rotation" -> getRelativeRotationProperty
+        "reservation" -> getReservationProperty context
+        "rigid_body_state" -> getRigidBodyStateProperty
+        "string" -> getStringProperty
+        "team_paint" -> getTeamPaintProperty
+        "unique_id" -> getUniqueIdProperty
+        _ -> fail ("Don't know how to read property type " ++ show property ++ " for " ++ show name)
+    Nothing -> do
+        fail ("Don't know how to read property " ++ show name)
 
 
 getBooleanProperty :: Bits.BitGet Value.Value
@@ -721,13 +716,13 @@ getFloat maxValue numBits = do
 getInitialization :: StrictText.Text -> Bits.BitGet Initialization.Initialization
 getInitialization className = do
     location <-
-        if Set.member className Data.locationClasses
+        if Set.member className Data.classesWithLocation
             then do
                 vector <- getVector
                 pure (Just vector)
             else pure Nothing
     rotation <-
-        if Set.member className Data.rotationClasses
+        if Set.member className Data.classesWithRotation
             then do
                 vector <- getVectorBytewise
                 pure (Just vector)
