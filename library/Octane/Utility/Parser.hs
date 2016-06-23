@@ -18,6 +18,7 @@ import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
+import qualified Data.Text.Encoding as Encoding
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
@@ -574,15 +575,24 @@ getRemoteId systemId = case systemId of
                 (bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes)
         remoteId & Word64.toWord64 & RemoteId.SteamId & pure
     2 -> do
-        bytes <- Bits.getByteString 32
-        let remoteId = bytes
+        nameBytes <- Bits.getByteString 16
+        let name = nameBytes
+                & Endian.reverseBitsInStrictBytes
+                & Encoding.decodeLatin1
+                & StrictText.dropWhileEnd (== '\0')
+                & Text.Text
+
+        unknownBytes <- Bits.getByteString 16
+        let unknown = unknownBytes
+                & Endian.reverseBitsInStrictBytes
                 & LazyBytes.fromStrict
-                & Endian.reverseBitsInLazyBytes
                 & LazyBytes.unpack
                 & concatMap (\ b -> Printf.printf "%02x" b)
+                & ("0x" ++)
                 & StrictText.pack
                 & Text.Text
-        remoteId & RemoteId.PlayStationId & pure
+
+        pure (RemoteId.PlayStationId name unknown)
     4 -> do
         bytes <- Bits.getByteString 8
         let remoteId = Binary.runGet
