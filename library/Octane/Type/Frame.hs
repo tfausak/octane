@@ -18,7 +18,6 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Initialization as Initialization
-import qualified Octane.Type.RemoteId as RemoteId
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Value as Value
@@ -254,11 +253,7 @@ getValue value = case value of
             2 -> "PlayStation"
             4 -> "Xbox"
             _ -> Aeson.String ("Unknown system " <> StrictText.pack (show systemId)))
-        , ("Remote", case remoteId of
-            RemoteId.SplitscreenId x -> Aeson.toJSON x
-            RemoteId.SteamId x -> Aeson.toJSON x
-            RemoteId.PlayStationId x -> Aeson.toJSON x
-            RemoteId.XboxId x -> Aeson.toJSON x)
+        , ("Remote", Aeson.toJSON remoteId)
         , ("Local", Aeson.toJSON localId)
         ]
 
