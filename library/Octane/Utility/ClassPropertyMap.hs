@@ -169,24 +169,27 @@ getActorMap replay = replay
 
 -- | Gets the class ID and name for a given property ID.
 getClass
-    :: IntMap.IntMap StrictText.Text -- ^ Property ID to property name
+    :: (Monad m)
+    => IntMap.IntMap StrictText.Text -- ^ Property ID to property name
     -> Map.Map StrictText.Text StrictText.Text -- ^ Property name to class name
     -> Map.Map StrictText.Text Int -- ^ Class name to class ID
     -> Int -- ^ property ID
-    -> Maybe (Int, StrictText.Text) -- ^ Maybe class ID and class name
-getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId =
-    case IntMap.lookup propertyId propertyIdsToNames of
-        Nothing -> Nothing
-        Just rawPropertyName -> let
-            -- There are a large number of properties that end in numbers that
-            -- should all be treated the same. Instead of explicitly mapping
-            -- each of them, we can remove the numbers and treat them the same.
-            propertyName = normalizeName rawPropertyName
-            in case Map.lookup propertyName propertyNamesToClassNames of
-                Nothing -> Nothing
-                Just className -> case Map.lookup className classNamesToIds of
-                    Nothing -> Nothing
-                    Just classId -> Just (classId, className)
+    -> m (Int, StrictText.Text) -- ^ Maybe class ID and class name
+getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId = do
+    rawPropertyName <- getPropertyName propertyIdsToNames propertyId
+    let propertyName = normalizeName rawPropertyName
+    className <- getClassName propertyNamesToClassNames propertyName
+    classId <- getClassId classNamesToIds className
+    pure (classId, className)
+
+
+getPropertyName :: (Monad m) => IntMap.IntMap StrictText.Text -> Int -> m StrictText.Text
+getPropertyName propertyNames propertyId = do
+    case IntMap.lookup propertyId propertyNames of
+        Nothing -> do
+            fail ("Could not find name for property " ++ show propertyId)
+        Just propertyName -> do
+            pure propertyName
 
 
 normalizeName :: StrictText.Text -> StrictText.Text
@@ -200,3 +203,21 @@ normalizeName name = name
 replace :: String -> String -> String -> String
 replace pattern replacement input =
     Regex.subRegex (Regex.mkRegex pattern) input replacement
+
+
+getClassName :: (Monad m) => Map.Map StrictText.Text StrictText.Text -> StrictText.Text -> m StrictText.Text
+getClassName classNames propertyName = do
+    case Map.lookup propertyName classNames of
+        Nothing -> do
+            fail ("Could not find class for property " ++ show propertyName)
+        Just className -> do
+            pure className
+
+
+getClassId :: (Monad m) => Map.Map StrictText.Text Int -> StrictText.Text -> m Int
+getClassId classIds className = do
+    case Map.lookup className classIds of
+        Nothing -> do
+            fail ("Could not find ID for class " ++ show className)
+        Just classId -> do
+            pure classId
