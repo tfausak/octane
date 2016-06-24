@@ -21,6 +21,12 @@ data CacheProperty = CacheProperty
     } deriving (Eq, Generics.Generic, Show)
 
 -- | Fields are stored one after the other in order.
+--
+-- >>> Binary.decode "\x01\x00\x00\x00\x02\x00\x00\x00" :: CacheProperty
+-- CacheProperty {objectId = 0x00000001, streamId = 0x00000002}
+--
+-- >>> Binary.encode (CacheProperty 1 2)
+-- "\SOH\NUL\NUL\NUL\STX\NUL\NUL\NUL"
 instance Binary.Binary CacheProperty where
     get = CacheProperty
         <$> Binary.get
