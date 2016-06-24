@@ -4,6 +4,8 @@
 
 module Octane.Utility.Parser (parseFrames) where
 
+import Debug.Trace
+
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
@@ -378,24 +380,24 @@ getIntProperty = do
 
 getLoadoutOnlineProperty :: Bits.BitGet Value.Value
 getLoadoutOnlineProperty = do
-    version <- getWord32
-    x <- getWord32
-    y <- getWord32
-    z <- if version >= 12
-        then do
-            value <- getWord8
-
-            -- After the Neo Tokyo update, online loadouts could have this
-            -- ridiculously high "version". I think it means the player is
-            -- using an item with an unusual color.
-            Monad.when (version == 0x0100000c) (do
-                unknown <- Bits.getWord64be 37
-                Monad.when (unknown /= 0) (do
-                    fail (Printf.printf "Read 37 online loadout bits and they weren't all 0! 0b%037b" unknown)))
-
-            pure (Just value)
-        else pure Nothing
-    pure (Value.VLoadoutOnline version x y z)
+    a <- getWord8
+    b <- getWord8
+    c <- getWord8
+    d <- getWord8
+    e <- getWord8
+    f <- getWord8
+    g <- getWord8
+    h <- getWord8
+    i <- getWord8
+    j <- getWord8
+    k <- getWord8
+    l <- getWord8
+    m <- if a == 0x0c then fmap Just getWord8 else pure Nothing
+    n <- if d == 0x01 then fmap Just (Bits.getWord64be 37) else pure Nothing
+    o <- if g == 0x01 then fmap Just (Bits.getWord64be 37) else pure Nothing
+    -- TODO
+    traceShowM (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+    pure (Value.VLoadoutOnline 0 0 0 Nothing)
 
 
 getLoadoutProperty :: Bits.BitGet Value.Value
