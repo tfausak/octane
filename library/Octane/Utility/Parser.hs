@@ -196,7 +196,7 @@ getExistingReplication :: Context
                        -> Bits.BitGet (Context, Replication.Replication)
 getExistingReplication context actorId = do
     thing <- case context & contextThings & IntMap.lookup actorId of
-        Nothing -> fail ("could not find thing for actor id " ++ show actorId)
+        Nothing -> fail ("could not find thing for existing actor " ++ show actorId)
         Just x -> pure x
     props <- getProps context thing
     pure (context, Replication.Replication
@@ -214,7 +214,7 @@ getClosedReplication :: Context
                      -> Bits.BitGet (Context, Replication.Replication)
 getClosedReplication context actorId = do
     thing <- case context & contextThings & IntMap.lookup actorId of
-        Nothing -> fail ("could not find thing for actor id " ++ show actorId)
+        Nothing -> fail ("could not find thing for closed actor " ++ show actorId)
         Just x -> pure x
     let newThings = context & contextThings & IntMap.delete actorId
     let newContext = context { contextThings = newThings }
