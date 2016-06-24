@@ -9,7 +9,7 @@ import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 import qualified Octane.Utility.Embed as Embed
 
--- $
+-- $setup
 -- >>> :set -XOverloadedStrings
 
 
