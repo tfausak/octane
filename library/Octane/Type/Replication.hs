@@ -14,6 +14,9 @@ import qualified Octane.Type.Value as Value
 
 
 -- | A replicated actor in a frame.
+--
+-- This cannot be an instance of 'Data.Binary.Bits.BinaryBit' because it
+-- requires out-of-band information (the class property map) to decode.
 data Replication = Replication
     { actorId :: Word
     -- ^ The actor's ID.

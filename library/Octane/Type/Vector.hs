@@ -11,6 +11,10 @@ import qualified GHC.Generics as Generics
 
 -- | Three values packed together. Although the fields are called @x@, @y@, and
 -- @z@, that may not be what they actually represent.
+--
+-- This cannot be an instance of 'Data.Binary.Bits.BinaryBit' because it is not
+-- always serialized the same way. Sometimes it is three values run together,
+-- but other times it has a flag for the presence of each value.
 data Vector a = Vector
     { x :: a
     , y :: a

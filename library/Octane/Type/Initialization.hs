@@ -11,6 +11,9 @@ import qualified Octane.Type.Vector as Vector
 
 
 -- | Information about a new instance of a class.
+--
+-- This cannot be an instance of 'Data.Binary.Bits.BinaryBit' because it
+-- requires out-of-band information (the class name) to decode.
 data Initialization = Initialization
     { location :: Maybe (Vector.Vector Int)
     -- ^ The instance's initial position.

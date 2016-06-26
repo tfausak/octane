@@ -26,6 +26,9 @@ import qualified Octane.Type.Word8 as Word8
 
 
 -- | A frame in the network stream. This holds all the interesting game data.
+--
+-- This cannot be an instance of 'Data.Binary.Bits.BinaryBit' because it
+-- requires out-of-band information (the class property map) to decode.
 data Frame = Frame
     { number :: Word
     -- ^ This frame's number in the network stream. Starts at 0.
