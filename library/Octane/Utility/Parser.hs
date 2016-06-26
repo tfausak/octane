@@ -380,23 +380,16 @@ getIntProperty = do
 
 getLoadoutOnlineProperty :: Bits.BitGet Value.Value
 getLoadoutOnlineProperty = do
-    a <- getWord8
-    b <- getWord8
-    c <- getWord8
-    d <- getWord8
-    e <- getWord8
-    f <- getWord8
-    g <- getWord8
-    h <- getWord8
-    i <- getWord8
-    j <- getWord8
-    k <- getWord8
-    l <- getWord8
-    m <- if a == 0x0c then fmap Just getWord8 else pure Nothing
-    n <- if d == 0x01 then fmap Just (Bits.getWord64be 37) else pure Nothing
-    o <- if g == 0x01 then fmap Just (Bits.getWord64be 37) else pure Nothing
-    -- TODO
-    traceShowM (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+    size <- getWord8
+    traceM ("client loadout online size " ++ show size)
+    _values <- Monad.replicateM (size & Word8.unpack & fromIntegral) (do
+        a <- getWord8
+        b <- case a of
+            0x00 -> pure Nothing
+            0x01 -> fmap Just (Bits.getWord64be 37)
+            _ -> fail ("unexpected value " ++ show a)
+        traceM ("  " ++ show a ++ ": " ++ show b)
+        pure (a, b))
     pure (Value.VLoadoutOnline 0 0 0 Nothing)
 
 
