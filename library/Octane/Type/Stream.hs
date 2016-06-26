@@ -23,6 +23,12 @@ newtype Stream = Stream
 
 -- | Prefixed by a length in bytes. Each byte is reversed such that
 -- @0b01234567@ is actually @0b76543210@.
+--
+-- >>> Binary.decode "\x01\x00\x00\x00\x0f" :: Stream
+-- Stream {unpack = "1 byte"}
+--
+-- >>> Binary.encode (Stream "\xf0")
+-- "\SOH\NUL\NUL\NUL\SI"
 instance Binary.Binary Stream where
     get = do
         size <- Binary.get
@@ -35,6 +41,10 @@ instance Binary.Binary Stream where
 
 instance DeepSeq.NFData Stream where
 
+-- | Doesn't show the actual bytes to avoid dumping tons of text.
+--
+-- >>> show (Stream "\xf0")
+-- "Stream {unpack = \"1 byte\"}"
 instance Show Stream where
     show stream = do
         let size = stream & unpack & LazyBytes.length

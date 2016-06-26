@@ -20,12 +20,21 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
+-- $setup
+-- >>> import qualified Data.Binary.Get as Binary
+-- >>> import qualified Data.Binary.Put as Binary
+
 
 -- | A 8-bit unsigned integer.
 newtype Word8 = Word8
     { unpack :: Word.Word8
     } deriving (Eq, Generics.Generic, Num, Ord)
 
+-- | >>> Binary.decode "\x01" :: Word8
+-- 0x01
+--
+-- >>> Binary.encode (1 :: Word8)
+-- "\SOH"
 instance Binary.Binary Word8 where
     get = do
         value <- Binary.getWord8
@@ -36,6 +45,12 @@ instance Binary.Binary Word8 where
         Binary.putWord8 value
 
 -- | The bits are reversed.
+--
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x80" :: Word8
+-- 0x01
+--
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (1 :: Word8)))
+-- "\128"
 instance BinaryBit.BinaryBit Word8 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 1
@@ -55,10 +70,16 @@ instance BinaryBit.BinaryBit Word8 where
 instance DeepSeq.NFData Word8 where
 
 -- | Shown as @0x01@.
+--
+-- >>> show (1 :: Word8)
+-- "0x01"
 instance Show Word8 where
     show word8 = Printf.printf "0x%02x" (unpack word8)
 
 -- | Encoded as a JSON number.
+--
+-- >>> Aeson.encode (1 :: Word8)
+-- "1"
 instance Aeson.ToJSON Word8 where
     toJSON word8 = word8
         & unpack

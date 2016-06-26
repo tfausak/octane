@@ -19,13 +19,21 @@ import qualified Data.ByteString.Lazy as LazyBytes
 import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 
+-- $setup
+-- >>> import qualified Data.Binary.Get as Binary
+-- >>> import qualified Data.Binary.Put as Binary
+
 
 -- | A 32-bit float.
 newtype Float32 = Float32
     { unpack :: Float
     } deriving (Eq, Fractional, Generics.Generic, Num, Ord)
 
--- | Stored little-endian.
+-- | >>> Binary.decode "\x9a\x99\x99\x3f" :: Float32
+-- 1.2
+--
+-- >>> Binary.encode (1.2 :: Float32)
+-- "\154\153\153?"
 instance Binary.Binary Float32 where
     get = do
         value <- IEEE754.getFloat32le
@@ -35,7 +43,11 @@ instance Binary.Binary Float32 where
         & unpack
         & IEEE754.putFloat32le
 
--- | Stored little-endian with the bits in each byte reversed.
+-- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x59\x99\x99\xfc" :: Float32
+-- 1.2
+--
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (1.2 :: Float32)))
+-- "Y\153\153\252"
 instance BinaryBit.BinaryBit Float32 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 4
@@ -55,10 +67,16 @@ instance BinaryBit.BinaryBit Float32 where
 instance DeepSeq.NFData Float32
 
 -- | Shown as @12.34@.
+--
+-- >>> show (1.2 :: Float32)
+-- "1.2"
 instance Show Float32 where
     show float32 = show (unpack float32)
 
 -- | Encoded directly as a JSON number.
+--
+-- Aeson.encode (1.2 :: Float32)
+-- "1.2"
 instance Aeson.ToJSON Float32 where
     toJSON float32 = float32
         & unpack

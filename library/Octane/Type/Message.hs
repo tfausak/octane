@@ -23,6 +23,12 @@ data Message = Message
     } deriving (Eq, Generics.Generic, Show)
 
 -- | Fields stored in order, one after the other.
+--
+-- >>> Binary.decode "\x01\x00\x00\x00\x02\x00\x00\x00\x41\x00\x02\x00\x00\x00\x42\x00" :: Message
+-- Message {frame = 0x00000001, name = "A", content = "B"}
+--
+-- >>> Binary.encode (Message 1 "A" "B")
+-- "\SOH\NUL\NUL\NUL\STX\NUL\NUL\NULA\NUL\STX\NUL\NUL\NULB\NUL"
 instance Binary.Binary Message where
     get = Message
         <$> Binary.get

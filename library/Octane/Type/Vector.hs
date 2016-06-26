@@ -20,6 +20,9 @@ data Vector a = Vector
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a) where
 
 -- | Encoded as a JSON array with 3 elements.
+--
+-- Aeson.encode (Vector 1 2 3 :: Vector Int)
+-- "[1,2,3]"
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
     toJSON vector = Aeson.toJSON
         [ x vector

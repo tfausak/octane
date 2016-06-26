@@ -14,13 +14,22 @@ import qualified GHC.Exts as Exts
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Word32 as Word32
 
+-- $setup
+-- >>> import Octane.Type.Int8
+
 
 -- | A list of values.
 newtype List a = List
     { unpack :: [a]
-    } deriving (Eq, Generics.Generic, Ord, Show)
+    } deriving (Eq, Generics.Generic, Ord)
 
 -- | Prefixed with the number of elements in the list.
+--
+-- >>> Binary.decode "\x01\x00\x00\x00\x02" :: List Int8
+-- fromList [2]
+--
+-- >>> Binary.encode ([2] :: List Int8)
+-- "\SOH\NUL\NUL\NUL\STX"
 instance (Binary.Binary a) => Binary.Binary (List a) where
     get = do
         size <- Binary.get
@@ -33,6 +42,9 @@ instance (Binary.Binary a) => Binary.Binary (List a) where
 
 -- | Allows creating 'List' values with 'Exts.fromList'. Also allows 'List'
 -- literals with the @OverloadedLists@ extension.
+--
+-- >>> [2] :: List Int
+-- fromList [2]
 instance Exts.IsList (List a) where
     type Item (List a) = a
 
@@ -42,7 +54,15 @@ instance Exts.IsList (List a) where
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (List a) where
 
+-- | >>> show ([2] :: List Int)
+-- "fromList [2]"
+instance (Show a) => Show (List a) where
+    show list = "fromList " ++ show (unpack list)
+
 -- | Encoded as a JSON array directly.
+--
+-- >>> Aeson.encode ([2] :: List Int)
+-- "[2]"
 instance (Aeson.ToJSON a) => Aeson.ToJSON (List a) where
     toJSON list = list
         & unpack

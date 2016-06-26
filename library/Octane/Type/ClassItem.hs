@@ -23,6 +23,12 @@ data ClassItem = ClassItem
     } deriving (Eq, Generics.Generic, Show)
 
 -- | Fields are stored one after the other in order.
+--
+-- >>> Binary.decode "\x02\x00\x00\x00\x4b\x00\x01\x00\x00\x00" :: ClassItem
+-- ClassItem {name = "K", streamId = 0x00000001}
+--
+-- >>> Binary.encode (ClassItem "K" 1)
+-- "\STX\NUL\NUL\NULK\NUL\SOH\NUL\NUL\NUL"
 instance Binary.Binary ClassItem where
     get = ClassItem
         <$> Binary.get

@@ -25,7 +25,11 @@ newtype Int32 = Int32
     { unpack :: Int.Int32
     } deriving (Eq, Generics.Generic, Num, Ord)
 
--- | Stored in little-endian byte order.
+-- | >>> Binary.decode "\x01\x00\x00\x00" :: Int32
+-- 1
+--
+-- >>> Binary.encode (1 :: Int32)
+-- "\SOH\NUL\NUL\NUL"
 instance Binary.Binary Int32 where
     get = do
         value <- Binary.getInt32le
@@ -35,7 +39,11 @@ instance Binary.Binary Int32 where
         let value = unpack int32
         Binary.putInt32le value
 
--- | Store little-endian with the bits in each byte reversed.
+-- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x80\x00\x00\x00" :: Int32
+-- 1
+--
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (1 :: Int32)))
+-- "\128\NUL\NUL\NUL"
 instance BinaryBit.BinaryBit Int32 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 4
@@ -55,10 +63,16 @@ instance BinaryBit.BinaryBit Int32 where
 instance DeepSeq.NFData Int32 where
 
 -- | Shown as @1234@.
+--
+-- show (1 :: Int32)
+-- "1"
 instance Show Int32 where
     show int32 = show (unpack int32)
 
 -- | Encoded as a JSON number directly.
+--
+-- >>> Aeson.encode (1 :: Int32)
+-- "1"
 instance Aeson.ToJSON Int32 where
     toJSON int32 = int32
         & unpack

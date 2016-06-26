@@ -32,7 +32,7 @@ data CacheItem = CacheItem
 -- | Fields are stored one after the other in order.
 --
 -- >>> Binary.decode "\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00" :: CacheItem
--- CacheItem {classId = 0x00000001, parentCacheId = 0x00000002, cacheId = 0x00000003, properties = List {unpack = []}}
+-- CacheItem {classId = 0x00000001, parentCacheId = 0x00000002, cacheId = 0x00000003, properties = fromList []}
 --
 -- >>> Binary.encode (CacheItem 1 2 3 [])
 -- "\SOH\NUL\NUL\NUL\STX\NUL\NUL\NUL\ETX\NUL\NUL\NUL\NUL\NUL\NUL\NUL"

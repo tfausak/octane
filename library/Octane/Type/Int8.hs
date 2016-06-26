@@ -19,12 +19,21 @@ import qualified Data.Int as Int
 import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 
+-- $setup
+-- >>> import qualified Data.Binary.Get as Binary
+-- >>> import qualified Data.Binary.Put as Binary
+
 
 -- | A 8-bit signed integer.
 newtype Int8 = Int8
     { unpack :: Int.Int8
     } deriving (Eq, Generics.Generic, Num, Ord)
 
+-- | >>> Binary.decode "\x01" :: Int8
+-- 1
+--
+-- >>> Binary.encode (1 :: Int8)
+-- "\SOH"
 instance Binary.Binary Int8 where
     get = do
         value <- Binary.getInt8
@@ -35,6 +44,12 @@ instance Binary.Binary Int8 where
         Binary.putInt8 value
 
 -- | Stored with the bits reversed.
+--
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x80" :: Int8
+-- 1
+--
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (1 :: Int8)))
+-- "\128"
 instance BinaryBit.BinaryBit Int8 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 1
@@ -54,10 +69,16 @@ instance BinaryBit.BinaryBit Int8 where
 instance DeepSeq.NFData Int8 where
 
 -- | Shown as @1234@.
+--
+-- show (1 :: Int8)
+-- "1"
 instance Show Int8 where
     show int8 = show (unpack int8)
 
 -- | Encoded directly as a JSON number.
+--
+-- >>> Aeson.encode (1 :: Int8)
+-- "1"
 instance Aeson.ToJSON Int8 where
     toJSON int8 = int8
         & unpack

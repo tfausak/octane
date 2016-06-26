@@ -20,13 +20,21 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
+-- $setup
+-- >>> import qualified Data.Binary.Get as Binary
+-- >>> import qualified Data.Binary.Put as Binary
+
 
 -- | A 64-bit unsigned integer.
 newtype Word64 = Word64
     { unpack :: Word.Word64
     } deriving (Eq, Generics.Generic, Num, Ord)
 
--- | Stored in little-endian byte order.
+-- | >>> Binary.decode "\x01\x00\x00\x00\x00\x00\x00\x00" :: Word64
+-- 0x0000000000000001
+--
+-- >>> Binary.encode (1 :: Word64)
+-- "\SOH\NUL\NUL\NUL\NUL\NUL\NUL\NUL"
 instance Binary.Binary Word64 where
     get = do
         value <- Binary.getWord64le
@@ -36,7 +44,11 @@ instance Binary.Binary Word64 where
         let value = unpack word64
         Binary.putWord64le value
 
--- | Little-endian with the bits in each byte reversed.
+-- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x80\x00\x00\x00\x00\x00\x00\x00" :: Word64
+-- 0x0000000000000001
+--
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (1 :: Word64)))
+-- "\128\NUL\NUL\NUL\NUL\NUL\NUL\NUL"
 instance BinaryBit.BinaryBit Word64 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 8
@@ -55,11 +67,17 @@ instance BinaryBit.BinaryBit Word64 where
 
 instance DeepSeq.NFData Word64 where
 
--- | Shown as @0x01020304@.
+-- | Shown as @0x0102030405060708@.
+--
+-- >>> show (1 :: Word64)
+-- "0x0000000000000001"
 instance Show Word64 where
     show word64 = Printf.printf "0x%016x" (unpack word64)
 
 -- | Encoded as a JSON number.
+--
+-- >>> Aeson.encode (1 :: Word64)
+-- "1"
 instance Aeson.ToJSON Word64 where
     toJSON word64 = word64
         & unpack
