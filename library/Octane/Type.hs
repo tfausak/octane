@@ -25,6 +25,7 @@ module Octane.Type
     , module Octane.Type.Stream
     , module Octane.Type.Text
     , module Octane.Type.Value
+    , module Octane.Type.Vector
     , module Octane.Type.Word16
     , module Octane.Type.Word32
     , module Octane.Type.Word64
@@ -57,6 +58,7 @@ import Octane.Type.State
 import Octane.Type.Stream
 import Octane.Type.Text
 import Octane.Type.Value
+import Octane.Type.Vector
 import Octane.Type.Word16
 import Octane.Type.Word32
 import Octane.Type.Word64
