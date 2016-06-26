@@ -46,10 +46,10 @@ instance Binary.Binary Word8 where
 
 -- | The bits are reversed.
 --
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x80" :: Word8
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80" :: Word8
 -- 0x01
 --
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (1 :: Word8)))
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1 :: Word8)))
 -- "\128"
 instance BinaryBit.BinaryBit Word8 where
     getBits _ = do

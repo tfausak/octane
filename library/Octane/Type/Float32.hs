@@ -43,10 +43,10 @@ instance Binary.Binary Float32 where
         & unpack
         & IEEE754.putFloat32le
 
--- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x59\x99\x99\xfc" :: Float32
+-- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x59\x99\x99\xfc" :: Float32
 -- 1.2
 --
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (1.2 :: Float32)))
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1.2 :: Float32)))
 -- "Y\153\153\252"
 instance BinaryBit.BinaryBit Float32 where
     getBits _ = do

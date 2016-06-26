@@ -39,10 +39,10 @@ instance Binary.Binary Int32 where
         let value = unpack int32
         Binary.putInt32le value
 
--- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x80\x00\x00\x00" :: Int32
+-- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00" :: Int32
 -- 1
 --
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (1 :: Int32)))
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1 :: Int32)))
 -- "\128\NUL\NUL\NUL"
 instance BinaryBit.BinaryBit Int32 where
     getBits _ = do

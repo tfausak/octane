@@ -44,10 +44,10 @@ instance Binary.Binary Word32 where
         let value = unpack word32
         Binary.putWord32le value
 
--- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x80\x00\x00\x00" :: Word32
+-- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00" :: Word32
 -- 0x00000001
 --
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (1 :: Word32)))
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1 :: Word32)))
 -- "\128\NUL\NUL\NUL"
 instance BinaryBit.BinaryBit Word32 where
     getBits _ = do

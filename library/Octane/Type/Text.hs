@@ -2,7 +2,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Octane.Type.Text (Text(..)) where
+module Octane.Type.Text (Text(..), encodeLatin1) where
 
 import Data.Function ((&))
 
@@ -55,10 +55,10 @@ instance Binary.Binary Text where
 -- | Both length-prefixed and null-terminated. The bits in each byte are
 -- reversed.
 --
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x40\x00\x00\x00\xd2\x00" :: Text
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x40\x00\x00\x00\xd2\x00" :: Text
 -- "K"
 --
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined ("K" :: Text)))
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 ("K" :: Text)))
 -- "@\NUL\NUL\NUL\210\NUL"
 instance BinaryBit.BinaryBit Text where
     getBits _ = getText
@@ -150,6 +150,11 @@ putText putInt putBytes convertBytes text = do
         fullText & Encoding.encodeUtf16LE & convertBytes & putBytes
 
 
+-- | Encodes text as Latin-1. Note that this isn't really safe if the text has
+-- characters that can't be encoded in Latin-1.
+--
+-- >>> encodeLatin1 "A"
+-- "A"
 encodeLatin1 :: StrictText.Text -> StrictBytes.ByteString
 encodeLatin1 text = text
     & StrictText.unpack

@@ -47,10 +47,10 @@ instance Binary.Binary Boolean where
 
 -- | Stored as a bit.
 --
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits undefined)) "\x80" :: Boolean
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80" :: Boolean
 -- Boolean {unpack = True}
 --
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits undefined (Boolean True)))
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (Boolean True)))
 -- "\128"
 instance BinaryBit.BinaryBit Boolean where
     getBits _ = do

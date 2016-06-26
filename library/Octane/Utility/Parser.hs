@@ -12,13 +12,10 @@ import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.Get as Binary
 import qualified Data.Bits as Bits
-import qualified Data.ByteString as StrictBytes
-import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
-import qualified Data.Text.Encoding as Encoding
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
@@ -45,7 +42,6 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 import qualified Octane.Utility.ClassPropertyMap as CPM
-import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
 
@@ -533,7 +529,7 @@ getPartyLeaderProperty :: Bits.BitGet Value.Value
 getPartyLeaderProperty = do
     systemId <- getSystemId
     (remoteId, localId) <- if systemId == 0
-        then pure (RemoteId.SplitscreenId Nothing, Nothing)
+        then pure (RemoteId.RemoteSplitscreenId (RemoteId.SplitscreenId Nothing), Nothing)
         else do
             remoteId <- getRemoteId systemId
             localId <- getLocalId
@@ -542,11 +538,11 @@ getPartyLeaderProperty = do
 
 
 getFloat32 :: Bits.BitGet Float32.Float32
-getFloat32 = BinaryBit.getBits unimportant
+getFloat32 = BinaryBit.getBits 0
 
 
 getText :: Bits.BitGet Text.Text
-getText = BinaryBit.getBits unimportant
+getText = BinaryBit.getBits 0
 
 
 getUniqueId :: Bits.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
@@ -564,41 +560,17 @@ getSystemId = getWord8
 getRemoteId :: Word8.Word8 -> Bits.BitGet RemoteId.RemoteId
 getRemoteId systemId = case systemId of
     0 -> do
-        remoteId <- Bits.getByteString 3
-        if StrictBytes.all (\ byte -> byte == 0) remoteId
-            then 0 & Just & RemoteId.SplitscreenId & pure
-            else fail ("unexpected splitscreen id " ++ show remoteId)
+        splitscreenId <- BinaryBit.getBits 0
+        pure (RemoteId.RemoteSplitscreenId splitscreenId)
     1 -> do
-        bytes <- Bits.getByteString 8
-        let remoteId = Binary.runGet
-                Binary.getWord64le
-                (bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes)
-        remoteId & Word64.toWord64 & RemoteId.SteamId & pure
+        steamId <- BinaryBit.getBits 0
+        pure (RemoteId.RemoteSteamId steamId)
     2 -> do
-        nameBytes <- Bits.getByteString 16
-        let name = nameBytes
-                & Endian.reverseBitsInStrictBytes
-                & Encoding.decodeLatin1
-                & StrictText.dropWhileEnd (== '\0')
-                & Text.Text
-
-        unknownBytes <- Bits.getByteString 16
-        let unknown = unknownBytes
-                & Endian.reverseBitsInStrictBytes
-                & LazyBytes.fromStrict
-                & LazyBytes.unpack
-                & concatMap (\ b -> Printf.printf "%02x" b)
-                & ("0x" ++)
-                & StrictText.pack
-                & Text.Text
-
-        pure (RemoteId.PlayStationId name unknown)
+        playStationId <- BinaryBit.getBits 0
+        pure (RemoteId.RemotePlayStationId playStationId)
     4 -> do
-        bytes <- Bits.getByteString 8
-        let remoteId = Binary.runGet
-                Binary.getWord64le
-                (bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes)
-        remoteId & Word64.toWord64 & RemoteId.XboxId & pure
+        xboxId <- BinaryBit.getBits 0
+        pure (RemoteId.RemoteXboxId xboxId)
     _ -> fail ("unknown system id " ++ show systemId)
 
 
@@ -778,23 +750,23 @@ getInt maxValue = do
 
 
 getInt32 :: Bits.BitGet Int32.Int32
-getInt32 = BinaryBit.getBits unimportant
+getInt32 = BinaryBit.getBits 0
 
 
 getInt8 :: Bits.BitGet Int8.Int8
-getInt8 = BinaryBit.getBits unimportant
+getInt8 = BinaryBit.getBits 0
 
 
 getWord64 :: Bits.BitGet Word64.Word64
-getWord64 = BinaryBit.getBits unimportant
+getWord64 = BinaryBit.getBits 0
 
 
 getWord32 :: Bits.BitGet Word32.Word32
-getWord32 = BinaryBit.getBits unimportant
+getWord32 = BinaryBit.getBits 0
 
 
 getWord8 :: Bits.BitGet Word8.Word8
-getWord8 = BinaryBit.getBits unimportant
+getWord8 = BinaryBit.getBits 0
 
 
 getActorId :: Bits.BitGet Int
@@ -810,10 +782,4 @@ getInt7 = getInt 7
 
 
 getBool :: Bits.BitGet Boolean.Boolean
-getBool = BinaryBit.getBits unimportant
-
-
--- | The 'getBits' function from "Data.Binary.Bits" requires a size parameter.
--- None of Octane's instances use it.
-unimportant :: Int
-unimportant = 0
+getBool = BinaryBit.getBits 0
