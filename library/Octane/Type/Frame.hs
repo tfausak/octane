@@ -137,7 +137,7 @@ getType value = case value of
     Value.VGameMode _ -> "GameMode"
     Value.VInt _ -> "Int"
     Value.VLoadout _ _ _ _ _ _ _ _ _ -> "Loadout"
-    Value.VLoadoutOnline _ _ _ _ -> "OnlineLoadout"
+    Value.VLoadoutOnline _ -> "OnlineLoadout"
     Value.VLocation _ -> "Position"
     Value.VMusicStinger _ _ _ -> "MusicStinger"
     Value.VPickup _ _ _ -> "Pickup"
@@ -202,7 +202,7 @@ getValue value = case value of
         , ("Unknown1", Aeson.toJSON x)
         , ("Unknown2", Aeson.toJSON y)
         ]
-    Value.VLoadoutOnline a b c d -> Aeson.toJSON (a, b, c, d)
+    Value.VLoadoutOnline a -> Aeson.toJSON a
     Value.VLocation x -> Aeson.toJSON x
     Value.VMusicStinger a b c -> Aeson.toJSON (a, b, c)
     Value.VPickup a b c -> Aeson.toJSON (a, b, c)

@@ -4,8 +4,6 @@
 
 module Octane.Utility.Parser (parseFrames) where
 
-import Debug.Trace
-
 import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
@@ -381,16 +379,13 @@ getIntProperty = do
 getLoadoutOnlineProperty :: Bits.BitGet Value.Value
 getLoadoutOnlineProperty = do
     size <- getWord8
-    traceM ("client loadout online size " ++ show size)
-    _values <- Monad.replicateM (size & Word8.unpack & fromIntegral) (do
-        a <- getWord8
-        b <- case a of
-            0x00 -> pure Nothing
-            0x01 -> fmap Just (Bits.getWord64be 37)
-            _ -> fail ("unexpected value " ++ show a)
-        traceM ("  " ++ show a ++ ": " ++ show b)
-        pure (a, b))
-    pure (Value.VLoadoutOnline 0 0 0 Nothing)
+    values <- Monad.replicateM (size & Word8.unpack & fromIntegral) (do
+        innerSize <- getWord8
+        Monad.replicateM (innerSize & Word8.unpack & fromIntegral) (do
+            x <- getWord32
+            y <- getInt 27
+            pure (x, y)))
+    pure (Value.VLoadoutOnline values)
 
 
 getLoadoutProperty :: Bits.BitGet Value.Value
