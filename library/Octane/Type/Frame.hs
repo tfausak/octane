@@ -178,27 +178,27 @@ getValue value = case value of
         [ ("Version", Aeson.toJSON version)
         , ("Body", Aeson.object
             [ ("Id", Aeson.toJSON body)
-            , ("Name", body & getBody & Aeson.toJSON)
+            , ("Name", body & getProduct & Aeson.toJSON)
             ])
         , ("Decal", Aeson.object
             [ ("Id", Aeson.toJSON decal)
-            , ("Name", decal & getDecal & Aeson.toJSON)
+            , ("Name", decal & getProduct & Aeson.toJSON)
             ])
         , ("Wheels", Aeson.object
             [ ("Id", Aeson.toJSON wheels)
-            , ("Name", wheels & getWheels & Aeson.toJSON)
+            , ("Name", wheels & getProduct & Aeson.toJSON)
             ])
         , ("RocketTrail", Aeson.object
             [ ("Id", Aeson.toJSON rocketTrail)
-            , ("Name", rocketTrail & getRocketTrail & Aeson.toJSON)
+            , ("Name", rocketTrail & getProduct & Aeson.toJSON)
             ])
         , ("Antenna", Aeson.object
             [ ("Id", Aeson.toJSON antenna)
-            , ("Name", antenna & getAntenna & Aeson.toJSON)
+            , ("Name", antenna & getProduct & Aeson.toJSON)
             ])
         , ("Topper", Aeson.object
             [ ("Id", Aeson.toJSON topper)
-            , ("Name", topper & getTopper & Aeson.toJSON)
+            , ("Name", topper & getProduct & Aeson.toJSON)
             ])
         , ("Unknown1", Aeson.toJSON x)
         , ("Unknown2", Aeson.toJSON y)
@@ -240,11 +240,11 @@ getValue value = case value of
         , ("AccentColor", Aeson.toJSON color2)
         , ("PrimaryFinish", Aeson.object
             [ ("Id", Aeson.toJSON finish1)
-            , ("Name", finish1 & getFinish & Aeson.toJSON)
+            , ("Name", finish1 & getProduct & Aeson.toJSON)
             ])
         , ("AccentFinish", Aeson.object
             [ ("Id", Aeson.toJSON finish2)
-            , ("Name", finish2 & getFinish & Aeson.toJSON)
+            , ("Name", finish2 & getProduct & Aeson.toJSON)
             ])
         ]
     Value.VUniqueId systemId remoteId localId -> Aeson.object
@@ -267,29 +267,5 @@ getGameMode :: Word8.Word8 -> Maybe StrictText.Text
 getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
 
 
-getBody :: Word32.Word32 -> Maybe StrictText.Text
-getBody x = Bimap.lookup (Word32.fromWord32 x) Data.bodies
-
-
-getDecal :: Word32.Word32 -> Maybe StrictText.Text
-getDecal x = Bimap.lookup (Word32.fromWord32 x) Data.decals
-
-
-getWheels :: Word32.Word32 -> Maybe StrictText.Text
-getWheels x = Bimap.lookup (Word32.fromWord32 x) Data.wheels
-
-
-getRocketTrail :: Word32.Word32 -> Maybe StrictText.Text
-getRocketTrail x = Bimap.lookup (Word32.fromWord32 x) Data.rocketTrails
-
-
-getAntenna :: Word32.Word32 -> Maybe StrictText.Text
-getAntenna x = Bimap.lookup (Word32.fromWord32 x) Data.antennas
-
-
-getTopper :: Word32.Word32 -> Maybe StrictText.Text
-getTopper x = Bimap.lookup (Word32.fromWord32 x) Data.toppers
-
-
-getFinish :: Word32.Word32 -> Maybe StrictText.Text
-getFinish x = Bimap.lookup (Word32.fromWord32 x) Data.finishes
+getProduct :: Word32.Word32 -> Maybe StrictText.Text
+getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
