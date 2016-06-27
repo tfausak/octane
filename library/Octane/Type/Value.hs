@@ -65,10 +65,7 @@ data Value
         Word32.Word32
         (Maybe Word32.Word32)
     | VLoadoutOnline
-        Word32.Word32
-        Word32.Word32
-        Word32.Word32
-        (Maybe Word8.Word8)
+        [[(Word32.Word32, Int)]]
     | VLocation
         (Vector.Vector Int)
     | VMusicStinger
