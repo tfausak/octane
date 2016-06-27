@@ -39,7 +39,7 @@ many other Rocket League replay parsers.
 
 [Octane]: https://github.com/tfausak/octane
 [Version badge]: https://www.stackage.org/package/octane/badge/nightly?label=version
-[version]: https://www.stackage.org/package/octane
+[version]: https://www.stackage.org/nightly/package/octane
 [Windows build badge]: https://ci.appveyor.com/api/projects/status/github/tfausak/octane?branch=main&svg=true
 [windows build]: https://ci.appveyor.com/project/TaylorFausak/octane
 [Build badge]: https://travis-ci.org/tfausak/octane.svg?branch=main
