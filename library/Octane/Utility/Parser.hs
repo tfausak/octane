@@ -255,7 +255,7 @@ getProp context thing = do
         Nothing -> fail ("could not find property map for class id " ++ show classId)
         Just x -> pure x
     let maxId = props & IntMap.keys & (0 :) & maximum
-    pid <- getInt maxId
+    pid <- getPropId maxId
     name <- case props & IntMap.lookup pid of
         Nothing -> fail ("could not find property name for property id " ++ show pid)
         Just x -> pure x
@@ -780,4 +780,10 @@ getBool = BinaryBit.getBits 0
 getFloatDelta :: Int -> Bits.BitGet Int
 getFloatDelta serIntMax = do
     x <- BinaryBit.getBits serIntMax
-    x & CompressedWord.value & fromIntegral & pure
+    x & CompressedWord.fromCompressedWord & pure
+
+
+getPropId :: Int -> Bits.BitGet Int
+getPropId maxId = do
+    x <- BinaryBit.getBits maxId
+    x & CompressedWord.fromCompressedWord & pure
