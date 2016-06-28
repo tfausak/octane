@@ -7,6 +7,7 @@ module Octane.Type.Value (Value(..)) where
 import qualified Control.DeepSeq as DeepSeq
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
+import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Type.RemoteId as RemoteId
@@ -88,7 +89,7 @@ data Value
     | VRelativeRotation
         (Vector.Vector Float)
     | VReservation
-        Int
+        CompressedWord.CompressedWord
         Word8.Word8
         RemoteId.RemoteId
         (Maybe Word8.Word8)

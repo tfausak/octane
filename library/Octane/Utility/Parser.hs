@@ -768,8 +768,8 @@ getNumVectorBits :: Bits.BitGet Int
 getNumVectorBits = getInt 19
 
 
-getInt7 :: Bits.BitGet Int
-getInt7 = getInt 7
+getInt7 :: Bits.BitGet CompressedWord.CompressedWord
+getInt7 = BinaryBit.getBits 7
 
 
 getBool :: Bits.BitGet Boolean.Boolean
