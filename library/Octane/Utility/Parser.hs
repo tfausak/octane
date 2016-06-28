@@ -632,9 +632,9 @@ getVector = do
     let bias = Bits.shiftL 1 (numBits + 1)
     let maxBits = numBits + 2
     let maxValue = 2 ^ maxBits
-    dx <- getInt maxValue
-    dy <- getInt maxValue
-    dz <- getInt maxValue
+    dx <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
+    dy <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
+    dz <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
     pure
         Vector.Vector
         { Vector.x = dx - bias
@@ -706,39 +706,6 @@ getInitialization className = do
         { Initialization.location = location
         , Initialization.rotation = rotation
         }
-
-
-bitSize
-    :: (Integral a)
-    => a -> a
-bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling
-
-
--- Reads an integer bitwise. The bits of the integer are backwards, so the
--- least significant bit is first. The argument is the maximum value this
--- integer can have. Bits will be read until the next bit would be greater than
--- the maximum value, or the number of bits necessary to reach the maximum
--- value has been reached, whichever comes first.
---
--- For example, if the maximum value is 4 and "11" has been read already,
--- nothing more will be read because another "1" would put the value over the
--- maximum.
-getInt
-    :: Int -> Bits.BitGet Int
-getInt maxValue = do
-    let maxBits = bitSize maxValue
-        go i value = do
-            let x = Bits.shiftL 1 i
-            if i < maxBits && value + x <= maxValue
-                then do
-                    bit <- getBool
-                    let newValue =
-                            if Boolean.unpack bit
-                                then value + x
-                                else value
-                    go (i + 1) newValue
-                else pure value
-    go 0 0
 
 
 getInt32 :: Bits.BitGet Int32.Int32
