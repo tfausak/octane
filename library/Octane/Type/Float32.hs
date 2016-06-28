@@ -29,7 +29,9 @@ newtype Float32 = Float32
     { unpack :: Float
     } deriving (Eq, Fractional, Generics.Generic, Num, Ord)
 
--- | >>> Binary.decode "\x9a\x99\x99\x3f" :: Float32
+-- | Little-endian.
+--
+-- >>> Binary.decode "\x9a\x99\x99\x3f" :: Float32
 -- 1.2
 --
 -- >>> Binary.encode (1.2 :: Float32)
@@ -43,7 +45,9 @@ instance Binary.Binary Float32 where
         & unpack
         & IEEE754.putFloat32le
 
--- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x59\x99\x99\xfc" :: Float32
+-- | Little-endian with the bits in each byte reversed.
+--
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x59\x99\x99\xfc" :: Float32
 -- 1.2
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1.2 :: Float32)))

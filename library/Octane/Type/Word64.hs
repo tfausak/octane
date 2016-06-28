@@ -30,7 +30,9 @@ newtype Word64 = Word64
     { unpack :: Word.Word64
     } deriving (Eq, Generics.Generic, Num, Ord)
 
--- | >>> Binary.decode "\x01\x00\x00\x00\x00\x00\x00\x00" :: Word64
+-- | Little-endian.
+--
+-- >>> Binary.decode "\x01\x00\x00\x00\x00\x00\x00\x00" :: Word64
 -- 0x0000000000000001
 --
 -- >>> Binary.encode (1 :: Word64)
@@ -44,7 +46,9 @@ instance Binary.Binary Word64 where
         let value = unpack word64
         Binary.putWord64le value
 
--- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00\x00\x00\x00\x00" :: Word64
+-- | Little-endian with the bits in each byte reversed.
+--
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00\x00\x00\x00\x00" :: Word64
 -- 0x0000000000000001
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1 :: Word64)))

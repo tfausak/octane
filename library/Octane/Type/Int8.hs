@@ -70,7 +70,7 @@ instance DeepSeq.NFData Int8 where
 
 -- | Shown as @1234@.
 --
--- show (1 :: Int8)
+-- >>> show (1 :: Int8)
 -- "1"
 instance Show Int8 where
     show int8 = show (unpack int8)

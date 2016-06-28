@@ -21,7 +21,9 @@ newtype Word16 = Word16
     { unpack :: Word.Word16
     } deriving (Eq, Generics.Generic, Num, Ord)
 
--- | >>> Binary.decode "\x01\x00" :: Word16
+-- | Little-endian.
+--
+-- >>> Binary.decode "\x01\x00" :: Word16
 -- 0x0001
 --
 -- >>> Binary.encode (1 :: Word16)

@@ -25,7 +25,9 @@ newtype Int32 = Int32
     { unpack :: Int.Int32
     } deriving (Eq, Generics.Generic, Num, Ord)
 
--- | >>> Binary.decode "\x01\x00\x00\x00" :: Int32
+-- | Little-endian.
+--
+-- >>> Binary.decode "\x01\x00\x00\x00" :: Int32
 -- 1
 --
 -- >>> Binary.encode (1 :: Int32)
@@ -39,7 +41,9 @@ instance Binary.Binary Int32 where
         let value = unpack int32
         Binary.putInt32le value
 
--- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00" :: Int32
+-- | Little-endian with the bits in each byte reversed.
+--
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00" :: Int32
 -- 1
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1 :: Int32)))
@@ -64,7 +68,7 @@ instance DeepSeq.NFData Int32 where
 
 -- | Shown as @1234@.
 --
--- show (1 :: Int32)
+-- >>> show (1 :: Int32)
 -- "1"
 instance Show Int32 where
     show int32 = show (unpack int32)

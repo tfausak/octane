@@ -32,6 +32,7 @@ import qualified Text.Printf as Printf
 -- >>> import qualified Data.Binary.Get as Binary
 -- >>> import qualified Data.Binary.Put as Binary
 
+
 -- | A player's canonical remote ID. This is the best way to uniquely identify
 -- players
 data RemoteId

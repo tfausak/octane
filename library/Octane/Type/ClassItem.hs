@@ -14,7 +14,7 @@ import qualified Octane.Type.Word32 as Word32
 
 
 -- | A class (like @Core.Object@) and it's associated ID in the net stream
--- (like 0).
+-- (like @0@).
 data ClassItem = ClassItem
     { name :: Text.Text
     -- ^ The class's name.

@@ -30,7 +30,9 @@ newtype Word32 = Word32
     { unpack :: Word.Word32
     } deriving (Eq, Generics.Generic, Num, Ord)
 
--- | >>> Binary.decode "\x01\x00\x00\x00" :: Word32
+-- | Little-endian.
+--
+-- >>> Binary.decode "\x01\x00\x00\x00" :: Word32
 -- 0x00000001
 --
 -- >>> Binary.encode (1 :: Word32)
@@ -44,7 +46,9 @@ instance Binary.Binary Word32 where
         let value = unpack word32
         Binary.putWord32le value
 
--- | >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00" :: Word32
+-- | Little-endian with the bits in each byte reversed.
+--
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00" :: Word32
 -- 0x00000001
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1 :: Word32)))

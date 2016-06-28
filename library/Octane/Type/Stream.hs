@@ -43,8 +43,11 @@ instance DeepSeq.NFData Stream where
 
 -- | Doesn't show the actual bytes to avoid dumping tons of text.
 --
--- >>> show (Stream "\xf0")
+-- >>> show (Stream "\x00")
 -- "Stream {unpack = \"1 byte\"}"
+--
+-- >>> show (Stream "\x00\x00")
+-- "Stream {unpack = \"2 bytes\"}"
 instance Show Stream where
     show stream = do
         let size = stream & unpack & LazyBytes.length
