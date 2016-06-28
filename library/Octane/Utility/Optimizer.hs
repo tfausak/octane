@@ -8,6 +8,7 @@ import qualified Data.Foldable as Foldable
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as StrictText
+import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
@@ -43,7 +44,7 @@ updateState frame state1 = let
             & Replication.state
             & (== State.SOpening))
         & map Replication.actorId
-        & map fromIntegral
+        & map CompressedWord.fromCompressedWord
     state2 = spawned
         & foldr
             (IntMap.alter (\ maybeValue -> Just (case maybeValue of
@@ -57,7 +58,7 @@ updateState frame state1 = let
             & Replication.state
             & (== State.SClosing))
         & map Replication.actorId
-        & map fromIntegral
+        & map CompressedWord.fromCompressedWord
     state3 = destroyed
         & foldr
             (IntMap.alter (\ maybeValue -> Just (case maybeValue of
@@ -82,7 +83,7 @@ updateState frame state1 = let
                             (Replication.properties replication)
                             properties
                         )))
-                (replication & Replication.actorId & fromIntegral))
+                (replication & Replication.actorId & CompressedWord.fromCompressedWord))
             state3
 
     in state4
@@ -96,7 +97,7 @@ getDelta state frame = let
         & reject (\ replication -> let
             isOpening = Replication.state replication == State.SOpening
             actorId = Replication.actorId replication
-            currentState = IntMap.lookup (fromIntegral actorId) state
+            currentState = IntMap.lookup (CompressedWord.fromCompressedWord actorId) state
             isAlive = fmap fst currentState
             wasAlreadyAlive = isAlive == Just True
             in isOpening && wasAlreadyAlive)
@@ -106,7 +107,7 @@ getDelta state frame = let
             then let
                 actorId = Replication.actorId replication
                 currentState = IntMap.findWithDefault
-                    (True, Map.empty) (fromIntegral actorId) state
+                    (True, Map.empty) (CompressedWord.fromCompressedWord actorId) state
                 currentProperties = snd currentState
                 newProperties = Replication.properties replication
                 changes = newProperties

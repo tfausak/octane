@@ -8,6 +8,7 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
+import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Value as Value
@@ -18,7 +19,7 @@ import qualified Octane.Type.Value as Value
 -- This cannot be an instance of 'Data.Binary.Bits.BinaryBit' because it
 -- requires out-of-band information (the class property map) to decode.
 data Replication = Replication
-    { actorId :: Word
+    { actorId :: CompressedWord.CompressedWord
     -- ^ The actor's ID.
     , objectName :: StrictText.Text
     -- ^ The name of the actor's object.

@@ -20,6 +20,7 @@ import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
+import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Frame as Frame
@@ -137,7 +138,7 @@ getReplication context = do
 
 
 getOpenReplication :: Context
-                   -> Int
+                   -> CompressedWord.CompressedWord
                    -> Bits.BitGet (Context, Replication.Replication)
 getOpenReplication context actorId = do
     isNew <- getBool
@@ -149,7 +150,7 @@ getOpenReplication context actorId = do
 
 
 getNewReplication :: Context
-                  -> Int
+                  -> CompressedWord.CompressedWord
                   -> Bits.BitGet (Context, Replication.Replication)
 getNewReplication context actorId = do
     unknownFlag <- getBool
@@ -173,12 +174,12 @@ getNewReplication context actorId = do
             , thingInitialization = classInit
             }
     let things = contextThings context
-    let newThings = IntMap.insert actorId thing things
+    let newThings = IntMap.insert (CompressedWord.fromCompressedWord actorId) thing things
     let newContext = context { contextThings = newThings }
     pure
         ( newContext
         , Replication.Replication
-          { Replication.actorId = fromIntegral actorId
+          { Replication.actorId = actorId
           , Replication.objectName = objectName
           , Replication.className = className
           , Replication.state = State.SOpening
@@ -188,15 +189,15 @@ getNewReplication context actorId = do
 
 
 getExistingReplication :: Context
-                       -> Int
+                       -> CompressedWord.CompressedWord
                        -> Bits.BitGet (Context, Replication.Replication)
 getExistingReplication context actorId = do
-    thing <- case context & contextThings & IntMap.lookup actorId of
+    thing <- case context & contextThings & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
         Nothing -> fail ("could not find thing for existing actor " ++ show actorId)
         Just x -> pure x
     props <- getProps context thing
     pure (context, Replication.Replication
-        { Replication.actorId = fromIntegral actorId
+        { Replication.actorId = actorId
         , Replication.objectName = thingObjectName thing
         , Replication.className = thingClassName thing
         , Replication.state = State.SExisting
@@ -206,18 +207,18 @@ getExistingReplication context actorId = do
 
 
 getClosedReplication :: Context
-                     -> Int
+                     -> CompressedWord.CompressedWord
                      -> Bits.BitGet (Context, Replication.Replication)
 getClosedReplication context actorId = do
-    thing <- case context & contextThings & IntMap.lookup actorId of
+    thing <- case context & contextThings & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
         Nothing -> fail ("could not find thing for closed actor " ++ show actorId)
         Just x -> pure x
-    let newThings = context & contextThings & IntMap.delete actorId
+    let newThings = context & contextThings & IntMap.delete (CompressedWord.fromCompressedWord actorId)
     let newContext = context { contextThings = newThings }
     pure
         ( newContext
         , Replication.Replication
-          { Replication.actorId = fromIntegral actorId
+          { Replication.actorId = actorId
           , Replication.objectName = thingObjectName thing
           , Replication.className = thingClassName thing
           , Replication.state = State.SClosing
@@ -759,8 +760,8 @@ getWord8 :: Bits.BitGet Word8.Word8
 getWord8 = BinaryBit.getBits 0
 
 
-getActorId :: Bits.BitGet Int
-getActorId = getInt 1024
+getActorId :: Bits.BitGet CompressedWord.CompressedWord
+getActorId = BinaryBit.getBits 1024
 
 
 getNumVectorBits :: Bits.BitGet Int
