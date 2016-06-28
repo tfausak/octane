@@ -675,7 +675,7 @@ getFloat maxValue numBits = do
     let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
     let bias = Bits.shiftL 1 (numBits - 1)
     let serIntMax = Bits.shiftL 1 numBits
-    delta <- getInt serIntMax
+    delta <- getFloatDelta serIntMax
     let unscaledValue = delta - bias
     if maxValue > maxBitValue
     then do
@@ -775,3 +775,9 @@ getInt7 = BinaryBit.getBits 7
 
 getBool :: Bits.BitGet Boolean.Boolean
 getBool = BinaryBit.getBits 0
+
+
+getFloatDelta :: Int -> Bits.BitGet Int
+getFloatDelta serIntMax = do
+    x <- BinaryBit.getBits serIntMax
+    x & CompressedWord.value & fromIntegral & pure
