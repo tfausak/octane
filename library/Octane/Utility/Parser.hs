@@ -324,8 +324,8 @@ getDemolishProperty = do
     atk <- getWord32
     vicFlag <- getBool
     vic <- getWord32
-    vec1 <- getVector
-    vec2 <- getVector
+    vec1 <- Vector.getIntVector
+    vec2 <- Vector.getIntVector
     pure (Value.VDemolish atkFlag atk vicFlag vic vec1 vec2)
 
 
@@ -344,7 +344,7 @@ getExplosionProperty = do
     a <- if Boolean.unpack noGoal
         then pure Nothing
         else fmap Just getInt32
-    b <- getVector
+    b <- Vector.getIntVector
     pure (Value.VExplosion noGoal a b)
 
 
@@ -405,7 +405,7 @@ getLoadoutProperty = do
 
 getLocationProperty :: Bits.BitGet Value.Value
 getLocationProperty = do
-    vector <- getVector
+    vector <- Vector.getIntVector
     pure (Value.VLocation vector)
 
 
@@ -481,14 +481,14 @@ neoTokyoVersion = Version.makeVersion [868, 12]
 getRigidBodyStateProperty :: Bits.BitGet Value.Value
 getRigidBodyStateProperty = do
     flag <- getBool
-    position <- getVector
+    position <- Vector.getIntVector
     rotation <- getFloatVector
     x <- if Boolean.unpack flag
         then pure Nothing
-        else fmap Just getVector
+        else fmap Just Vector.getIntVector
     y <- if Boolean.unpack flag
         then pure Nothing
-        else fmap Just getVector
+        else fmap Just Vector.getIntVector
     pure (Value.VRigidBodyState flag position rotation x y)
 
 
@@ -625,24 +625,6 @@ extractContext replay =
     }
 
 
-getVector :: Bits.BitGet (Vector.Vector Int)
-getVector = do
-    rawNumBits <- getNumVectorBits
-    let numBits = rawNumBits & CompressedWord.value & fromIntegral
-    let bias = Bits.shiftL 1 (numBits + 1)
-    let maxBits = numBits + 2
-    let maxValue = 2 ^ maxBits
-    dx <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
-    dy <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
-    dz <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
-    pure
-        Vector.Vector
-        { Vector.x = dx - bias
-        , Vector.y = dy - bias
-        , Vector.z = dz - bias
-        }
-
-
 getVectorBytewise
     :: Bits.BitGet (Vector.Vector Int8.Int8)
 getVectorBytewise = do
@@ -692,7 +674,7 @@ getInitialization className = do
     location <-
         if Set.member className Data.classesWithLocation
             then do
-                vector <- getVector
+                vector <- Vector.getIntVector
                 pure (Just vector)
             else pure Nothing
     rotation <-
@@ -730,10 +712,6 @@ getWord8 = BinaryBit.getBits 0
 
 getActorId :: Bits.BitGet CompressedWord.CompressedWord
 getActorId = BinaryBit.getBits 1024
-
-
-getNumVectorBits :: Bits.BitGet CompressedWord.CompressedWord
-getNumVectorBits = BinaryBit.getBits 19
 
 
 getInt7 :: Bits.BitGet CompressedWord.CompressedWord
