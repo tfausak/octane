@@ -380,7 +380,7 @@ getLoadoutOnlineProperty = do
         innerSize <- getWord8
         Monad.replicateM (innerSize & Word8.unpack & fromIntegral) (do
             x <- getWord32
-            y <- getInt 27
+            y <- BinaryBit.getBits 27
             pure (x, y)))
     pure (Value.VLoadoutOnline values)
 
