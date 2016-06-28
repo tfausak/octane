@@ -2,7 +2,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Type.Vector (Vector(..), getIntVector) where
+module Octane.Type.Vector (Vector(..), getFloatVector, getIntVector) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -32,11 +32,37 @@ instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a) where
 -- Aeson.encode (Vector 1 2 3 :: Vector Int)
 -- "[1,2,3]"
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
-    toJSON vector = Aeson.toJSON
-        [ x vector
-        , y vector
-        , z vector
-        ]
+    toJSON vector = Aeson.toJSON [x vector, y vector, z vector]
+
+
+-- | Gets a 'Vector' full of 'Float's.
+getFloatVector :: BinaryBit.BitGet (Vector Float)
+getFloatVector = do
+    let maxValue = 1
+    let numBits = 16
+
+    x' <- getFloat maxValue numBits
+    y' <- getFloat maxValue numBits
+    z' <- getFloat maxValue numBits
+
+    pure Vector { x = x', y = y', z = z' }
+
+
+getFloat :: Int -> Int -> BinaryBit.BitGet Float
+getFloat maxValue numBits = do
+    let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
+    let bias = Bits.shiftL 1 (numBits - 1)
+    let serIntMax = Bits.shiftL 1 numBits
+    delta <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits serIntMax)
+    let unscaledValue = (delta :: Int) - bias
+    if maxValue > maxBitValue
+    then do
+        let invScale = fromIntegral maxValue / fromIntegral maxBitValue
+        pure (fromIntegral unscaledValue * invScale)
+    else do
+        let scale = fromIntegral maxBitValue / fromIntegral maxValue
+        let invScale = 1.0 / scale
+        pure (fromIntegral unscaledValue * invScale)
 
 
 -- | Gets a 'Vector' full of 'Int's.
@@ -51,8 +77,4 @@ getIntVector = do
     dy <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
     dz <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
 
-    pure Vector
-        { x = dx - bias
-        , y = dy - bias
-        , z = dz - bias
-        }
+    pure Vector { x = dx - bias , y = dy - bias , z = dz - bias }

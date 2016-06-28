@@ -11,7 +11,6 @@ import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.Get as Binary
-import qualified Data.Bits as Bits
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
@@ -446,7 +445,7 @@ getQWordProperty = do
 
 getRelativeRotationProperty :: Bits.BitGet Value.Value
 getRelativeRotationProperty = do
-    vector <- getFloatVector
+    vector <- Vector.getFloatVector
     pure (Value.VRelativeRotation vector)
 
 getReservationProperty :: Context -> Bits.BitGet Value.Value
@@ -482,7 +481,7 @@ getRigidBodyStateProperty :: Bits.BitGet Value.Value
 getRigidBodyStateProperty = do
     flag <- getBool
     position <- Vector.getIntVector
-    rotation <- getFloatVector
+    rotation <- Vector.getFloatVector
     x <- if Boolean.unpack flag
         then pure Nothing
         else fmap Just Vector.getIntVector
@@ -640,33 +639,6 @@ getVectorBytewise = do
         , Vector.y = y
         , Vector.z = z
         }
-
-
-getFloatVector :: Bits.BitGet (Vector.Vector Float)
-getFloatVector = do
-    let maxValue = 1
-    let numBits = 16
-    x <- getFloat maxValue numBits
-    y <- getFloat maxValue numBits
-    z <- getFloat maxValue numBits
-    pure Vector.Vector { Vector.x = x, Vector.y = y, Vector.z = z }
-
-
-getFloat :: Int -> Int -> Bits.BitGet Float
-getFloat maxValue numBits = do
-    let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
-    let bias = Bits.shiftL 1 (numBits - 1)
-    let serIntMax = Bits.shiftL 1 numBits
-    delta <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits serIntMax)
-    let unscaledValue = (delta :: Int) - bias
-    if maxValue > maxBitValue
-    then do
-        let invScale = fromIntegral maxValue / fromIntegral maxBitValue
-        pure (fromIntegral unscaledValue * invScale)
-    else do
-        let scale = fromIntegral maxBitValue / fromIntegral maxValue
-        let invScale = 1.0 / scale
-        pure (fromIntegral unscaledValue * invScale)
 
 
 getInitialization :: StrictText.Text -> Bits.BitGet Initialization.Initialization
