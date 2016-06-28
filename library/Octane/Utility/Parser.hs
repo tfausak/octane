@@ -627,7 +627,8 @@ extractContext replay =
 
 getVector :: Bits.BitGet (Vector.Vector Int)
 getVector = do
-    numBits <- getNumVectorBits
+    rawNumBits <- getNumVectorBits
+    let numBits = rawNumBits & CompressedWord.value & fromIntegral
     let bias = Bits.shiftL 1 (numBits + 1)
     let maxBits = numBits + 2
     let maxValue = 2 ^ maxBits
@@ -764,8 +765,8 @@ getActorId :: Bits.BitGet CompressedWord.CompressedWord
 getActorId = BinaryBit.getBits 1024
 
 
-getNumVectorBits :: Bits.BitGet Int
-getNumVectorBits = getInt 19
+getNumVectorBits :: Bits.BitGet CompressedWord.CompressedWord
+getNumVectorBits = BinaryBit.getBits 19
 
 
 getInt7 :: Bits.BitGet CompressedWord.CompressedWord
