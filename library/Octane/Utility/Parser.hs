@@ -126,7 +126,7 @@ getMaybeReplication context = do
 
 getReplication :: Context -> Bits.BitGet (Context, Replication.Replication)
 getReplication context = do
-    actorId <- getActorId
+    actorId <- BinaryBit.getBits maxActorId
     isOpen <- getBool
     let go =
             if Boolean.unpack isOpen
@@ -375,10 +375,10 @@ getIntProperty = do
 
 getLoadoutOnlineProperty :: Bits.BitGet Value.Value
 getLoadoutOnlineProperty = do
-    size <- getWord8
-    values <- Monad.replicateM (size & Word8.unpack & fromIntegral) (do
-        innerSize <- getWord8
-        Monad.replicateM (innerSize & Word8.unpack & fromIntegral) (do
+    size <- fmap Word8.fromWord8 getWord8
+    values <- Monad.replicateM size (do
+        innerSize <- fmap Word8.fromWord8 getWord8
+        Monad.replicateM innerSize (do
             x <- getWord32
             y <- BinaryBit.getBits 27
             pure (x, y)))
@@ -395,11 +395,7 @@ getLoadoutProperty = do
     antenna <- getWord32
     topper <- getWord32
     g <- getWord32
-    h <- if version > 10
-        then do
-            value <- getWord32
-            pure (Just value)
-        else pure Nothing
+    h <- if version > 10 then fmap Just getWord32 else pure Nothing
     pure (Value.VLoadout version body decal wheels rocketTrail antenna topper g h)
 
 
@@ -454,11 +450,9 @@ getReservationProperty context = do
     -- I think this is the connection order. The first player to connect
     -- gets number 0, and it goes up from there. The maximum is 7, which
     -- would be a full 4x4 game.
-    number <- getInt7
+    number <- BinaryBit.getBits maxConnectionNumber
     (systemId, remoteId, localId) <- getUniqueId
-    playerName <- if systemId == 0 then pure Nothing else do
-        string <- getText
-        pure (Just string)
+    playerName <- if systemId == 0 then pure Nothing else fmap Just getText
     -- No idea what these two flags are. Might be for bots?
     a <- getBool
     b <- getBool
@@ -472,10 +466,6 @@ getReservationProperty context = do
             fail (Printf.printf "Read 6 reservation bits and they weren't all 0! 0b%06b" x)))
 
     pure (Value.VReservation number systemId remoteId localId playerName a b)
-
-
-neoTokyoVersion :: Version.Version
-neoTokyoVersion = Version.makeVersion [868, 12]
 
 
 getRigidBodyStateProperty :: Bits.BitGet Value.Value
@@ -518,34 +508,22 @@ getUniqueIdProperty = do
 -- specially because it sometimes doesn't have the remote or local IDs.
 getPartyLeaderProperty :: Bits.BitGet Value.Value
 getPartyLeaderProperty = do
-    systemId <- getSystemId
+    systemId <- getWord8
     (remoteId, localId) <- if systemId == 0
         then pure (RemoteId.RemoteSplitscreenId (RemoteId.SplitscreenId Nothing), Nothing)
         else do
             remoteId <- getRemoteId systemId
-            localId <- getLocalId
+            localId <- fmap Just getWord8
             pure (remoteId, localId)
     pure (Value.VUniqueId systemId remoteId localId)
 
 
-getFloat32 :: Bits.BitGet Float32.Float32
-getFloat32 = BinaryBit.getBits 0
-
-
-getText :: Bits.BitGet Text.Text
-getText = BinaryBit.getBits 0
-
-
 getUniqueId :: Bits.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
 getUniqueId = do
-    systemId <- getSystemId
+    systemId <- getWord8
     remoteId <- getRemoteId systemId
-    localId <- getLocalId
+    localId <- fmap Just getWord8
     pure (systemId, remoteId, localId)
-
-
-getSystemId :: Bits.BitGet Word8.Word8
-getSystemId = getWord8
 
 
 getRemoteId :: Word8.Word8 -> Bits.BitGet RemoteId.RemoteId
@@ -565,8 +543,7 @@ getRemoteId systemId = case systemId of
     _ -> fail ("unknown system id " ++ show systemId)
 
 
-getLocalId :: Bits.BitGet (Maybe Word8.Word8)
-getLocalId = fmap Just getWord8
+-- Data types
 
 
 data Thing = Thing
@@ -606,8 +583,7 @@ instance DeepSeq.NFData Context
 
 
 extractContext :: ReplayWithoutFrames.ReplayWithoutFrames -> Context
-extractContext replay =
-    Context
+extractContext replay = Context
     { contextObjectMap = CPM.getPropertyMap replay
     , contextClassPropertyMap = CPM.getClassPropertyMap replay
     , contextThings = IntMap.empty
@@ -625,29 +601,47 @@ extractContext replay =
     }
 
 
+-- Constants
+
+
+neoTokyoVersion :: Version.Version
+neoTokyoVersion = Version.makeVersion [868, 12]
+
+
+maxActorId :: Int
+maxActorId = 1024
+
+
+maxConnectionNumber :: Int
+maxConnectionNumber = 7
+
+
+-- Type-restricted helpers.
+
+
+getBool :: Bits.BitGet Boolean.Boolean
+getBool = BinaryBit.getBits 0
+
+
+getFloat32 :: Bits.BitGet Float32.Float32
+getFloat32 = BinaryBit.getBits 0
+
+
 getInt32 :: Bits.BitGet Int32.Int32
 getInt32 = BinaryBit.getBits 0
 
 
-getWord64 :: Bits.BitGet Word64.Word64
-getWord64 = BinaryBit.getBits 0
-
-
-getWord32 :: Bits.BitGet Word32.Word32
-getWord32 = BinaryBit.getBits 0
+getText :: Bits.BitGet Text.Text
+getText = BinaryBit.getBits 0
 
 
 getWord8 :: Bits.BitGet Word8.Word8
 getWord8 = BinaryBit.getBits 0
 
 
-getActorId :: Bits.BitGet CompressedWord.CompressedWord
-getActorId = BinaryBit.getBits 1024
+getWord32 :: Bits.BitGet Word32.Word32
+getWord32 = BinaryBit.getBits 0
 
 
-getInt7 :: Bits.BitGet CompressedWord.CompressedWord
-getInt7 = BinaryBit.getBits 7
-
-
-getBool :: Bits.BitGet Boolean.Boolean
-getBool = BinaryBit.getBits 0
+getWord64 :: Bits.BitGet Word64.Word64
+getWord64 = BinaryBit.getBits 0
