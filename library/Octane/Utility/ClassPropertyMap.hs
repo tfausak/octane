@@ -1,3 +1,5 @@
+{-# LANGUAGE PackageImports #-}
+
 -- | This module is responsible for building the class property map, which maps
 -- class IDs to a map of property IDs to property names. This map is the
 -- cornerstone of the replay stream parser.
@@ -22,7 +24,7 @@ import qualified Octane.Type.List as List
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
-import qualified Text.Regex as Regex
+import qualified "regex-compat" Text.Regex as Regex
 
 
 -- | The class property map is a map from class IDs in the stream to a map from
