@@ -255,7 +255,7 @@ getProp context thing = do
         Nothing -> fail ("could not find property map for class id " ++ show classId)
         Just x -> pure x
     let maxId = props & IntMap.keys & (0 :) & maximum
-    pid <- getPropId maxId
+    pid <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxId)
     name <- case props & IntMap.lookup pid of
         Nothing -> fail ("could not find property name for property id " ++ show pid)
         Just x -> pure x
@@ -675,8 +675,8 @@ getFloat maxValue numBits = do
     let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
     let bias = Bits.shiftL 1 (numBits - 1)
     let serIntMax = Bits.shiftL 1 numBits
-    delta <- getFloatDelta serIntMax
-    let unscaledValue = delta - bias
+    delta <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits serIntMax)
+    let unscaledValue = (delta :: Int) - bias
     if maxValue > maxBitValue
     then do
         let invScale = fromIntegral maxValue / fromIntegral maxBitValue
@@ -742,15 +742,3 @@ getInt7 = BinaryBit.getBits 7
 
 getBool :: Bits.BitGet Boolean.Boolean
 getBool = BinaryBit.getBits 0
-
-
-getFloatDelta :: Int -> Bits.BitGet Int
-getFloatDelta serIntMax = do
-    x <- BinaryBit.getBits serIntMax
-    x & CompressedWord.fromCompressedWord & pure
-
-
-getPropId :: Int -> Bits.BitGet Int
-getPropId maxId = do
-    x <- BinaryBit.getBits maxId
-    x & CompressedWord.fromCompressedWord & pure
