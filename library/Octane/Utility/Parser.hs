@@ -162,7 +162,7 @@ getNewReplication context actorId = do
     (classId, className) <- case CPM.getClass (contextObjectMap context) Data.classes (contextClassMap context) (Int32.fromInt32 objectId) of
         Nothing -> fail ("could not find class for object id " ++ show objectId)
         Just x -> pure x
-    classInit <- getInitialization className
+    classInit <- Initialization.getInitialization className
     let thing = Thing
             { thingFlag = unknownFlag
             , thingObjectId = objectId
@@ -621,27 +621,6 @@ extractContext replay =
         , replay & ReplayWithoutFrames.version2
         ] & map Word32.fromWord32 & Version.makeVersion
     }
-
-
-getInitialization :: StrictText.Text -> Bits.BitGet Initialization.Initialization
-getInitialization className = do
-    location <-
-        if Set.member className Data.classesWithLocation
-            then do
-                vector <- Vector.getIntVector
-                pure (Just vector)
-            else pure Nothing
-    rotation <-
-        if Set.member className Data.classesWithRotation
-            then do
-                vector <- Vector.getInt8Vector
-                pure (Just vector)
-            else pure Nothing
-    pure
-        Initialization.Initialization
-        { Initialization.location = location
-        , Initialization.rotation = rotation
-        }
 
 
 getInt32 :: Bits.BitGet Int32.Int32
