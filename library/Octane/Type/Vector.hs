@@ -2,7 +2,12 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Type.Vector (Vector(..), getFloatVector, getIntVector) where
+module Octane.Type.Vector
+    ( Vector(..)
+    , getFloatVector
+    , getInt8Vector
+    , getIntVector
+    ) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -10,7 +15,9 @@ import qualified Data.Bits as Bits
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified GHC.Generics as Generics
+import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
+import qualified Octane.Type.Int8 as Int8
 
 
 -- | Three values packed together. Although the fields are called @x@, @y@, and
@@ -63,6 +70,21 @@ getFloat maxValue numBits = do
         let scale = fromIntegral maxBitValue / fromIntegral maxValue
         let invScale = 1.0 / scale
         pure (fromIntegral unscaledValue * invScale)
+
+
+-- | Gets a 'Vector' full of 'Int8's.
+getInt8Vector :: BinaryBit.BitGet (Vector Int8.Int8)
+getInt8Vector = do
+    hasX <- BinaryBit.getBits 0
+    x' <- if Boolean.unpack hasX then BinaryBit.getBits 0 else pure 0
+
+    hasY <- BinaryBit.getBits 0
+    y' <- if Boolean.unpack hasY then BinaryBit.getBits 0 else pure 0
+
+    hasZ <- BinaryBit.getBits 0
+    z' <- if Boolean.unpack hasZ then BinaryBit.getBits 0 else pure 0
+
+    pure Vector { x = x' , y = y' , z = z' }
 
 
 -- | Gets a 'Vector' full of 'Int's.

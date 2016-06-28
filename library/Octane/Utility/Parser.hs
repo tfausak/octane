@@ -25,7 +25,6 @@ import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.Int32 as Int32
-import qualified Octane.Type.Int8 as Int8
 import qualified Octane.Type.KeyFrame as KeyFrame
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Property as Property
@@ -624,23 +623,6 @@ extractContext replay =
     }
 
 
-getVectorBytewise
-    :: Bits.BitGet (Vector.Vector Int8.Int8)
-getVectorBytewise = do
-    hasX <- getBool
-    x <- if Boolean.unpack hasX then getInt8 else pure 0
-    hasY <- getBool
-    y <- if Boolean.unpack hasY then getInt8 else pure 0
-    hasZ <- getBool
-    z <- if Boolean.unpack hasZ then getInt8 else pure 0
-    pure
-        Vector.Vector
-        { Vector.x = x
-        , Vector.y = y
-        , Vector.z = z
-        }
-
-
 getInitialization :: StrictText.Text -> Bits.BitGet Initialization.Initialization
 getInitialization className = do
     location <-
@@ -652,7 +634,7 @@ getInitialization className = do
     rotation <-
         if Set.member className Data.classesWithRotation
             then do
-                vector <- getVectorBytewise
+                vector <- Vector.getInt8Vector
                 pure (Just vector)
             else pure Nothing
     pure
@@ -664,10 +646,6 @@ getInitialization className = do
 
 getInt32 :: Bits.BitGet Int32.Int32
 getInt32 = BinaryBit.getBits 0
-
-
-getInt8 :: Bits.BitGet Int8.Int8
-getInt8 = BinaryBit.getBits 0
 
 
 getWord64 :: Bits.BitGet Word64.Word64
