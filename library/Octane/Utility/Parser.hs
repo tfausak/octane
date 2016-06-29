@@ -11,7 +11,6 @@ import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as Bits
 import qualified Data.Binary.Get as Binary
-import qualified Data.Bits as Bits
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
@@ -20,12 +19,12 @@ import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
+import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.Int32 as Int32
-import qualified Octane.Type.Int8 as Int8
 import qualified Octane.Type.KeyFrame as KeyFrame
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Property as Property
@@ -127,7 +126,7 @@ getMaybeReplication context = do
 
 getReplication :: Context -> Bits.BitGet (Context, Replication.Replication)
 getReplication context = do
-    actorId <- getActorId
+    actorId <- BinaryBit.getBits maxActorId
     isOpen <- getBool
     let go =
             if Boolean.unpack isOpen
@@ -137,7 +136,7 @@ getReplication context = do
 
 
 getOpenReplication :: Context
-                   -> Int
+                   -> CompressedWord.CompressedWord
                    -> Bits.BitGet (Context, Replication.Replication)
 getOpenReplication context actorId = do
     isNew <- getBool
@@ -149,7 +148,7 @@ getOpenReplication context actorId = do
 
 
 getNewReplication :: Context
-                  -> Int
+                  -> CompressedWord.CompressedWord
                   -> Bits.BitGet (Context, Replication.Replication)
 getNewReplication context actorId = do
     unknownFlag <- getBool
@@ -160,10 +159,12 @@ getNewReplication context actorId = do
     objectName <- case context & contextObjectMap & IntMap.lookup (Int32.fromInt32 objectId) of
         Nothing -> fail ("could not find object name for id " ++ show objectId)
         Just x -> pure x
-    (classId, className) <- case CPM.getClass (contextObjectMap context) Data.classes (contextClassMap context) (Int32.fromInt32 objectId) of
-        Nothing -> fail ("could not find class for object id " ++ show objectId)
-        Just x -> pure x
-    classInit <- getInitialization className
+    (classId, className) <- CPM.getClass
+        (contextObjectMap context)
+        Data.classes
+        (contextClassMap context)
+        (Int32.fromInt32 objectId)
+    classInit <- Initialization.getInitialization className
     let thing = Thing
             { thingFlag = unknownFlag
             , thingObjectId = objectId
@@ -173,12 +174,12 @@ getNewReplication context actorId = do
             , thingInitialization = classInit
             }
     let things = contextThings context
-    let newThings = IntMap.insert actorId thing things
+    let newThings = IntMap.insert (CompressedWord.fromCompressedWord actorId) thing things
     let newContext = context { contextThings = newThings }
     pure
         ( newContext
         , Replication.Replication
-          { Replication.actorId = fromIntegral actorId
+          { Replication.actorId = actorId
           , Replication.objectName = objectName
           , Replication.className = className
           , Replication.state = State.SOpening
@@ -188,15 +189,15 @@ getNewReplication context actorId = do
 
 
 getExistingReplication :: Context
-                       -> Int
+                       -> CompressedWord.CompressedWord
                        -> Bits.BitGet (Context, Replication.Replication)
 getExistingReplication context actorId = do
-    thing <- case context & contextThings & IntMap.lookup actorId of
+    thing <- case context & contextThings & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
         Nothing -> fail ("could not find thing for existing actor " ++ show actorId)
         Just x -> pure x
     props <- getProps context thing
     pure (context, Replication.Replication
-        { Replication.actorId = fromIntegral actorId
+        { Replication.actorId = actorId
         , Replication.objectName = thingObjectName thing
         , Replication.className = thingClassName thing
         , Replication.state = State.SExisting
@@ -206,18 +207,18 @@ getExistingReplication context actorId = do
 
 
 getClosedReplication :: Context
-                     -> Int
+                     -> CompressedWord.CompressedWord
                      -> Bits.BitGet (Context, Replication.Replication)
 getClosedReplication context actorId = do
-    thing <- case context & contextThings & IntMap.lookup actorId of
+    thing <- case context & contextThings & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
         Nothing -> fail ("could not find thing for closed actor " ++ show actorId)
         Just x -> pure x
-    let newThings = context & contextThings & IntMap.delete actorId
+    let newThings = context & contextThings & IntMap.delete (CompressedWord.fromCompressedWord actorId)
     let newContext = context { contextThings = newThings }
     pure
         ( newContext
         , Replication.Replication
-          { Replication.actorId = fromIntegral actorId
+          { Replication.actorId = actorId
           , Replication.objectName = thingObjectName thing
           , Replication.className = thingClassName thing
           , Replication.state = State.SClosing
@@ -254,7 +255,7 @@ getProp context thing = do
         Nothing -> fail ("could not find property map for class id " ++ show classId)
         Just x -> pure x
     let maxId = props & IntMap.keys & (0 :) & maximum
-    pid <- getInt maxId
+    pid <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxId)
     name <- case props & IntMap.lookup pid of
         Nothing -> fail ("could not find property name for property id " ++ show pid)
         Just x -> pure x
@@ -323,8 +324,8 @@ getDemolishProperty = do
     atk <- getWord32
     vicFlag <- getBool
     vic <- getWord32
-    vec1 <- getVector
-    vec2 <- getVector
+    vec1 <- Vector.getIntVector
+    vec2 <- Vector.getIntVector
     pure (Value.VDemolish atkFlag atk vicFlag vic vec1 vec2)
 
 
@@ -343,7 +344,7 @@ getExplosionProperty = do
     a <- if Boolean.unpack noGoal
         then pure Nothing
         else fmap Just getInt32
-    b <- getVector
+    b <- Vector.getIntVector
     pure (Value.VExplosion noGoal a b)
 
 
@@ -374,12 +375,12 @@ getIntProperty = do
 
 getLoadoutOnlineProperty :: Bits.BitGet Value.Value
 getLoadoutOnlineProperty = do
-    size <- getWord8
-    values <- Monad.replicateM (size & Word8.unpack & fromIntegral) (do
-        innerSize <- getWord8
-        Monad.replicateM (innerSize & Word8.unpack & fromIntegral) (do
+    size <- fmap Word8.fromWord8 getWord8
+    values <- Monad.replicateM size (do
+        innerSize <- fmap Word8.fromWord8 getWord8
+        Monad.replicateM innerSize (do
             x <- getWord32
-            y <- getInt 27
+            y <- BinaryBit.getBits 27
             pure (x, y)))
     pure (Value.VLoadoutOnline values)
 
@@ -394,17 +395,13 @@ getLoadoutProperty = do
     antenna <- getWord32
     topper <- getWord32
     g <- getWord32
-    h <- if version > 10
-        then do
-            value <- getWord32
-            pure (Just value)
-        else pure Nothing
+    h <- if version > 10 then fmap Just getWord32 else pure Nothing
     pure (Value.VLoadout version body decal wheels rocketTrail antenna topper g h)
 
 
 getLocationProperty :: Bits.BitGet Value.Value
 getLocationProperty = do
-    vector <- getVector
+    vector <- Vector.getIntVector
     pure (Value.VLocation vector)
 
 
@@ -445,7 +442,7 @@ getQWordProperty = do
 
 getRelativeRotationProperty :: Bits.BitGet Value.Value
 getRelativeRotationProperty = do
-    vector <- getFloatVector
+    vector <- Vector.getFloatVector
     pure (Value.VRelativeRotation vector)
 
 getReservationProperty :: Context -> Bits.BitGet Value.Value
@@ -453,11 +450,9 @@ getReservationProperty context = do
     -- I think this is the connection order. The first player to connect
     -- gets number 0, and it goes up from there. The maximum is 7, which
     -- would be a full 4x4 game.
-    number <- getInt7
+    number <- BinaryBit.getBits maxConnectionNumber
     (systemId, remoteId, localId) <- getUniqueId
-    playerName <- if systemId == 0 then pure Nothing else do
-        string <- getText
-        pure (Just string)
+    playerName <- if systemId == 0 then pure Nothing else fmap Just getText
     -- No idea what these two flags are. Might be for bots?
     a <- getBool
     b <- getBool
@@ -473,21 +468,17 @@ getReservationProperty context = do
     pure (Value.VReservation number systemId remoteId localId playerName a b)
 
 
-neoTokyoVersion :: Version.Version
-neoTokyoVersion = Version.makeVersion [868, 12]
-
-
 getRigidBodyStateProperty :: Bits.BitGet Value.Value
 getRigidBodyStateProperty = do
     flag <- getBool
-    position <- getVector
-    rotation <- getFloatVector
+    position <- Vector.getIntVector
+    rotation <- Vector.getFloatVector
     x <- if Boolean.unpack flag
         then pure Nothing
-        else fmap Just getVector
+        else fmap Just Vector.getIntVector
     y <- if Boolean.unpack flag
         then pure Nothing
-        else fmap Just getVector
+        else fmap Just Vector.getIntVector
     pure (Value.VRigidBodyState flag position rotation x y)
 
 
@@ -517,34 +508,22 @@ getUniqueIdProperty = do
 -- specially because it sometimes doesn't have the remote or local IDs.
 getPartyLeaderProperty :: Bits.BitGet Value.Value
 getPartyLeaderProperty = do
-    systemId <- getSystemId
+    systemId <- getWord8
     (remoteId, localId) <- if systemId == 0
         then pure (RemoteId.RemoteSplitscreenId (RemoteId.SplitscreenId Nothing), Nothing)
         else do
             remoteId <- getRemoteId systemId
-            localId <- getLocalId
+            localId <- fmap Just getWord8
             pure (remoteId, localId)
     pure (Value.VUniqueId systemId remoteId localId)
 
 
-getFloat32 :: Bits.BitGet Float32.Float32
-getFloat32 = BinaryBit.getBits 0
-
-
-getText :: Bits.BitGet Text.Text
-getText = BinaryBit.getBits 0
-
-
 getUniqueId :: Bits.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
 getUniqueId = do
-    systemId <- getSystemId
+    systemId <- getWord8
     remoteId <- getRemoteId systemId
-    localId <- getLocalId
+    localId <- fmap Just getWord8
     pure (systemId, remoteId, localId)
-
-
-getSystemId :: Bits.BitGet Word8.Word8
-getSystemId = getWord8
 
 
 getRemoteId :: Word8.Word8 -> Bits.BitGet RemoteId.RemoteId
@@ -564,8 +543,7 @@ getRemoteId systemId = case systemId of
     _ -> fail ("unknown system id " ++ show systemId)
 
 
-getLocalId :: Bits.BitGet (Maybe Word8.Word8)
-getLocalId = fmap Just getWord8
+-- Data types
 
 
 data Thing = Thing
@@ -605,8 +583,7 @@ instance DeepSeq.NFData Context
 
 
 extractContext :: ReplayWithoutFrames.ReplayWithoutFrames -> Context
-extractContext replay =
-    Context
+extractContext replay = Context
     { contextObjectMap = CPM.getPropertyMap replay
     , contextClassPropertyMap = CPM.getClassPropertyMap replay
     , contextThings = IntMap.empty
@@ -624,152 +601,47 @@ extractContext replay =
     }
 
 
-getVector :: Bits.BitGet (Vector.Vector Int)
-getVector = do
-    numBits <- getNumVectorBits
-    let bias = Bits.shiftL 1 (numBits + 1)
-    let maxBits = numBits + 2
-    let maxValue = 2 ^ maxBits
-    dx <- getInt maxValue
-    dy <- getInt maxValue
-    dz <- getInt maxValue
-    pure
-        Vector.Vector
-        { Vector.x = dx - bias
-        , Vector.y = dy - bias
-        , Vector.z = dz - bias
-        }
+-- Constants
 
 
-getVectorBytewise
-    :: Bits.BitGet (Vector.Vector Int8.Int8)
-getVectorBytewise = do
-    hasX <- getBool
-    x <- if Boolean.unpack hasX then getInt8 else pure 0
-    hasY <- getBool
-    y <- if Boolean.unpack hasY then getInt8 else pure 0
-    hasZ <- getBool
-    z <- if Boolean.unpack hasZ then getInt8 else pure 0
-    pure
-        Vector.Vector
-        { Vector.x = x
-        , Vector.y = y
-        , Vector.z = z
-        }
+neoTokyoVersion :: Version.Version
+neoTokyoVersion = Version.makeVersion [868, 12]
 
 
-getFloatVector :: Bits.BitGet (Vector.Vector Float)
-getFloatVector = do
-    let maxValue = 1
-    let numBits = 16
-    x <- getFloat maxValue numBits
-    y <- getFloat maxValue numBits
-    z <- getFloat maxValue numBits
-    pure Vector.Vector { Vector.x = x, Vector.y = y, Vector.z = z }
+maxActorId :: Int
+maxActorId = 1024
 
 
-getFloat :: Int -> Int -> Bits.BitGet Float
-getFloat maxValue numBits = do
-    let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
-    let bias = Bits.shiftL 1 (numBits - 1)
-    let serIntMax = Bits.shiftL 1 numBits
-    delta <- getInt serIntMax
-    let unscaledValue = delta - bias
-    if maxValue > maxBitValue
-    then do
-        let invScale = fromIntegral maxValue / fromIntegral maxBitValue
-        pure (fromIntegral unscaledValue * invScale)
-    else do
-        let scale = fromIntegral maxBitValue / fromIntegral maxValue
-        let invScale = 1.0 / scale
-        pure (fromIntegral unscaledValue * invScale)
+maxConnectionNumber :: Int
+maxConnectionNumber = 7
 
 
-getInitialization :: StrictText.Text -> Bits.BitGet Initialization.Initialization
-getInitialization className = do
-    location <-
-        if Set.member className Data.classesWithLocation
-            then do
-                vector <- getVector
-                pure (Just vector)
-            else pure Nothing
-    rotation <-
-        if Set.member className Data.classesWithRotation
-            then do
-                vector <- getVectorBytewise
-                pure (Just vector)
-            else pure Nothing
-    pure
-        Initialization.Initialization
-        { Initialization.location = location
-        , Initialization.rotation = rotation
-        }
+-- Type-restricted helpers.
 
 
-bitSize
-    :: (Integral a)
-    => a -> a
-bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling
+getBool :: Bits.BitGet Boolean.Boolean
+getBool = BinaryBit.getBits 0
 
 
--- Reads an integer bitwise. The bits of the integer are backwards, so the
--- least significant bit is first. The argument is the maximum value this
--- integer can have. Bits will be read until the next bit would be greater than
--- the maximum value, or the number of bits necessary to reach the maximum
--- value has been reached, whichever comes first.
---
--- For example, if the maximum value is 4 and "11" has been read already,
--- nothing more will be read because another "1" would put the value over the
--- maximum.
-getInt
-    :: Int -> Bits.BitGet Int
-getInt maxValue = do
-    let maxBits = bitSize maxValue
-        go i value = do
-            let x = Bits.shiftL 1 i
-            if i < maxBits && value + x <= maxValue
-                then do
-                    bit <- getBool
-                    let newValue =
-                            if Boolean.unpack bit
-                                then value + x
-                                else value
-                    go (i + 1) newValue
-                else pure value
-    go 0 0
+getFloat32 :: Bits.BitGet Float32.Float32
+getFloat32 = BinaryBit.getBits 0
 
 
 getInt32 :: Bits.BitGet Int32.Int32
 getInt32 = BinaryBit.getBits 0
 
 
-getInt8 :: Bits.BitGet Int8.Int8
-getInt8 = BinaryBit.getBits 0
-
-
-getWord64 :: Bits.BitGet Word64.Word64
-getWord64 = BinaryBit.getBits 0
-
-
-getWord32 :: Bits.BitGet Word32.Word32
-getWord32 = BinaryBit.getBits 0
+getText :: Bits.BitGet Text.Text
+getText = BinaryBit.getBits 0
 
 
 getWord8 :: Bits.BitGet Word8.Word8
 getWord8 = BinaryBit.getBits 0
 
 
-getActorId :: Bits.BitGet Int
-getActorId = getInt 1024
+getWord32 :: Bits.BitGet Word32.Word32
+getWord32 = BinaryBit.getBits 0
 
 
-getNumVectorBits :: Bits.BitGet Int
-getNumVectorBits = getInt 19
-
-
-getInt7 :: Bits.BitGet Int
-getInt7 = getInt 7
-
-
-getBool :: Bits.BitGet Boolean.Boolean
-getBool = BinaryBit.getBits 0
+getWord64 :: Bits.BitGet Word64.Word64
+getWord64 = BinaryBit.getBits 0
