@@ -16,6 +16,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
+import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.Replication as Replication
@@ -61,7 +62,7 @@ newtype Spawned = Spawned [Replication.Replication]
 instance Aeson.ToJSON Spawned where
     toJSON (Spawned xs) = xs
         & map (\ x -> do
-            let k = x & Replication.actorId & show & StrictText.pack
+            let k = x & Replication.actorId & CompressedWord.value & show & StrictText.pack
             let v = Aeson.object
                     [ "Name" .= Replication.objectName x
                     , "Class" .= Replication.className x
@@ -87,6 +88,7 @@ instance Aeson.ToJSON Updated where
         & map (\ x -> do
             let k = x
                     & Replication.actorId
+                    & CompressedWord.value
                     & show
                     & StrictText.pack
             let v = x
@@ -117,6 +119,7 @@ newtype Destroyed = Destroyed [Replication.Replication]
 instance Aeson.ToJSON Destroyed where
     toJSON (Destroyed xs) = xs
         & map Replication.actorId
+        & map CompressedWord.value
         & Aeson.toJSON
 
 getDestroyed :: [Replication.Replication] -> Destroyed
