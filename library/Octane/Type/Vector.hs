@@ -7,6 +7,8 @@ module Octane.Type.Vector
     , getFloatVector
     , getInt8Vector
     , getIntVector
+    , putInt8Vector
+    , putIntVector
     ) where
 
 import qualified Control.DeepSeq as DeepSeq
@@ -14,6 +16,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Bits as Bits
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
+import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
@@ -100,3 +103,15 @@ getIntVector = do
     dz <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
 
     pure Vector { x = dx - bias , y = dy - bias , z = dz - bias }
+
+
+-- | Puts a 'Vector' full of 'Int8's.
+putInt8Vector :: Vector Int8.Int8 -> BinaryBit.BitPut ()
+putInt8Vector _ = do
+    pure ()
+
+
+-- | Puts a 'Vector' full of 'Int's.
+putIntVector :: Vector Int -> BinaryBit.BitPut ()
+putIntVector _ = do
+    pure ()

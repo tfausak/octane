@@ -9,6 +9,7 @@ import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.Frame as Frame
+import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
@@ -68,12 +69,14 @@ putReplication replication = do
 
 
 putNewReplication :: Replication.Replication -> BinaryBit.BitPut ()
-putNewReplication _replication = do
+putNewReplication replication = do
     True & Boolean.Boolean & BinaryBit.putBits 1 -- open
     True & Boolean.Boolean & BinaryBit.putBits 1 -- new
     False & Boolean.Boolean & BinaryBit.putBits 1 -- unknown
-    -- TODO: put 32-bit object id
-    -- TODO: put class init
+    -- TODO: convert object name into ID and put it
+    case Replication.initialization replication of
+        Nothing -> pure ()
+        Just x -> Initialization.putInitialization x
 
 
 putExistingReplication :: Replication.Replication -> BinaryBit.BitPut ()

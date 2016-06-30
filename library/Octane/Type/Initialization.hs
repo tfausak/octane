@@ -2,10 +2,15 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE StrictData #-}
 
-module Octane.Type.Initialization (Initialization(..), getInitialization) where
+module Octane.Type.Initialization
+    ( Initialization(..)
+    , getInitialization
+    , putInitialization
+    ) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary.Bits.Get as BinaryBit
+import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
@@ -38,3 +43,15 @@ getInitialization className = do
         then fmap Just Vector.getInt8Vector
         else pure Nothing
     pure Initialization { location = location', rotation = rotation' }
+
+
+-- | Puts the 'Initialization'. Note that unlike 'getInitialization', this does
+-- not require the class name.
+putInitialization :: Initialization -> BinaryBit.BitPut ()
+putInitialization initialization = do
+    case location initialization of
+        Nothing -> pure ()
+        Just x -> Vector.putIntVector x
+    case rotation initialization of
+        Nothing -> pure ()
+        Just x -> Vector.putInt8Vector x
