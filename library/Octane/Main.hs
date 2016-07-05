@@ -65,7 +65,7 @@ main2 xs = do
 
 decode :: String -> IO Replay.Replay
 decode x = do
-    case Client.parseUrl x of
+    case Client.parseUrlThrow x of
         Nothing -> do
             let file = x
             Binary.decodeFile file

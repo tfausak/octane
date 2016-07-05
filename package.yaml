@@ -43,8 +43,8 @@ library:
   - data-binary-ieee754 ==0.4.*
   - deepseq ==1.4.*
   - file-embed ==0.0.*
-  - http-client ==0.4.*
-  - http-client-tls ==0.2.*
+  - http-client >=0.4.30 && <0.6
+  - http-client-tls >=0.2 && <0.4
   - regex-compat ==0.95.*
   - text ==1.2.*
   - unordered-containers ==0.2.*
