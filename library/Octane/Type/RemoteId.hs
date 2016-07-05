@@ -22,9 +22,12 @@ import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
+import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
+import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
+import qualified Octane.Type.Word8 as Word8
 import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
@@ -46,8 +49,8 @@ instance DeepSeq.NFData RemoteId where
 
 -- | Encodes the remote ID as an object with "Type" and "Value" keys.
 --
--- >>> Aeson.encode (RemoteSteamId (SteamId 1))
--- "{\"Value\":1,\"Type\":\"Steam\"}"
+-- >>> Aeson.encode (RemoteSplitscreenId (SplitscreenId (Just 1)))
+-- "{\"Value\":1,\"Type\":\"Splitscreen\"}"
 instance Aeson.ToJSON RemoteId where
     toJSON remoteId = case remoteId of
         RemotePlayStationId x -> Aeson.object
@@ -164,32 +167,53 @@ instance Aeson.ToJSON SplitscreenId where
     toJSON splitscreenId = splitscreenId & unpackSplitscreenId & Aeson.toJSON
 
 
-newtype SteamId = SteamId
-    { unpackSteamId :: Word64.Word64
+data SteamId = SteamId
+    { steamUniverse :: Word8.Word8
+    , steamType :: Word.Word8
+    , steamInstance :: Word.Word32
+    , steamNumber :: Word32.Word32
     } deriving (Eq, Generics.Generic, Show)
 
--- | Stored as a plain 'Word64.Word64'.
+-- | Stored in this order: number, instance, type, universe. For byte-aligned
+-- values, the bits in each byte are reversed. For other values, all bits are
+-- reversed.
 --
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00\x00\x00\x00\x00" :: SteamId
--- SteamId {unpackSteamId = 0x0000000000000001}
+-- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (SteamId 1 2 3 4)))
+-- " \NUL\NUL\NUL\192\NUL\EOT\128"
 --
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (SteamId 1)))
--- "\128\NUL\NUL\NUL\NUL\NUL\NUL\NUL"
+-- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x20\x00\x00\x00\xc0\x00\x04\x80" :: SteamId
+-- SteamId {steamUniverse = 0x01, steamType = 2, steamInstance = 3, steamNumber = 0x00000004}
 instance BinaryBit.BinaryBit SteamId where
     getBits _ = do
-        steamId <- BinaryBit.getBits 0
-        pure (SteamId steamId)
+        number_ <- BinaryBit.getBits 0
+        instance_ <- BinaryBit.getWord32be 20
+        type_ <- BinaryBit.getWord8 4
+        universe <- BinaryBit.getBits 0
 
-    putBits _ steamId = steamId & unpackSteamId & BinaryBit.putBits 0
+        pure (SteamId
+            { steamUniverse = universe
+            , steamType = Endian.reverseBits4 type_
+            , steamInstance = Endian.reverseBits20 instance_
+            , steamNumber = number_
+            })
+
+    putBits _ steamId = do
+        steamId & steamNumber & BinaryBit.putBits 0
+        steamId & steamInstance & Endian.reverseBits20 & BinaryBit.putWord32be 20
+        steamId & steamType & Endian.reverseBits4 & BinaryBit.putWord8 4
+        steamId & steamUniverse & BinaryBit.putBits 0
 
 instance DeepSeq.NFData SteamId where
 
--- | Encoded directly as a number.
---
--- >>> Aeson.encode (SteamId 1)
--- "1"
+-- | >>> Aeson.encode (SteamId 1 2 3 4)
+-- "{\"Universe\":1,\"Type\":2,\"Number\":4,\"Instance\":3}"
 instance Aeson.ToJSON SteamId where
-    toJSON steamId = steamId & unpackSteamId & Aeson.toJSON
+    toJSON steamId = Aeson.object
+        [ "Universe" .= steamUniverse steamId
+        , "Type" .= steamType steamId
+        , "Instance" .= steamInstance steamId
+        , "Number" .= steamNumber steamId
+        ]
 
 
 newtype XboxId = XboxId
