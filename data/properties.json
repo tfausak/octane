@@ -109,6 +109,7 @@
   "TAGame.PRI_TA:MatchScore": "int",
   "TAGame.PRI_TA:MatchShots": "int",
   "TAGame.PRI_TA:PartyLeader": "party_leader",
+  "TAGame.PRI_TA:PawnType": "byte",
   "TAGame.PRI_TA:PersistentCamera": "flagged_int",
   "TAGame.PRI_TA:ReplicatedGameEvent": "flagged_int",
   "TAGame.PRI_TA:Title": "int",
