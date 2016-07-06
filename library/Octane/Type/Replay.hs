@@ -164,6 +164,12 @@ toOptimizedReplay replay = do
             & version
             & Version.versionBranch
             & map Word32.toWord32
+    -- Key frames aren't important for replays. Mark the first frame as a key
+    -- frame and the rest as regular frames.
+    let frames_ = replay
+            & frames
+            & zip [0 :: Int ..]
+            & map (\ (index, frame) -> frame { Frame.isKeyFrame = index == 0 })
 
     pure OptimizedReplay.OptimizedReplay
         { OptimizedReplay.version1 = version1
@@ -171,15 +177,14 @@ toOptimizedReplay replay = do
         , OptimizedReplay.label = "TAGame.Replay_Soccar_TA"
         , OptimizedReplay.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
         , OptimizedReplay.levels = replay & levels & map Text.Text & List.List
-        , OptimizedReplay.keyFrames = replay
-            & frames
+        , OptimizedReplay.keyFrames = frames_
             & filter Frame.isKeyFrame
             & map (\ frame -> KeyFrame.KeyFrame
                 (Frame.time frame)
                 (frame & Frame.number & Word32.toWord32)
-                0) -- TODO: This is incorrect
+                0)
             & List.List
-        , OptimizedReplay.frames = replay & frames
+        , OptimizedReplay.frames = frames_
         , OptimizedReplay.messages = replay
             & messages
             & Map.toList
