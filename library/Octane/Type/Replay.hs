@@ -206,7 +206,9 @@ toOptimizedReplay replay = do
             & map Text.Text
             & List.List
         , OptimizedReplay.objects = List.List [] -- TODO
-        , OptimizedReplay.names = List.List [] -- TODO
+        -- TODO: This list is usually empty. Also the parser doesn't use it at
+        -- all. Is it safe for it to always be empty?
+        , OptimizedReplay.names = List.List []
         , OptimizedReplay.classes = List.List [] -- TODO
         , OptimizedReplay.cache = List.List [] -- TODO
         }
