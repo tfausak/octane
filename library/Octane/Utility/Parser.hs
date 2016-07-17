@@ -274,7 +274,7 @@ getPropValue context name = case Map.lookup name Data.properties of
         "explosion" -> getExplosionProperty
         "flagged_int" -> getFlaggedIntProperty
         "float" -> getFloatProperty
-        "game_mode" -> getGameModeProperty
+        "game_mode" -> getGameModeProperty context
         "int" -> getIntProperty
         "loadout_online" -> getLoadoutOnlineProperty
         "loadout" -> getLoadoutProperty
@@ -361,9 +361,10 @@ getFloatProperty = do
     pure (Value.VFloat float)
 
 
-getGameModeProperty :: Bits.BitGet Value.Value
-getGameModeProperty = do
-    x <- Bits.getWord8 2
+getGameModeProperty :: Context -> Bits.BitGet Value.Value
+getGameModeProperty context = do
+    let numBits = if contextVersion context >= neoTokyoVersion then 8 else 2
+    x <- Bits.getWord8 numBits
     pure (Value.VGameMode (Word8.toWord8 x))
 
 
