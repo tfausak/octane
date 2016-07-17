@@ -363,7 +363,7 @@ getFloatProperty = do
 
 getGameModeProperty :: Context -> Bits.BitGet Value.Value
 getGameModeProperty context = do
-    let numBits = if contextVersion context >= neoTokyoVersion then 8 else 2
+    let numBits = if atLeastNeoTokyo context then 8 else 2
     x <- Bits.getWord8 numBits
     pure (Value.VGameMode (Word8.toWord8 x))
 
@@ -446,6 +446,7 @@ getRelativeRotationProperty = do
     vector <- Vector.getFloatVector
     pure (Value.VRelativeRotation vector)
 
+
 getReservationProperty :: Context -> Bits.BitGet Value.Value
 getReservationProperty context = do
     -- I think this is the connection order. The first player to connect
@@ -459,9 +460,8 @@ getReservationProperty context = do
     b <- getBool
 
     -- The Neo Tokyo update added 6 bits to the reservation property that are
-    -- always (as far as I can tell) 0. The only way to know about these bits
-    -- is to check the top-level version number in the replay.
-    Monad.when (contextVersion context >= neoTokyoVersion) (do
+    -- always (as far as I can tell) 0.
+    Monad.when (atLeastNeoTokyo context) (do
         x <- Bits.getWord8 6
         Monad.when (x /= 0b000000) (do
             fail (Printf.printf "Read 6 reservation bits and they weren't all 0! 0b%06b" x)))
@@ -600,6 +600,17 @@ extractContext replay = Context
         , replay & ReplayWithoutFrames.version2
         ] & map Word32.fromWord32 & Version.makeVersion
     }
+
+
+-- Helpers
+
+
+-- Some values are parsed differently depending on the version of the game that
+-- saved them. So far, all differences happened with the Neo Tokyo patch. This
+-- function takes a context and returns true if the replay was saved by a game
+-- running at least the Neo Tokyo version.
+atLeastNeoTokyo :: Context -> Bool
+atLeastNeoTokyo context = contextVersion context >= neoTokyoVersion
 
 
 -- Constants
