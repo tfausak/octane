@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StrictData #-}
 
 module Octane.Type.Vector
@@ -78,14 +80,14 @@ getFloat maxValue numBits = do
 -- | Gets a 'Vector' full of 'Int8's.
 getInt8Vector :: BinaryBit.BitGet (Vector Int8.Int8)
 getInt8Vector = do
-    hasX <- BinaryBit.getBits 0
-    x' <- if Boolean.unpack hasX then BinaryBit.getBits 0 else pure 0
+    (hasX :: Boolean.Boolean) <- BinaryBit.getBits 0
+    x' <- if #unpack hasX then BinaryBit.getBits 0 else pure 0
 
-    hasY <- BinaryBit.getBits 0
-    y' <- if Boolean.unpack hasY then BinaryBit.getBits 0 else pure 0
+    (hasY :: Boolean.Boolean) <- BinaryBit.getBits 0
+    y' <- if #unpack hasY then BinaryBit.getBits 0 else pure 0
 
-    hasZ <- BinaryBit.getBits 0
-    z' <- if Boolean.unpack hasZ then BinaryBit.getBits 0 else pure 0
+    (hasZ :: Boolean.Boolean) <- BinaryBit.getBits 0
+    z' <- if #unpack hasZ then BinaryBit.getBits 0 else pure 0
 
     pure Vector { x = x' , y = y' , z = z' }
 

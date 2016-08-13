@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Octane.Type.CompressedWord (CompressedWord(..), fromCompressedWord) where
 
@@ -84,7 +86,7 @@ getStep theLimit maxBits position theValue = do
     let x = Bits.shiftL 1 (fromIntegral position)
     if position < maxBits && theValue + x <= theLimit
     then do
-        bit <- BinaryBit.getBits 0
-        let newValue = if Boolean.unpack bit then theValue + x else theValue
+        (bit :: Boolean.Boolean) <- BinaryBit.getBits 0
+        let newValue = if #unpack bit then theValue + x else theValue
         getStep theLimit maxBits (position + 1) newValue
     else pure theValue

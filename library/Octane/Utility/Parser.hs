@@ -1,5 +1,6 @@
 {-# LANGUAGE BinaryLiterals #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE StrictData #-}
 
 module Octane.Utility.Parser (parseStream) where
@@ -117,7 +118,7 @@ getReplications context = do
 getMaybeReplication :: Context -> Bits.BitGet (Maybe (Context, Replication.Replication))
 getMaybeReplication context = do
     hasReplication <- getBool
-    if Boolean.unpack hasReplication
+    if #unpack hasReplication
         then do
             (newContext,replication) <- getReplication context
             pure (Just (newContext, replication))
@@ -129,7 +130,7 @@ getReplication context = do
     actorId <- BinaryBit.getBits maxActorId
     isOpen <- getBool
     let go =
-            if Boolean.unpack isOpen
+            if #unpack isOpen
                 then getOpenReplication
                 else getClosedReplication
     go context actorId
@@ -141,7 +142,7 @@ getOpenReplication :: Context
 getOpenReplication context actorId = do
     isNew <- getBool
     let go =
-            if Boolean.unpack isNew
+            if #unpack isNew
                 then getNewReplication
                 else getExistingReplication
     go context actorId
@@ -152,7 +153,7 @@ getNewReplication :: Context
                   -> Bits.BitGet (Context, Replication.Replication)
 getNewReplication context actorId = do
     unknownFlag <- getBool
-    if Boolean.unpack unknownFlag
+    if #unpack unknownFlag
         then fail "the unknown flag in a new replication is true! what does it mean?"
         else pure ()
     objectId <- getInt32
@@ -241,7 +242,7 @@ getProps context thing = do
 getMaybeProp :: Context -> Thing -> Bits.BitGet (Maybe (StrictText.Text, Value.Value))
 getMaybeProp context thing = do
     hasProp <- getBool
-    if Boolean.unpack hasProp
+    if #unpack hasProp
     then do
         prop <- getProp context thing
         pure (Just prop)
@@ -341,7 +342,7 @@ getEnumProperty = do
 getExplosionProperty :: Bits.BitGet Value.Value
 getExplosionProperty = do
     noGoal <- getBool
-    a <- if Boolean.unpack noGoal
+    a <- if #unpack noGoal
         then pure Nothing
         else fmap Just getInt32
     b <- Vector.getIntVector
@@ -417,7 +418,7 @@ getMusicStingerProperty = do
 getPickupProperty :: Bits.BitGet Value.Value
 getPickupProperty = do
     instigator <- getBool
-    instigatorId <- if Boolean.unpack instigator
+    instigatorId <- if #unpack instigator
         then fmap Just getWord32
         else pure Nothing
     pickedUp <- getBool
@@ -474,10 +475,10 @@ getRigidBodyStateProperty = do
     flag <- getBool
     position <- Vector.getIntVector
     rotation <- Vector.getFloatVector
-    x <- if Boolean.unpack flag
+    x <- if #unpack flag
         then pure Nothing
         else fmap Just Vector.getIntVector
-    y <- if Boolean.unpack flag
+    y <- if #unpack flag
         then pure Nothing
         else fmap Just Vector.getIntVector
     pure (Value.VRigidBodyState flag position rotation x y)
