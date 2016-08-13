@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE PackageImports #-}
 
 -- | This module is responsible for building the class property map, which maps
@@ -17,7 +18,6 @@ import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
-import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.CacheProperty as CacheProperty
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.List as List
@@ -59,9 +59,9 @@ getClassCache replay = replay
     & ReplayWithoutFrames.cache
     & List.unpack
     & map (\ x ->
-        ( x & CacheItem.classId & Word32.fromWord32
-        , x & CacheItem.cacheId & Word32.fromWord32
-        , x & CacheItem.parentCacheId & Word32.fromWord32
+        ( x & #classId & Word32.fromWord32
+        , x & #cacheId & Word32.fromWord32
+        , x & #parentCacheId & Word32.fromWord32
         ))
 
 
@@ -142,9 +142,9 @@ getBasicClassPropertyMap replay = let
         & ReplayWithoutFrames.cache
         & List.unpack
         & map (\ x -> let
-            classId = x & CacheItem.classId & Word32.fromWord32
+            classId = x & #classId & Word32.fromWord32
             properties = x
-                & CacheItem.properties
+                & #properties
                 & List.unpack
                 & Maybe.mapMaybe (\ y -> let
                     streamId = y & CacheProperty.streamId & Word32.fromWord32
