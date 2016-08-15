@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StrictData #-}
 
@@ -62,8 +63,8 @@ instance DeepSeq.NFData ReplayWithoutFrames where
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 fromRawReplay :: (Monad m) => RawReplay.RawReplay -> m ReplayWithoutFrames
 fromRawReplay rawReplay = do
-    let header = RawReplay.header rawReplay
-    let content = RawReplay.content rawReplay
+    let header = #header rawReplay
+    let content = #content rawReplay
 
     let get = do
             version1 <- Binary.get
