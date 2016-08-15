@@ -125,12 +125,12 @@ fromOptimizedReplay optimizedReplay = do
             & #unpack
             & map (\ message -> do
                 let key = message
-                        & Message.frame
+                        & #frame
                         & Word32.unpack
                         & show
                         & StrictText.pack
                 let value = message
-                        & Message.content
+                        & #content
                         & Text.unpack
                 (key, value))
             & Map.fromList
