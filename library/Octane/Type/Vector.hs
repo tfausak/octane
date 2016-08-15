@@ -1,8 +1,12 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Vector
     ( Vector(..)
@@ -19,6 +23,8 @@ import qualified Data.Bits as Bits
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
@@ -32,10 +38,12 @@ import qualified Octane.Type.Int8 as Int8
 -- always serialized the same way. Sometimes it is three values run together,
 -- but other times it has a flag for the presence of each value.
 data Vector a = Vector
-    { x :: a
-    , y :: a
-    , z :: a
+    { vectorX :: a
+    , vectorY :: a
+    , vectorZ :: a
     } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Vector)
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a) where
 
@@ -44,7 +52,7 @@ instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a) where
 -- Aeson.encode (Vector 1 2 3 :: Vector Int)
 -- "[1,2,3]"
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
-    toJSON vector = Aeson.toJSON [x vector, y vector, z vector]
+    toJSON vector = Aeson.toJSON [#x vector, #y vector, #z vector]
 
 
 -- | Gets a 'Vector' full of 'Float's.
@@ -53,11 +61,11 @@ getFloatVector = do
     let maxValue = 1
     let numBits = 16
 
-    x' <- getFloat maxValue numBits
-    y' <- getFloat maxValue numBits
-    z' <- getFloat maxValue numBits
+    x <- getFloat maxValue numBits
+    y <- getFloat maxValue numBits
+    z <- getFloat maxValue numBits
 
-    pure Vector { x = x', y = y', z = z' }
+    pure (Vector x y z)
 
 
 getFloat :: Int -> Int -> BinaryBit.BitGet Float
@@ -81,15 +89,15 @@ getFloat maxValue numBits = do
 getInt8Vector :: BinaryBit.BitGet (Vector Int8.Int8)
 getInt8Vector = do
     (hasX :: Boolean.Boolean) <- BinaryBit.getBits 0
-    x' <- if #unpack hasX then BinaryBit.getBits 0 else pure 0
+    x <- if #unpack hasX then BinaryBit.getBits 0 else pure 0
 
     (hasY :: Boolean.Boolean) <- BinaryBit.getBits 0
-    y' <- if #unpack hasY then BinaryBit.getBits 0 else pure 0
+    y <- if #unpack hasY then BinaryBit.getBits 0 else pure 0
 
     (hasZ :: Boolean.Boolean) <- BinaryBit.getBits 0
-    z' <- if #unpack hasZ then BinaryBit.getBits 0 else pure 0
+    z <- if #unpack hasZ then BinaryBit.getBits 0 else pure 0
 
-    pure Vector { x = x' , y = y' , z = z' }
+    pure (Vector x y z)
 
 
 -- | Gets a 'Vector' full of 'Int's.
@@ -104,7 +112,7 @@ getIntVector = do
     dy <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
     dz <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
 
-    pure Vector { x = dx - bias , y = dy - bias , z = dz - bias }
+    pure (Vector (dx - bias) (dy - bias) (dz - bias))
 
 
 -- | Puts a 'Vector' full of 'Int8's.
