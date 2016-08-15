@@ -46,14 +46,14 @@ import qualified Text.Printf as Printf
 parseStream :: ReplayWithoutFrames.ReplayWithoutFrames -> [Frame.Frame]
 parseStream replay = let
     numFrames = replay
-        & ReplayWithoutFrames.properties
+        & #properties
         & #unpack
         & Map.lookup ("NumFrames" & StrictText.pack & Text.Text)
         & (\ property -> case property of
             Just (Property.IntProperty _ x) -> x & #unpack & fromIntegral
             _ -> 0)
     get = replay & extractContext & getFrames 0 numFrames & Bits.runBitGet
-    stream = replay & ReplayWithoutFrames.stream & Stream.unpack
+    stream = replay & #stream & Stream.unpack
     (_context, frames) = Binary.runGet get stream
     in frames
 
@@ -588,14 +588,14 @@ extractContext replay = Context
     , contextThings = IntMap.empty
     , contextClassMap = CPM.getActorMap replay
     , contextKeyFrames = replay
-        & ReplayWithoutFrames.keyFrames
+        & #keyFrames
         & #unpack
         & map #frame
         & map Word32.fromWord32
         & Set.fromList
     , contextVersion =
-        [ replay & ReplayWithoutFrames.version1
-        , replay & ReplayWithoutFrames.version2
+        [ replay & #version1
+        , replay & #version2
         ] & map Word32.fromWord32 & Version.makeVersion
     }
 

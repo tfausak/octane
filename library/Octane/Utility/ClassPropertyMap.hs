@@ -53,7 +53,7 @@ getClassPropertyMap replay = let
 -- ID, the second is its cache ID, and the third is its parent's cache ID.
 getClassCache :: ReplayWithoutFrames.ReplayWithoutFrames -> [(Int, Int, Int)]
 getClassCache replay = replay
-    & ReplayWithoutFrames.cache
+    & #cache
     & #unpack
     & map (\ x ->
         ( x & #classId & Word32.fromWord32
@@ -122,7 +122,7 @@ getClassMap replay = let
 -- | The property map is a mapping from property IDs to property names.
 getPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap StrictText.Text
 getPropertyMap replay = replay
-    & ReplayWithoutFrames.objects
+    & #objects
     & #unpack
     & map Text.unpack
     & zip [0 ..]
@@ -136,7 +136,7 @@ getBasicClassPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.In
 getBasicClassPropertyMap replay = let
     propertyMap = getPropertyMap replay
     in replay
-        & ReplayWithoutFrames.cache
+        & #cache
         & #unpack
         & map (\ x -> let
             classId = x & #classId & Word32.fromWord32
@@ -157,7 +157,7 @@ getBasicClassPropertyMap replay = let
 -- | The actor map is a mapping from class names to their IDs.
 getActorMap :: ReplayWithoutFrames.ReplayWithoutFrames -> Map.Map StrictText.Text Int
 getActorMap replay = replay
-    & ReplayWithoutFrames.classes
+    & #classes
     & #unpack
     & map (\ x -> let
         className = x & #name & Text.unpack

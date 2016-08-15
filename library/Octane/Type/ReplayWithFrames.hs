@@ -72,20 +72,20 @@ instance DeepSeq.NFData ReplayWithFrames where
 fromReplayWithoutFrames :: (Monad m) => ReplayWithoutFrames.ReplayWithoutFrames -> m ReplayWithFrames
 fromReplayWithoutFrames replayWithoutFrames = do
     pure ReplayWithFrames
-        { replayWithFramesVersion1 = replayWithoutFrames & ReplayWithoutFrames.version1
-        , replayWithFramesVersion2 = replayWithoutFrames & ReplayWithoutFrames.version2
-        , replayWithFramesLabel = replayWithoutFrames & ReplayWithoutFrames.label
-        , replayWithFramesProperties = replayWithoutFrames & ReplayWithoutFrames.properties
-        , replayWithFramesLevels = replayWithoutFrames & ReplayWithoutFrames.levels
-        , replayWithFramesKeyFrames = replayWithoutFrames & ReplayWithoutFrames.keyFrames
+        { replayWithFramesVersion1 = replayWithoutFrames & #version1
+        , replayWithFramesVersion2 = replayWithoutFrames & #version2
+        , replayWithFramesLabel = replayWithoutFrames & #label
+        , replayWithFramesProperties = replayWithoutFrames & #properties
+        , replayWithFramesLevels = replayWithoutFrames & #levels
+        , replayWithFramesKeyFrames = replayWithoutFrames & #keyFrames
         , replayWithFramesFrames = replayWithoutFrames & Parser.parseStream
-        , replayWithFramesMessages = replayWithoutFrames & ReplayWithoutFrames.messages
-        , replayWithFramesMarks = replayWithoutFrames & ReplayWithoutFrames.marks
-        , replayWithFramesPackages = replayWithoutFrames & ReplayWithoutFrames.packages
-        , replayWithFramesObjects = replayWithoutFrames & ReplayWithoutFrames.objects
-        , replayWithFramesNames = replayWithoutFrames & ReplayWithoutFrames.names
-        , replayWithFramesClasses = replayWithoutFrames & ReplayWithoutFrames.classes
-        , replayWithFramesCache = replayWithoutFrames & ReplayWithoutFrames.cache
+        , replayWithFramesMessages = replayWithoutFrames & #messages
+        , replayWithFramesMarks = replayWithoutFrames & #marks
+        , replayWithFramesPackages = replayWithoutFrames & #packages
+        , replayWithFramesObjects = replayWithoutFrames & #objects
+        , replayWithFramesNames = replayWithoutFrames & #names
+        , replayWithFramesClasses = replayWithoutFrames & #classes
+        , replayWithFramesCache = replayWithoutFrames & #cache
         }
 
 
@@ -94,23 +94,23 @@ fromReplayWithoutFrames replayWithoutFrames = do
 toReplayWithoutFrames :: (Monad m) => ReplayWithFrames -> m ReplayWithoutFrames.ReplayWithoutFrames
 toReplayWithoutFrames replayWithFrames = do
     pure ReplayWithoutFrames.ReplayWithoutFrames
-        { ReplayWithoutFrames.version1 = replayWithFrames & #version1
-        , ReplayWithoutFrames.version2 = replayWithFrames & #version2
-        , ReplayWithoutFrames.label = replayWithFrames & #label
-        , ReplayWithoutFrames.properties = replayWithFrames & #properties
-        , ReplayWithoutFrames.levels = replayWithFrames & #levels
-        , ReplayWithoutFrames.keyFrames = replayWithFrames & #keyFrames
-        , ReplayWithoutFrames.stream = Generator.generateStream
+        { ReplayWithoutFrames.replayWithoutFramesVersion1 = replayWithFrames & #version1
+        , ReplayWithoutFrames.replayWithoutFramesVersion2 = replayWithFrames & #version2
+        , ReplayWithoutFrames.replayWithoutFramesLabel = replayWithFrames & #label
+        , ReplayWithoutFrames.replayWithoutFramesProperties = replayWithFrames & #properties
+        , ReplayWithoutFrames.replayWithoutFramesLevels = replayWithFrames & #levels
+        , ReplayWithoutFrames.replayWithoutFramesKeyFrames = replayWithFrames & #keyFrames
+        , ReplayWithoutFrames.replayWithoutFramesStream = Generator.generateStream
             (replayWithFrames & #frames)
             (replayWithFrames & #objects)
             (replayWithFrames & #names)
             (replayWithFrames & #classes)
             (replayWithFrames & #cache)
-        , ReplayWithoutFrames.messages = replayWithFrames & #messages
-        , ReplayWithoutFrames.marks = replayWithFrames & #marks
-        , ReplayWithoutFrames.packages = replayWithFrames & #packages
-        , ReplayWithoutFrames.objects = replayWithFrames & #objects
-        , ReplayWithoutFrames.names = replayWithFrames & #names
-        , ReplayWithoutFrames.classes = replayWithFrames & #classes
-        , ReplayWithoutFrames.cache = replayWithFrames & #cache
+        , ReplayWithoutFrames.replayWithoutFramesMessages = replayWithFrames & #messages
+        , ReplayWithoutFrames.replayWithoutFramesMarks = replayWithFrames & #marks
+        , ReplayWithoutFrames.replayWithoutFramesPackages = replayWithFrames & #packages
+        , ReplayWithoutFrames.replayWithoutFramesObjects = replayWithFrames & #objects
+        , ReplayWithoutFrames.replayWithoutFramesNames = replayWithFrames & #names
+        , ReplayWithoutFrames.replayWithoutFramesClasses = replayWithFrames & #classes
+        , ReplayWithoutFrames.replayWithoutFramesCache = replayWithFrames & #cache
         }
