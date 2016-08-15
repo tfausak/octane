@@ -52,7 +52,7 @@ parseStream replay = let
         & #unpack
         & Map.lookup ("NumFrames" & StrictText.pack & Text.Text)
         & (\ property -> case property of
-            Just (Property.IntProperty _ x) -> x & Int32.unpack & fromIntegral
+            Just (Property.IntProperty _ x) -> x & #unpack & fromIntegral
             _ -> 0)
     get = replay & extractContext & getFrames 0 numFrames & Bits.runBitGet
     stream = replay & ReplayWithoutFrames.stream & Stream.unpack
