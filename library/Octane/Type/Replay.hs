@@ -170,7 +170,7 @@ toOptimizedReplay replay = do
     let frames_ = replay
             & frames
             & zip [0 :: Int ..]
-            & map (\ (index, frame) -> frame { Frame.isKeyFrame = index == 0 })
+            & map (\ (index, frame) -> frame { Frame.frameIsKeyFrame = index == 0 })
 
     pure OptimizedReplay.OptimizedReplay
         { OptimizedReplay.version1 = version1
@@ -179,10 +179,10 @@ toOptimizedReplay replay = do
         , OptimizedReplay.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
         , OptimizedReplay.levels = replay & levels & map Text.Text & List.List
         , OptimizedReplay.keyFrames = frames_
-            & filter Frame.isKeyFrame
+            & filter #isKeyFrame
             & map (\ frame -> KeyFrame.KeyFrame
-                (Frame.time frame)
-                (frame & Frame.number & Word32.toWord32)
+                (#time frame)
+                (frame & #number & Word32.toWord32)
                 0)
             & List.List
         , OptimizedReplay.frames = frames_

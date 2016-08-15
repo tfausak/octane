@@ -1,8 +1,12 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Frame (Frame(..)) where
 
@@ -13,7 +17,9 @@ import Data.Monoid ((<>))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Bimap as Bimap
+import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
@@ -31,29 +37,31 @@ import qualified Octane.Type.Word8 as Word8
 -- This cannot be an instance of 'Data.Binary.Bits.BinaryBit' because it
 -- requires out-of-band information (the class property map) to decode.
 data Frame = Frame
-    { number :: Word
+    { frameNumber :: Word
     -- ^ This frame's number in the network stream. Starts at 0.
-    , isKeyFrame :: Bool
+    , frameIsKeyFrame :: Bool
     -- ^ Is this frame a key frame?
-    , time :: Float32.Float32
+    , frameTime :: Float32.Float32
     -- ^ The since the start of the match that this frame occurred.
-    , delta :: Float32.Float32
+    , frameDelta :: Float32.Float32
     -- ^ The time between the last frame and this one.
-    , replications :: [Replication.Replication]
+    , frameReplications :: [Replication.Replication]
     -- ^ A list of all the replications in this frame.
     } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Frame)
 
 instance DeepSeq.NFData Frame where
 
 instance Aeson.ToJSON Frame where
     toJSON frame = Aeson.object
-        [ "Number" .= number frame
-        , "IsKeyFrame" .= isKeyFrame frame
-        , "Time" .= time frame
-        , "Delta" .= delta frame
-        , "Spawned" .= (frame & replications & getSpawned)
-        , "Updated" .= (frame & replications & getUpdated)
-        , "Destroyed" .= (frame & replications & getDestroyed)
+        [ "Number" .= #number frame
+        , "IsKeyFrame" .= #isKeyFrame frame
+        , "Time" .= #time frame
+        , "Delta" .= #delta frame
+        , "Spawned" .= (frame & #replications & getSpawned)
+        , "Updated" .= (frame & #replications & getUpdated)
+        , "Destroyed" .= (frame & #replications & getDestroyed)
         ]
 
 

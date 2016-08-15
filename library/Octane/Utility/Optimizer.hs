@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Octane.Utility.Optimizer (optimizeFrames) where
@@ -39,7 +40,7 @@ initialState = IntMap.empty
 updateState :: Frame.Frame -> State -> State
 updateState frame state1 = let
     spawned = frame
-        & Frame.replications
+        & #replications
         & filter (\ replication -> replication
             & Replication.state
             & (== State.SOpening))
@@ -53,7 +54,7 @@ updateState frame state1 = let
             state1
 
     destroyed = frame
-        & Frame.replications
+        & #replications
         & filter (\ replication -> replication
             & Replication.state
             & (== State.SClosing))
@@ -67,7 +68,7 @@ updateState frame state1 = let
             state2
 
     updated = frame
-        & Frame.replications
+        & #replications
         & filter (\ replication -> replication
             & Replication.state
             & (== State.SExisting))
@@ -92,7 +93,7 @@ updateState frame state1 = let
 getDelta :: State -> Frame.Frame -> Frame.Frame
 getDelta state frame = let
     newReplications = frame
-        & Frame.replications
+        & #replications
         -- Remove replications that aren't actually new.
         & reject (\ replication -> let
             isOpening = Replication.state replication == State.SOpening
@@ -116,7 +117,7 @@ getDelta state frame = let
                         in Just newValue /= oldValue)
                 in replication { Replication.properties = changes }
             else replication)
-    in frame { Frame.replications = newReplications }
+    in frame { Frame.frameReplications = newReplications }
 
 
 reject :: (a -> Bool) -> [a] -> [a]

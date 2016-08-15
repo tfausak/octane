@@ -95,11 +95,11 @@ getFrame context number time delta = do
     (newContext, replications) <- getReplications context
     let frame =
             Frame.Frame
-            { Frame.number = number
-            , Frame.isKeyFrame = context & contextKeyFrames & Set.member number
-            , Frame.time = time
-            , Frame.delta = delta
-            , Frame.replications = replications
+            { Frame.frameNumber = number
+            , Frame.frameIsKeyFrame = context & contextKeyFrames & Set.member number
+            , Frame.frameTime = time
+            , Frame.frameDelta = delta
+            , Frame.frameReplications = replications
             }
     (newContext, frame) & DeepSeq.force & pure
 

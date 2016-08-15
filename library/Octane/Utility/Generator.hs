@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedLabels #-}
+
 module Octane.Utility.Generator (generateStream) where
 
 import Data.Function ((&))
@@ -43,9 +45,9 @@ putFrames frames = do
 
 putFrame :: Frame.Frame -> BinaryBit.BitPut ()
 putFrame frame = do
-    frame & Frame.time & BinaryBit.putBits 32
-    frame & Frame.delta & BinaryBit.putBits 32
-    frame & Frame.replications & putReplications
+    frame & #time & BinaryBit.putBits 32
+    frame & #delta & BinaryBit.putBits 32
+    frame & #replications & putReplications
 
 
 putReplications :: [Replication.Replication] -> BinaryBit.BitPut ()
