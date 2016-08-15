@@ -24,7 +24,6 @@ import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Float32 as Float32
-import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Value as Value
@@ -74,8 +73,8 @@ instance Aeson.ToJSON Spawned where
             let v = Aeson.object
                     [ "Name" .= Replication.objectName x
                     , "Class" .= Replication.className x
-                    , "Position" .= (x & Replication.initialization & fmap Initialization.location)
-                    , "Rotation" .= (x & Replication.initialization & fmap Initialization.rotation)
+                    , "Position" .= (x & Replication.initialization & fmap #location)
+                    , "Rotation" .= (x & Replication.initialization & fmap #rotation)
                     ]
             (k, v))
         & Map.fromList
