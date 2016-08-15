@@ -25,7 +25,6 @@ import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.Int32 as Int32
-import qualified Octane.Type.KeyFrame as KeyFrame
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Property as Property
 import qualified Octane.Type.RemoteId as RemoteId
@@ -592,7 +591,7 @@ extractContext replay = Context
     , contextKeyFrames = replay
         & ReplayWithoutFrames.keyFrames
         & List.unpack
-        & map KeyFrame.frame
+        & map #frame
         & map Word32.fromWord32
         & Set.fromList
     , contextVersion =
