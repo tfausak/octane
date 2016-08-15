@@ -1,7 +1,13 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.CompressedWord (CompressedWord(..), fromCompressedWord) where
 
@@ -14,6 +20,8 @@ import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Bits as Bits
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 
@@ -27,9 +35,11 @@ import qualified Octane.Type.Boolean as Boolean
 -- limit, or the number of bits necessary to reach the limit has been reached,
 -- whichever comes first.
 data CompressedWord = CompressedWord
-    { limit :: Word
-    , value :: Word
+    { compressedWordLimit :: Word
+    , compressedWordValue :: Word
     } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''CompressedWord)
 
 -- | Abuses the first argument to 'BinaryBit.getBits' as the maximum value.
 --
@@ -40,20 +50,20 @@ data CompressedWord = CompressedWord
 -- "\128"
 instance BinaryBit.BinaryBit CompressedWord where
     getBits n = do
-        let theLimit = fromIntegral n
-        theValue <- getStep theLimit (bitSize theLimit) 0 0
-        pure (CompressedWord theLimit theValue)
+        let limit = fromIntegral n
+        value <- getStep limit (bitSize limit) 0 0
+        pure (CompressedWord limit value)
 
     putBits _ compressedWord = do
-        let theLimit = fromIntegral (limit compressedWord)
-        let theValue = fromIntegral (value compressedWord)
-        let maxBits = bitSize theLimit
+        let limit = fromIntegral (#limit compressedWord)
+        let value = fromIntegral (#value compressedWord)
+        let maxBits = bitSize limit
         let upper = (2 ^ (maxBits - 1)) - 1
-        let lower = theLimit - upper
-        let numBits = if lower > theValue || theValue > upper
+        let lower = limit - upper
+        let numBits = if lower > value || value > upper
                 then maxBits
                 else maxBits - 1
-        BinaryBit.putWord64be numBits theValue
+        BinaryBit.putWord64be numBits value
 
 instance DeepSeq.NFData CompressedWord where
 
@@ -63,8 +73,8 @@ instance DeepSeq.NFData CompressedWord where
 -- "{\"Value\":1,\"Limit\":2}"
 instance Aeson.ToJSON CompressedWord where
     toJSON compressedWord = Aeson.object
-        [ "Limit" .= limit compressedWord
-        , "Value" .= value compressedWord
+        [ "Limit" .= #limit compressedWord
+        , "Value" .= #value compressedWord
         ]
 
 
@@ -74,7 +84,7 @@ instance Aeson.ToJSON CompressedWord where
 -- >>> fromCompressedWord (CompressedWord 2 1) :: Int
 -- 1
 fromCompressedWord :: (Integral a) => CompressedWord -> a
-fromCompressedWord compressedWord = compressedWord & value & fromIntegral
+fromCompressedWord compressedWord = compressedWord & #value & fromIntegral
 
 
 bitSize :: (Integral a, Integral b) => a -> b
@@ -82,11 +92,11 @@ bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling
 
 
 getStep :: Word -> Word -> Word -> Word -> BinaryBit.BitGet Word
-getStep theLimit maxBits position theValue = do
+getStep limit maxBits position value = do
     let x = Bits.shiftL 1 (fromIntegral position)
-    if position < maxBits && theValue + x <= theLimit
+    if position < maxBits && value + x <= limit
     then do
         (bit :: Boolean.Boolean) <- BinaryBit.getBits 0
-        let newValue = if #unpack bit then theValue + x else theValue
-        getStep theLimit maxBits (position + 1) newValue
-    else pure theValue
+        let newValue = if #unpack bit then value + x else value
+        getStep limit maxBits (position + 1) newValue
+    else pure value
