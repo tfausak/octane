@@ -118,11 +118,11 @@ fromOptimizedReplay optimizedReplay = do
             & Map.mapKeys Text.unpack
         , levels = optimizedReplay
             & OptimizedReplay.levels
-            & List.unpack
+            & #unpack
             & map Text.unpack
         , messages = optimizedReplay
             & OptimizedReplay.messages
-            & List.unpack
+            & #unpack
             & map (\ message -> do
                 let key = message
                         & Message.frame
@@ -136,7 +136,7 @@ fromOptimizedReplay optimizedReplay = do
             & Map.fromList
         , tickMarks = optimizedReplay
             & OptimizedReplay.marks
-            & List.unpack
+            & #unpack
             & map (\ mark -> do
                 let key = mark
                         & Mark.frame
@@ -150,7 +150,7 @@ fromOptimizedReplay optimizedReplay = do
             & Map.fromList
         , packages = optimizedReplay
             & OptimizedReplay.packages
-            & List.unpack
+            & #unpack
             & map Text.unpack
         , frames = optimizedReplay
             & OptimizedReplay.frames

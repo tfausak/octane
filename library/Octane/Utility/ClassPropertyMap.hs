@@ -18,7 +18,6 @@ import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
-import qualified Octane.Type.List as List
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
@@ -55,7 +54,7 @@ getClassPropertyMap replay = let
 getClassCache :: ReplayWithoutFrames.ReplayWithoutFrames -> [(Int, Int, Int)]
 getClassCache replay = replay
     & ReplayWithoutFrames.cache
-    & List.unpack
+    & #unpack
     & map (\ x ->
         ( x & #classId & Word32.fromWord32
         , x & #cacheId & Word32.fromWord32
@@ -124,7 +123,7 @@ getClassMap replay = let
 getPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap StrictText.Text
 getPropertyMap replay = replay
     & ReplayWithoutFrames.objects
-    & List.unpack
+    & #unpack
     & map Text.unpack
     & zip [0 ..]
     & IntMap.fromList
@@ -138,12 +137,12 @@ getBasicClassPropertyMap replay = let
     propertyMap = getPropertyMap replay
     in replay
         & ReplayWithoutFrames.cache
-        & List.unpack
+        & #unpack
         & map (\ x -> let
             classId = x & #classId & Word32.fromWord32
             properties = x
                 & #properties
-                & List.unpack
+                & #unpack
                 & Maybe.mapMaybe (\ y -> let
                     streamId = y & #streamId & Word32.fromWord32
                     propertyId = y & #objectId & Word32.fromWord32
@@ -159,7 +158,7 @@ getBasicClassPropertyMap replay = let
 getActorMap :: ReplayWithoutFrames.ReplayWithoutFrames -> Map.Map StrictText.Text Int
 getActorMap replay = replay
     & ReplayWithoutFrames.classes
-    & List.unpack
+    & #unpack
     & map (\ x -> let
         className = x & #name & Text.unpack
         classId = x & #streamId & Word32.fromWord32
