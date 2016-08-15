@@ -18,7 +18,6 @@ import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
-import qualified Octane.Type.CacheProperty as CacheProperty
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.List as List
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
@@ -147,8 +146,8 @@ getBasicClassPropertyMap replay = let
                 & #properties
                 & List.unpack
                 & Maybe.mapMaybe (\ y -> let
-                    streamId = y & CacheProperty.streamId & Word32.fromWord32
-                    propertyId = y & CacheProperty.objectId & Word32.fromWord32
+                    streamId = y & #streamId & Word32.fromWord32
+                    propertyId = y & #objectId & Word32.fromWord32
                     in case IntMap.lookup propertyId propertyMap of
                         Nothing -> Nothing
                         Just name -> Just (streamId, name))
