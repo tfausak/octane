@@ -1,6 +1,10 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Dictionary (Dictionary(..)) where
@@ -10,7 +14,9 @@ import Data.Function ((&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
+import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Exts as Exts
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
@@ -22,8 +28,10 @@ import qualified Octane.Type.Text as Text
 
 -- | A mapping between text and arbitrary values.
 newtype Dictionary a = Dictionary
-    { unpack :: (Map.Map Text.Text a)
+    { dictionaryUnpack :: (Map.Map Text.Text a)
     } deriving (Eq, Generics.Generic)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Dictionary)
 
 -- | Elements are stored with the key first, then the value. The dictionary
 -- ends when a key is @"None"@.
@@ -43,7 +51,7 @@ instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
             elements & Map.union element & Dictionary & pure
 
     put dictionary = do
-        dictionary & unpack & Map.assocs & mapM_ putElement
+        dictionary & #unpack & Map.assocs & mapM_ putElement
         noneKey & Binary.put
 
 -- | Allows creating 'Dictionary' values with 'Exts.fromList'. Also allows
@@ -56,7 +64,7 @@ instance Exts.IsList (Dictionary a) where
 
     fromList items = Dictionary (Map.fromList items)
 
-    toList dictionary = Map.toList (unpack dictionary)
+    toList dictionary = Map.toList (#unpack dictionary)
 
 instance (DeepSeq.NFData a) => DeepSeq.NFData (Dictionary a) where
 
@@ -65,7 +73,7 @@ instance (DeepSeq.NFData a) => DeepSeq.NFData (Dictionary a) where
 -- >>> show ([("one", 1)] :: Dictionary Int)
 -- "fromList [(\"one\",1)]"
 instance (Show a) => Show (Dictionary a) where
-    show dictionary = show (unpack dictionary)
+    show dictionary = show (#unpack dictionary)
 
 -- | Encoded directly as a JSON object.
 --
@@ -73,7 +81,7 @@ instance (Show a) => Show (Dictionary a) where
 -- "{\"one\":1}"
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
     toJSON dictionary = dictionary
-        & unpack
+        & #unpack
         & Map.mapKeys Text.unpack
         & Aeson.toJSON
 

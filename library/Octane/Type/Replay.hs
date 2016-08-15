@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 
@@ -113,7 +114,7 @@ fromOptimizedReplay optimizedReplay = do
             ] & map Word32.fromWord32 & Version.makeVersion
         , metadata = optimizedReplay
             & OptimizedReplay.properties
-            & Dictionary.unpack
+            & #unpack
             & Map.mapKeys Text.unpack
         , levels = optimizedReplay
             & OptimizedReplay.levels

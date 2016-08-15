@@ -21,7 +21,6 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
-import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.Initialization as Initialization
@@ -50,7 +49,7 @@ parseStream :: ReplayWithoutFrames.ReplayWithoutFrames -> [Frame.Frame]
 parseStream replay = let
     numFrames = replay
         & ReplayWithoutFrames.properties
-        & Dictionary.unpack
+        & #unpack
         & Map.lookup ("NumFrames" & StrictText.pack & Text.Text)
         & (\ property -> case property of
             Just (Property.IntProperty _ x) -> x & Int32.unpack & fromIntegral
