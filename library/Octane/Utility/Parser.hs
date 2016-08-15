@@ -177,12 +177,12 @@ getNewReplication context actorId = do
     pure
         ( newContext
         , Replication.Replication
-          { Replication.actorId = actorId
-          , Replication.objectName = objectName
-          , Replication.className = className
-          , Replication.state = State.SOpening
-          , Replication.initialization = Just classInit
-          , Replication.properties = Map.empty
+          { Replication.replicationActorId = actorId
+          , Replication.replicationObjectName = objectName
+          , Replication.replicationClassName = className
+          , Replication.replicationState = State.SOpening
+          , Replication.replicationInitialization = Just classInit
+          , Replication.replicationProperties = Map.empty
           })
 
 
@@ -195,12 +195,12 @@ getExistingReplication context actorId = do
         Just x -> pure x
     props <- getProps context thing
     pure (context, Replication.Replication
-        { Replication.actorId = actorId
-        , Replication.objectName = thingObjectName thing
-        , Replication.className = thingClassName thing
-        , Replication.state = State.SExisting
-        , Replication.initialization = Nothing
-        , Replication.properties = props
+        { Replication.replicationActorId = actorId
+        , Replication.replicationObjectName = thingObjectName thing
+        , Replication.replicationClassName = thingClassName thing
+        , Replication.replicationState = State.SExisting
+        , Replication.replicationInitialization = Nothing
+        , Replication.replicationProperties = props
         })
 
 
@@ -216,12 +216,12 @@ getClosedReplication context actorId = do
     pure
         ( newContext
         , Replication.Replication
-          { Replication.actorId = actorId
-          , Replication.objectName = thingObjectName thing
-          , Replication.className = thingClassName thing
-          , Replication.state = State.SClosing
-          , Replication.initialization = Nothing
-          , Replication.properties = Map.empty
+          { Replication.replicationActorId = actorId
+          , Replication.replicationObjectName = thingObjectName thing
+          , Replication.replicationClassName = thingClassName thing
+          , Replication.replicationState = State.SClosing
+          , Replication.replicationInitialization = Nothing
+          , Replication.replicationProperties = Map.empty
           })
 
 

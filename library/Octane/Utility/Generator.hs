@@ -63,8 +63,8 @@ putReplications replications = do
 
 putReplication :: Replication.Replication -> BinaryBit.BitPut ()
 putReplication replication = do
-    replication & Replication.actorId & BinaryBit.putBits 0
-    case Replication.state replication of
+    replication & #actorId & BinaryBit.putBits 0
+    case #state replication of
         State.SOpening -> putNewReplication replication
         State.SExisting -> putExistingReplication replication
         State.SClosing -> putClosedReplication replication
@@ -76,7 +76,7 @@ putNewReplication replication = do
     True & Boolean.Boolean & BinaryBit.putBits 1 -- new
     False & Boolean.Boolean & BinaryBit.putBits 1 -- unknown
     -- TODO: convert object name into ID and put it
-    case Replication.initialization replication of
+    case #initialization replication of
         Nothing -> pure ()
         Just x -> Initialization.putInitialization x
 

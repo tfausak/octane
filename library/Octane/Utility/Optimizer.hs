@@ -42,9 +42,9 @@ updateState frame state1 = let
     spawned = frame
         & #replications
         & filter (\ replication -> replication
-            & Replication.state
+            & #state
             & (== State.SOpening))
-        & map Replication.actorId
+        & map #actorId
         & map CompressedWord.fromCompressedWord
     state2 = spawned
         & foldr
@@ -56,9 +56,9 @@ updateState frame state1 = let
     destroyed = frame
         & #replications
         & filter (\ replication -> replication
-            & Replication.state
+            & #state
             & (== State.SClosing))
-        & map Replication.actorId
+        & map #actorId
         & map CompressedWord.fromCompressedWord
     state3 = destroyed
         & foldr
@@ -70,21 +70,21 @@ updateState frame state1 = let
     updated = frame
         & #replications
         & filter (\ replication -> replication
-            & Replication.state
+            & #state
             & (== State.SExisting))
     state4 = updated
         & foldr
             (\ replication -> IntMap.alter
                 (\ maybeValue -> Just (case maybeValue of
                     Nothing ->
-                        (True, Replication.properties replication)
+                        (True, #properties replication)
                     Just (alive, properties) ->
                         ( alive
                         , Map.union
-                            (Replication.properties replication)
+                            (#properties replication)
                             properties
                         )))
-                (replication & Replication.actorId & CompressedWord.fromCompressedWord))
+                (replication & #actorId & CompressedWord.fromCompressedWord))
             state3
 
     in state4
@@ -96,26 +96,26 @@ getDelta state frame = let
         & #replications
         -- Remove replications that aren't actually new.
         & reject (\ replication -> let
-            isOpening = Replication.state replication == State.SOpening
-            actorId = Replication.actorId replication
+            isOpening = #state replication == State.SOpening
+            actorId = #actorId replication
             currentState = IntMap.lookup (CompressedWord.fromCompressedWord actorId) state
             isAlive = fmap fst currentState
             wasAlreadyAlive = isAlive == Just True
             in isOpening && wasAlreadyAlive)
         -- Remove properties that haven't changed.
         & map (\ replication ->
-            if Replication.state replication == State.SExisting
+            if #state replication == State.SExisting
             then let
-                actorId = Replication.actorId replication
+                actorId = #actorId replication
                 currentState = IntMap.findWithDefault
                     (True, Map.empty) (CompressedWord.fromCompressedWord actorId) state
                 currentProperties = snd currentState
-                newProperties = Replication.properties replication
+                newProperties = #properties replication
                 changes = newProperties
                     & Map.filterWithKey (\ name newValue -> let
                         oldValue = Map.lookup name currentProperties
                         in Just newValue /= oldValue)
-                in replication { Replication.properties = changes }
+                in replication { Replication.replicationProperties = changes }
             else replication)
     in frame { Frame.frameReplications = newReplications }
 

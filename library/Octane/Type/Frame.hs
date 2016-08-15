@@ -69,12 +69,12 @@ newtype Spawned = Spawned [Replication.Replication]
 instance Aeson.ToJSON Spawned where
     toJSON (Spawned xs) = xs
         & map (\ x -> do
-            let k = x & Replication.actorId & #value & show & StrictText.pack
+            let k = x & #actorId & #value & show & StrictText.pack
             let v = Aeson.object
-                    [ "Name" .= Replication.objectName x
-                    , "Class" .= Replication.className x
-                    , "Position" .= (x & Replication.initialization & fmap #location)
-                    , "Rotation" .= (x & Replication.initialization & fmap #rotation)
+                    [ "Name" .= #objectName x
+                    , "Class" .= #className x
+                    , "Position" .= (x & #initialization & fmap #location)
+                    , "Rotation" .= (x & #initialization & fmap #rotation)
                     ]
             (k, v))
         & Map.fromList
@@ -83,7 +83,7 @@ instance Aeson.ToJSON Spawned where
 getSpawned :: [Replication.Replication] -> Spawned
 getSpawned xs = xs
     & filter (\ x -> x
-        & Replication.state
+        & #state
         & (== State.SOpening))
     & Spawned
 
@@ -94,12 +94,12 @@ instance Aeson.ToJSON Updated where
     toJSON (Updated xs) = xs
         & map (\ x -> do
             let k = x
-                    & Replication.actorId
+                    & #actorId
                     & #value
                     & show
                     & StrictText.pack
             let v = x
-                    & Replication.properties
+                    & #properties
                     & Map.map (\ value -> Aeson.object
                         [ "Type" .= getType value
                         , "Value" .= getValue value
@@ -112,10 +112,10 @@ instance Aeson.ToJSON Updated where
 getUpdated :: [Replication.Replication] -> Updated
 getUpdated xs = xs
     & filter (\ x -> x
-        & Replication.state
+        & #state
         & (== State.SExisting))
     & filter (\ x -> x
-        & Replication.properties
+        & #properties
         & null
         & not)
     & Updated
@@ -125,14 +125,14 @@ newtype Destroyed = Destroyed [Replication.Replication]
 
 instance Aeson.ToJSON Destroyed where
     toJSON (Destroyed xs) = xs
-        & map Replication.actorId
+        & map #actorId
         & map #value
         & Aeson.toJSON
 
 getDestroyed :: [Replication.Replication] -> Destroyed
 getDestroyed xs = xs
     & filter (\ x -> x
-        & Replication.state
+        & #state
         & (== State.SClosing))
     & Destroyed
 
