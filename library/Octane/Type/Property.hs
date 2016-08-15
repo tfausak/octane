@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 
@@ -105,7 +106,7 @@ instance Binary.Binary Property where
                 value <- Binary.get
                 value & StrProperty size & pure
 
-            _ -> fail ("unknown property type " ++ show (Text.unpack kind))
+            _ -> fail ("unknown property type " ++ show (#unpack kind))
 
     put property =
         case property of

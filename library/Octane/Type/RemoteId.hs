@@ -73,7 +73,7 @@ instance BinaryBit.BinaryBit PlayStationId where
     putBits _ playStationId = do
         playStationId
             & #name
-            & Text.unpack
+            & #unpack
             & StrictText.justifyLeft 16 '\x00'
             & StrictText.take 16
             & Text.encodeLatin1

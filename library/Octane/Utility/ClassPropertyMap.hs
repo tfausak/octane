@@ -19,7 +19,6 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
-import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 import qualified "regex-compat" Text.Regex as Regex
 
@@ -124,7 +123,7 @@ getPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap Stric
 getPropertyMap replay = replay
     & #objects
     & #unpack
-    & map Text.unpack
+    & map #unpack
     & zip [0 ..]
     & IntMap.fromList
 
@@ -160,7 +159,7 @@ getActorMap replay = replay
     & #classes
     & #unpack
     & map (\ x -> let
-        className = x & #name & Text.unpack
+        className = x & #name & #unpack
         classId = x & #streamId & Word32.fromWord32
         in (className, classId))
     & Map.fromList

@@ -82,7 +82,7 @@ instance (Show a) => Show (Dictionary a) where
 instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
     toJSON dictionary = dictionary
         & #unpack
-        & Map.mapKeys Text.unpack
+        & Map.mapKeys #unpack
         & Aeson.toJSON
 
 

@@ -123,11 +123,11 @@ fromOptimizedReplay optimizedReplay = do
         , replayMetadata = optimizedReplay
             & #properties
             & #unpack
-            & Map.mapKeys Text.unpack
+            & Map.mapKeys #unpack
         , replayLevels = optimizedReplay
             & #levels
             & #unpack
-            & map Text.unpack
+            & map #unpack
         , replayMessages = optimizedReplay
             & #messages
             & #unpack
@@ -139,7 +139,7 @@ fromOptimizedReplay optimizedReplay = do
                         & StrictText.pack
                 let value = message
                         & #content
-                        & Text.unpack
+                        & #unpack
                 (key, value))
             & Map.fromList
         , replayTickMarks = optimizedReplay
@@ -153,13 +153,13 @@ fromOptimizedReplay optimizedReplay = do
                         & StrictText.pack
                 let value = mark
                         & #label
-                        & Text.unpack
+                        & #unpack
                 (key, value))
             & Map.fromList
         , replayPackages = optimizedReplay
             & #packages
             & #unpack
-            & map Text.unpack
+            & map #unpack
         , replayFrames = optimizedReplay
             & #frames
         }
