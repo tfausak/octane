@@ -33,7 +33,7 @@ $(OverloadedRecords.overloadedRecord Default.def ''Mark)
 -- | Fields are stored one after the other in order.
 --
 -- >>> Binary.decode "\x02\x00\x00\x00\x4b\x00\x01\x00\x00\x00" :: Mark
--- Mark {label = "K", frame = 0x00000001}
+-- Mark {markLabel = "K", markFrame = 0x00000001}
 --
 -- >>> Binary.encode (Mark "K" 1)
 -- "\STX\NUL\NUL\NULK\NUL\SOH\NUL\NUL\NUL"

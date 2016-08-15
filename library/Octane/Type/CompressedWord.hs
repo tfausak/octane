@@ -44,7 +44,7 @@ $(OverloadedRecords.overloadedRecord Default.def ''CompressedWord)
 -- | Abuses the first argument to 'BinaryBit.getBits' as the maximum value.
 --
 -- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 4)) "\x7f" :: CompressedWord
--- CompressedWord {limit = 4, value = 2}
+-- CompressedWord {compressedWordLimit = 4, compressedWordValue = 2}
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (CompressedWord 4 2)))
 -- "\128"

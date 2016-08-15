@@ -50,7 +50,7 @@ $(OverloadedRecords.overloadedRecord Default.def ''PlayStationId)
 -- | Each part is stored as exactly 16 bits.
 --
 -- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x42\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80" :: PlayStationId
--- PlayStationId {playStationName = "B", playStationUnknown = "\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\SOH"}
+-- PlayStationId {playStationIdName = "B", playStationIdUnknown = "\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\SOH"}
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (PlayStationId "A" "\x01")))
 -- "\130\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\128"
@@ -111,7 +111,7 @@ $(OverloadedRecords.overloadedRecord Default.def ''SplitscreenId)
 -- | Stored as a bare byte string.
 --
 -- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x00\x00\x00" :: SplitscreenId
--- SplitscreenId {unpackSplitscreenId = Just 0}
+-- SplitscreenId {splitscreenIdUnpack = Just 0}
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (SplitscreenId (Just 0))))
 -- "\NUL\NUL\NUL"
@@ -149,7 +149,7 @@ $(OverloadedRecords.overloadedRecord Default.def ''SteamId)
 -- | Stored as a plain 'Word64.Word64'.
 --
 -- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00\x00\x00\x00\x00" :: SteamId
--- SteamId {unpackSteamId = 0x0000000000000001}
+-- SteamId {steamIdUnpack = 0x0000000000000001}
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (SteamId 1)))
 -- "\128\NUL\NUL\NUL\NUL\NUL\NUL\NUL"
@@ -179,7 +179,7 @@ $(OverloadedRecords.overloadedRecord Default.def ''XboxId)
 -- | Stored as a plain 'Word64.Word64'.
 --
 -- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00\x00\x00\x00\x00" :: XboxId
--- XboxId {unpackXboxId = 0x0000000000000001}
+-- XboxId {xboxIdUnpack = 0x0000000000000001}
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (XboxId 1)))
 -- "\128\NUL\NUL\NUL\NUL\NUL\NUL\NUL"

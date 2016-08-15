@@ -34,7 +34,7 @@ $(OverloadedRecords.overloadedRecord Default.def ''ClassItem)
 -- | Fields are stored one after the other in order.
 --
 -- >>> Binary.decode "\x02\x00\x00\x00\x4b\x00\x01\x00\x00\x00" :: ClassItem
--- ClassItem {name = "K", streamId = 0x00000001}
+-- ClassItem {classItemName = "K", classItemStreamId = 0x00000001}
 --
 -- >>> Binary.encode (ClassItem "K" 1)
 -- "\STX\NUL\NUL\NULK\NUL\SOH\NUL\NUL\NUL"
