@@ -139,12 +139,12 @@ fromOptimizedReplay optimizedReplay = do
             & #unpack
             & map (\ mark -> do
                 let key = mark
-                        & Mark.frame
+                        & #frame
                         & Word32.unpack
                         & show
                         & StrictText.pack
                 let value = mark
-                        & Mark.label
+                        & #label
                         & Text.unpack
                 (key, value))
             & Map.fromList
