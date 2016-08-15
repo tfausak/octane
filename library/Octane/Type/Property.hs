@@ -77,14 +77,14 @@ instance Binary.Binary Property where
 
             _ | kind == floatProperty -> do
                 size <- Binary.get
-                value <- case Word64.unpack size of
+                value <- case #unpack size of
                     4 -> Binary.get
                     x -> fail ("unknown FloatProperty size " ++ show x)
                 value & FloatProperty size & pure
 
             _ | kind == intProperty -> do
                 size <- Binary.get
-                value <- case Word64.unpack size of
+                value <- case #unpack size of
                     4 -> Binary.get
                     x -> fail ("unknown IntProperty size " ++ show x)
                 value & IntProperty size & pure
@@ -96,7 +96,7 @@ instance Binary.Binary Property where
 
             _ | kind == qWordProperty -> do
                 size <- Binary.get
-                value <- case Word64.unpack size of
+                value <- case #unpack size of
                     8 -> Binary.get
                     x -> fail ("unknown QWordProperty size " ++ show x)
                 value & QWordProperty size & pure
