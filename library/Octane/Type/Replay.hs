@@ -109,19 +109,19 @@ fromOptimizedReplay :: (Monad m) => OptimizedReplay.OptimizedReplay -> m Replay
 fromOptimizedReplay optimizedReplay = do
     pure Replay
         { version =
-            [ OptimizedReplay.version1 optimizedReplay
-            , OptimizedReplay.version2 optimizedReplay
+            [ #version1 optimizedReplay
+            , #version2 optimizedReplay
             ] & map Word32.fromWord32 & Version.makeVersion
         , metadata = optimizedReplay
-            & OptimizedReplay.properties
+            & #properties
             & #unpack
             & Map.mapKeys Text.unpack
         , levels = optimizedReplay
-            & OptimizedReplay.levels
+            & #levels
             & #unpack
             & map Text.unpack
         , messages = optimizedReplay
-            & OptimizedReplay.messages
+            & #messages
             & #unpack
             & map (\ message -> do
                 let key = message
@@ -135,7 +135,7 @@ fromOptimizedReplay optimizedReplay = do
                 (key, value))
             & Map.fromList
         , tickMarks = optimizedReplay
-            & OptimizedReplay.marks
+            & #marks
             & #unpack
             & map (\ mark -> do
                 let key = mark
@@ -149,11 +149,11 @@ fromOptimizedReplay optimizedReplay = do
                 (key, value))
             & Map.fromList
         , packages = optimizedReplay
-            & OptimizedReplay.packages
+            & #packages
             & #unpack
             & map Text.unpack
         , frames = optimizedReplay
-            & OptimizedReplay.frames
+            & #frames
         }
 
 
@@ -173,20 +173,20 @@ toOptimizedReplay replay = do
             & map (\ (index, frame) -> frame { Frame.frameIsKeyFrame = index == 0 })
 
     pure OptimizedReplay.OptimizedReplay
-        { OptimizedReplay.version1 = version1
-        , OptimizedReplay.version2 = version2
-        , OptimizedReplay.label = "TAGame.Replay_Soccar_TA"
-        , OptimizedReplay.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
-        , OptimizedReplay.levels = replay & levels & map Text.Text & List.List
-        , OptimizedReplay.keyFrames = frames_
+        { OptimizedReplay.optimizedReplayVersion1 = version1
+        , OptimizedReplay.optimizedReplayVersion2 = version2
+        , OptimizedReplay.optimizedReplayLabel = "TAGame.Replay_Soccar_TA"
+        , OptimizedReplay.optimizedReplayProperties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
+        , OptimizedReplay.optimizedReplayLevels = replay & levels & map Text.Text & List.List
+        , OptimizedReplay.optimizedReplayKeyFrames = frames_
             & filter #isKeyFrame
             & map (\ frame -> KeyFrame.KeyFrame
                 (#time frame)
                 (frame & #number & Word32.toWord32)
                 0)
             & List.List
-        , OptimizedReplay.frames = frames_
-        , OptimizedReplay.messages = replay
+        , OptimizedReplay.optimizedReplayFrames = frames_
+        , OptimizedReplay.optimizedReplayMessages = replay
             & messages
             & Map.toList
             & map (\ (key, value) -> do
@@ -194,7 +194,7 @@ toOptimizedReplay replay = do
                 let content = value & Text.Text
                 Message.Message frame "" content)
             & List.List
-        , OptimizedReplay.marks = replay
+        , OptimizedReplay.optimizedReplayMarks = replay
             & tickMarks
             & Map.toList
             & map (\ (key, value) -> do
@@ -202,14 +202,14 @@ toOptimizedReplay replay = do
                 let frame = key & StrictText.unpack & read & Word32.Word32
                 Mark.Mark label frame)
             & List.List
-        , OptimizedReplay.packages = replay
+        , OptimizedReplay.optimizedReplayPackages = replay
             & packages
             & map Text.Text
             & List.List
-        , OptimizedReplay.objects = List.List [] -- TODO
+        , OptimizedReplay.optimizedReplayObjects = List.List [] -- TODO
         -- TODO: This list is usually empty. Also the parser doesn't use it at
         -- all. Is it safe for it to always be empty?
-        , OptimizedReplay.names = List.List []
-        , OptimizedReplay.classes = List.List [] -- TODO
-        , OptimizedReplay.cache = List.List [] -- TODO
+        , OptimizedReplay.optimizedReplayNames = List.List []
+        , OptimizedReplay.optimizedReplayClasses = List.List [] -- TODO
+        , OptimizedReplay.optimizedReplayCache = List.List [] -- TODO
         }
