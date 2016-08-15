@@ -18,7 +18,6 @@ import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
-import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.List as List
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
 import qualified Octane.Type.Text as Text
@@ -162,8 +161,8 @@ getActorMap replay = replay
     & ReplayWithoutFrames.classes
     & List.unpack
     & map (\ x -> let
-        className = x & ClassItem.name & Text.unpack
-        classId = x & ClassItem.streamId & Word32.fromWord32
+        className = x & #name & Text.unpack
+        classId = x & #streamId & Word32.fromWord32
         in (className, classId))
     & Map.fromList
 

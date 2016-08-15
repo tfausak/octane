@@ -1,6 +1,11 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.ClassItem (ClassItem(..)) where
 
@@ -8,6 +13,8 @@ import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
@@ -16,11 +23,13 @@ import qualified Octane.Type.Word32 as Word32
 -- | A class (like @Core.Object@) and it's associated ID in the net stream
 -- (like @0@).
 data ClassItem = ClassItem
-    { name :: Text.Text
+    { classItemName :: Text.Text
     -- ^ The class's name.
-    , streamId :: Word32.Word32
+    , classItemStreamId :: Word32.Word32
     -- ^ The class's ID in the network stream.
     } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''ClassItem)
 
 -- | Fields are stored one after the other in order.
 --
@@ -35,7 +44,7 @@ instance Binary.Binary ClassItem where
         <*> Binary.get
 
     put classItem = do
-        classItem & name & Binary.put
-        classItem & streamId & Binary.put
+        classItem & #name & Binary.put
+        classItem & #streamId & Binary.put
 
 instance DeepSeq.NFData ClassItem where
