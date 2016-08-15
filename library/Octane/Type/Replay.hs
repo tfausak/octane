@@ -134,7 +134,7 @@ fromOptimizedReplay optimizedReplay = do
             & map (\ message -> do
                 let key = message
                         & #frame
-                        & Word32.unpack
+                        & #unpack
                         & show
                         & StrictText.pack
                 let value = message
@@ -148,7 +148,7 @@ fromOptimizedReplay optimizedReplay = do
             & map (\ mark -> do
                 let key = mark
                         & #frame
-                        & Word32.unpack
+                        & #unpack
                         & show
                         & StrictText.pack
                 let value = mark
