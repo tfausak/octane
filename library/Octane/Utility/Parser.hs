@@ -30,7 +30,6 @@ import qualified Octane.Type.RemoteId as RemoteId
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
-import qualified Octane.Type.Stream as Stream
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Value as Value
 import qualified Octane.Type.Vector as Vector
@@ -53,7 +52,7 @@ parseStream replay = let
             Just (Property.IntProperty _ x) -> x & #unpack & fromIntegral
             _ -> 0)
     get = replay & extractContext & getFrames 0 numFrames & Bits.runBitGet
-    stream = replay & #stream & Stream.unpack
+    stream = replay & #stream & #unpack
     (_context, frames) = Binary.runGet get stream
     in frames
 
