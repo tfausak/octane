@@ -15,10 +15,6 @@ import qualified Data.Int as Int
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Octane.Utility.Endian as Endian
 
--- $setup
--- >>> import qualified Data.Binary.Get as Binary
--- >>> import qualified Data.Binary.Put as Binary
-
 
 -- | A 8-bit signed integer.
 newtype Int8 = Int8
@@ -27,11 +23,6 @@ newtype Int8 = Int8
 
 $(OverloadedRecords.overloadedRecord Default.def ''Int8)
 
--- | >>> Binary.decode "\x01" :: Int8
--- 1
---
--- >>> Binary.encode (1 :: Int8)
--- "\SOH"
 instance Binary.Binary Int8 where
     get = do
         value <- Binary.getInt8
@@ -42,12 +33,6 @@ instance Binary.Binary Int8 where
         Binary.putInt8 value
 
 -- | Stored with the bits reversed.
---
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80" :: Int8
--- 1
---
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1 :: Int8)))
--- "\128"
 instance BinaryBit.BinaryBit Int8 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 1
@@ -67,16 +52,10 @@ instance BinaryBit.BinaryBit Int8 where
 instance NFData Int8 where
 
 -- | Shown as @1234@.
---
--- >>> show (1 :: Int8)
--- "1"
 instance Show Int8 where
     show int8 = show (#unpack int8)
 
 -- | Encoded directly as a JSON number.
---
--- >>> Aeson.encode (1 :: Int8)
--- "1"
 instance Aeson.ToJSON Int8 where
     toJSON int8 = int8
         & #unpack
@@ -84,16 +63,10 @@ instance Aeson.ToJSON Int8 where
 
 
 -- | Converts a 'Int8' into any 'Integral' value.
---
--- >>> fromInt8 1 :: Int.Int8
--- 1
 fromInt8 :: (Integral a) => Int8 -> a
 fromInt8 int8 = fromIntegral (#unpack int8)
 
 
 -- | Converts any 'Integral' value into a 'Int8'.
---
--- >>> toInt8 (1 :: Int.Int8)
--- 1
 toInt8 :: (Integral a) => a -> Int8
 toInt8 value = Int8 (fromIntegral value)

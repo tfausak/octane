@@ -22,12 +22,6 @@ data KeyFrame = KeyFrame
 $(OverloadedRecords.overloadedRecord Default.def ''KeyFrame)
 
 -- | Stored with the fields one after the other in order.
---
--- >>> Binary.decode "\x00\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00" :: KeyFrame
--- KeyFrame {keyFrameTime = 0.0, keyFrameFrame = 0x00000001, keyFramePosition = 0x00000002}
---
--- >>> Binary.encode (KeyFrame 0 1 2)
--- "\NUL\NUL\NUL\NUL\SOH\NUL\NUL\NUL\STX\NUL\NUL\NUL"
 instance Binary.Binary KeyFrame where
     get = KeyFrame
         <$> Binary.get

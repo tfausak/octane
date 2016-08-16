@@ -16,10 +16,6 @@ import qualified Data.Word as Word
 import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
--- $setup
--- >>> import qualified Data.Binary.Get as Binary
--- >>> import qualified Data.Binary.Put as Binary
-
 
 -- | A 32-bit unsigned integer.
 newtype Word32 = Word32
@@ -29,12 +25,6 @@ newtype Word32 = Word32
 $(OverloadedRecords.overloadedRecord Default.def ''Word32)
 
 -- | Little-endian.
---
--- >>> Binary.decode "\x01\x00\x00\x00" :: Word32
--- 0x00000001
---
--- >>> Binary.encode (1 :: Word32)
--- "\SOH\NUL\NUL\NUL"
 instance Binary.Binary Word32 where
     get = do
         value <- Binary.getWord32le
@@ -45,12 +35,6 @@ instance Binary.Binary Word32 where
         Binary.putWord32le value
 
 -- | Little-endian with the bits in each byte reversed.
---
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00" :: Word32
--- 0x00000001
---
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (1 :: Word32)))
--- "\128\NUL\NUL\NUL"
 instance BinaryBit.BinaryBit Word32 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 4
@@ -70,16 +54,10 @@ instance BinaryBit.BinaryBit Word32 where
 instance NFData Word32 where
 
 -- | Shown as @0x01020304@.
---
--- >>> show (1 :: Word32)
--- "0x00000001"
 instance Show Word32 where
     show word32 = Printf.printf "0x%08x" (#unpack word32)
 
 -- | Encoded as a JSON number.
---
--- >>> Aeson.encode (1 :: Word32)
--- "1"
 instance Aeson.ToJSON Word32 where
     toJSON word32 = word32
         & #unpack
@@ -87,22 +65,10 @@ instance Aeson.ToJSON Word32 where
 
 
 -- | Converts a 'Word32' into any 'Integral' value.
---
--- >>> fromWord32 0x00000001 :: Word.Word32
--- 1
---
--- >>> fromWord32 0xffffffff :: Data.Int.Int32
--- -1
 fromWord32 :: (Integral a) => Word32 -> a
 fromWord32 word32 = fromIntegral (#unpack word32)
 
 
 -- | Converts any 'Integral' value into a 'Word32'.
---
--- >>> toWord32 (1 :: Word.Word32)
--- 0x00000001
---
--- >>> toWord32 (-1 :: Data.Int.Int32)
--- 0xffffffff
 toWord32 :: (Integral a) => a -> Word32
 toWord32 value = Word32 (fromIntegral value)

@@ -21,12 +21,6 @@ data Message = Message
 $(OverloadedRecords.overloadedRecord Default.def ''Message)
 
 -- | Fields stored in order, one after the other.
---
--- >>> Binary.decode "\x01\x00\x00\x00\x02\x00\x00\x00\x41\x00\x02\x00\x00\x00\x42\x00" :: Message
--- Message {messageFrame = 0x00000001, messageName = "A", messageContent = "B"}
---
--- >>> Binary.encode (Message 1 "A" "B")
--- "\SOH\NUL\NUL\NUL\STX\NUL\NUL\NULA\NUL\STX\NUL\NUL\NULB\NUL"
 instance Binary.Binary Message where
     get = Message
         <$> Binary.get

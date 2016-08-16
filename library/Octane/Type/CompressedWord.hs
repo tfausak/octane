@@ -11,10 +11,6 @@ import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Octane.Type.Boolean as Boolean
 
--- $setup
--- >>> import qualified Data.Binary.Get as Binary
--- >>> import qualified Data.Binary.Put as Binary
-
 
 -- | A compressed, unsigned integer. When serialized, the least significant bit
 -- is first. Bits are serialized until the next bit would be greater than the
@@ -28,12 +24,6 @@ data CompressedWord = CompressedWord
 $(OverloadedRecords.overloadedRecord Default.def ''CompressedWord)
 
 -- | Abuses the first argument to 'BinaryBit.getBits' as the maximum value.
---
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 4)) "\x7f" :: CompressedWord
--- CompressedWord {compressedWordLimit = 4, compressedWordValue = 2}
---
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (CompressedWord 4 2)))
--- "\128"
 instance BinaryBit.BinaryBit CompressedWord where
     getBits n = do
         let limit = fromIntegral n
@@ -54,9 +44,6 @@ instance BinaryBit.BinaryBit CompressedWord where
 instance NFData CompressedWord where
 
 -- | Encoded as an object.
---
--- >>> Aeson.encode (CompressedWord 2 1)
--- "{\"Value\":1,\"Limit\":2}"
 instance Aeson.ToJSON CompressedWord where
     toJSON compressedWord = Aeson.object
         [ "Limit" .= #limit compressedWord
@@ -66,9 +53,6 @@ instance Aeson.ToJSON CompressedWord where
 
 -- | Converts a 'CompressedWord' into any integral value. This is a lossy
 -- conversion because it discards the compressed word's maximum value.
---
--- >>> fromCompressedWord (CompressedWord 2 1) :: Int
--- 1
 fromCompressedWord :: (Integral a) => CompressedWord -> a
 fromCompressedWord compressedWord = compressedWord & #value & fromIntegral
 

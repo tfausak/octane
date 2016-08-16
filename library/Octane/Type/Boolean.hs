@@ -10,10 +10,6 @@ import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 
--- $setup
--- >>> import qualified Data.Binary.Get as Binary
--- >>> import qualified Data.Binary.Put as Binary
-
 
 -- | A boolean value.
 newtype Boolean = Boolean
@@ -24,12 +20,6 @@ $(OverloadedRecords.overloadedRecord Default.def ''Boolean)
 
 -- | Stored in the last bit of a byte. Decoding will fail if the byte is
 -- anything other than @0b00000000@ or @0b00000001@.
---
--- >>> Binary.decode "\x01" :: Boolean
--- Boolean {booleanUnpack = True}
---
--- >>> Binary.encode (Boolean True)
--- "\SOH"
 instance Binary.Binary Boolean where
     get = do
         value <- Binary.getWord8
@@ -45,12 +35,6 @@ instance Binary.Binary Boolean where
         & Binary.putWord8
 
 -- | Stored as a bit.
---
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80" :: Boolean
--- Boolean {booleanUnpack = True}
---
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (Boolean True)))
--- "\128"
 instance BinaryBit.BinaryBit Boolean where
     getBits _ = do
         value <- BinaryBit.getBool
@@ -63,9 +47,6 @@ instance BinaryBit.BinaryBit Boolean where
 instance NFData Boolean where
 
 -- | Encoded directly as a JSON boolean.
---
--- >>> Aeson.encode (Boolean True)
--- "true"
 instance Aeson.ToJSON Boolean where
     toJSON boolean = boolean
         & #unpack
