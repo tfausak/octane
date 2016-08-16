@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE StrictData #-}
 
 module Octane.Type.ClassItem (ClassItem(..)) where
