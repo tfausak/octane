@@ -2,7 +2,6 @@ module Octane.Type.Property (Property(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Octane.Type.Boolean as Boolean
@@ -144,7 +143,7 @@ instance Binary.Binary Property where
                 Binary.put size
                 Binary.put value
 
-instance DeepSeq.NFData Property where
+instance NFData Property where
 
 instance Aeson.ToJSON Property where
     toJSON property = case property of

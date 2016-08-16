@@ -2,7 +2,6 @@ module Octane.Type.CacheItem (CacheItem(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -48,4 +47,4 @@ instance Binary.Binary CacheItem where
         cacheItem & #cacheId & Binary.put
         cacheItem & #properties & Binary.put
 
-instance DeepSeq.NFData CacheItem where
+instance NFData CacheItem where

@@ -9,7 +9,6 @@ module Octane.Type.Vector
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Bits as Bits
 import qualified Data.Binary.Bits as BinaryBit
@@ -36,7 +35,7 @@ data Vector a = Vector
 
 $(OverloadedRecords.overloadedRecord Default.def ''Vector)
 
-instance (DeepSeq.NFData a) => DeepSeq.NFData (Vector a) where
+instance (NFData a) => NFData (Vector a) where
 
 -- | Encoded as a JSON array with 3 elements.
 --

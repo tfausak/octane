@@ -1,11 +1,13 @@
 module Basics
-    ( module Data.Aeson
+    ( module Control.DeepSeq
+    , module Data.Aeson
     , module Data.Function
     , module Data.Monoid
     , module GHC.Generics
     , module Prelude
     ) where
 
+import Control.DeepSeq (NFData)
 import Data.Aeson ((.=))
 import Data.Function ((&))
 import Data.Monoid ((<>))

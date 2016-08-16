@@ -2,7 +2,6 @@ module Octane.Type.Dictionary (Dictionary(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
@@ -56,7 +55,7 @@ instance Exts.IsList (Dictionary a) where
 
     toList dictionary = Map.toList (#unpack dictionary)
 
-instance (DeepSeq.NFData a) => DeepSeq.NFData (Dictionary a) where
+instance (NFData a) => NFData (Dictionary a) where
 
 -- | Shown as @fromList [("key","value")]@.
 --

@@ -2,7 +2,6 @@ module Octane.Type.Text (Text(..), encodeLatin1) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
@@ -79,7 +78,7 @@ instance BinaryBit.BinaryBit Text where
 instance String.IsString Text where
     fromString string = Text (StrictText.pack string)
 
-instance DeepSeq.NFData Text where
+instance NFData Text where
 
 -- | Shown as a string literal, like @"this"@.
 --

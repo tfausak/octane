@@ -547,7 +547,7 @@ data Thing = Thing
     , thingInitialization :: Initialization.Initialization
     } deriving (Eq, Generic, Show)
 
-instance DeepSeq.NFData Thing
+instance NFData Thing
 
 
 -- { class stream id => { property stream id => name } }
@@ -571,7 +571,7 @@ data Context = Context
     , contextVersion :: Version.Version
     } deriving (Eq, Generic, Show)
 
-instance DeepSeq.NFData Context
+instance NFData Context
 
 
 extractContext :: ReplayWithoutFrames.ReplayWithoutFrames -> Context

@@ -2,7 +2,6 @@ module Octane.Type.KeyFrame (KeyFrame(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -40,4 +39,4 @@ instance Binary.Binary KeyFrame where
         keyFrame & #frame & Binary.put
         keyFrame & #position & Binary.put
 
-instance DeepSeq.NFData KeyFrame where
+instance NFData KeyFrame where

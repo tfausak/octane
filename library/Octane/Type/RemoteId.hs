@@ -8,7 +8,6 @@ module Octane.Type.RemoteId
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -74,7 +73,7 @@ instance BinaryBit.BinaryBit PlayStationId where
             & Endian.reverseBitsInStrictBytes
             & BinaryBit.putByteString
 
-instance DeepSeq.NFData PlayStationId where
+instance NFData PlayStationId where
 
 -- | >>> Aeson.encode (PlayStationId "A" "B")
 -- "{\"Unknown\":\"0x42\",\"Name\":\"A\"}"
@@ -115,7 +114,7 @@ instance BinaryBit.BinaryBit SplitscreenId where
     putBits _ _splitscreenId = do
         BinaryBit.putByteString "\x00\x00\x00"
 
-instance DeepSeq.NFData SplitscreenId where
+instance NFData SplitscreenId where
 
 -- | Encoded as an optional number.
 --
@@ -148,7 +147,7 @@ instance BinaryBit.BinaryBit SteamId where
 
     putBits _ steamId = steamId & #unpack & BinaryBit.putBits 0
 
-instance DeepSeq.NFData SteamId where
+instance NFData SteamId where
 
 -- | Encoded directly as a number.
 --
@@ -179,7 +178,7 @@ instance BinaryBit.BinaryBit XboxId where
     putBits _ xboxId = xboxId & #unpack & BinaryBit.putBits 0
 
 
-instance DeepSeq.NFData XboxId where
+instance NFData XboxId where
 
 -- | Encoded directly as a number.
 --
@@ -198,7 +197,7 @@ data RemoteId
     | RemoteXboxId XboxId
     deriving (Eq, Generic, Show)
 
-instance DeepSeq.NFData RemoteId where
+instance NFData RemoteId where
 
 -- | Encodes the remote ID as an object with "Type" and "Value" keys.
 --

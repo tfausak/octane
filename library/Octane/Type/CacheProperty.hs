@@ -2,7 +2,6 @@ module Octane.Type.CacheProperty (CacheProperty(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -35,4 +34,4 @@ instance Binary.Binary CacheProperty where
         cacheProperty & #objectId & Binary.put
         cacheProperty & #streamId & Binary.put
 
-instance DeepSeq.NFData CacheProperty where
+instance NFData CacheProperty where

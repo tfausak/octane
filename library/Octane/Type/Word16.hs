@@ -2,7 +2,6 @@ module Octane.Type.Word16 (Word16(..), fromWord16, toWord16) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
@@ -36,7 +35,7 @@ instance Binary.Binary Word16 where
         let value = #unpack word16
         Binary.putWord16le value
 
-instance DeepSeq.NFData Word16 where
+instance NFData Word16 where
 
 -- | Shown as @0x0102@.
 --

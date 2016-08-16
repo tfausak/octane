@@ -2,7 +2,6 @@ module Octane.Type.List (List(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
@@ -51,7 +50,7 @@ instance Exts.IsList (List a) where
 
     toList list = #unpack list
 
-instance (DeepSeq.NFData a) => DeepSeq.NFData (List a) where
+instance (NFData a) => NFData (List a) where
 
 -- | >>> show ([2] :: List Int)
 -- "fromList [2]"

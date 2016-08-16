@@ -2,7 +2,6 @@ module Octane.Type.Message (Message(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -39,4 +38,4 @@ instance Binary.Binary Message where
         message & #name & Binary.put
         message & #content & Binary.put
 
-instance DeepSeq.NFData Message where
+instance NFData Message where

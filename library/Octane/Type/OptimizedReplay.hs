@@ -6,7 +6,6 @@ module Octane.Type.OptimizedReplay
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -57,7 +56,7 @@ instance Binary.Binary OptimizedReplay where
         replayWithFrames <- toReplayWithFrames replay
         Binary.put replayWithFrames
 
-instance DeepSeq.NFData OptimizedReplay where
+instance NFData OptimizedReplay where
 
 
 -- | Converts a 'ReplayWithFrames.ReplayWithFrames' into an 'OptimizedReplay'.

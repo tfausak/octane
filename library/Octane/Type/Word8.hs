@@ -2,7 +2,6 @@ module Octane.Type.Word8 (Word8(..), fromWord8, toWord8) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
@@ -66,7 +65,7 @@ instance BinaryBit.BinaryBit Word8 where
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 
-instance DeepSeq.NFData Word8 where
+instance NFData Word8 where
 
 -- | Shown as @0x01@.
 --

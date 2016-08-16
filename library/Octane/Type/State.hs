@@ -2,7 +2,6 @@ module Octane.Type.State (State(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 
 
 -- | The state of an actor in a replication.
@@ -15,4 +14,4 @@ data State
     -- ^ This actor is going away.
     deriving (Eq, Generic, Show)
 
-instance DeepSeq.NFData State where
+instance NFData State where

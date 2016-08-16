@@ -2,7 +2,6 @@ module Octane.Type.Frame (Frame(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Bimap as Bimap
 import qualified Data.Default.Class as Default
@@ -37,7 +36,7 @@ data Frame = Frame
 
 $(OverloadedRecords.overloadedRecord Default.def ''Frame)
 
-instance DeepSeq.NFData Frame where
+instance NFData Frame where
 
 instance Aeson.ToJSON Frame where
     toJSON frame = Aeson.object

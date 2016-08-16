@@ -2,7 +2,6 @@ module Octane.Type.Mark (Mark(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -36,4 +35,4 @@ instance Binary.Binary Mark where
         mark & #label & Binary.put
         mark & #frame & Binary.put
 
-instance DeepSeq.NFData Mark
+instance NFData Mark

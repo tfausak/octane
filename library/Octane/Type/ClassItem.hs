@@ -2,7 +2,6 @@ module Octane.Type.ClassItem (ClassItem(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -37,4 +36,4 @@ instance Binary.Binary ClassItem where
         classItem & #name & Binary.put
         classItem & #streamId & Binary.put
 
-instance DeepSeq.NFData ClassItem where
+instance NFData ClassItem where

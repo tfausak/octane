@@ -2,7 +2,6 @@ module Octane.Type.Stream (Stream(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
@@ -39,7 +38,7 @@ instance Binary.Binary Stream where
         content & LazyBytes.length & Word32.toWord32 & Binary.put
         content & Endian.reverseBitsInLazyBytes & Binary.putLazyByteString
 
-instance DeepSeq.NFData Stream where
+instance NFData Stream where
 
 -- | Doesn't show the actual bytes to avoid dumping tons of text.
 --

@@ -5,7 +5,6 @@ module Octane.Type.RawReplay
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
@@ -72,7 +71,7 @@ instance Binary.Binary RawReplay where
 
         Binary.putLazyByteString (#footer replay)
 
-instance DeepSeq.NFData RawReplay where
+instance NFData RawReplay where
 
 
 -- | Creates a new 'RawReplay'. You should prefer this over directly using the

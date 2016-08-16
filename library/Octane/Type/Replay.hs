@@ -2,7 +2,6 @@ module Octane.Type.Replay (Replay(..), fromOptimizedReplay, toOptimizedReplay) w
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
@@ -85,7 +84,7 @@ instance Binary.Binary Replay where
         optimizedReplay <- toOptimizedReplay replay
         Binary.put optimizedReplay
 
-instance DeepSeq.NFData Replay where
+instance NFData Replay where
 
 instance Aeson.ToJSON Replay where
     toJSON replay = Aeson.object

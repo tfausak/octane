@@ -6,7 +6,6 @@ module Octane.Type.Initialization
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Default.Class as Default
@@ -31,7 +30,7 @@ data Initialization = Initialization
 
 $(OverloadedRecords.overloadedRecord Default.def ''Initialization)
 
-instance DeepSeq.NFData Initialization where
+instance NFData Initialization where
 
 
 -- | Gets the 'Initialization' for a given class.

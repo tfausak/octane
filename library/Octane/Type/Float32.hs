@@ -2,7 +2,6 @@ module Octane.Type.Float32 (Float32(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
@@ -67,7 +66,7 @@ instance BinaryBit.BinaryBit Float32 where
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 
-instance DeepSeq.NFData Float32
+instance NFData Float32
 
 -- | Shown as @12.34@.
 --

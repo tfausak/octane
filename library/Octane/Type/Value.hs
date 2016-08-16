@@ -2,7 +2,6 @@ module Octane.Type.Value (Value(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Float32 as Float32
@@ -113,4 +112,4 @@ data Value
         (Maybe Word8.Word8)
     deriving (Eq, Generic, Show)
 
-instance DeepSeq.NFData Value where
+instance NFData Value where

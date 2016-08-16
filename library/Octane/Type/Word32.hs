@@ -2,7 +2,6 @@ module Octane.Type.Word32 (Word32(..), fromWord32, toWord32) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
@@ -68,7 +67,7 @@ instance BinaryBit.BinaryBit Word32 where
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 
-instance DeepSeq.NFData Word32 where
+instance NFData Word32 where
 
 -- | Shown as @0x01020304@.
 --

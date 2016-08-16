@@ -2,7 +2,6 @@ module Octane.Type.Int8 (Int8(..), fromInt8, toInt8) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
@@ -65,7 +64,7 @@ instance BinaryBit.BinaryBit Int8 where
         & LazyBytes.toStrict
         & BinaryBit.putByteString
 
-instance DeepSeq.NFData Int8 where
+instance NFData Int8 where
 
 -- | Shown as @1234@.
 --

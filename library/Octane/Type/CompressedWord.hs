@@ -2,7 +2,6 @@ module Octane.Type.CompressedWord (CompressedWord(..), fromCompressedWord) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -52,7 +51,7 @@ instance BinaryBit.BinaryBit CompressedWord where
                 else maxBits - 1
         BinaryBit.putWord64be numBits value
 
-instance DeepSeq.NFData CompressedWord where
+instance NFData CompressedWord where
 
 -- | Encoded as an object.
 --

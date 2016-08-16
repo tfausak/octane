@@ -2,7 +2,6 @@ module Octane.Type.Replication (Replication(..)) where
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -35,4 +34,4 @@ data Replication = Replication
 
 $(OverloadedRecords.overloadedRecord Default.def ''Replication)
 
-instance DeepSeq.NFData Replication where
+instance NFData Replication where

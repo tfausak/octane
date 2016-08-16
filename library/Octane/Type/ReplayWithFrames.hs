@@ -2,7 +2,6 @@ module Octane.Type.ReplayWithFrames (ReplayWithFrames(..), fromReplayWithoutFram
 
 import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -54,7 +53,7 @@ instance Binary.Binary ReplayWithFrames where
         replayWithoutFrames <- toReplayWithoutFrames replay
         Binary.put replayWithoutFrames
 
-instance DeepSeq.NFData ReplayWithFrames where
+instance NFData ReplayWithFrames where
 
 
 -- | Converts a 'ReplayWithoutFrames.ReplayWithoutFrames' into a 'ReplayWithFrames'.
