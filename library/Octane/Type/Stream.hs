@@ -54,4 +54,4 @@ instance Show Stream where
     show stream = do
         let size = stream & #unpack & LazyBytes.length
         let s = if size == 1 then "" else "s"
-        Printf.printf "Stream {unpack = \"%d byte%s\"}" size s
+        Printf.printf "Stream {unpack = \"%d byte%s\"}" size (s :: String)

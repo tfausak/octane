@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 
 module Octane.Utility.Optimizer (optimizeFrames) where
 

@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 
 module Octane.Type.Text (Text(..), encodeLatin1) where
 
