@@ -15,6 +15,7 @@ default-extensions:
 - DataKinds
 - DeriveGeneric
 - FlexibleInstances
+- GeneralizedNewtypeDeriving
 - MultiParamTypeClasses
 - OverloadedLabels
 - StrictData

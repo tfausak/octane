@@ -1,4 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Octane.Type.Word32 (Word32(..), fromWord32, toWord32) where
 
