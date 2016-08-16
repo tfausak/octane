@@ -15,6 +15,7 @@ default-extensions:
 - DeriveGeneric
 - OverloadedLabels
 - TemplateHaskell
+- TypeFamilies
 description: Octane parses Rocket League replays.
 executables:
   octane:
