@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
 
 -- | These helper functions are usually used with 'Data.FileEmbed.embedFile'.
 module Octane.Utility.Embed (decodeBimap, decodeMap, decodeSet) where

@@ -15,6 +15,7 @@ default-extensions:
 - BinaryLiterals
 - DataKinds
 - DeriveGeneric
+- FlexibleContexts
 - FlexibleInstances
 - GeneralizedNewtypeDeriving
 - MultiParamTypeClasses
