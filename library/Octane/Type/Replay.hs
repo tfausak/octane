@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE StrictData #-}
 
 module Octane.Type.Replay (Replay(..), fromOptimizedReplay, toOptimizedReplay) where
 

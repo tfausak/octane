@@ -1,4 +1,3 @@
-{-# LANGUAGE StrictData #-}
 
 module Octane.Type.ReplayWithFrames (ReplayWithFrames(..), fromReplayWithoutFrames, toReplayWithoutFrames) where
 

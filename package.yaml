@@ -17,6 +17,7 @@ default-extensions:
 - FlexibleInstances
 - MultiParamTypeClasses
 - OverloadedLabels
+- StrictData
 - TemplateHaskell
 - TypeFamilies
 description: Octane parses Rocket League replays.

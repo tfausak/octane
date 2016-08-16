@@ -1,5 +1,4 @@
 {-# LANGUAGE BinaryLiterals #-}
-{-# LANGUAGE StrictData #-}
 
 module Octane.Utility.Parser (parseStream) where
 

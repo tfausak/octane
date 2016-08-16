@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StrictData #-}
 
 module Octane.Type.CompressedWord (CompressedWord(..), fromCompressedWord) where
 

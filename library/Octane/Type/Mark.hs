@@ -1,4 +1,3 @@
-{-# LANGUAGE StrictData #-}
 
 module Octane.Type.Mark (Mark(..)) where
 
