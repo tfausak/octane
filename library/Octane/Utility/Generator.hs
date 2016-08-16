@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedLabels #-}
 
 module Octane.Utility.Generator (generateStream) where
 

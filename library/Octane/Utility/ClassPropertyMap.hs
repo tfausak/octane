@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE PackageImports #-}
 
 -- | This module is responsible for building the class property map, which maps
