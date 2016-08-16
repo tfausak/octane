@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StrictData #-}
 
 module Octane.Type.ReplayWithFrames (ReplayWithFrames(..), fromReplayWithoutFrames, toReplayWithoutFrames) where

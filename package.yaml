@@ -13,6 +13,7 @@ benchmarks:
 category: Game
 default-extensions:
 - DeriveGeneric
+- MultiParamTypeClasses
 - OverloadedLabels
 - TemplateHaskell
 - TypeFamilies
