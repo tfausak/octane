@@ -1,4 +1,3 @@
-
 module Octane.Type.Vector
     ( Vector(..)
     , getFloatVector
@@ -7,6 +6,8 @@ module Octane.Type.Vector
     , putInt8Vector
     , putIntVector
     ) where
+
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson

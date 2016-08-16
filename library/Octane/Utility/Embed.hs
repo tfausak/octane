@@ -1,8 +1,7 @@
-
 -- | These helper functions are usually used with 'Data.FileEmbed.embedFile'.
 module Octane.Utility.Embed (decodeBimap, decodeMap, decodeSet) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Data.Aeson as Aeson
 import qualified Data.Bimap as Bimap

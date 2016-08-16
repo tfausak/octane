@@ -1,5 +1,6 @@
-
 module Octane.Type.State (State(..)) where
+
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified GHC.Generics as Generics

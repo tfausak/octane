@@ -1,7 +1,6 @@
-
 module Octane.Utility.Optimizer (optimizeFrames) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Data.Foldable as Foldable
 import qualified Data.IntMap.Strict as IntMap

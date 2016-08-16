@@ -1,5 +1,6 @@
-
 module Octane.Type.ReplayWithoutFrames (ReplayWithoutFrames(..), fromRawReplay, toRawReplay) where
+
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary

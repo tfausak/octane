@@ -1,8 +1,9 @@
-
 module Octane.Utility.Endian
     ( reverseBitsInLazyBytes
     , reverseBitsInStrictBytes
     ) where
+
+import Basics
 
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as StrictBytes

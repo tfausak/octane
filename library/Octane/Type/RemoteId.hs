@@ -1,4 +1,3 @@
-
 module Octane.Type.RemoteId
     ( RemoteId(..)
     , SteamId(..)
@@ -7,8 +6,7 @@ module Octane.Type.RemoteId
     , XboxId(..)
     ) where
 
-import Data.Aeson ((.=))
-import Data.Function ((&))
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson

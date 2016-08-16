@@ -1,5 +1,6 @@
-
 module Octane.Data where
+
+import Basics
 
 import qualified Data.Bimap as Bimap
 import qualified Data.FileEmbed as FileEmbed

@@ -1,4 +1,3 @@
-
 -- | This module is responsible for building the class property map, which maps
 -- class IDs to a map of property IDs to property names. This map is the
 -- cornerstone of the replay stream parser.
@@ -9,7 +8,7 @@ module Octane.Utility.ClassPropertyMap
     , getClass
     ) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List

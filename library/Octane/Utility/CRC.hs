@@ -1,5 +1,7 @@
 module Octane.Utility.CRC (crc32) where
 
+import Basics
+
 import qualified Data.Bits as Bits
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Vector.Unboxed as Vector

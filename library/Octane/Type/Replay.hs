@@ -1,8 +1,6 @@
-
 module Octane.Type.Replay (Replay(..), fromOptimizedReplay, toOptimizedReplay) where
 
-import Data.Aeson ((.=))
-import Data.Function ((&))
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson

@@ -1,7 +1,6 @@
-
 module Octane.Type.Boolean (Boolean(..)) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson

@@ -1,9 +1,6 @@
-
 module Octane.Type.Frame (Frame(..)) where
 
-import Data.Aeson ((.=))
-import Data.Function ((&))
-import Data.Monoid ((<>))
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson

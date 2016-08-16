@@ -1,5 +1,7 @@
 module Main (main) where
 
+import Prelude
+
 import qualified Criterion.Main as Criterion
 import qualified OctaneBench
 

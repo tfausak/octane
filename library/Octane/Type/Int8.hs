@@ -1,7 +1,6 @@
-
 module Octane.Type.Int8 (Int8(..), fromInt8, toInt8) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson

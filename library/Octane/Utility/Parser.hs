@@ -1,7 +1,6 @@
-
 module Octane.Utility.Parser (parseStream) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad

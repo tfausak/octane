@@ -1,7 +1,6 @@
-
 module Octane.Utility.Generator (generateStream) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit

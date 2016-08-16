@@ -1,7 +1,6 @@
-
 module Octane.Type.Int32 (Int32(..), fromInt32, toInt32) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson

@@ -1,5 +1,6 @@
-
 module Octane.Type.Replication (Replication(..)) where
+
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Default.Class as Default

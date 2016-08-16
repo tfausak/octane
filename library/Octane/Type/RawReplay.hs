@@ -1,8 +1,9 @@
-
 module Octane.Type.RawReplay
     ( RawReplay(..)
     , newRawReplay
     ) where
+
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad

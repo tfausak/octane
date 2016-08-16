@@ -1,7 +1,6 @@
-
 module Octane.Type.Word64 (Word64(..), fromWord64, toWord64) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson

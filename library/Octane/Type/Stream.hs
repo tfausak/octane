@@ -1,7 +1,6 @@
-
 module Octane.Type.Stream (Stream(..)) where
 
-import Data.Function ((&))
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary

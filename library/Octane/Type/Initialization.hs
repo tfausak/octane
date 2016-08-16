@@ -1,9 +1,10 @@
-
 module Octane.Type.Initialization
     ( Initialization(..)
     , getInitialization
     , putInitialization
     ) where
+
+import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary.Bits.Get as BinaryBit
