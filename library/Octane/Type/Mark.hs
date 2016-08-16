@@ -6,7 +6,6 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -17,7 +16,7 @@ data Mark = Mark
     -- @"Team0Goal"@ or @"Team1Save"@ or @"User"@.
     , markFrame :: Word32.Word32
     -- ^ Which frame this tick mark corresponds to.
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Mark)
 

@@ -17,7 +17,6 @@ import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.String as String
 import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Utility.Endian as Endian
 
@@ -29,7 +28,7 @@ import qualified Octane.Utility.Endian as Endian
 -- | A thin wrapper around 'StrictText.Text'.
 newtype Text = Text
     { textUnpack :: StrictText.Text
-    } deriving (Eq, Generics.Generic, Ord)
+    } deriving (Eq, Generic, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Text)
 

@@ -6,7 +6,6 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Word32 as Word32
 
@@ -19,7 +18,7 @@ data KeyFrame = KeyFrame
     -- ^ Which frame this key frame corresponds to.
     , keyFramePosition :: Word32.Word32
     -- ^ The bit position of the start of this key frame in the network stream.
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''KeyFrame)
 

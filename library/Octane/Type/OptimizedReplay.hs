@@ -10,7 +10,6 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.Dictionary as Dictionary
@@ -45,7 +44,7 @@ data OptimizedReplay = OptimizedReplay
     , optimizedReplayNames :: List.List Text.Text
     , optimizedReplayClasses :: List.List ClassItem.ClassItem
     , optimizedReplayCache :: List.List CacheItem.CacheItem
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''OptimizedReplay)
 

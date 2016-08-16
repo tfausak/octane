@@ -10,14 +10,13 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Word as Word
-import qualified GHC.Generics as Generics
 import qualified Text.Printf as Printf
 
 
 -- | A 16-bit unsigned integer.
 newtype Word16 = Word16
     { word16Unpack :: Word.Word16
-    } deriving (Eq, Generics.Generic, Num, Ord)
+    } deriving (Eq, Generic, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Word16)
 

@@ -14,7 +14,6 @@ import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Default.Class as Default
 import qualified Data.Int as Int
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 
 -- $setup
@@ -25,7 +24,7 @@ import qualified Octane.Utility.Endian as Endian
 -- | A 8-bit signed integer.
 newtype Int8 = Int8
     { int8Unpack :: Int.Int8
-    } deriving (Eq, Generics.Generic, Num, Ord)
+    } deriving (Eq, Generic, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Int8)
 

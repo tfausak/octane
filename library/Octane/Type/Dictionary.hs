@@ -9,7 +9,6 @@ import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Exts as Exts
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
 
 -- $setup
@@ -20,7 +19,7 @@ import qualified Octane.Type.Text as Text
 -- | A mapping between text and arbitrary values.
 newtype Dictionary a = Dictionary
     { dictionaryUnpack :: (Map.Map Text.Text a)
-    } deriving (Eq, Generics.Generic)
+    } deriving (Eq, Generic)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Dictionary)
 

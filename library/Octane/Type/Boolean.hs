@@ -10,7 +10,6 @@ import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified GHC.Generics as Generics
 
 -- $setup
 -- >>> import qualified Data.Binary.Get as Binary
@@ -20,7 +19,7 @@ import qualified GHC.Generics as Generics
 -- | A boolean value.
 newtype Boolean = Boolean
     { booleanUnpack :: Bool
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Boolean)
 

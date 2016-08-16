@@ -7,7 +7,6 @@ import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.State as State
@@ -32,7 +31,7 @@ data Replication = Replication
     -- exist for new actors.
     , replicationProperties :: Map.Map StrictText.Text Value.Value
     -- ^ The property updates associated with this actor's replication.
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Replication)
 

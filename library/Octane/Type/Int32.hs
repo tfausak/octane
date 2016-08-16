@@ -14,14 +14,13 @@ import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Default.Class as Default
 import qualified Data.Int as Int
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 
 
 -- | A 32-bit signed integer.
 newtype Int32 = Int32
     { int32Unpack :: Int.Int32
-    } deriving (Eq, Generics.Generic, Num, Ord)
+    } deriving (Eq, Generic, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Int32)
 

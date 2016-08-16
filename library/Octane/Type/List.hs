@@ -9,7 +9,6 @@ import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Exts as Exts
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Word32 as Word32
 
 -- $setup
@@ -19,7 +18,7 @@ import qualified Octane.Type.Word32 as Word32
 -- | A list of values.
 newtype List a = List
     { listUnpack :: [a]
-    } deriving (Eq, Generics.Generic, Ord)
+    } deriving (Eq, Generic, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''List)
 

@@ -13,7 +13,6 @@ import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Int8 as Int8
 import qualified Octane.Type.Vector as Vector
@@ -28,7 +27,7 @@ data Initialization = Initialization
     -- ^ The instance's initial position.
     , initializationRotation :: Maybe (Vector.Vector Int8.Int8)
     -- ^ The instance's initial rotation.
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Initialization)
 

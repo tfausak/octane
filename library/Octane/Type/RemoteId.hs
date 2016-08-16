@@ -18,7 +18,6 @@ import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Utility.Endian as Endian
@@ -32,7 +31,7 @@ import qualified Text.Printf as Printf
 data PlayStationId = PlayStationId
     { playStationIdName :: Text.Text
     , playStationIdUnknown :: LazyBytes.ByteString
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''PlayStationId)
 
@@ -93,7 +92,7 @@ instance Aeson.ToJSON PlayStationId where
 
 newtype SplitscreenId = SplitscreenId
     { splitscreenIdUnpack :: Maybe Int
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''SplitscreenId)
 
@@ -131,7 +130,7 @@ instance Aeson.ToJSON SplitscreenId where
 
 newtype SteamId = SteamId
     { steamIdUnpack :: Word64.Word64
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''SteamId)
 
@@ -161,7 +160,7 @@ instance Aeson.ToJSON SteamId where
 
 newtype XboxId = XboxId
     { xboxIdUnpack :: Word64.Word64
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''XboxId)
 
@@ -197,7 +196,7 @@ data RemoteId
     | RemoteSplitscreenId SplitscreenId
     | RemoteSteamId SteamId
     | RemoteXboxId XboxId
-    deriving (Eq, Generics.Generic, Show)
+    deriving (Eq, Generic, Show)
 
 instance DeepSeq.NFData RemoteId where
 

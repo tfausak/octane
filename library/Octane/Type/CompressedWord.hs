@@ -10,7 +10,6 @@ import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Bits as Bits
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 
 -- $setup
@@ -25,7 +24,7 @@ import qualified Octane.Type.Boolean as Boolean
 data CompressedWord = CompressedWord
     { compressedWordLimit :: Word
     , compressedWordValue :: Word
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''CompressedWord)
 

@@ -12,7 +12,6 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
-import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
@@ -546,7 +545,7 @@ data Thing = Thing
     , thingClassId :: Int
     , thingClassName :: StrictText.Text
     , thingInitialization :: Initialization.Initialization
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 instance DeepSeq.NFData Thing
 
@@ -570,7 +569,7 @@ data Context = Context
     , contextClassMap :: ClassMap
     , contextKeyFrames :: (Set.Set Word)
     , contextVersion :: Version.Version
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 instance DeepSeq.NFData Context
 

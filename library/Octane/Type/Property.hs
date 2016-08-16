@@ -5,7 +5,6 @@ import Basics
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Float32 as Float32
@@ -43,7 +42,7 @@ data Property
     | StrProperty
         Word64.Word64
         Text.Text
-    deriving (Eq, Generics.Generic, Show)
+    deriving (Eq, Generic, Show)
 
 -- | Stored with the size first, then the value.
 instance Binary.Binary Property where

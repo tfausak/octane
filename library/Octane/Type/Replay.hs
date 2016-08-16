@@ -10,7 +10,6 @@ import qualified Data.Map as Map
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.KeyFrame as KeyFrame
@@ -73,7 +72,7 @@ data Replay = Replay
     , replayTickMarks :: Map.Map StrictText.Text StrictText.Text
     , replayPackages :: [StrictText.Text]
     , replayFrames :: [Frame.Frame]
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Replay)
 
