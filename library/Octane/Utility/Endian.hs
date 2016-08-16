@@ -1,4 +1,3 @@
-{-# LANGUAGE BinaryLiterals #-}
 
 module Octane.Utility.Endian
     ( reverseBitsInLazyBytes

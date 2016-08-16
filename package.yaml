@@ -12,6 +12,7 @@ benchmarks:
     source-dirs: benchmark
 category: Game
 default-extensions:
+- BinaryLiterals
 - DataKinds
 - DeriveGeneric
 - FlexibleInstances
