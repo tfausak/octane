@@ -1,4 +1,3 @@
-{-# LANGUAGE PackageImports #-}
 
 -- | This module is responsible for building the class property map, which maps
 -- class IDs to a map of property IDs to property names. This map is the

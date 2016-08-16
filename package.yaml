@@ -19,6 +19,7 @@ default-extensions:
 - GeneralizedNewtypeDeriving
 - MultiParamTypeClasses
 - OverloadedLabels
+- PackageImports
 - ScopedTypeVariables
 - StrictData
 - TemplateHaskell
