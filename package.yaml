@@ -12,6 +12,7 @@ benchmarks:
     source-dirs: benchmark
 category: Game
 default-extensions:
+- DeriveGeneric
 - OverloadedLabels
 description: Octane parses Rocket League replays.
 executables:

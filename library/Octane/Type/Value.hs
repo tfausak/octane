@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE StrictData #-}
 
 module Octane.Type.Value (Value(..)) where

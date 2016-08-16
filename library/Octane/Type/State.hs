@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
 
 module Octane.Type.State (State(..)) where
 
