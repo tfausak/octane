@@ -1,4 +1,3 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE StrictData #-}
 
 module Octane.Type.RawReplay

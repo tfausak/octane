@@ -1,4 +1,3 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Octane.Type.Int32 (Int32(..), fromInt32, toInt32) where

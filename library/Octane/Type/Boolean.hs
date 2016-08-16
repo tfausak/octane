@@ -1,4 +1,3 @@
-{-# LANGUAGE DataKinds #-}
 
 module Octane.Type.Boolean (Boolean(..)) where
 

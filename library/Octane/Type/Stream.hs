@@ -1,4 +1,3 @@
-{-# LANGUAGE DataKinds #-}
 
 module Octane.Type.Stream (Stream(..)) where
 

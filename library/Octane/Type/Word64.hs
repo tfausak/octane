@@ -1,4 +1,3 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Octane.Type.Word64 (Word64(..), fromWord64, toWord64) where
