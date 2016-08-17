@@ -1,6 +1,11 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Float32 (Float32(..)) where
 
@@ -16,6 +21,8 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 
@@ -26,8 +33,10 @@ import qualified Octane.Utility.Endian as Endian
 
 -- | A 32-bit float.
 newtype Float32 = Float32
-    { unpack :: Float
+    { float32Unpack :: Float
     } deriving (Eq, Fractional, Generics.Generic, Num, Ord)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Float32)
 
 -- | Little-endian.
 --
@@ -42,7 +51,7 @@ instance Binary.Binary Float32 where
         value & Float32 & pure
 
     put float32 = float32
-        & unpack
+        & #unpack
         & IEEE754.putFloat32le
 
 -- | Little-endian with the bits in each byte reversed.
@@ -75,7 +84,7 @@ instance DeepSeq.NFData Float32
 -- >>> show (1.2 :: Float32)
 -- "1.2"
 instance Show Float32 where
-    show float32 = show (unpack float32)
+    show float32 = show (#unpack float32)
 
 -- | Encoded directly as a JSON number.
 --
@@ -83,5 +92,5 @@ instance Show Float32 where
 -- "1.2"
 instance Aeson.ToJSON Float32 where
     toJSON float32 = float32
-        & unpack
+        & #unpack
         & Aeson.toJSON

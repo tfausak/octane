@@ -1,6 +1,11 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Int32 (Int32(..), fromInt32, toInt32) where
 
@@ -15,15 +20,19 @@ import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
+import qualified Data.Default.Class as Default
 import qualified Data.Int as Int
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 
 
 -- | A 32-bit signed integer.
 newtype Int32 = Int32
-    { unpack :: Int.Int32
+    { int32Unpack :: Int.Int32
     } deriving (Eq, Generics.Generic, Num, Ord)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Int32)
 
 -- | Little-endian.
 --
@@ -38,7 +47,7 @@ instance Binary.Binary Int32 where
         pure (Int32 value)
 
     put int32 = do
-        let value = unpack int32
+        let value = #unpack int32
         Binary.putInt32le value
 
 -- | Little-endian with the bits in each byte reversed.
@@ -71,7 +80,7 @@ instance DeepSeq.NFData Int32 where
 -- >>> show (1 :: Int32)
 -- "1"
 instance Show Int32 where
-    show int32 = show (unpack int32)
+    show int32 = show (#unpack int32)
 
 -- | Encoded as a JSON number directly.
 --
@@ -79,7 +88,7 @@ instance Show Int32 where
 -- "1"
 instance Aeson.ToJSON Int32 where
     toJSON int32 = int32
-        & unpack
+        & #unpack
         & Aeson.toJSON
 
 
@@ -88,7 +97,7 @@ instance Aeson.ToJSON Int32 where
 -- >>> fromInt32 1 :: Int.Int32
 -- 1
 fromInt32 :: (Integral a) => Int32 -> a
-fromInt32 int32 = fromIntegral (unpack int32)
+fromInt32 int32 = fromIntegral (#unpack int32)
 
 
 -- | Converts any 'Integral' value into a 'Int32'.

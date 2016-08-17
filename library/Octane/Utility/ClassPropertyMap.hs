@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE PackageImports #-}
 
 -- | This module is responsible for building the class property map, which maps
@@ -17,12 +18,7 @@ import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
-import qualified Octane.Type.CacheItem as CacheItem
-import qualified Octane.Type.CacheProperty as CacheProperty
-import qualified Octane.Type.ClassItem as ClassItem
-import qualified Octane.Type.List as List
 import qualified Octane.Type.ReplayWithoutFrames as ReplayWithoutFrames
-import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 import qualified "regex-compat" Text.Regex as Regex
 
@@ -56,12 +52,12 @@ getClassPropertyMap replay = let
 -- ID, the second is its cache ID, and the third is its parent's cache ID.
 getClassCache :: ReplayWithoutFrames.ReplayWithoutFrames -> [(Int, Int, Int)]
 getClassCache replay = replay
-    & ReplayWithoutFrames.cache
-    & List.unpack
+    & #cache
+    & #unpack
     & map (\ x ->
-        ( x & CacheItem.classId & Word32.fromWord32
-        , x & CacheItem.cacheId & Word32.fromWord32
-        , x & CacheItem.parentCacheId & Word32.fromWord32
+        ( x & #classId & Word32.fromWord32
+        , x & #cacheId & Word32.fromWord32
+        , x & #parentCacheId & Word32.fromWord32
         ))
 
 
@@ -125,9 +121,9 @@ getClassMap replay = let
 -- | The property map is a mapping from property IDs to property names.
 getPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap StrictText.Text
 getPropertyMap replay = replay
-    & ReplayWithoutFrames.objects
-    & List.unpack
-    & map Text.unpack
+    & #objects
+    & #unpack
+    & map #unpack
     & zip [0 ..]
     & IntMap.fromList
 
@@ -139,16 +135,16 @@ getBasicClassPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.In
 getBasicClassPropertyMap replay = let
     propertyMap = getPropertyMap replay
     in replay
-        & ReplayWithoutFrames.cache
-        & List.unpack
+        & #cache
+        & #unpack
         & map (\ x -> let
-            classId = x & CacheItem.classId & Word32.fromWord32
+            classId = x & #classId & Word32.fromWord32
             properties = x
-                & CacheItem.properties
-                & List.unpack
+                & #properties
+                & #unpack
                 & Maybe.mapMaybe (\ y -> let
-                    streamId = y & CacheProperty.streamId & Word32.fromWord32
-                    propertyId = y & CacheProperty.objectId & Word32.fromWord32
+                    streamId = y & #streamId & Word32.fromWord32
+                    propertyId = y & #objectId & Word32.fromWord32
                     in case IntMap.lookup propertyId propertyMap of
                         Nothing -> Nothing
                         Just name -> Just (streamId, name))
@@ -160,11 +156,11 @@ getBasicClassPropertyMap replay = let
 -- | The actor map is a mapping from class names to their IDs.
 getActorMap :: ReplayWithoutFrames.ReplayWithoutFrames -> Map.Map StrictText.Text Int
 getActorMap replay = replay
-    & ReplayWithoutFrames.classes
-    & List.unpack
+    & #classes
+    & #unpack
     & map (\ x -> let
-        className = x & ClassItem.name & Text.unpack
-        classId = x & ClassItem.streamId & Word32.fromWord32
+        className = x & #name & #unpack
+        classId = x & #streamId & Word32.fromWord32
         in (className, classId))
     & Map.fromList
 

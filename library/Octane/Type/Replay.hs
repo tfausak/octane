@@ -1,7 +1,12 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Replay (Replay(..), fromOptimizedReplay, toOptimizedReplay) where
 
@@ -11,7 +16,9 @@ import Data.Function ((&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import qualified Data.Map as Map
+import qualified Data.Default.Class as Default
+import qualified Data.Map.Strict as Map
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
@@ -31,8 +38,8 @@ import qualified Octane.Type.Word32 as Word32
 -- to work with. It can be converted all the way back down to a
 -- 'Octane.Type.RawReplay.RawReplay' for serialization.
 data Replay = Replay
-    { version :: Version.Version
-    , metadata :: Map.Map StrictText.Text Property.Property
+    { replayVersion :: Version.Version
+    , replayMetadata :: Map.Map StrictText.Text Property.Property
     -- ^ High-level metadata about the replay. Only one key is actually
     -- required to be able to view the replay in Rocket League:
     --
@@ -72,12 +79,14 @@ data Replay = Replay
     --   team. This value is not validated, so you can put absurd values like
     --   @99@. To get an "unfair" team size like 1v4, you must set the
     --   @"bUnfairBots"@ 'Property.BoolProperty' to @True@.
-    , levels :: [StrictText.Text]
-    , messages :: Map.Map StrictText.Text StrictText.Text
-    , tickMarks :: Map.Map StrictText.Text StrictText.Text
-    , packages :: [StrictText.Text]
-    , frames :: [Frame.Frame]
+    , replayLevels :: [StrictText.Text]
+    , replayMessages :: Map.Map StrictText.Text StrictText.Text
+    , replayTickMarks :: Map.Map StrictText.Text StrictText.Text
+    , replayPackages :: [StrictText.Text]
+    , replayFrames :: [Frame.Frame]
     } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Replay)
 
 instance Binary.Binary Replay where
     get = do
@@ -92,13 +101,13 @@ instance DeepSeq.NFData Replay where
 
 instance Aeson.ToJSON Replay where
     toJSON replay = Aeson.object
-        [ "Version" .= version replay
-        , "Metadata" .= metadata replay
-        , "Levels" .= levels replay
-        , "Messages" .= messages replay
-        , "TickMarks" .= tickMarks replay
-        , "Packages" .= packages replay
-        , "Frames" .= frames replay
+        [ "Version" .= #version replay
+        , "Metadata" .= #metadata replay
+        , "Levels" .= #levels replay
+        , "Messages" .= #messages replay
+        , "TickMarks" .= #tickMarks replay
+        , "Packages" .= #packages replay
+        , "Frames" .= #frames replay
         ]
 
 
@@ -107,52 +116,52 @@ instance Aeson.ToJSON Replay where
 fromOptimizedReplay :: (Monad m) => OptimizedReplay.OptimizedReplay -> m Replay
 fromOptimizedReplay optimizedReplay = do
     pure Replay
-        { version =
-            [ OptimizedReplay.version1 optimizedReplay
-            , OptimizedReplay.version2 optimizedReplay
+        { replayVersion =
+            [ #version1 optimizedReplay
+            , #version2 optimizedReplay
             ] & map Word32.fromWord32 & Version.makeVersion
-        , metadata = optimizedReplay
-            & OptimizedReplay.properties
-            & Dictionary.unpack
-            & Map.mapKeys Text.unpack
-        , levels = optimizedReplay
-            & OptimizedReplay.levels
-            & List.unpack
-            & map Text.unpack
-        , messages = optimizedReplay
-            & OptimizedReplay.messages
-            & List.unpack
+        , replayMetadata = optimizedReplay
+            & #properties
+            & #unpack
+            & Map.mapKeys #unpack
+        , replayLevels = optimizedReplay
+            & #levels
+            & #unpack
+            & map #unpack
+        , replayMessages = optimizedReplay
+            & #messages
+            & #unpack
             & map (\ message -> do
                 let key = message
-                        & Message.frame
-                        & Word32.unpack
+                        & #frame
+                        & #unpack
                         & show
                         & StrictText.pack
                 let value = message
-                        & Message.content
-                        & Text.unpack
+                        & #content
+                        & #unpack
                 (key, value))
             & Map.fromList
-        , tickMarks = optimizedReplay
-            & OptimizedReplay.marks
-            & List.unpack
+        , replayTickMarks = optimizedReplay
+            & #marks
+            & #unpack
             & map (\ mark -> do
                 let key = mark
-                        & Mark.frame
-                        & Word32.unpack
+                        & #frame
+                        & #unpack
                         & show
                         & StrictText.pack
                 let value = mark
-                        & Mark.label
-                        & Text.unpack
+                        & #label
+                        & #unpack
                 (key, value))
             & Map.fromList
-        , packages = optimizedReplay
-            & OptimizedReplay.packages
-            & List.unpack
-            & map Text.unpack
-        , frames = optimizedReplay
-            & OptimizedReplay.frames
+        , replayPackages = optimizedReplay
+            & #packages
+            & #unpack
+            & map #unpack
+        , replayFrames = optimizedReplay
+            & #frames
         }
 
 
@@ -161,54 +170,54 @@ fromOptimizedReplay optimizedReplay = do
 toOptimizedReplay :: (Monad m) => Replay -> m OptimizedReplay.OptimizedReplay
 toOptimizedReplay replay = do
     let [version1, version2] = replay
-            & version
+            & #version
             & Version.versionBranch
             & map Word32.toWord32
     -- Key frames aren't important for replays. Mark the first frame as a key
     -- frame and the rest as regular frames.
     let frames_ = replay
-            & frames
+            & #frames
             & zip [0 :: Int ..]
-            & map (\ (index, frame) -> frame { Frame.isKeyFrame = index == 0 })
+            & map (\ (index, frame) -> frame { Frame.frameIsKeyFrame = index == 0 })
 
     pure OptimizedReplay.OptimizedReplay
-        { OptimizedReplay.version1 = version1
-        , OptimizedReplay.version2 = version2
-        , OptimizedReplay.label = "TAGame.Replay_Soccar_TA"
-        , OptimizedReplay.properties = replay & metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
-        , OptimizedReplay.levels = replay & levels & map Text.Text & List.List
-        , OptimizedReplay.keyFrames = frames_
-            & filter Frame.isKeyFrame
+        { OptimizedReplay.optimizedReplayVersion1 = version1
+        , OptimizedReplay.optimizedReplayVersion2 = version2
+        , OptimizedReplay.optimizedReplayLabel = "TAGame.Replay_Soccar_TA"
+        , OptimizedReplay.optimizedReplayProperties = replay & #metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
+        , OptimizedReplay.optimizedReplayLevels = replay & #levels & map Text.Text & List.List
+        , OptimizedReplay.optimizedReplayKeyFrames = frames_
+            & filter #isKeyFrame
             & map (\ frame -> KeyFrame.KeyFrame
-                (Frame.time frame)
-                (frame & Frame.number & Word32.toWord32)
+                (#time frame)
+                (frame & #number & Word32.toWord32)
                 0)
             & List.List
-        , OptimizedReplay.frames = frames_
-        , OptimizedReplay.messages = replay
-            & messages
+        , OptimizedReplay.optimizedReplayFrames = frames_
+        , OptimizedReplay.optimizedReplayMessages = replay
+            & #messages
             & Map.toList
             & map (\ (key, value) -> do
                 let frame = key & StrictText.unpack & read & Word32.Word32
                 let content = value & Text.Text
                 Message.Message frame "" content)
             & List.List
-        , OptimizedReplay.marks = replay
-            & tickMarks
+        , OptimizedReplay.optimizedReplayMarks = replay
+            & #tickMarks
             & Map.toList
             & map (\ (key, value) -> do
                 let label = value & Text.Text
                 let frame = key & StrictText.unpack & read & Word32.Word32
                 Mark.Mark label frame)
             & List.List
-        , OptimizedReplay.packages = replay
-            & packages
+        , OptimizedReplay.optimizedReplayPackages = replay
+            & #packages
             & map Text.Text
             & List.List
-        , OptimizedReplay.objects = List.List [] -- TODO
+        , OptimizedReplay.optimizedReplayObjects = List.List [] -- TODO
         -- TODO: This list is usually empty. Also the parser doesn't use it at
         -- all. Is it safe for it to always be empty?
-        , OptimizedReplay.names = List.List []
-        , OptimizedReplay.classes = List.List [] -- TODO
-        , OptimizedReplay.cache = List.List [] -- TODO
+        , OptimizedReplay.optimizedReplayNames = List.List []
+        , OptimizedReplay.optimizedReplayClasses = List.List [] -- TODO
+        , OptimizedReplay.optimizedReplayCache = List.List [] -- TODO
         }

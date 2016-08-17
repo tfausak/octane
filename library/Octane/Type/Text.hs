@@ -1,5 +1,10 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Octane.Type.Text (Text(..), encodeLatin1) where
@@ -16,6 +21,8 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Char8 as StrictBytes
 import qualified Data.Char as Char
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.String as String
 import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
@@ -30,8 +37,10 @@ import qualified Octane.Utility.Endian as Endian
 
 -- | A thin wrapper around 'StrictText.Text'.
 newtype Text = Text
-    { unpack :: StrictText.Text
+    { textUnpack :: StrictText.Text
     } deriving (Eq, Generics.Generic, Ord)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Text)
 
 -- | Text is both length-prefixed and null-terminated.
 --
@@ -87,7 +96,7 @@ instance DeepSeq.NFData Text where
 -- >>> show ("K" :: Text)
 -- "\"K\""
 instance Show Text where
-    show text = show (unpack text)
+    show text = show (#unpack text)
 
 -- | Encoded directly as a JSON string.
 --
@@ -95,7 +104,7 @@ instance Show Text where
 -- "\"K\""
 instance Aeson.ToJSON Text where
     toJSON text = text
-        & unpack
+        & #unpack
         & Aeson.toJSON
 
 
@@ -139,7 +148,7 @@ putText
     -> Text
     -> m ()
 putText putInt putBytes convertBytes text = do
-    let fullText = text & unpack & flip StrictText.snoc '\NUL'
+    let fullText = text & #unpack & flip StrictText.snoc '\NUL'
     let size = fullText & StrictText.length & fromIntegral
     if StrictText.all Char.isLatin1 fullText
     then do

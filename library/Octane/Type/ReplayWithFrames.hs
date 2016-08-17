@@ -1,6 +1,11 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.ReplayWithFrames (ReplayWithFrames(..), fromReplayWithoutFrames, toReplayWithoutFrames) where
 
@@ -8,6 +13,8 @@ import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
@@ -30,21 +37,23 @@ import qualified Octane.Utility.Parser as Parser
 --
 -- See 'Octane.Type.OptimizedReplay.OptimizedReplay'.
 data ReplayWithFrames = ReplayWithFrames
-    { version1 :: Word32.Word32
-    , version2 :: Word32.Word32
-    , label :: Text.Text
-    , properties :: Dictionary.Dictionary Property.Property
-    , levels :: List.List Text.Text
-    , keyFrames :: List.List KeyFrame.KeyFrame
-    , frames :: [Frame.Frame]
-    , messages :: List.List Message.Message
-    , marks :: List.List Mark.Mark
-    , packages :: List.List Text.Text
-    , objects :: List.List Text.Text
-    , names :: List.List Text.Text
-    , classes :: List.List ClassItem.ClassItem
-    , cache :: List.List CacheItem.CacheItem
+    { replayWithFramesVersion1 :: Word32.Word32
+    , replayWithFramesVersion2 :: Word32.Word32
+    , replayWithFramesLabel :: Text.Text
+    , replayWithFramesProperties :: Dictionary.Dictionary Property.Property
+    , replayWithFramesLevels :: List.List Text.Text
+    , replayWithFramesKeyFrames :: List.List KeyFrame.KeyFrame
+    , replayWithFramesFrames :: [Frame.Frame]
+    , replayWithFramesMessages :: List.List Message.Message
+    , replayWithFramesMarks :: List.List Mark.Mark
+    , replayWithFramesPackages :: List.List Text.Text
+    , replayWithFramesObjects :: List.List Text.Text
+    , replayWithFramesNames :: List.List Text.Text
+    , replayWithFramesClasses :: List.List ClassItem.ClassItem
+    , replayWithFramesCache :: List.List CacheItem.CacheItem
     } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''ReplayWithFrames)
 
 instance Binary.Binary ReplayWithFrames where
     get = do
@@ -63,20 +72,20 @@ instance DeepSeq.NFData ReplayWithFrames where
 fromReplayWithoutFrames :: (Monad m) => ReplayWithoutFrames.ReplayWithoutFrames -> m ReplayWithFrames
 fromReplayWithoutFrames replayWithoutFrames = do
     pure ReplayWithFrames
-        { version1 = replayWithoutFrames & ReplayWithoutFrames.version1
-        , version2 = replayWithoutFrames & ReplayWithoutFrames.version2
-        , label = replayWithoutFrames & ReplayWithoutFrames.label
-        , properties = replayWithoutFrames & ReplayWithoutFrames.properties
-        , levels = replayWithoutFrames & ReplayWithoutFrames.levels
-        , keyFrames = replayWithoutFrames & ReplayWithoutFrames.keyFrames
-        , frames = replayWithoutFrames & Parser.parseStream
-        , messages = replayWithoutFrames & ReplayWithoutFrames.messages
-        , marks = replayWithoutFrames & ReplayWithoutFrames.marks
-        , packages = replayWithoutFrames & ReplayWithoutFrames.packages
-        , objects = replayWithoutFrames & ReplayWithoutFrames.objects
-        , names = replayWithoutFrames & ReplayWithoutFrames.names
-        , classes = replayWithoutFrames & ReplayWithoutFrames.classes
-        , cache = replayWithoutFrames & ReplayWithoutFrames.cache
+        { replayWithFramesVersion1 = replayWithoutFrames & #version1
+        , replayWithFramesVersion2 = replayWithoutFrames & #version2
+        , replayWithFramesLabel = replayWithoutFrames & #label
+        , replayWithFramesProperties = replayWithoutFrames & #properties
+        , replayWithFramesLevels = replayWithoutFrames & #levels
+        , replayWithFramesKeyFrames = replayWithoutFrames & #keyFrames
+        , replayWithFramesFrames = replayWithoutFrames & Parser.parseStream
+        , replayWithFramesMessages = replayWithoutFrames & #messages
+        , replayWithFramesMarks = replayWithoutFrames & #marks
+        , replayWithFramesPackages = replayWithoutFrames & #packages
+        , replayWithFramesObjects = replayWithoutFrames & #objects
+        , replayWithFramesNames = replayWithoutFrames & #names
+        , replayWithFramesClasses = replayWithoutFrames & #classes
+        , replayWithFramesCache = replayWithoutFrames & #cache
         }
 
 
@@ -85,23 +94,23 @@ fromReplayWithoutFrames replayWithoutFrames = do
 toReplayWithoutFrames :: (Monad m) => ReplayWithFrames -> m ReplayWithoutFrames.ReplayWithoutFrames
 toReplayWithoutFrames replayWithFrames = do
     pure ReplayWithoutFrames.ReplayWithoutFrames
-        { ReplayWithoutFrames.version1 = replayWithFrames & version1
-        , ReplayWithoutFrames.version2 = replayWithFrames & version2
-        , ReplayWithoutFrames.label = replayWithFrames & label
-        , ReplayWithoutFrames.properties = replayWithFrames & properties
-        , ReplayWithoutFrames.levels = replayWithFrames & levels
-        , ReplayWithoutFrames.keyFrames = replayWithFrames & keyFrames
-        , ReplayWithoutFrames.stream = Generator.generateStream
-            (replayWithFrames & frames)
-            (replayWithFrames & objects)
-            (replayWithFrames & names)
-            (replayWithFrames & classes)
-            (replayWithFrames & cache)
-        , ReplayWithoutFrames.messages = replayWithFrames & messages
-        , ReplayWithoutFrames.marks = replayWithFrames & marks
-        , ReplayWithoutFrames.packages = replayWithFrames & packages
-        , ReplayWithoutFrames.objects = replayWithFrames & objects
-        , ReplayWithoutFrames.names = replayWithFrames & names
-        , ReplayWithoutFrames.classes = replayWithFrames & classes
-        , ReplayWithoutFrames.cache = replayWithFrames & cache
+        { ReplayWithoutFrames.replayWithoutFramesVersion1 = replayWithFrames & #version1
+        , ReplayWithoutFrames.replayWithoutFramesVersion2 = replayWithFrames & #version2
+        , ReplayWithoutFrames.replayWithoutFramesLabel = replayWithFrames & #label
+        , ReplayWithoutFrames.replayWithoutFramesProperties = replayWithFrames & #properties
+        , ReplayWithoutFrames.replayWithoutFramesLevels = replayWithFrames & #levels
+        , ReplayWithoutFrames.replayWithoutFramesKeyFrames = replayWithFrames & #keyFrames
+        , ReplayWithoutFrames.replayWithoutFramesStream = Generator.generateStream
+            (replayWithFrames & #frames)
+            (replayWithFrames & #objects)
+            (replayWithFrames & #names)
+            (replayWithFrames & #classes)
+            (replayWithFrames & #cache)
+        , ReplayWithoutFrames.replayWithoutFramesMessages = replayWithFrames & #messages
+        , ReplayWithoutFrames.replayWithoutFramesMarks = replayWithFrames & #marks
+        , ReplayWithoutFrames.replayWithoutFramesPackages = replayWithFrames & #packages
+        , ReplayWithoutFrames.replayWithoutFramesObjects = replayWithFrames & #objects
+        , ReplayWithoutFrames.replayWithoutFramesNames = replayWithFrames & #names
+        , ReplayWithoutFrames.replayWithoutFramesClasses = replayWithFrames & #classes
+        , ReplayWithoutFrames.replayWithoutFramesCache = replayWithFrames & #cache
         }

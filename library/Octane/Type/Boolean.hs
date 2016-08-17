@@ -1,5 +1,10 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Boolean (Boolean(..)) where
 
@@ -11,6 +16,8 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 
 -- $setup
@@ -20,14 +27,16 @@ import qualified GHC.Generics as Generics
 
 -- | A boolean value.
 newtype Boolean = Boolean
-    { unpack :: Bool
+    { booleanUnpack :: Bool
     } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Boolean)
 
 -- | Stored in the last bit of a byte. Decoding will fail if the byte is
 -- anything other than @0b00000000@ or @0b00000001@.
 --
 -- >>> Binary.decode "\x01" :: Boolean
--- Boolean {unpack = True}
+-- Boolean {booleanUnpack = True}
 --
 -- >>> Binary.encode (Boolean True)
 -- "\SOH"
@@ -40,7 +49,7 @@ instance Binary.Binary Boolean where
             _ -> fail ("Unexpected Boolean value " ++ show value)
 
     put boolean = boolean
-        & unpack
+        & #unpack
         & fromEnum
         & fromIntegral
         & Binary.putWord8
@@ -48,7 +57,7 @@ instance Binary.Binary Boolean where
 -- | Stored as a bit.
 --
 -- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80" :: Boolean
--- Boolean {unpack = True}
+-- Boolean {booleanUnpack = True}
 --
 -- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (Boolean True)))
 -- "\128"
@@ -58,7 +67,7 @@ instance BinaryBit.BinaryBit Boolean where
         value & Boolean & pure
 
     putBits _ boolean = boolean
-        & unpack
+        & #unpack
         & BinaryBit.putBool
 
 instance DeepSeq.NFData Boolean where
@@ -69,5 +78,5 @@ instance DeepSeq.NFData Boolean where
 -- "true"
 instance Aeson.ToJSON Boolean where
     toJSON boolean = boolean
-        & unpack
+        & #unpack
         & Aeson.toJSON

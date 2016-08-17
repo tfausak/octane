@@ -1,6 +1,11 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Word16 (Word16(..), fromWord16, toWord16) where
 
@@ -11,6 +16,8 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Word as Word
 import qualified GHC.Generics as Generics
 import qualified Text.Printf as Printf
@@ -18,8 +25,10 @@ import qualified Text.Printf as Printf
 
 -- | A 16-bit unsigned integer.
 newtype Word16 = Word16
-    { unpack :: Word.Word16
+    { word16Unpack :: Word.Word16
     } deriving (Eq, Generics.Generic, Num, Ord)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Word16)
 
 -- | Little-endian.
 --
@@ -34,7 +43,7 @@ instance Binary.Binary Word16 where
         pure (Word16 value)
 
     put word16 = do
-        let value = unpack word16
+        let value = #unpack word16
         Binary.putWord16le value
 
 instance DeepSeq.NFData Word16 where
@@ -44,7 +53,7 @@ instance DeepSeq.NFData Word16 where
 -- >>> show (1 :: Word16)
 -- "0x0001"
 instance Show Word16 where
-    show word16 = Printf.printf "0x%04x" (unpack word16)
+    show word16 = Printf.printf "0x%04x" (#unpack word16)
 
 -- | Encoded as a JSON number.
 --
@@ -52,7 +61,7 @@ instance Show Word16 where
 -- "1"
 instance Aeson.ToJSON Word16 where
     toJSON word16 = word16
-        & unpack
+        & #unpack
         & Aeson.toJSON
 
 
@@ -64,7 +73,7 @@ instance Aeson.ToJSON Word16 where
 -- >>> fromWord16 0xffff :: Data.Int.Int16
 -- -1
 fromWord16 :: (Integral a) => Word16 -> a
-fromWord16 word16 = fromIntegral (unpack word16)
+fromWord16 word16 = fromIntegral (#unpack word16)
 
 
 -- | Converts any 'Integral' value into a 'Word16'.
