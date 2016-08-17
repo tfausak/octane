@@ -5,7 +5,6 @@ import Basics
 
 import qualified Data.Aeson as Aeson
 import qualified Data.Bimap as Bimap
-import qualified Data.ByteString as StrictBytes
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
@@ -16,7 +15,7 @@ import qualified Data.Set as Set
 -- 'Bimap.twist'ed from what you might expect.
 decodeBimap
     :: (FromJSON (Map.Map b a), Ord a, Ord b)
-    => StrictBytes.ByteString
+    => StrictBytes
     -> Bimap.Bimap a b
 decodeBimap bytes = bytes
     & Aeson.decodeStrict
@@ -30,7 +29,7 @@ decodeBimap bytes = bytes
 -- mapping keys to values.
 decodeMap
     :: (FromJSON (Map.Map a b))
-    => StrictBytes.ByteString
+    => StrictBytes
     -> Map.Map a b
 decodeMap bytes = bytes
     & Aeson.decodeStrict
@@ -40,7 +39,7 @@ decodeMap bytes = bytes
 -- | Decodes some bytes into a set. The bytes are assumed to be a JSON array.
 decodeSet
     :: (FromJSON a, Ord a)
-    => StrictBytes.ByteString
+    => StrictBytes
     -> Set.Set a
 decodeSet bytes = bytes
     & Aeson.decodeStrict

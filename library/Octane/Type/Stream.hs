@@ -13,7 +13,7 @@ import qualified Text.Printf as Printf
 
 -- | A stream of bits.
 newtype Stream = Stream
-    { streamUnpack :: LazyBytes.ByteString
+    { streamUnpack :: LazyBytes
     } deriving (Eq, Generic)
 
 $(overloadedRecord def ''Stream)

@@ -72,8 +72,8 @@ instance ToJSON Text where
 getText
     :: (Monad m)
     => (m Int32.Int32)
-    -> (Int -> m StrictBytes.ByteString)
-    -> (StrictBytes.ByteString -> StrictBytes.ByteString)
+    -> (Int -> m StrictBytes)
+    -> (StrictBytes -> StrictBytes)
     -> m Text
 getText getInt getBytes convertBytes = do
     (Int32.Int32 rawSize) <- getInt
@@ -104,8 +104,8 @@ getText getInt getBytes convertBytes = do
 putText
     :: (Monad m)
     => (Int32.Int32 -> m ())
-    -> (StrictBytes.ByteString -> m ())
-    -> (StrictBytes.ByteString -> StrictBytes.ByteString)
+    -> (StrictBytes -> m ())
+    -> (StrictBytes -> StrictBytes)
     -> Text
     -> m ()
 putText putInt putBytes convertBytes text = do
@@ -122,7 +122,7 @@ putText putInt putBytes convertBytes text = do
 
 -- | Encodes text as Latin-1. Note that this isn't really safe if the text has
 -- characters that can't be encoded in Latin-1.
-encodeLatin1 :: StrictText.Text -> StrictBytes.ByteString
+encodeLatin1 :: StrictText.Text -> StrictBytes
 encodeLatin1 text = text
     & StrictText.unpack
     & StrictBytes.pack

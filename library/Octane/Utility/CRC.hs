@@ -10,7 +10,7 @@ import qualified Data.Word as Word
 
 -- | Computes the CRC32 of some bytes. Note that this is a non-standard CRC32.
 -- It probably only works for Rocket League.
-crc32 :: LazyBytes.ByteString -> Word.Word32
+crc32 :: LazyBytes -> Word.Word32
 crc32 bytes = do
     let update = crc32Update crc32Table
     let initial = Bits.complement crc32Initial

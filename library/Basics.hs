@@ -1,5 +1,6 @@
 module Basics
-    ( module Control.DeepSeq
+    ( module Basics
+    , module Control.DeepSeq
     , module Data.Aeson
     , module Data.Binary
     , module Data.Default.Class
@@ -19,3 +20,10 @@ import Data.Monoid ((<>))
 import Data.OverloadedRecords.TH (overloadedRecord)
 import GHC.Generics (Generic)
 import Prelude
+
+import qualified Data.ByteString
+import qualified Data.ByteString.Lazy
+
+
+type LazyBytes = Data.ByteString.Lazy.ByteString
+type StrictBytes = Data.ByteString.ByteString

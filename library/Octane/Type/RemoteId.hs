@@ -23,7 +23,7 @@ import qualified Text.Printf as Printf
 
 data PlayStationId = PlayStationId
     { playStationIdName :: Text.Text
-    , playStationIdUnknown :: LazyBytes.ByteString
+    , playStationIdUnknown :: LazyBytes
     } deriving (Eq, Generic, Show)
 
 $(overloadedRecord def ''PlayStationId)
