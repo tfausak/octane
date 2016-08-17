@@ -23,7 +23,7 @@ newtype Word32 = Word32
 $(overloadedRecord def ''Word32)
 
 -- | Little-endian.
-instance Binary.Binary Word32 where
+instance Binary Word32 where
     get = do
         value <- Binary.getWord32le
         pure (Word32 value)

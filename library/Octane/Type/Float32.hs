@@ -22,7 +22,7 @@ newtype Float32 = Float32
 $(overloadedRecord def ''Float32)
 
 -- | Little-endian.
-instance Binary.Binary Float32 where
+instance Binary Float32 where
     get = do
         value <- IEEE754.getFloat32le
         value & Float32 & pure

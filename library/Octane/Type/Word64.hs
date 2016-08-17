@@ -23,7 +23,7 @@ newtype Word64 = Word64
 $(overloadedRecord def ''Word64)
 
 -- | Little-endian.
-instance Binary.Binary Word64 where
+instance Binary Word64 where
     get = do
         value <- Binary.getWord64le
         pure (Word64 value)

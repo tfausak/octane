@@ -22,7 +22,7 @@ newtype Word8 = Word8
 
 $(overloadedRecord def ''Word8)
 
-instance Binary.Binary Word8 where
+instance Binary Word8 where
     get = do
         value <- Binary.getWord8
         pure (Word8 value)

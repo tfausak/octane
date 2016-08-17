@@ -26,7 +26,7 @@ newtype Text = Text
 $(overloadedRecord def ''Text)
 
 -- | Text is both length-prefixed and null-terminated.
-instance Binary.Binary Text where
+instance Binary Text where
     get = getText
         Binary.get
         Binary.getByteString

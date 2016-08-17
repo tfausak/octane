@@ -42,7 +42,7 @@ data ReplayWithFrames = ReplayWithFrames
 
 $(overloadedRecord def ''ReplayWithFrames)
 
-instance Binary.Binary ReplayWithFrames where
+instance Binary ReplayWithFrames where
     get = do
         replayWithoutFrames <- Binary.get
         fromReplayWithoutFrames replayWithoutFrames

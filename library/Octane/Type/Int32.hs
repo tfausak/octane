@@ -22,7 +22,7 @@ newtype Int32 = Int32
 $(overloadedRecord def ''Int32)
 
 -- | Little-endian.
-instance Binary.Binary Int32 where
+instance Binary Int32 where
     get = do
         value <- Binary.getInt32le
         pure (Int32 value)

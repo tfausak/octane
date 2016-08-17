@@ -20,7 +20,7 @@ data KeyFrame = KeyFrame
 $(overloadedRecord def ''KeyFrame)
 
 -- | Stored with the fields one after the other in order.
-instance Binary.Binary KeyFrame where
+instance Binary KeyFrame where
     get = KeyFrame
         <$> Binary.get
         <*> Binary.get

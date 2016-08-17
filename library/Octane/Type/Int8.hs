@@ -21,7 +21,7 @@ newtype Int8 = Int8
 
 $(overloadedRecord def ''Int8)
 
-instance Binary.Binary Int8 where
+instance Binary Int8 where
     get = do
         value <- Binary.getInt8
         pure (Int8 value)

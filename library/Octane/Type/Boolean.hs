@@ -18,7 +18,7 @@ $(overloadedRecord def ''Boolean)
 
 -- | Stored in the last bit of a byte. Decoding will fail if the byte is
 -- anything other than @0b00000000@ or @0b00000001@.
-instance Binary.Binary Boolean where
+instance Binary Boolean where
     get = do
         value <- Binary.getWord8
         case value of

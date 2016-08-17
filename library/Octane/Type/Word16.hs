@@ -18,7 +18,7 @@ newtype Word16 = Word16
 $(overloadedRecord def ''Word16)
 
 -- | Little-endian.
-instance Binary.Binary Word16 where
+instance Binary Word16 where
     get = do
         value <- Binary.getWord16le
         pure (Word16 value)

@@ -18,7 +18,7 @@ $(overloadedRecord def ''Dictionary)
 
 -- | Elements are stored with the key first, then the value. The dictionary
 -- ends when a key is @"None"@.
-instance (Binary.Binary a) => Binary.Binary (Dictionary a) where
+instance (Binary a) => Binary (Dictionary a) where
     get = do
         element <- getElement
         if Map.null element
@@ -54,7 +54,7 @@ instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
         & Aeson.toJSON
 
 
-getElement :: (Binary.Binary a) => Binary.Get (Map.Map Text.Text a)
+getElement :: (Binary a) => Binary.Get (Map.Map Text.Text a)
 getElement = do
     key <- Binary.get
     if key == noneKey
@@ -64,7 +64,7 @@ getElement = do
         value & Map.singleton key & pure
 
 
-putElement :: (Binary.Binary a) => (Text.Text, a) -> Binary.Put
+putElement :: (Binary a) => (Text.Text, a) -> Binary.Put
 putElement (key, value) = do
     Binary.put key
     Binary.put value

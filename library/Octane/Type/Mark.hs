@@ -18,7 +18,7 @@ data Mark = Mark
 $(overloadedRecord def ''Mark)
 
 -- | Fields are stored one after the other in order.
-instance Binary.Binary Mark where
+instance Binary Mark where
     get = Mark
         <$> Binary.get
         <*> Binary.get

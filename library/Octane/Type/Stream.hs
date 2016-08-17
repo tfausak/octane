@@ -20,7 +20,7 @@ $(overloadedRecord def ''Stream)
 
 -- | Prefixed by a length in bytes. Each byte is reversed such that
 -- @0b01234567@ is actually @0b76543210@.
-instance Binary.Binary Stream where
+instance Binary Stream where
     get = do
         size <- Binary.get
         content <- size & Word32.fromWord32 & Binary.getLazyByteString

@@ -17,7 +17,7 @@ data CacheProperty = CacheProperty
 $(overloadedRecord def ''CacheProperty)
 
 -- | Fields are stored one after the other in order.
-instance Binary.Binary CacheProperty where
+instance Binary CacheProperty where
     get = CacheProperty
         <$> Binary.get
         <*> Binary.get

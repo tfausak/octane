@@ -19,7 +19,7 @@ data ClassItem = ClassItem
 $(overloadedRecord def ''ClassItem)
 
 -- | Fields are stored one after the other in order.
-instance Binary.Binary ClassItem where
+instance Binary ClassItem where
     get = ClassItem
         <$> Binary.get
         <*> Binary.get

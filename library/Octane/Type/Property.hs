@@ -44,7 +44,7 @@ data Property
     deriving (Eq, Generic, Show)
 
 -- | Stored with the size first, then the value.
-instance Binary.Binary Property where
+instance Binary Property where
     get = do
         kind <- Binary.get
         case kind of

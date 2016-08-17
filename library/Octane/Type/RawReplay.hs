@@ -42,7 +42,7 @@ $(overloadedRecord def ''RawReplay)
 
 -- | Decoding will fail if the CRCs don't match, but it is possible to encode
 -- invalid replays. That means @decode (encode rawReplay)@ can fail.
-instance Binary.Binary RawReplay where
+instance Binary RawReplay where
     get = do
         headerSize <- Binary.get
         headerCRC <- Binary.get

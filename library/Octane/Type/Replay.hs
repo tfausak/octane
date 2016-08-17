@@ -73,7 +73,7 @@ data Replay = Replay
 
 $(overloadedRecord def ''Replay)
 
-instance Binary.Binary Replay where
+instance Binary Replay where
     get = do
         optimizedReplay <- Binary.get
         fromOptimizedReplay optimizedReplay

@@ -45,7 +45,7 @@ data OptimizedReplay = OptimizedReplay
 
 $(overloadedRecord def ''OptimizedReplay)
 
-instance Binary.Binary OptimizedReplay where
+instance Binary OptimizedReplay where
     get = do
         replayWithFrames <- Binary.get
         fromReplayWithFrames replayWithFrames

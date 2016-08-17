@@ -17,7 +17,7 @@ newtype List a = List
 $(overloadedRecord def ''List)
 
 -- | Prefixed with the number of elements in the list.
-instance (Binary.Binary a) => Binary.Binary (List a) where
+instance (Binary a) => Binary (List a) where
     get = do
         size <- Binary.get
         elements <- Monad.replicateM (Word32.fromWord32 size) Binary.get

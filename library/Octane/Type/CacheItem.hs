@@ -23,7 +23,7 @@ data CacheItem = CacheItem
 $(overloadedRecord def ''CacheItem)
 
 -- | Fields are stored one after the other in order.
-instance Binary.Binary CacheItem where
+instance Binary CacheItem where
     get = CacheItem
         <$> Binary.get
         <*> Binary.get

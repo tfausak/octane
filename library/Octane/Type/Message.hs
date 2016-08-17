@@ -19,7 +19,7 @@ data Message = Message
 $(overloadedRecord def ''Message)
 
 -- | Fields stored in order, one after the other.
-instance Binary.Binary Message where
+instance Binary Message where
     get = Message
         <$> Binary.get
         <*> Binary.get

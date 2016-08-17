@@ -1,6 +1,7 @@
 module Basics
     ( module Control.DeepSeq
     , module Data.Aeson
+    , module Data.Binary
     , module Data.Default.Class
     , module Data.Function
     , module Data.Monoid
@@ -11,6 +12,7 @@ module Basics
 
 import Control.DeepSeq (NFData)
 import Data.Aeson ((.=))
+import Data.Binary (Binary)
 import Data.Default.Class (def)
 import Data.Function ((&))
 import Data.Monoid ((<>))
