@@ -3,7 +3,6 @@ module Octane.Type.Boolean (Boolean(..)) where
 import Basics
 
 import qualified Data.Binary as Binary
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 

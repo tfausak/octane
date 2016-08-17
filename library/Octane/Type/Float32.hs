@@ -2,7 +2,6 @@ module Octane.Type.Float32 (Float32(..)) where
 
 import Basics
 
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary

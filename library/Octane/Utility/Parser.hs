@@ -4,7 +4,6 @@ import Basics
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.IntMap.Strict as IntMap
@@ -116,7 +115,7 @@ getMaybeReplication context = do
 
 getReplication :: Context -> BitGet (Context, Replication.Replication)
 getReplication context = do
-    actorId <- BinaryBit.getBits maxActorId
+    actorId <- getBits maxActorId
     isOpen <- getBool
     let go =
             if #unpack isOpen
@@ -245,7 +244,7 @@ getProp context thing = do
         Nothing -> fail ("could not find property map for class id " ++ show classId)
         Just x -> pure x
     let maxId = props & IntMap.keys & (0 :) & maximum
-    pid <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxId)
+    pid <- fmap CompressedWord.fromCompressedWord (getBits maxId)
     name <- case props & IntMap.lookup pid of
         Nothing -> fail ("could not find property name for property id " ++ show pid)
         Just x -> pure x
@@ -371,7 +370,7 @@ getLoadoutOnlineProperty = do
         innerSize <- fmap Word8.fromWord8 getWord8
         Monad.replicateM innerSize (do
             x <- getWord32
-            y <- BinaryBit.getBits 27
+            y <- getBits 27
             pure (x, y)))
     pure (Value.VLoadoutOnline values)
 
@@ -442,7 +441,7 @@ getReservationProperty context = do
     -- I think this is the connection order. The first player to connect
     -- gets number 0, and it goes up from there. The maximum is 7, which
     -- would be a full 4x4 game.
-    number <- BinaryBit.getBits maxConnectionNumber
+    number <- getBits maxConnectionNumber
     (systemId, remoteId, localId) <- getUniqueId
     playerName <- if systemId == 0 then pure Nothing else fmap Just getText
     -- No idea what these two flags are. Might be for bots?
@@ -520,16 +519,16 @@ getUniqueId = do
 getRemoteId :: Word8.Word8 -> BitGet RemoteId.RemoteId
 getRemoteId systemId = case systemId of
     0 -> do
-        splitscreenId <- BinaryBit.getBits 0
+        splitscreenId <- getBits 0
         pure (RemoteId.RemoteSplitscreenId splitscreenId)
     1 -> do
-        steamId <- BinaryBit.getBits 0
+        steamId <- getBits 0
         pure (RemoteId.RemoteSteamId steamId)
     2 -> do
-        playStationId <- BinaryBit.getBits 0
+        playStationId <- getBits 0
         pure (RemoteId.RemotePlayStationId playStationId)
     4 -> do
-        xboxId <- BinaryBit.getBits 0
+        xboxId <- getBits 0
         pure (RemoteId.RemoteXboxId xboxId)
     _ -> fail ("unknown system id " ++ show systemId)
 
@@ -622,28 +621,28 @@ maxConnectionNumber = 7
 
 
 getBool :: BitGet Boolean.Boolean
-getBool = BinaryBit.getBits 0
+getBool = getBits 0
 
 
 getFloat32 :: BitGet Float32.Float32
-getFloat32 = BinaryBit.getBits 0
+getFloat32 = getBits 0
 
 
 getInt32 :: BitGet Int32.Int32
-getInt32 = BinaryBit.getBits 0
+getInt32 = getBits 0
 
 
 getText :: BitGet Text.Text
-getText = BinaryBit.getBits 0
+getText = getBits 0
 
 
 getWord8 :: BitGet Word8.Word8
-getWord8 = BinaryBit.getBits 0
+getWord8 = getBits 0
 
 
 getWord32 :: BitGet Word32.Word32
-getWord32 = BinaryBit.getBits 0
+getWord32 = getBits 0
 
 
 getWord64 :: BitGet Word64.Word64
-getWord64 = BinaryBit.getBits 0
+getWord64 = getBits 0

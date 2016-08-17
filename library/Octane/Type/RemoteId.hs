@@ -9,7 +9,6 @@ module Octane.Type.RemoteId
 import Basics
 
 import qualified Data.Aeson as Aeson
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.ByteString.Lazy as LazyBytes
@@ -109,10 +108,10 @@ $(overloadedRecord def ''SteamId)
 -- | Stored as a plain 'Word64.Word64'.
 instance BinaryBit SteamId where
     getBits _ = do
-        steamId <- BinaryBit.getBits 0
+        steamId <- getBits 0
         pure (SteamId steamId)
 
-    putBits _ steamId = steamId & #unpack & BinaryBit.putBits 0
+    putBits _ steamId = steamId & #unpack & putBits 0
 
 instance NFData SteamId where
 
@@ -130,10 +129,10 @@ $(overloadedRecord def ''XboxId)
 -- | Stored as a plain 'Word64.Word64'.
 instance BinaryBit XboxId where
     getBits _ = do
-        xboxId <- BinaryBit.getBits 0
+        xboxId <- getBits 0
         pure (XboxId xboxId)
 
-    putBits _ xboxId = xboxId & #unpack & BinaryBit.putBits 0
+    putBits _ xboxId = xboxId & #unpack & putBits 0
 
 
 instance NFData XboxId where

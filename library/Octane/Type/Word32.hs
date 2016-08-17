@@ -2,7 +2,6 @@ module Octane.Type.Word32 (Word32(..), fromWord32, toWord32) where
 
 import Basics
 
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary

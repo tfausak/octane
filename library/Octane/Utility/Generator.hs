@@ -2,7 +2,6 @@ module Octane.Utility.Generator (generateStream) where
 
 import Basics
 
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Put as Binary
 import qualified Octane.Type.Boolean as Boolean
@@ -43,8 +42,8 @@ putFrames frames = do
 
 putFrame :: Frame.Frame -> BitPut ()
 putFrame frame = do
-    frame & #time & BinaryBit.putBits 32
-    frame & #delta & BinaryBit.putBits 32
+    frame & #time & putBits 32
+    frame & #delta & putBits 32
     frame & #replications & putReplications
 
 
@@ -52,16 +51,16 @@ putReplications :: [Replication.Replication] -> BitPut ()
 putReplications replications = do
     case replications of
         [] -> do
-            False & Boolean.Boolean & BinaryBit.putBits 1
+            False & Boolean.Boolean & putBits 1
         replication : rest -> do
-            True & Boolean.Boolean & BinaryBit.putBits 1
+            True & Boolean.Boolean & putBits 1
             putReplication replication
             putReplications rest
 
 
 putReplication :: Replication.Replication -> BitPut ()
 putReplication replication = do
-    replication & #actorId & BinaryBit.putBits 0
+    replication & #actorId & putBits 0
     case #state replication of
         State.SOpening -> putNewReplication replication
         State.SExisting -> putExistingReplication replication
@@ -70,9 +69,9 @@ putReplication replication = do
 
 putNewReplication :: Replication.Replication -> BitPut ()
 putNewReplication replication = do
-    True & Boolean.Boolean & BinaryBit.putBits 1 -- open
-    True & Boolean.Boolean & BinaryBit.putBits 1 -- new
-    False & Boolean.Boolean & BinaryBit.putBits 1 -- unknown
+    True & Boolean.Boolean & putBits 1 -- open
+    True & Boolean.Boolean & putBits 1 -- new
+    False & Boolean.Boolean & putBits 1 -- unknown
     -- TODO: convert object name into ID and put it
     case #initialization replication of
         Nothing -> pure ()
@@ -81,11 +80,11 @@ putNewReplication replication = do
 
 putExistingReplication :: Replication.Replication -> BitPut ()
 putExistingReplication _replication = do
-    True & Boolean.Boolean & BinaryBit.putBits 1 -- open
-    False & Boolean.Boolean & BinaryBit.putBits 1 -- existing
+    True & Boolean.Boolean & putBits 1 -- open
+    False & Boolean.Boolean & putBits 1 -- existing
     -- TODO: put props
 
 
 putClosedReplication :: Replication.Replication -> BitPut ()
 putClosedReplication _replication = do
-    False & Boolean.Boolean & BinaryBit.putBits 1 -- closed
+    False & Boolean.Boolean & putBits 1 -- closed

@@ -3,7 +3,6 @@ module Octane.Type.CompressedWord (CompressedWord(..), fromCompressedWord) where
 import Basics
 
 import qualified Data.Aeson as Aeson
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Bits as Bits
 import qualified Octane.Type.Boolean as Boolean
@@ -20,7 +19,7 @@ data CompressedWord = CompressedWord
 
 $(overloadedRecord def ''CompressedWord)
 
--- | Abuses the first argument to 'BinaryBit.getBits' as the maximum value.
+-- | Abuses the first argument to 'getBits' as the maximum value.
 instance BinaryBit CompressedWord where
     getBits n = do
         let limit = fromIntegral n
@@ -63,7 +62,7 @@ getStep limit maxBits position value = do
     let x = Bits.shiftL 1 (fromIntegral position)
     if position < maxBits && value + x <= limit
     then do
-        (bit :: Boolean.Boolean) <- BinaryBit.getBits 0
+        (bit :: Boolean.Boolean) <- getBits 0
         let newValue = if #unpack bit then value + x else value
         getStep limit maxBits (position + 1) newValue
     else pure value

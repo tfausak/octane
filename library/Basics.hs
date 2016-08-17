@@ -18,7 +18,7 @@ module Basics
 import Control.DeepSeq (NFData)
 import Data.Aeson (FromJSON, ToJSON, toJSON, (.=))
 import Data.Binary (Binary, get, put)
-import Data.Binary.Bits (BinaryBit)
+import Data.Binary.Bits (BinaryBit, getBits, putBits)
 import Data.Binary.Bits.Get (BitGet)
 import Data.Binary.Bits.Put (BitPut)
 import Data.Default.Class (def)

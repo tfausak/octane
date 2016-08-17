@@ -3,7 +3,6 @@ module Octane.Type.Word8 (Word8(..), fromWord8, toWord8) where
 import Basics
 
 import qualified Data.Binary as Binary
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary
