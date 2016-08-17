@@ -4,7 +4,6 @@ import Basics
 
 import qualified Data.Bimap as Bimap
 import qualified Data.FileEmbed as FileEmbed
-import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Octane.Utility.Embed as Embed
 
@@ -12,7 +11,7 @@ import qualified Octane.Utility.Embed as Embed
 -- | A map from object names to their class names.
 --
 -- Note that some object names have been normalized to make lookup easier.
-classes :: Map.Map StrictText StrictText
+classes :: StrictMap StrictText StrictText
 classes = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
 
 
@@ -37,5 +36,5 @@ products = Embed.decodeBimap $(FileEmbed.embedFile "data/products.json")
 
 
 -- | A mapping between property names and their serialized type.
-properties :: Map.Map StrictText StrictText
+properties :: StrictMap StrictText StrictText
 properties = Embed.decodeMap $(FileEmbed.embedFile "data/properties.json")

@@ -10,7 +10,7 @@ import qualified Octane.Type.Text as Text
 
 -- | A mapping between text and arbitrary values.
 newtype Dictionary a = Dictionary
-    { dictionaryUnpack :: (Map.Map Text.Text a)
+    { dictionaryUnpack :: (StrictMap Text.Text a)
     } deriving (Eq, Generic)
 
 $(overloadedRecord def ''Dictionary)
@@ -53,7 +53,7 @@ instance (ToJSON a) => ToJSON (Dictionary a) where
         & toJSON
 
 
-getElement :: (Binary a) => Binary.Get (Map.Map Text.Text a)
+getElement :: (Binary a) => Binary.Get (StrictMap Text.Text a)
 getElement = do
     key <- Binary.get
     if key == noneKey

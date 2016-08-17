@@ -14,7 +14,7 @@ import qualified Data.Set as Set
 -- JSON object mapping values to keys. That means the resulting bimap is
 -- 'Bimap.twist'ed from what you might expect.
 decodeBimap
-    :: (FromJSON (Map.Map b a), Ord a, Ord b)
+    :: (FromJSON (StrictMap b a), Ord a, Ord b)
     => StrictBytes
     -> Bimap.Bimap a b
 decodeBimap bytes = bytes
@@ -28,9 +28,9 @@ decodeBimap bytes = bytes
 -- | Decodes some bytes into a map. The bytes are assumed to be a JSON object
 -- mapping keys to values.
 decodeMap
-    :: (FromJSON (Map.Map a b))
+    :: (FromJSON (StrictMap a b))
     => StrictBytes
-    -> Map.Map a b
+    -> StrictMap a b
 decodeMap bytes = bytes
     & Aeson.decodeStrict
     & Maybe.fromMaybe Map.empty

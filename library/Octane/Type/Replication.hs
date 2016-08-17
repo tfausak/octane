@@ -2,7 +2,6 @@ module Octane.Type.Replication (Replication(..)) where
 
 import Basics
 
-import qualified Data.Map.Strict as Map
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.State as State
@@ -25,7 +24,7 @@ data Replication = Replication
     , replicationInitialization :: Maybe Initialization.Initialization
     -- ^ The optional initialization information for this actor. These only
     -- exist for new actors.
-    , replicationProperties :: Map.Map StrictText Value.Value
+    , replicationProperties :: StrictMap StrictText Value.Value
     -- ^ The property updates associated with this actor's replication.
     } deriving (Eq, Generic, Show)
 

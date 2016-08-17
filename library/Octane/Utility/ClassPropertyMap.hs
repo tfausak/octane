@@ -151,7 +151,7 @@ getBasicClassPropertyMap replay = let
 
 
 -- | The actor map is a mapping from class names to their IDs.
-getActorMap :: ReplayWithoutFrames.ReplayWithoutFrames -> Map.Map StrictText Int
+getActorMap :: ReplayWithoutFrames.ReplayWithoutFrames -> StrictMap StrictText Int
 getActorMap replay = replay
     & #classes
     & #unpack
@@ -166,8 +166,8 @@ getActorMap replay = replay
 getClass
     :: (Monad m)
     => IntMap.IntMap StrictText -- ^ Property ID to property name
-    -> Map.Map StrictText StrictText -- ^ Property name to class name
-    -> Map.Map StrictText Int -- ^ Class name to class ID
+    -> StrictMap StrictText StrictText -- ^ Property name to class name
+    -> StrictMap StrictText Int -- ^ Class name to class ID
     -> Int -- ^ property ID
     -> m (Int, StrictText) -- ^ Maybe class ID and class name
 getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId = do
@@ -200,7 +200,7 @@ replace pattern replacement input =
     Regex.subRegex (Regex.mkRegex pattern) input replacement
 
 
-getClassName :: (Monad m) => Map.Map StrictText StrictText -> StrictText -> m StrictText
+getClassName :: (Monad m) => StrictMap StrictText StrictText -> StrictText -> m StrictText
 getClassName classNames propertyName = do
     case Map.lookup propertyName classNames of
         Nothing -> do
@@ -209,7 +209,7 @@ getClassName classNames propertyName = do
             pure className
 
 
-getClassId :: (Monad m) => Map.Map StrictText Int -> StrictText -> m Int
+getClassId :: (Monad m) => StrictMap StrictText Int -> StrictText -> m Int
 getClassId classIds className = do
     case Map.lookup className classIds of
         Nothing -> do

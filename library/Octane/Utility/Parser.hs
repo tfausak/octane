@@ -218,7 +218,7 @@ getClosedReplication context actorId = do
           })
 
 
-getProps :: Context -> Thing -> Bits.BitGet (Map.Map StrictText Value.Value)
+getProps :: Context -> Thing -> Bits.BitGet (StrictMap StrictText Value.Value)
 getProps context thing = do
     maybeProp <- getMaybeProp context thing
     case maybeProp of
@@ -559,7 +559,7 @@ type ObjectMap = IntMap.IntMap StrictText
 
 
 -- { class name => class id }
-type ClassMap = Map.Map StrictText Int
+type ClassMap = StrictMap StrictText Int
 
 
 data Context = Context

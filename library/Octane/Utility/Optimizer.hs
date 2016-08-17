@@ -26,7 +26,7 @@ optimizeFrames frames = frames
 
 
 -- { actor id => (alive?, { property name => property value } ) }
-type State = IntMap.IntMap (Bool, Map.Map StrictText Value.Value)
+type State = IntMap.IntMap (Bool, StrictMap StrictText Value.Value)
 
 
 initialState :: State
