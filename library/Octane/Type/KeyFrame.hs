@@ -2,7 +2,6 @@ module Octane.Type.KeyFrame (KeyFrame(..)) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Word32 as Word32
 
@@ -22,13 +21,13 @@ $(overloadedRecord def ''KeyFrame)
 -- | Stored with the fields one after the other in order.
 instance Binary KeyFrame where
     get = KeyFrame
-        <$> Binary.get
-        <*> Binary.get
-        <*> Binary.get
+        <$> get
+        <*> get
+        <*> get
 
     put keyFrame = do
-        keyFrame & #time & Binary.put
-        keyFrame & #frame & Binary.put
-        keyFrame & #position & Binary.put
+        keyFrame & #time & put
+        keyFrame & #frame & put
+        keyFrame & #position & put
 
 instance NFData KeyFrame where

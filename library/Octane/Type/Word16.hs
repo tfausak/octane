@@ -2,7 +2,6 @@ module Octane.Type.Word16 (Word16(..), fromWord16, toWord16) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.Word as Word

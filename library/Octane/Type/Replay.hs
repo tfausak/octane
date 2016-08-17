@@ -3,7 +3,6 @@ module Octane.Type.Replay (Replay(..), fromOptimizedReplay, toOptimizedReplay) w
 import Basics
 
 import qualified Data.Aeson as Aeson
-import qualified Data.Binary as Binary
 import qualified Data.Map as Map
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
@@ -75,12 +74,12 @@ $(overloadedRecord def ''Replay)
 
 instance Binary Replay where
     get = do
-        optimizedReplay <- Binary.get
+        optimizedReplay <- get
         fromOptimizedReplay optimizedReplay
 
     put replay = do
         optimizedReplay <- toOptimizedReplay replay
-        Binary.put optimizedReplay
+        put optimizedReplay
 
 instance NFData Replay where
 

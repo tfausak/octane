@@ -2,7 +2,6 @@ module Octane.Type.ClassItem (ClassItem(..)) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -21,11 +20,11 @@ $(overloadedRecord def ''ClassItem)
 -- | Fields are stored one after the other in order.
 instance Binary ClassItem where
     get = ClassItem
-        <$> Binary.get
-        <*> Binary.get
+        <$> get
+        <*> get
 
     put classItem = do
-        classItem & #name & Binary.put
-        classItem & #streamId & Binary.put
+        classItem & #name & put
+        classItem & #streamId & put
 
 instance NFData ClassItem where

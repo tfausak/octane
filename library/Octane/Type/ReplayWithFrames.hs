@@ -2,7 +2,6 @@ module Octane.Type.ReplayWithFrames (ReplayWithFrames(..), fromReplayWithoutFram
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.Dictionary as Dictionary
@@ -44,12 +43,12 @@ $(overloadedRecord def ''ReplayWithFrames)
 
 instance Binary ReplayWithFrames where
     get = do
-        replayWithoutFrames <- Binary.get
+        replayWithoutFrames <- get
         fromReplayWithoutFrames replayWithoutFrames
 
     put replay = do
         replayWithoutFrames <- toReplayWithoutFrames replay
-        Binary.put replayWithoutFrames
+        put replayWithoutFrames
 
 instance NFData ReplayWithFrames where
 

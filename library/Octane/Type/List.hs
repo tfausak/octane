@@ -3,7 +3,6 @@ module Octane.Type.List (List(..)) where
 import Basics
 
 import qualified Control.Monad as Monad
-import qualified Data.Binary as Binary
 import qualified GHC.Exts as Exts
 import qualified Octane.Type.Word32 as Word32
 
@@ -18,13 +17,13 @@ $(overloadedRecord def ''List)
 -- | Prefixed with the number of elements in the list.
 instance (Binary a) => Binary (List a) where
     get = do
-        size <- Binary.get
-        elements <- Monad.replicateM (Word32.fromWord32 size) Binary.get
+        size <- get
+        elements <- Monad.replicateM (Word32.fromWord32 size) get
         elements & List & pure
 
     put list = do
-        list & #unpack & length & fromIntegral & Word32.Word32 & Binary.put
-        list & #unpack & mapM_ Binary.put
+        list & #unpack & length & fromIntegral & Word32.Word32 & put
+        list & #unpack & mapM_ put
 
 -- | Allows creating 'List' values with 'Exts.fromList'. Also allows 'List'
 -- literals with the @OverloadedLists@ extension.

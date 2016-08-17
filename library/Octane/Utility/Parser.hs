@@ -44,9 +44,9 @@ parseStream replay = let
         & (\ property -> case property of
             Just (Property.IntProperty _ x) -> x & #unpack & fromIntegral
             _ -> 0)
-    get = replay & extractContext & getFrames 0 numFrames & BinaryBit.runBitGet
+    getter = replay & extractContext & getFrames 0 numFrames & BinaryBit.runBitGet
     stream = replay & #stream & #unpack
-    (_context, frames) = Binary.runGet get stream
+    (_context, frames) = Binary.runGet getter stream
     in frames
 
 

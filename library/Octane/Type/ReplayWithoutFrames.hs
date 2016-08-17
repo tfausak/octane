@@ -2,7 +2,6 @@ module Octane.Type.ReplayWithoutFrames (ReplayWithoutFrames(..), fromRawReplay, 
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
@@ -45,12 +44,12 @@ $(overloadedRecord def ''ReplayWithoutFrames)
 
 instance Binary ReplayWithoutFrames where
     get = do
-        rawReplay <- Binary.get
+        rawReplay <- get
         fromRawReplay rawReplay
 
     put replayWithoutFrames = do
         rawReplay <- toRawReplay replayWithoutFrames
-        Binary.put rawReplay
+        put rawReplay
 
 instance NFData ReplayWithoutFrames where
 
@@ -62,26 +61,26 @@ fromRawReplay rawReplay = do
     let header = #header rawReplay
     let content = #content rawReplay
 
-    let get = do
-            version1 <- Binary.get
-            version2 <- Binary.get
-            label <- Binary.get
-            properties <- Binary.get
-            levels <- Binary.get
-            keyFrames <- Binary.get
-            stream <- Binary.get
-            messages <- Binary.get
-            marks <- Binary.get
-            packages <- Binary.get
-            objects <- Binary.get
-            names <- Binary.get
-            classes <- Binary.get
-            cache <- Binary.get
+    let getter = do
+            version1 <- get
+            version2 <- get
+            label <- get
+            properties <- get
+            levels <- get
+            keyFrames <- get
+            stream <- get
+            messages <- get
+            marks <- get
+            packages <- get
+            objects <- get
+            names <- get
+            classes <- get
+            cache <- get
 
             pure (ReplayWithoutFrames version1 version2 label properties levels keyFrames stream messages marks packages objects names classes cache)
     let bytes = LazyBytes.append header content
 
-    pure (Binary.runGet get bytes)
+    pure (Binary.runGet getter bytes)
 
 
 -- | Converts a 'ReplayWithoutFrames' into a 'RawReplay.RawReplay'.
@@ -89,22 +88,22 @@ fromRawReplay rawReplay = do
 toRawReplay :: (Monad m) => ReplayWithoutFrames -> m RawReplay.RawReplay
 toRawReplay replay = do
     let header = Binary.runPut (do
-            Binary.put (#version1 replay)
-            Binary.put (#version2 replay)
-            Binary.put (#label replay)
-            Binary.put (#properties replay))
+            put (#version1 replay)
+            put (#version2 replay)
+            put (#label replay)
+            put (#properties replay))
 
     let content = Binary.runPut (do
-            Binary.put (#levels replay)
-            Binary.put (#keyFrames replay)
-            Binary.put (#stream replay)
-            Binary.put (#messages replay)
-            Binary.put (#marks replay)
-            Binary.put (#packages replay)
-            Binary.put (#objects replay)
-            Binary.put (#names replay)
-            Binary.put (#classes replay)
-            Binary.put (#cache replay))
+            put (#levels replay)
+            put (#keyFrames replay)
+            put (#stream replay)
+            put (#messages replay)
+            put (#marks replay)
+            put (#packages replay)
+            put (#objects replay)
+            put (#names replay)
+            put (#classes replay)
+            put (#cache replay))
 
     let footer = LazyBytes.empty
 

@@ -2,7 +2,6 @@ module Octane.Type.Message (Message(..)) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -21,13 +20,13 @@ $(overloadedRecord def ''Message)
 -- | Fields stored in order, one after the other.
 instance Binary Message where
     get = Message
-        <$> Binary.get
-        <*> Binary.get
-        <*> Binary.get
+        <$> get
+        <*> get
+        <*> get
 
     put message = do
-        message & #frame & Binary.put
-        message & #name & Binary.put
-        message & #content & Binary.put
+        message & #frame & put
+        message & #name & put
+        message & #content & put
 
 instance NFData Message where

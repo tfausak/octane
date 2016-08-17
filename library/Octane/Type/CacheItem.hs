@@ -2,7 +2,6 @@ module Octane.Type.CacheItem (CacheItem(..)) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Octane.Type.CacheProperty as CacheProperty
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Word32 as Word32
@@ -25,15 +24,15 @@ $(overloadedRecord def ''CacheItem)
 -- | Fields are stored one after the other in order.
 instance Binary CacheItem where
     get = CacheItem
-        <$> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
+        <$> get
+        <*> get
+        <*> get
+        <*> get
 
     put cacheItem = do
-        cacheItem & #classId & Binary.put
-        cacheItem & #parentCacheId & Binary.put
-        cacheItem & #cacheId & Binary.put
-        cacheItem & #properties & Binary.put
+        cacheItem & #classId & put
+        cacheItem & #parentCacheId & put
+        cacheItem & #cacheId & put
+        cacheItem & #properties & put
 
 instance NFData CacheItem where

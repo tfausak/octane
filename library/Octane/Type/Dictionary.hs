@@ -23,12 +23,12 @@ instance (Binary a) => Binary (Dictionary a) where
         if Map.null element
         then element & Dictionary & pure
         else do
-            Dictionary elements <- Binary.get
+            Dictionary elements <- get
             elements & Map.union element & Dictionary & pure
 
     put dictionary = do
         dictionary & #unpack & Map.assocs & mapM_ putElement
-        noneKey & Binary.put
+        noneKey & put
 
 -- | Allows creating 'Dictionary' values with 'Exts.fromList'. Also allows
 -- 'Dictionary' literals with the @OverloadedLists@ extension.
@@ -55,18 +55,18 @@ instance (ToJSON a) => ToJSON (Dictionary a) where
 
 getElement :: (Binary a) => Binary.Get (StrictMap Text.Text a)
 getElement = do
-    key <- Binary.get
+    key <- get
     if key == noneKey
     then pure Map.empty
     else do
-        value <- Binary.get
+        value <- get
         value & Map.singleton key & pure
 
 
 putElement :: (Binary a) => (Text.Text, a) -> Binary.Put
 putElement (key, value) = do
-    Binary.put key
-    Binary.put value
+    put key
+    put value
 
 
 noneKey :: Text.Text

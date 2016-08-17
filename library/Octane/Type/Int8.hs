@@ -2,7 +2,6 @@ module Octane.Type.Int8 (Int8(..), fromInt8, toInt8) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
@@ -36,11 +35,11 @@ instance BinaryBit Int8 where
         bytes
             & LazyBytes.fromStrict
             & Endian.reverseBitsInLazyBytes
-            & Binary.runGet Binary.get
+            & Binary.runGet get
             & pure
 
     putBits _ int8 = int8
-        & Binary.put
+        & put
         & Binary.runPut
         & Endian.reverseBitsInLazyBytes
         & LazyBytes.toStrict

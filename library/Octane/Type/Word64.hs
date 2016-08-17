@@ -2,7 +2,6 @@ module Octane.Type.Word64 (Word64(..), fromWord64, toWord64) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
@@ -37,11 +36,11 @@ instance BinaryBit Word64 where
         bytes
             & LazyBytes.fromStrict
             & Endian.reverseBitsInLazyBytes
-            & Binary.runGet Binary.get
+            & Binary.runGet get
             & pure
 
     putBits _ word64 = word64
-        & Binary.put
+        & put
         & Binary.runPut
         & Endian.reverseBitsInLazyBytes
         & LazyBytes.toStrict

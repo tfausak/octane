@@ -2,7 +2,6 @@ module Octane.Type.Text (Text(..), encodeLatin1) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
@@ -27,12 +26,12 @@ $(overloadedRecord def ''Text)
 -- | Text is both length-prefixed and null-terminated.
 instance Binary Text where
     get = getText
-        Binary.get
+        get
         Binary.getByteString
         id
 
     put text = putText
-        Binary.put
+        put
         Binary.putByteString
         id
         text

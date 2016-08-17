@@ -2,7 +2,6 @@ module Octane.Type.Int32 (Int32(..), fromInt32, toInt32) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
@@ -37,11 +36,11 @@ instance BinaryBit Int32 where
         bytes
             & LazyBytes.fromStrict
             & Endian.reverseBitsInLazyBytes
-            & Binary.runGet Binary.get
+            & Binary.runGet get
             & pure
 
     putBits _ int32 = int32
-        & Binary.put
+        & put
         & Binary.runPut
         & Endian.reverseBitsInLazyBytes
         & LazyBytes.toStrict

@@ -36,11 +36,11 @@ instance BinaryBit Word8 where
         bytes
             & LazyBytes.fromStrict
             & Endian.reverseBitsInLazyBytes
-            & Binary.runGet Binary.get
+            & Binary.runGet get
             & pure
 
     putBits _ word8 = word8
-        & Binary.put
+        & put
         & Binary.runPut
         & Endian.reverseBitsInLazyBytes
         & LazyBytes.toStrict

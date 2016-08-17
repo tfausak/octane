@@ -2,7 +2,6 @@ module Octane.Type.Mark (Mark(..)) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -20,11 +19,11 @@ $(overloadedRecord def ''Mark)
 -- | Fields are stored one after the other in order.
 instance Binary Mark where
     get = Mark
-        <$> Binary.get
-        <*> Binary.get
+        <$> get
+        <*> get
 
     put mark = do
-        mark & #label & Binary.put
-        mark & #frame & Binary.put
+        mark & #label & put
+        mark & #frame & put
 
 instance NFData Mark

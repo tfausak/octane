@@ -2,7 +2,6 @@ module Octane.Type.CacheProperty (CacheProperty(..)) where
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Octane.Type.Word32 as Word32
 
 
@@ -19,11 +18,11 @@ $(overloadedRecord def ''CacheProperty)
 -- | Fields are stored one after the other in order.
 instance Binary CacheProperty where
     get = CacheProperty
-        <$> Binary.get
-        <*> Binary.get
+        <$> get
+        <*> get
 
     put cacheProperty = do
-        cacheProperty & #objectId & Binary.put
-        cacheProperty & #streamId & Binary.put
+        cacheProperty & #objectId & put
+        cacheProperty & #streamId & put
 
 instance NFData CacheProperty where

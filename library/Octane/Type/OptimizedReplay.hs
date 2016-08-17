@@ -6,7 +6,6 @@ module Octane.Type.OptimizedReplay
 
 import Basics
 
-import qualified Data.Binary as Binary
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.Dictionary as Dictionary
@@ -47,12 +46,12 @@ $(overloadedRecord def ''OptimizedReplay)
 
 instance Binary OptimizedReplay where
     get = do
-        replayWithFrames <- Binary.get
+        replayWithFrames <- get
         fromReplayWithFrames replayWithFrames
 
     put replay = do
         replayWithFrames <- toReplayWithFrames replay
-        Binary.put replayWithFrames
+        put replayWithFrames
 
 instance NFData OptimizedReplay where
 

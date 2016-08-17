@@ -6,7 +6,6 @@ module Octane.Type.RawReplay
 import Basics
 
 import qualified Control.Monad as Monad
-import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
@@ -43,13 +42,13 @@ $(overloadedRecord def ''RawReplay)
 -- invalid replays. That means @decode (encode rawReplay)@ can fail.
 instance Binary RawReplay where
     get = do
-        headerSize <- Binary.get
-        headerCRC <- Binary.get
+        headerSize <- get
+        headerCRC <- get
         header <- Binary.getLazyByteString (Word32.fromWord32 headerSize)
         checkCRC headerCRC header
 
-        contentSize <- Binary.get
-        contentCRC <- Binary.get
+        contentSize <- get
+        contentCRC <- get
         content <- Binary.getLazyByteString (Word32.fromWord32 contentSize)
         checkCRC contentCRC content
 
@@ -58,12 +57,12 @@ instance Binary RawReplay where
         pure (RawReplay headerSize headerCRC header contentSize contentCRC content footer)
 
     put replay = do
-        Binary.put (#headerSize replay)
-        Binary.put (#headerCRC replay)
+        put (#headerSize replay)
+        put (#headerCRC replay)
         Binary.putLazyByteString (#header replay)
 
-        Binary.put (#contentSize replay)
-        Binary.put (#contentCRC replay)
+        put (#contentSize replay)
+        put (#contentCRC replay)
         Binary.putLazyByteString (#content replay)
 
         Binary.putLazyByteString (#footer replay)
