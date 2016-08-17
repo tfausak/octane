@@ -17,9 +17,9 @@ import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Utility.Endian as Endian
 
 
--- | A thin wrapper around 'StrictText.Text'.
+-- | A thin wrapper around 'StrictText'.
 newtype Text = Text
-    { textUnpack :: StrictText.Text
+    { textUnpack :: StrictText
     } deriving (Eq, Generic, Ord)
 
 $(overloadedRecord def ''Text)
@@ -122,7 +122,7 @@ putText putInt putBytes convertBytes text = do
 
 -- | Encodes text as Latin-1. Note that this isn't really safe if the text has
 -- characters that can't be encoded in Latin-1.
-encodeLatin1 :: StrictText.Text -> StrictBytes
+encodeLatin1 :: StrictText -> StrictBytes
 encodeLatin1 text = text
     & StrictText.unpack
     & StrictBytes.pack

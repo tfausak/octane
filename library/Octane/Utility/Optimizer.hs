@@ -5,7 +5,6 @@ import Basics
 import qualified Data.Foldable as Foldable
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
-import qualified Data.Text as StrictText
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.Replication as Replication
@@ -27,7 +26,7 @@ optimizeFrames frames = frames
 
 
 -- { actor id => (alive?, { property name => property value } ) }
-type State = IntMap.IntMap (Bool, Map.Map StrictText.Text Value.Value)
+type State = IntMap.IntMap (Bool, Map.Map StrictText Value.Value)
 
 
 initialState :: State

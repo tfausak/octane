@@ -22,7 +22,7 @@ import qualified "regex-compat" Text.Regex as Regex
 
 -- | The class property map is a map from class IDs in the stream to a map from
 -- property IDs in the stream to property names.
-getClassPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
+getClassPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap (IntMap.IntMap StrictText)
 getClassPropertyMap replay = let
     basicClassPropertyMap = getBasicClassPropertyMap replay
     classMap = getClassMap replay
@@ -116,7 +116,7 @@ getClassMap replay = let
 
 
 -- | The property map is a mapping from property IDs to property names.
-getPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap StrictText.Text
+getPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap StrictText
 getPropertyMap replay = replay
     & #objects
     & #unpack
@@ -128,7 +128,7 @@ getPropertyMap replay = replay
 -- | The basic class property map is a naive mapping from class IDs to a
 -- mapping from property IDs to property names. It's naive because it does
 -- not include the properties from the class's parents.
-getBasicClassPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
+getBasicClassPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap (IntMap.IntMap StrictText)
 getBasicClassPropertyMap replay = let
     propertyMap = getPropertyMap replay
     in replay
@@ -151,7 +151,7 @@ getBasicClassPropertyMap replay = let
 
 
 -- | The actor map is a mapping from class names to their IDs.
-getActorMap :: ReplayWithoutFrames.ReplayWithoutFrames -> Map.Map StrictText.Text Int
+getActorMap :: ReplayWithoutFrames.ReplayWithoutFrames -> Map.Map StrictText Int
 getActorMap replay = replay
     & #classes
     & #unpack
@@ -165,11 +165,11 @@ getActorMap replay = replay
 -- | Gets the class ID and name for a given property ID.
 getClass
     :: (Monad m)
-    => IntMap.IntMap StrictText.Text -- ^ Property ID to property name
-    -> Map.Map StrictText.Text StrictText.Text -- ^ Property name to class name
-    -> Map.Map StrictText.Text Int -- ^ Class name to class ID
+    => IntMap.IntMap StrictText -- ^ Property ID to property name
+    -> Map.Map StrictText StrictText -- ^ Property name to class name
+    -> Map.Map StrictText Int -- ^ Class name to class ID
     -> Int -- ^ property ID
-    -> m (Int, StrictText.Text) -- ^ Maybe class ID and class name
+    -> m (Int, StrictText) -- ^ Maybe class ID and class name
 getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId = do
     rawPropertyName <- getPropertyName propertyIdsToNames propertyId
     let propertyName = normalizeName rawPropertyName
@@ -178,7 +178,7 @@ getClass propertyIdsToNames propertyNamesToClassNames classNamesToIds propertyId
     pure (classId, className)
 
 
-getPropertyName :: (Monad m) => IntMap.IntMap StrictText.Text -> Int -> m StrictText.Text
+getPropertyName :: (Monad m) => IntMap.IntMap StrictText -> Int -> m StrictText
 getPropertyName propertyNames propertyId = do
     case IntMap.lookup propertyId propertyNames of
         Nothing -> do
@@ -187,7 +187,7 @@ getPropertyName propertyNames propertyId = do
             pure propertyName
 
 
-normalizeName :: StrictText.Text -> StrictText.Text
+normalizeName :: StrictText -> StrictText
 normalizeName name = name
     & StrictText.unpack
     & replace "_[0-9]+$" ""
@@ -200,7 +200,7 @@ replace pattern replacement input =
     Regex.subRegex (Regex.mkRegex pattern) input replacement
 
 
-getClassName :: (Monad m) => Map.Map StrictText.Text StrictText.Text -> StrictText.Text -> m StrictText.Text
+getClassName :: (Monad m) => Map.Map StrictText StrictText -> StrictText -> m StrictText
 getClassName classNames propertyName = do
     case Map.lookup propertyName classNames of
         Nothing -> do
@@ -209,7 +209,7 @@ getClassName classNames propertyName = do
             pure className
 
 
-getClassId :: (Monad m) => Map.Map StrictText.Text Int -> StrictText.Text -> m Int
+getClassId :: (Monad m) => Map.Map StrictText Int -> StrictText -> m Int
 getClassId classIds className = do
     case Map.lookup className classIds of
         Nothing -> do

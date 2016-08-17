@@ -121,7 +121,7 @@ getDestroyed xs = xs
     & Destroyed
 
 
-getType :: Value.Value -> StrictText.Text
+getType :: Value.Value -> StrictText
 getType value = case value of
     Value.VBoolean _ -> "Boolean"
     Value.VByte _ -> "Byte"
@@ -255,9 +255,9 @@ getValue value = case value of
         ]
 
 
-getGameMode :: Word8.Word8 -> Maybe StrictText.Text
+getGameMode :: Word8.Word8 -> Maybe StrictText
 getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
 
 
-getProduct :: Word32.Word32 -> Maybe StrictText.Text
+getProduct :: Word32.Word32 -> Maybe StrictText
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products

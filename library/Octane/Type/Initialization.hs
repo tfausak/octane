@@ -9,7 +9,6 @@ import Basics
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Set as Set
-import qualified Data.Text as StrictText
 import qualified Octane.Data as Data
 import qualified Octane.Type.Int8 as Int8
 import qualified Octane.Type.Vector as Vector
@@ -32,7 +31,7 @@ instance NFData Initialization where
 
 
 -- | Gets the 'Initialization' for a given class.
-getInitialization :: StrictText.Text -> BinaryBit.BitGet Initialization
+getInitialization :: StrictText -> BinaryBit.BitGet Initialization
 getInitialization className = do
     location <- if Set.member className Data.classesWithLocation
         then fmap Just Vector.getIntVector

@@ -24,7 +24,7 @@ import qualified Octane.Type.Word32 as Word32
 -- 'Octane.Type.RawReplay.RawReplay' for serialization.
 data Replay = Replay
     { replayVersion :: Version.Version
-    , replayMetadata :: Map.Map StrictText.Text Property.Property
+    , replayMetadata :: Map.Map StrictText Property.Property
     -- ^ High-level metadata about the replay. Only one key is actually
     -- required to be able to view the replay in Rocket League:
     --
@@ -64,10 +64,10 @@ data Replay = Replay
     --   team. This value is not validated, so you can put absurd values like
     --   @99@. To get an "unfair" team size like 1v4, you must set the
     --   @"bUnfairBots"@ 'Property.BoolProperty' to @True@.
-    , replayLevels :: [StrictText.Text]
-    , replayMessages :: Map.Map StrictText.Text StrictText.Text
-    , replayTickMarks :: Map.Map StrictText.Text StrictText.Text
-    , replayPackages :: [StrictText.Text]
+    , replayLevels :: [StrictText]
+    , replayMessages :: Map.Map StrictText StrictText
+    , replayTickMarks :: Map.Map StrictText StrictText
+    , replayPackages :: [StrictText]
     , replayFrames :: [Frame.Frame]
     } deriving (Eq, Generic, Show)
 

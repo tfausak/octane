@@ -218,7 +218,7 @@ getClosedReplication context actorId = do
           })
 
 
-getProps :: Context -> Thing -> Bits.BitGet (Map.Map StrictText.Text Value.Value)
+getProps :: Context -> Thing -> Bits.BitGet (Map.Map StrictText Value.Value)
 getProps context thing = do
     maybeProp <- getMaybeProp context thing
     case maybeProp of
@@ -229,7 +229,7 @@ getProps context thing = do
             pure (Map.union m props)
 
 
-getMaybeProp :: Context -> Thing -> Bits.BitGet (Maybe (StrictText.Text, Value.Value))
+getMaybeProp :: Context -> Thing -> Bits.BitGet (Maybe (StrictText, Value.Value))
 getMaybeProp context thing = do
     hasProp <- getBool
     if #unpack hasProp
@@ -239,7 +239,7 @@ getMaybeProp context thing = do
     else pure Nothing
 
 
-getProp :: Context -> Thing -> Bits.BitGet (StrictText.Text, Value.Value)
+getProp :: Context -> Thing -> Bits.BitGet (StrictText, Value.Value)
 getProp context thing = do
     let classId = thing & thingClassId
     props <- case context & contextClassPropertyMap & IntMap.lookup classId of
@@ -254,7 +254,7 @@ getProp context thing = do
     pure (name, value)
 
 
-getPropValue :: Context -> StrictText.Text -> Bits.BitGet Value.Value
+getPropValue :: Context -> StrictText -> Bits.BitGet Value.Value
 getPropValue context name = case Map.lookup name Data.properties of
     Just property -> case StrictText.unpack property of
         "boolean" -> getBooleanProperty
@@ -541,9 +541,9 @@ getRemoteId systemId = case systemId of
 data Thing = Thing
     { thingFlag :: Boolean.Boolean
     , thingObjectId :: Int32.Int32
-    , thingObjectName :: StrictText.Text
+    , thingObjectName :: StrictText
     , thingClassId :: Int
-    , thingClassName :: StrictText.Text
+    , thingClassName :: StrictText
     , thingInitialization :: Initialization.Initialization
     } deriving (Eq, Generic, Show)
 
@@ -551,15 +551,15 @@ instance NFData Thing
 
 
 -- { class stream id => { property stream id => name } }
-type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap StrictText.Text)
+type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap StrictText)
 
 
 -- { stream id => object name }
-type ObjectMap = IntMap.IntMap StrictText.Text
+type ObjectMap = IntMap.IntMap StrictText
 
 
 -- { class name => class id }
-type ClassMap = Map.Map StrictText.Text Int
+type ClassMap = Map.Map StrictText Int
 
 
 data Context = Context
