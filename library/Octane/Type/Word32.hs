@@ -11,7 +11,6 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Word as Word
 import qualified Octane.Utility.Endian as Endian
-import qualified Text.Printf as Printf
 
 
 -- | A 32-bit unsigned integer.
@@ -52,7 +51,7 @@ instance NFData Word32 where
 
 -- | Shown as @0x01020304@.
 instance Show Word32 where
-    show word32 = Printf.printf "0x%08x" (#unpack word32)
+    show word32 = printf "0x%08x" (#unpack word32)
 
 -- | Encoded as a JSON number.
 instance ToJSON Word32 where

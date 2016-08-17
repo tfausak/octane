@@ -32,7 +32,6 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 import qualified Octane.Utility.ClassPropertyMap as CPM
-import qualified Text.Printf as Printf
 
 
 -- | Parses the network stream and returns a list of frames.
@@ -455,7 +454,7 @@ getReservationProperty context = do
     Monad.when (atLeastNeoTokyo context) (do
         x <- Bits.getWord8 6
         Monad.when (x /= 0b000000) (do
-            fail (Printf.printf "Read 6 reservation bits and they weren't all 0! 0b%06b" x)))
+            fail (printf "Read 6 reservation bits and they weren't all 0! 0b%06b" x)))
 
     pure (Value.VReservation number systemId remoteId localId playerName a b)
 

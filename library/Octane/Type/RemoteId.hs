@@ -18,7 +18,6 @@ import qualified Data.Text.Encoding as Encoding
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Utility.Endian as Endian
-import qualified Text.Printf as Printf
 
 
 data PlayStationId = PlayStationId
@@ -69,7 +68,7 @@ instance ToJSON PlayStationId where
         , "Unknown" .= (playStationId
             & #unknown
             & LazyBytes.unpack
-            & concatMap (Printf.printf "%02x")
+            & concatMap (printf "%02x")
             & ("0x" ++)
             & StrictText.pack)
         ]

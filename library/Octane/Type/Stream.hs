@@ -8,7 +8,6 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Utility.Endian as Endian
-import qualified Text.Printf as Printf
 
 
 -- | A stream of bits.
@@ -37,4 +36,4 @@ instance Show Stream where
     show stream = do
         let size = stream & #unpack & LazyBytes.length
         let s = if size == 1 then "" else "s"
-        Printf.printf "Stream {unpack = \"%d byte%s\"}" size (s :: String)
+        printf "Stream {unpack = \"%d byte%s\"}" size (s :: String)

@@ -12,7 +12,6 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Octane.Utility.CRC as CRC
 import qualified Octane.Type.Word32 as Word32
-import qualified Text.Printf as Printf
 
 
 -- | A raw, unprocessed replay. Only enough parsing is done to make sure that
@@ -93,7 +92,7 @@ checkCRC :: (Monad m) => Word32.Word32 -> LazyBytes -> m ()
 checkCRC (Word32.Word32 expected) bytes = do
     let actual = CRC.crc32 bytes
     Monad.when (actual /= expected) (do
-        let message = Printf.printf
+        let message = printf
                 "CRC 0x%08x does not equal expected value 0x%08x"
                 actual
                 expected

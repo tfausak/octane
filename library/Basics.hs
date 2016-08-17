@@ -12,6 +12,7 @@ module Basics
     , module Data.OverloadedRecords.TH
     , module GHC.Generics
     , module Prelude
+    , module Text.Printf
     ) where
 
 import Control.DeepSeq (NFData)
@@ -26,6 +27,7 @@ import Data.Monoid ((<>))
 import Data.OverloadedRecords.TH (overloadedRecord)
 import GHC.Generics (Generic)
 import Prelude
+import Text.Printf (printf)
 
 import qualified Data.Bimap
 import qualified Data.ByteString

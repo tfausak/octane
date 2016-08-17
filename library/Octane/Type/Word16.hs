@@ -6,7 +6,6 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.Word as Word
-import qualified Text.Printf as Printf
 
 
 -- | A 16-bit unsigned integer.
@@ -30,7 +29,7 @@ instance NFData Word16 where
 
 -- | Shown as @0x0102@.
 instance Show Word16 where
-    show word16 = Printf.printf "0x%04x" (#unpack word16)
+    show word16 = printf "0x%04x" (#unpack word16)
 
 -- | Encoded as a JSON number.
 instance ToJSON Word16 where
