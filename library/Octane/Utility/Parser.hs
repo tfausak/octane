@@ -10,7 +10,7 @@ import Data.Function ((&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
-import qualified Data.Binary.Bits.Get as Bits
+import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
@@ -51,18 +51,18 @@ parseStream replay = let
         & (\ property -> case property of
             Just (Property.IntProperty _ x) -> x & #unpack & fromIntegral
             _ -> 0)
-    get = replay & extractContext & getFrames 0 numFrames & Bits.runBitGet
+    get = replay & extractContext & getFrames 0 numFrames & BinaryBit.runBitGet
     stream = replay & #stream & #unpack
     (_context, frames) = Binary.runGet get stream
     in frames
 
 
-getFrames :: Word -> Int -> Context -> Bits.BitGet (Context, [Frame.Frame])
+getFrames :: Word -> Int -> Context -> BinaryBit.BitGet (Context, [Frame.Frame])
 getFrames number numFrames context = do
     if fromIntegral number >= numFrames
     then pure (context, [])
     else do
-        isEmpty <- Bits.isEmpty
+        isEmpty <- BinaryBit.isEmpty
         if isEmpty
         then pure (context, [])
         else do
@@ -74,7 +74,7 @@ getFrames number numFrames context = do
                     pure (newerContext, (frame : frames))
 
 
-getMaybeFrame :: Context -> Word -> Bits.BitGet (Maybe (Context, Frame.Frame))
+getMaybeFrame :: Context -> Word -> BinaryBit.BitGet (Maybe (Context, Frame.Frame))
 getMaybeFrame context number = do
     time <- getFloat32
     delta <- getFloat32
@@ -87,7 +87,7 @@ getMaybeFrame context number = do
         pure (Just (newContext, frame))
 
 
-getFrame :: Context -> Word -> Float32.Float32 -> Float32.Float32 -> Bits.BitGet (Context, Frame.Frame)
+getFrame :: Context -> Word -> Float32.Float32 -> Float32.Float32 -> BinaryBit.BitGet (Context, Frame.Frame)
 getFrame context number time delta = do
     (newContext, replications) <- getReplications context
     let frame =
@@ -101,7 +101,7 @@ getFrame context number time delta = do
     (newContext, frame) & DeepSeq.force & pure
 
 
-getReplications :: Context -> Bits.BitGet (Context, [Replication.Replication])
+getReplications :: Context -> BinaryBit.BitGet (Context, [Replication.Replication])
 getReplications context = do
     maybeReplication <- getMaybeReplication context
     case maybeReplication of
@@ -111,7 +111,7 @@ getReplications context = do
             pure (newerContext, replication : replications)
 
 
-getMaybeReplication :: Context -> Bits.BitGet (Maybe (Context, Replication.Replication))
+getMaybeReplication :: Context -> BinaryBit.BitGet (Maybe (Context, Replication.Replication))
 getMaybeReplication context = do
     hasReplication <- getBool
     if #unpack hasReplication
@@ -121,7 +121,7 @@ getMaybeReplication context = do
         else pure Nothing
 
 
-getReplication :: Context -> Bits.BitGet (Context, Replication.Replication)
+getReplication :: Context -> BinaryBit.BitGet (Context, Replication.Replication)
 getReplication context = do
     actorId <- BinaryBit.getBits maxActorId
     isOpen <- getBool
@@ -134,7 +134,7 @@ getReplication context = do
 
 getOpenReplication :: Context
                    -> CompressedWord.CompressedWord
-                   -> Bits.BitGet (Context, Replication.Replication)
+                   -> BinaryBit.BitGet (Context, Replication.Replication)
 getOpenReplication context actorId = do
     isNew <- getBool
     let go =
@@ -146,7 +146,7 @@ getOpenReplication context actorId = do
 
 getNewReplication :: Context
                   -> CompressedWord.CompressedWord
-                  -> Bits.BitGet (Context, Replication.Replication)
+                  -> BinaryBit.BitGet (Context, Replication.Replication)
 getNewReplication context actorId = do
     unknownFlag <- getBool
     if #unpack unknownFlag
@@ -187,7 +187,7 @@ getNewReplication context actorId = do
 
 getExistingReplication :: Context
                        -> CompressedWord.CompressedWord
-                       -> Bits.BitGet (Context, Replication.Replication)
+                       -> BinaryBit.BitGet (Context, Replication.Replication)
 getExistingReplication context actorId = do
     thing <- case context & contextThings & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
         Nothing -> fail ("could not find thing for existing actor " ++ show actorId)
@@ -205,7 +205,7 @@ getExistingReplication context actorId = do
 
 getClosedReplication :: Context
                      -> CompressedWord.CompressedWord
-                     -> Bits.BitGet (Context, Replication.Replication)
+                     -> BinaryBit.BitGet (Context, Replication.Replication)
 getClosedReplication context actorId = do
     thing <- case context & contextThings & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
         Nothing -> fail ("could not find thing for closed actor " ++ show actorId)
@@ -224,7 +224,7 @@ getClosedReplication context actorId = do
           })
 
 
-getProps :: Context -> Thing -> Bits.BitGet (Map.Map StrictText.Text Value.Value)
+getProps :: Context -> Thing -> BinaryBit.BitGet (Map.Map StrictText.Text Value.Value)
 getProps context thing = do
     maybeProp <- getMaybeProp context thing
     case maybeProp of
@@ -235,7 +235,7 @@ getProps context thing = do
             pure (Map.union m props)
 
 
-getMaybeProp :: Context -> Thing -> Bits.BitGet (Maybe (StrictText.Text, Value.Value))
+getMaybeProp :: Context -> Thing -> BinaryBit.BitGet (Maybe (StrictText.Text, Value.Value))
 getMaybeProp context thing = do
     hasProp <- getBool
     if #unpack hasProp
@@ -245,7 +245,7 @@ getMaybeProp context thing = do
     else pure Nothing
 
 
-getProp :: Context -> Thing -> Bits.BitGet (StrictText.Text, Value.Value)
+getProp :: Context -> Thing -> BinaryBit.BitGet (StrictText.Text, Value.Value)
 getProp context thing = do
     let classId = thing & thingClassId
     props <- case context & contextClassPropertyMap & IntMap.lookup classId of
@@ -260,7 +260,7 @@ getProp context thing = do
     pure (name, value)
 
 
-getPropValue :: Context -> StrictText.Text -> Bits.BitGet Value.Value
+getPropValue :: Context -> StrictText.Text -> BinaryBit.BitGet Value.Value
 getPropValue context name = case Map.lookup name Data.properties of
     Just property -> case StrictText.unpack property of
         "boolean" -> getBooleanProperty
@@ -292,19 +292,19 @@ getPropValue context name = case Map.lookup name Data.properties of
         fail ("Don't know how to read property " ++ show name)
 
 
-getBooleanProperty :: Bits.BitGet Value.Value
+getBooleanProperty :: BinaryBit.BitGet Value.Value
 getBooleanProperty = do
     bool <- getBool
     pure (Value.VBoolean bool)
 
 
-getByteProperty :: Bits.BitGet Value.Value
+getByteProperty :: BinaryBit.BitGet Value.Value
 getByteProperty = do
     word <- getWord8
     pure (Value.VByte word)
 
 
-getCamSettingsProperty :: Bits.BitGet Value.Value
+getCamSettingsProperty :: BinaryBit.BitGet Value.Value
 getCamSettingsProperty = do
     fov <- getFloat32
     height <- getFloat32
@@ -315,7 +315,7 @@ getCamSettingsProperty = do
     pure (Value.VCamSettings fov height angle distance stiffness swivelSpeed)
 
 
-getDemolishProperty :: Bits.BitGet Value.Value
+getDemolishProperty :: BinaryBit.BitGet Value.Value
 getDemolishProperty = do
     atkFlag <- getBool
     atk <- getWord32
@@ -326,16 +326,16 @@ getDemolishProperty = do
     pure (Value.VDemolish atkFlag atk vicFlag vic vec1 vec2)
 
 
-getEnumProperty :: Bits.BitGet Value.Value
+getEnumProperty :: BinaryBit.BitGet Value.Value
 getEnumProperty = do
-    x <- Bits.getWord16be 10
+    x <- BinaryBit.getWord16be 10
     y <- if x == 1023
         then getBool
         else fail ("unexpected enum value " ++ show x)
     pure (Value.VEnum (Word16.toWord16 x) y)
 
 
-getExplosionProperty :: Bits.BitGet Value.Value
+getExplosionProperty :: BinaryBit.BitGet Value.Value
 getExplosionProperty = do
     noGoal <- getBool
     a <- if #unpack noGoal
@@ -345,33 +345,33 @@ getExplosionProperty = do
     pure (Value.VExplosion noGoal a b)
 
 
-getFlaggedIntProperty :: Bits.BitGet Value.Value
+getFlaggedIntProperty :: BinaryBit.BitGet Value.Value
 getFlaggedIntProperty = do
     flag <- getBool
     int <- getInt32
     pure (Value.VFlaggedInt flag int)
 
 
-getFloatProperty :: Bits.BitGet Value.Value
+getFloatProperty :: BinaryBit.BitGet Value.Value
 getFloatProperty = do
     float <- getFloat32
     pure (Value.VFloat float)
 
 
-getGameModeProperty :: Context -> Bits.BitGet Value.Value
+getGameModeProperty :: Context -> BinaryBit.BitGet Value.Value
 getGameModeProperty context = do
     let numBits = if atLeastNeoTokyo context then 8 else 2
-    x <- Bits.getWord8 numBits
+    x <- BinaryBit.getWord8 numBits
     pure (Value.VGameMode (Word8.toWord8 x))
 
 
-getIntProperty :: Bits.BitGet Value.Value
+getIntProperty :: BinaryBit.BitGet Value.Value
 getIntProperty = do
     int <- getInt32
     pure (Value.VInt int)
 
 
-getLoadoutOnlineProperty :: Bits.BitGet Value.Value
+getLoadoutOnlineProperty :: BinaryBit.BitGet Value.Value
 getLoadoutOnlineProperty = do
     size <- fmap Word8.fromWord8 getWord8
     values <- Monad.replicateM size (do
@@ -383,7 +383,7 @@ getLoadoutOnlineProperty = do
     pure (Value.VLoadoutOnline values)
 
 
-getLoadoutProperty :: Bits.BitGet Value.Value
+getLoadoutProperty :: BinaryBit.BitGet Value.Value
 getLoadoutProperty = do
     version <- getWord8
     body <- getWord32
@@ -397,13 +397,13 @@ getLoadoutProperty = do
     pure (Value.VLoadout version body decal wheels rocketTrail antenna topper g h)
 
 
-getLocationProperty :: Bits.BitGet Value.Value
+getLocationProperty :: BinaryBit.BitGet Value.Value
 getLocationProperty = do
     vector <- Vector.getIntVector
     pure (Value.VLocation vector)
 
 
-getMusicStingerProperty :: Bits.BitGet Value.Value
+getMusicStingerProperty :: BinaryBit.BitGet Value.Value
 getMusicStingerProperty = do
     flag <- getBool
     cue <- getWord32
@@ -411,7 +411,7 @@ getMusicStingerProperty = do
     pure (Value.VMusicStinger flag cue trigger)
 
 
-getPickupProperty :: Bits.BitGet Value.Value
+getPickupProperty :: BinaryBit.BitGet Value.Value
 getPickupProperty = do
     instigator <- getBool
     instigatorId <- if #unpack instigator
@@ -421,7 +421,7 @@ getPickupProperty = do
     pure (Value.VPickup instigator instigatorId pickedUp)
 
 
-getPrivateMatchSettingsProperty :: Bits.BitGet Value.Value
+getPrivateMatchSettingsProperty :: BinaryBit.BitGet Value.Value
 getPrivateMatchSettingsProperty = do
     mutators <- getText
     joinableBy <- getWord32
@@ -432,19 +432,19 @@ getPrivateMatchSettingsProperty = do
     pure (Value.VPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
 
 
-getQWordProperty :: Bits.BitGet Value.Value
+getQWordProperty :: BinaryBit.BitGet Value.Value
 getQWordProperty = do
     qword <- getWord64
     pure (Value.VQWord qword)
 
 
-getRelativeRotationProperty :: Bits.BitGet Value.Value
+getRelativeRotationProperty :: BinaryBit.BitGet Value.Value
 getRelativeRotationProperty = do
     vector <- Vector.getFloatVector
     pure (Value.VRelativeRotation vector)
 
 
-getReservationProperty :: Context -> Bits.BitGet Value.Value
+getReservationProperty :: Context -> BinaryBit.BitGet Value.Value
 getReservationProperty context = do
     -- I think this is the connection order. The first player to connect
     -- gets number 0, and it goes up from there. The maximum is 7, which
@@ -459,14 +459,14 @@ getReservationProperty context = do
     -- The Neo Tokyo update added 6 bits to the reservation property that are
     -- always (as far as I can tell) 0.
     Monad.when (atLeastNeoTokyo context) (do
-        x <- Bits.getWord8 6
+        x <- BinaryBit.getWord8 6
         Monad.when (x /= 0b000000) (do
             fail (Printf.printf "Read 6 reservation bits and they weren't all 0! 0b%06b" x)))
 
     pure (Value.VReservation number systemId remoteId localId playerName a b)
 
 
-getRigidBodyStateProperty :: Bits.BitGet Value.Value
+getRigidBodyStateProperty :: BinaryBit.BitGet Value.Value
 getRigidBodyStateProperty = do
     flag <- getBool
     position <- Vector.getIntVector
@@ -480,13 +480,13 @@ getRigidBodyStateProperty = do
     pure (Value.VRigidBodyState flag position rotation x y)
 
 
-getStringProperty :: Bits.BitGet Value.Value
+getStringProperty :: BinaryBit.BitGet Value.Value
 getStringProperty = do
     string <- getText
     pure (Value.VString string)
 
 
-getTeamPaintProperty :: Bits.BitGet Value.Value
+getTeamPaintProperty :: BinaryBit.BitGet Value.Value
 getTeamPaintProperty = do
     team <- getWord8
     primaryColor <- getWord8
@@ -496,7 +496,7 @@ getTeamPaintProperty = do
     pure (Value.VTeamPaint team primaryColor accentColor primaryFinish accentFinish)
 
 
-getUniqueIdProperty :: Bits.BitGet Value.Value
+getUniqueIdProperty :: BinaryBit.BitGet Value.Value
 getUniqueIdProperty = do
     (systemId, remoteId, localId) <- getUniqueId
     pure (Value.VUniqueId systemId remoteId localId)
@@ -504,7 +504,7 @@ getUniqueIdProperty = do
 
 -- | Even though this is just a unique ID property, it must be handled
 -- specially because it sometimes doesn't have the remote or local IDs.
-getPartyLeaderProperty :: Bits.BitGet Value.Value
+getPartyLeaderProperty :: BinaryBit.BitGet Value.Value
 getPartyLeaderProperty = do
     systemId <- getWord8
     (remoteId, localId) <- if systemId == 0
@@ -516,7 +516,7 @@ getPartyLeaderProperty = do
     pure (Value.VUniqueId systemId remoteId localId)
 
 
-getUniqueId :: Bits.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
+getUniqueId :: BinaryBit.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
 getUniqueId = do
     systemId <- getWord8
     remoteId <- getRemoteId systemId
@@ -524,7 +524,7 @@ getUniqueId = do
     pure (systemId, remoteId, localId)
 
 
-getRemoteId :: Word8.Word8 -> Bits.BitGet RemoteId.RemoteId
+getRemoteId :: Word8.Word8 -> BinaryBit.BitGet RemoteId.RemoteId
 getRemoteId systemId = case systemId of
     0 -> do
         splitscreenId <- BinaryBit.getBits 0
@@ -628,29 +628,29 @@ maxConnectionNumber = 7
 -- Type-restricted helpers.
 
 
-getBool :: Bits.BitGet Boolean.Boolean
+getBool :: BinaryBit.BitGet Boolean.Boolean
 getBool = BinaryBit.getBits 0
 
 
-getFloat32 :: Bits.BitGet Float32.Float32
+getFloat32 :: BinaryBit.BitGet Float32.Float32
 getFloat32 = BinaryBit.getBits 0
 
 
-getInt32 :: Bits.BitGet Int32.Int32
+getInt32 :: BinaryBit.BitGet Int32.Int32
 getInt32 = BinaryBit.getBits 0
 
 
-getText :: Bits.BitGet Text.Text
+getText :: BinaryBit.BitGet Text.Text
 getText = BinaryBit.getBits 0
 
 
-getWord8 :: Bits.BitGet Word8.Word8
+getWord8 :: BinaryBit.BitGet Word8.Word8
 getWord8 = BinaryBit.getBits 0
 
 
-getWord32 :: Bits.BitGet Word32.Word32
+getWord32 :: BinaryBit.BitGet Word32.Word32
 getWord32 = BinaryBit.getBits 0
 
 
-getWord64 :: Bits.BitGet Word64.Word64
+getWord64 :: BinaryBit.BitGet Word64.Word64
 getWord64 = BinaryBit.getBits 0

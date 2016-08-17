@@ -17,7 +17,7 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
