@@ -21,12 +21,15 @@ import Data.OverloadedRecords.TH (overloadedRecord)
 import GHC.Generics (Generic)
 import Prelude
 
+import qualified Data.Bimap
 import qualified Data.ByteString
 import qualified Data.ByteString.Lazy
 import qualified Data.Map.Strict
 import qualified Data.Set
 import qualified Data.Text
 
+
+type Bimap = Data.Bimap.Bimap
 
 type LazyBytes = Data.ByteString.Lazy.ByteString
 type StrictBytes = Data.ByteString.ByteString

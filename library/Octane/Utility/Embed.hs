@@ -16,7 +16,7 @@ import qualified Data.Set as Set
 decodeBimap
     :: (FromJSON (StrictMap b a), Ord a, Ord b)
     => StrictBytes
-    -> Bimap.Bimap a b
+    -> Bimap a b
 decodeBimap bytes = bytes
     & Aeson.decodeStrict
     & Maybe.fromMaybe Map.empty
