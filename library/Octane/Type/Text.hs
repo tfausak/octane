@@ -2,7 +2,6 @@ module Octane.Type.Text (Text(..), encodeLatin1) where
 
 import Basics
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -64,10 +63,10 @@ instance Show Text where
     show text = show (#unpack text)
 
 -- | Encoded directly as a JSON string.
-instance Aeson.ToJSON Text where
+instance ToJSON Text where
     toJSON text = text
         & #unpack
-        & Aeson.toJSON
+        & toJSON
 
 
 getText

@@ -9,7 +9,6 @@ module Octane.Type.Vector
 
 import Basics
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Bits as Bits
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -39,8 +38,8 @@ instance (NFData a) => NFData (Vector a) where
 --
 -- Aeson.encode (Vector 1 2 3 :: Vector Int)
 -- "[1,2,3]"
-instance (Aeson.ToJSON a) => Aeson.ToJSON (Vector a) where
-    toJSON vector = Aeson.toJSON [#x vector, #y vector, #z vector]
+instance (ToJSON a) => ToJSON (Vector a) where
+    toJSON vector = toJSON [#x vector, #y vector, #z vector]
 
 
 -- | Gets a 'Vector' full of 'Float's.

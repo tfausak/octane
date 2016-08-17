@@ -2,7 +2,6 @@ module Octane.Type.Word16 (Word16(..), fromWord16, toWord16) where
 
 import Basics
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
@@ -34,10 +33,10 @@ instance Show Word16 where
     show word16 = Printf.printf "0x%04x" (#unpack word16)
 
 -- | Encoded as a JSON number.
-instance Aeson.ToJSON Word16 where
+instance ToJSON Word16 where
     toJSON word16 = word16
         & #unpack
-        & Aeson.toJSON
+        & toJSON
 
 
 -- | Converts a 'Word16' into any 'Integral' value.

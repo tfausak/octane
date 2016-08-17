@@ -2,7 +2,6 @@ module Octane.Type.Float32 (Float32(..)) where
 
 import Basics
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -58,7 +57,7 @@ instance Show Float32 where
 --
 -- Aeson.encode (1.2 :: Float32)
 -- "1.2"
-instance Aeson.ToJSON Float32 where
+instance ToJSON Float32 where
     toJSON float32 = float32
         & #unpack
-        & Aeson.toJSON
+        & toJSON

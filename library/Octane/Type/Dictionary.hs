@@ -2,7 +2,6 @@ module Octane.Type.Dictionary (Dictionary(..)) where
 
 import Basics
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Map.Strict as Map
 import qualified GHC.Exts as Exts
@@ -47,11 +46,11 @@ instance (Show a) => Show (Dictionary a) where
     show dictionary = show (#unpack dictionary)
 
 -- | Encoded directly as a JSON object.
-instance (Aeson.ToJSON a) => Aeson.ToJSON (Dictionary a) where
+instance (ToJSON a) => ToJSON (Dictionary a) where
     toJSON dictionary = dictionary
         & #unpack
         & Map.mapKeys #unpack
-        & Aeson.toJSON
+        & toJSON
 
 
 getElement :: (Binary a) => Binary.Get (Map.Map Text.Text a)

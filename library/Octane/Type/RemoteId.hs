@@ -63,7 +63,7 @@ instance BinaryBit.BinaryBit PlayStationId where
 
 instance NFData PlayStationId where
 
-instance Aeson.ToJSON PlayStationId where
+instance ToJSON PlayStationId where
     toJSON playStationId = Aeson.object
         [ "Name" .= #name playStationId
         , "Unknown" .= (playStationId
@@ -97,8 +97,8 @@ instance BinaryBit.BinaryBit SplitscreenId where
 instance NFData SplitscreenId where
 
 -- | Encoded as an optional number.
-instance Aeson.ToJSON SplitscreenId where
-    toJSON splitscreenId = splitscreenId & #unpack & Aeson.toJSON
+instance ToJSON SplitscreenId where
+    toJSON splitscreenId = splitscreenId & #unpack & toJSON
 
 
 newtype SteamId = SteamId
@@ -118,8 +118,8 @@ instance BinaryBit.BinaryBit SteamId where
 instance NFData SteamId where
 
 -- | Encoded directly as a number.
-instance Aeson.ToJSON SteamId where
-    toJSON steamId = steamId & #unpack & Aeson.toJSON
+instance ToJSON SteamId where
+    toJSON steamId = steamId & #unpack & toJSON
 
 
 newtype XboxId = XboxId
@@ -140,8 +140,8 @@ instance BinaryBit.BinaryBit XboxId where
 instance NFData XboxId where
 
 -- | Encoded directly as a number.
-instance Aeson.ToJSON XboxId where
-    toJSON xboxId = xboxId & #unpack & Aeson.toJSON
+instance ToJSON XboxId where
+    toJSON xboxId = xboxId & #unpack & toJSON
 
 
 -- | A player's canonical remote ID. This is the best way to uniquely identify
@@ -156,21 +156,21 @@ data RemoteId
 instance NFData RemoteId where
 
 -- | Encodes the remote ID as an object with "Type" and "Value" keys.
-instance Aeson.ToJSON RemoteId where
+instance ToJSON RemoteId where
     toJSON remoteId = case remoteId of
         RemotePlayStationId x -> Aeson.object
             [ "Type" .= ("PlayStation" :: Text.Text)
-            , "Value" .= Aeson.toJSON x
+            , "Value" .= toJSON x
             ]
         RemoteSplitscreenId x -> Aeson.object
             [ "Type" .= ("Splitscreen" :: Text.Text)
-            , "Value" .= Aeson.toJSON x
+            , "Value" .= toJSON x
             ]
         RemoteSteamId x -> Aeson.object
             [ "Type" .= ("Steam" :: Text.Text)
-            , "Value" .= Aeson.toJSON x
+            , "Value" .= toJSON x
             ]
         RemoteXboxId x -> Aeson.object
             [ "Type" .= ("Xbox" :: Text.Text)
-            , "Value" .= Aeson.toJSON x
+            , "Value" .= toJSON x
             ]

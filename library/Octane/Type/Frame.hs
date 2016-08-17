@@ -36,7 +36,7 @@ $(overloadedRecord def ''Frame)
 
 instance NFData Frame where
 
-instance Aeson.ToJSON Frame where
+instance ToJSON Frame where
     toJSON frame = Aeson.object
         [ "Number" .= #number frame
         , "IsKeyFrame" .= #isKeyFrame frame
@@ -50,7 +50,7 @@ instance Aeson.ToJSON Frame where
 
 newtype Spawned = Spawned [Replication.Replication]
 
-instance Aeson.ToJSON Spawned where
+instance ToJSON Spawned where
     toJSON (Spawned xs) = xs
         & map (\ x -> do
             let k = x & #actorId & #value & show & StrictText.pack
@@ -62,7 +62,7 @@ instance Aeson.ToJSON Spawned where
                     ]
             (k, v))
         & Map.fromList
-        & Aeson.toJSON
+        & toJSON
 
 getSpawned :: [Replication.Replication] -> Spawned
 getSpawned xs = xs
@@ -74,7 +74,7 @@ getSpawned xs = xs
 
 newtype Updated = Updated [Replication.Replication]
 
-instance Aeson.ToJSON Updated where
+instance ToJSON Updated where
     toJSON (Updated xs) = xs
         & map (\ x -> do
             let k = x
@@ -90,7 +90,7 @@ instance Aeson.ToJSON Updated where
                         ])
             (k, v))
         & Map.fromList
-        & Aeson.toJSON
+        & toJSON
 
 
 getUpdated :: [Replication.Replication] -> Updated
@@ -107,11 +107,11 @@ getUpdated xs = xs
 
 newtype Destroyed = Destroyed [Replication.Replication]
 
-instance Aeson.ToJSON Destroyed where
+instance ToJSON Destroyed where
     toJSON (Destroyed xs) = xs
         & map #actorId
         & map #value
-        & Aeson.toJSON
+        & toJSON
 
 getDestroyed :: [Replication.Replication] -> Destroyed
 getDestroyed xs = xs
@@ -150,97 +150,97 @@ getType value = case value of
 
 getValue :: Value.Value -> Aeson.Value
 getValue value = case value of
-    Value.VBoolean x -> Aeson.toJSON x
-    Value.VByte x -> Aeson.toJSON x
+    Value.VBoolean x -> toJSON x
+    Value.VByte x -> toJSON x
     Value.VCamSettings fov height angle distance stiffness swivelSpeed -> Aeson.object
-        [ ("FOV", Aeson.toJSON fov)
-        , ("Height", Aeson.toJSON height)
-        , ("Angle", Aeson.toJSON angle)
-        , ("Distance", Aeson.toJSON distance)
-        , ("Stiffness", Aeson.toJSON stiffness)
-        , ("SwivelSpeed", Aeson.toJSON swivelSpeed)
+        [ ("FOV", toJSON fov)
+        , ("Height", toJSON height)
+        , ("Angle", toJSON angle)
+        , ("Distance", toJSON distance)
+        , ("Stiffness", toJSON stiffness)
+        , ("SwivelSpeed", toJSON swivelSpeed)
         ]
-    Value.VDemolish a b c d e f -> Aeson.toJSON (a, b, c, d, e, f)
-    Value.VEnum x y -> Aeson.toJSON (x, y)
-    Value.VExplosion a b c -> Aeson.toJSON (a, b, c)
-    Value.VFlaggedInt x y -> Aeson.toJSON (x, y)
-    Value.VFloat x -> Aeson.toJSON x
+    Value.VDemolish a b c d e f -> toJSON (a, b, c, d, e, f)
+    Value.VEnum x y -> toJSON (x, y)
+    Value.VExplosion a b c -> toJSON (a, b, c)
+    Value.VFlaggedInt x y -> toJSON (x, y)
+    Value.VFloat x -> toJSON x
     Value.VGameMode gameMode -> Aeson.object
-        [ ("Id", Aeson.toJSON gameMode)
-        , ("Name", gameMode & getGameMode & Aeson.toJSON)
+        [ ("Id", toJSON gameMode)
+        , ("Name", gameMode & getGameMode & toJSON)
         ]
-    Value.VInt x -> Aeson.toJSON x
+    Value.VInt x -> toJSON x
     Value.VLoadout version body decal wheels rocketTrail antenna topper x y -> Aeson.object
-        [ ("Version", Aeson.toJSON version)
+        [ ("Version", toJSON version)
         , ("Body", Aeson.object
-            [ ("Id", Aeson.toJSON body)
-            , ("Name", body & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON body)
+            , ("Name", body & getProduct & toJSON)
             ])
         , ("Decal", Aeson.object
-            [ ("Id", Aeson.toJSON decal)
-            , ("Name", decal & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON decal)
+            , ("Name", decal & getProduct & toJSON)
             ])
         , ("Wheels", Aeson.object
-            [ ("Id", Aeson.toJSON wheels)
-            , ("Name", wheels & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON wheels)
+            , ("Name", wheels & getProduct & toJSON)
             ])
         , ("RocketTrail", Aeson.object
-            [ ("Id", Aeson.toJSON rocketTrail)
-            , ("Name", rocketTrail & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON rocketTrail)
+            , ("Name", rocketTrail & getProduct & toJSON)
             ])
         , ("Antenna", Aeson.object
-            [ ("Id", Aeson.toJSON antenna)
-            , ("Name", antenna & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON antenna)
+            , ("Name", antenna & getProduct & toJSON)
             ])
         , ("Topper", Aeson.object
-            [ ("Id", Aeson.toJSON topper)
-            , ("Name", topper & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON topper)
+            , ("Name", topper & getProduct & toJSON)
             ])
-        , ("Unknown1", Aeson.toJSON x)
-        , ("Unknown2", Aeson.toJSON y)
+        , ("Unknown1", toJSON x)
+        , ("Unknown2", toJSON y)
         ]
-    Value.VLoadoutOnline a -> Aeson.toJSON a
-    Value.VLocation x -> Aeson.toJSON x
-    Value.VMusicStinger a b c -> Aeson.toJSON (a, b, c)
-    Value.VPickup a b c -> Aeson.toJSON (a, b, c)
+    Value.VLoadoutOnline a -> toJSON a
+    Value.VLocation x -> toJSON x
+    Value.VMusicStinger a b c -> toJSON (a, b, c)
+    Value.VPickup a b c -> toJSON (a, b, c)
     Value.VPrivateMatchSettings mutators joinableBy maxPlayers name password x -> Aeson.object
-        [ ("Mutators", Aeson.toJSON mutators)
-        , ("JoinableBy", Aeson.toJSON joinableBy)
-        , ("MaxPlayers", Aeson.toJSON maxPlayers)
-        , ("Name", Aeson.toJSON name)
-        , ("Password", Aeson.toJSON password)
-        , ("Unknown", Aeson.toJSON x)
+        [ ("Mutators", toJSON mutators)
+        , ("JoinableBy", toJSON joinableBy)
+        , ("MaxPlayers", toJSON maxPlayers)
+        , ("Name", toJSON name)
+        , ("Password", toJSON password)
+        , ("Unknown", toJSON x)
         ]
-    Value.VQWord x -> Aeson.toJSON x
-    Value.VRelativeRotation x -> Aeson.toJSON x
+    Value.VQWord x -> toJSON x
+    Value.VRelativeRotation x -> toJSON x
     Value.VReservation num systemId remoteId localId name x y -> Aeson.object
-        [ ("Number", Aeson.toJSON num)
-        , ("SystemId", Aeson.toJSON systemId)
-        , ("RemoteId", Aeson.toJSON remoteId)
-        , ("LocalId", Aeson.toJSON localId)
-        , ("Name", Aeson.toJSON name)
-        , ("Unknown1", Aeson.toJSON x)
-        , ("Unknown2", Aeson.toJSON y)
+        [ ("Number", toJSON num)
+        , ("SystemId", toJSON systemId)
+        , ("RemoteId", toJSON remoteId)
+        , ("LocalId", toJSON localId)
+        , ("Name", toJSON name)
+        , ("Unknown1", toJSON x)
+        , ("Unknown2", toJSON y)
         ]
     Value.VRigidBodyState sleeping position rotation linear angular -> Aeson.object
-        [ ("Sleeping", Aeson.toJSON sleeping)
-        , ("Position", Aeson.toJSON position)
-        , ("Rotation", Aeson.toJSON rotation)
-        , ("LinearVelocity", Aeson.toJSON linear)
-        , ("AngularVelocity", Aeson.toJSON angular)
+        [ ("Sleeping", toJSON sleeping)
+        , ("Position", toJSON position)
+        , ("Rotation", toJSON rotation)
+        , ("LinearVelocity", toJSON linear)
+        , ("AngularVelocity", toJSON angular)
         ]
-    Value.VString x -> Aeson.toJSON x
+    Value.VString x -> toJSON x
     Value.VTeamPaint team color1 color2 finish1 finish2 -> Aeson.object
-        [ ("Team", Aeson.toJSON team)
-        , ("PrimaryColor", Aeson.toJSON color1)
-        , ("AccentColor", Aeson.toJSON color2)
+        [ ("Team", toJSON team)
+        , ("PrimaryColor", toJSON color1)
+        , ("AccentColor", toJSON color2)
         , ("PrimaryFinish", Aeson.object
-            [ ("Id", Aeson.toJSON finish1)
-            , ("Name", finish1 & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON finish1)
+            , ("Name", finish1 & getProduct & toJSON)
             ])
         , ("AccentFinish", Aeson.object
-            [ ("Id", Aeson.toJSON finish2)
-            , ("Name", finish2 & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON finish2)
+            , ("Name", finish2 & getProduct & toJSON)
             ])
         ]
     Value.VUniqueId systemId remoteId localId -> Aeson.object
@@ -250,8 +250,8 @@ getValue value = case value of
             2 -> "PlayStation"
             4 -> "Xbox"
             _ -> Aeson.String ("Unknown system " <> StrictText.pack (show systemId)))
-        , ("Remote", Aeson.toJSON remoteId)
-        , ("Local", Aeson.toJSON localId)
+        , ("Remote", toJSON remoteId)
+        , ("Local", toJSON localId)
         ]
 
 

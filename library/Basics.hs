@@ -11,7 +11,7 @@ module Basics
     ) where
 
 import Control.DeepSeq (NFData)
-import Data.Aeson ((.=))
+import Data.Aeson (FromJSON, ToJSON, toJSON, (.=))
 import Data.Binary (Binary)
 import Data.Default.Class (def)
 import Data.Function ((&))

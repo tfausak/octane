@@ -2,7 +2,6 @@ module Octane.Type.Boolean (Boolean(..)) where
 
 import Basics
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -45,7 +44,7 @@ instance BinaryBit.BinaryBit Boolean where
 instance NFData Boolean where
 
 -- | Encoded directly as a JSON boolean.
-instance Aeson.ToJSON Boolean where
+instance ToJSON Boolean where
     toJSON boolean = boolean
         & #unpack
-        & Aeson.toJSON
+        & toJSON

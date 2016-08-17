@@ -3,7 +3,6 @@ module Octane.Type.List (List(..)) where
 import Basics
 
 import qualified Control.Monad as Monad
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified GHC.Exts as Exts
 import qualified Octane.Type.Word32 as Word32
@@ -42,7 +41,7 @@ instance (Show a) => Show (List a) where
     show list = "fromList " ++ show (#unpack list)
 
 -- | Encoded as a JSON array directly.
-instance (Aeson.ToJSON a) => Aeson.ToJSON (List a) where
+instance (ToJSON a) => ToJSON (List a) where
     toJSON list = list
         & #unpack
-        & Aeson.toJSON
+        & toJSON

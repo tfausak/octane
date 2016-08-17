@@ -2,7 +2,6 @@ module Octane.Type.Int32 (Int32(..), fromInt32, toInt32) where
 
 import Basics
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -55,10 +54,10 @@ instance Show Int32 where
     show int32 = show (#unpack int32)
 
 -- | Encoded as a JSON number directly.
-instance Aeson.ToJSON Int32 where
+instance ToJSON Int32 where
     toJSON int32 = int32
         & #unpack
-        & Aeson.toJSON
+        & toJSON
 
 
 -- | Converts a 'Int32' into any 'Integral' value.

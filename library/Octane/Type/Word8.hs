@@ -2,7 +2,6 @@ module Octane.Type.Word8 (Word8(..), fromWord8, toWord8) where
 
 import Basics
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -55,10 +54,10 @@ instance Show Word8 where
     show word8 = Printf.printf "0x%02x" (#unpack word8)
 
 -- | Encoded as a JSON number.
-instance Aeson.ToJSON Word8 where
+instance ToJSON Word8 where
     toJSON word8 = word8
         & #unpack
-        & Aeson.toJSON
+        & toJSON
 
 
 -- | Converts a 'Word8' into any 'Integral' value.

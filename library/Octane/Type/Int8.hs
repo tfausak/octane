@@ -2,7 +2,6 @@ module Octane.Type.Int8 (Int8(..), fromInt8, toInt8) where
 
 import Basics
 
-import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
@@ -54,10 +53,10 @@ instance Show Int8 where
     show int8 = show (#unpack int8)
 
 -- | Encoded directly as a JSON number.
-instance Aeson.ToJSON Int8 where
+instance ToJSON Int8 where
     toJSON int8 = int8
         & #unpack
-        & Aeson.toJSON
+        & toJSON
 
 
 -- | Converts a 'Int8' into any 'Integral' value.

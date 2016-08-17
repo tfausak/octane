@@ -42,7 +42,7 @@ instance BinaryBit.BinaryBit CompressedWord where
 instance NFData CompressedWord where
 
 -- | Encoded as an object.
-instance Aeson.ToJSON CompressedWord where
+instance ToJSON CompressedWord where
     toJSON compressedWord = Aeson.object
         [ "Limit" .= #limit compressedWord
         , "Value" .= #value compressedWord

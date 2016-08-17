@@ -145,7 +145,7 @@ instance Binary Property where
 
 instance NFData Property where
 
-instance Aeson.ToJSON Property where
+instance ToJSON Property where
     toJSON property = case property of
         ArrayProperty size x -> Aeson.object
             [ "Type" .= ("Array" :: Text.Text)

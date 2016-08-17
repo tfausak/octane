@@ -84,7 +84,7 @@ instance Binary Replay where
 
 instance NFData Replay where
 
-instance Aeson.ToJSON Replay where
+instance ToJSON Replay where
     toJSON replay = Aeson.object
         [ "Version" .= #version replay
         , "Metadata" .= #metadata replay
