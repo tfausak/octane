@@ -11,7 +11,6 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Word as Word
 import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
@@ -22,7 +21,7 @@ newtype Word64 = Word64
     { word64Unpack :: Word.Word64
     } deriving (Eq, Generic, Num, Ord)
 
-$(OverloadedRecords.overloadedRecord Default.def ''Word64)
+$(overloadedRecord Default.def ''Word64)
 
 -- | Little-endian.
 instance Binary.Binary Word64 where

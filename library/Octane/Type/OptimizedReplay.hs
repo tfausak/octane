@@ -8,7 +8,6 @@ import Basics
 
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.Dictionary as Dictionary
@@ -45,7 +44,7 @@ data OptimizedReplay = OptimizedReplay
     , optimizedReplayCache :: List.List CacheItem.CacheItem
     } deriving (Eq, Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''OptimizedReplay)
+$(overloadedRecord Default.def ''OptimizedReplay)
 
 instance Binary.Binary OptimizedReplay where
     get = do

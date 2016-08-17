@@ -4,7 +4,6 @@ import Basics
 
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -17,7 +16,7 @@ data Mark = Mark
     -- ^ Which frame this tick mark corresponds to.
     } deriving (Eq, Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''Mark)
+$(overloadedRecord Default.def ''Mark)
 
 -- | Fields are stored one after the other in order.
 instance Binary.Binary Mark where

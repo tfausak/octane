@@ -3,6 +3,7 @@ module Basics
     , module Data.Aeson
     , module Data.Function
     , module Data.Monoid
+    , module Data.OverloadedRecords.TH
     , module GHC.Generics
     , module Prelude
     ) where
@@ -11,5 +12,6 @@ import Control.DeepSeq (NFData)
 import Data.Aeson ((.=))
 import Data.Function ((&))
 import Data.Monoid ((<>))
+import Data.OverloadedRecords.TH (overloadedRecord)
 import GHC.Generics (Generic)
 import Prelude

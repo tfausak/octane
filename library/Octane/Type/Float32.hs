@@ -12,7 +12,6 @@ import qualified Data.Binary.IEEE754 as IEEE754
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Octane.Utility.Endian as Endian
 
 
@@ -21,7 +20,7 @@ newtype Float32 = Float32
     { float32Unpack :: Float
     } deriving (Eq, Fractional, Generic, Num, Ord)
 
-$(OverloadedRecords.overloadedRecord Default.def ''Float32)
+$(overloadedRecord Default.def ''Float32)
 
 -- | Little-endian.
 instance Binary.Binary Float32 where

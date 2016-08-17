@@ -4,7 +4,6 @@ import Basics
 
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Initialization as Initialization
@@ -32,6 +31,6 @@ data Replication = Replication
     -- ^ The property updates associated with this actor's replication.
     } deriving (Eq, Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''Replication)
+$(overloadedRecord Default.def ''Replication)
 
 instance NFData Replication where

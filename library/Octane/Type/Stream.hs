@@ -7,7 +7,6 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
@@ -18,7 +17,7 @@ newtype Stream = Stream
     { streamUnpack :: LazyBytes.ByteString
     } deriving (Eq, Generic)
 
-$(OverloadedRecords.overloadedRecord Default.def ''Stream)
+$(overloadedRecord Default.def ''Stream)
 
 -- | Prefixed by a length in bytes. Each byte is reversed such that
 -- @0b01234567@ is actually @0b76543210@.

@@ -7,7 +7,6 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Word as Word
 import qualified Text.Printf as Printf
 
@@ -17,7 +16,7 @@ newtype Word16 = Word16
     { word16Unpack :: Word.Word16
     } deriving (Eq, Generic, Num, Ord)
 
-$(OverloadedRecords.overloadedRecord Default.def ''Word16)
+$(overloadedRecord Default.def ''Word16)
 
 -- | Little-endian.
 instance Binary.Binary Word16 where

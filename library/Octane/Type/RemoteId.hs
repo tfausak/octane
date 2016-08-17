@@ -14,7 +14,6 @@ import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
 import qualified Octane.Type.Text as Text
@@ -28,7 +27,7 @@ data PlayStationId = PlayStationId
     , playStationIdUnknown :: LazyBytes.ByteString
     } deriving (Eq, Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''PlayStationId)
+$(overloadedRecord Default.def ''PlayStationId)
 
 -- | Each part is stored as exactly 16 bits.
 instance BinaryBit.BinaryBit PlayStationId where
@@ -81,7 +80,7 @@ newtype SplitscreenId = SplitscreenId
     { splitscreenIdUnpack :: Maybe Int
     } deriving (Eq, Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''SplitscreenId)
+$(overloadedRecord Default.def ''SplitscreenId)
 
 -- | Stored as a bare byte string.
 instance BinaryBit.BinaryBit SplitscreenId where
@@ -107,7 +106,7 @@ newtype SteamId = SteamId
     { steamIdUnpack :: Word64.Word64
     } deriving (Eq, Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''SteamId)
+$(overloadedRecord Default.def ''SteamId)
 
 -- | Stored as a plain 'Word64.Word64'.
 instance BinaryBit.BinaryBit SteamId where
@@ -128,7 +127,7 @@ newtype XboxId = XboxId
     { xboxIdUnpack :: Word64.Word64
     } deriving (Eq, Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''XboxId)
+$(overloadedRecord Default.def ''XboxId)
 
 -- | Stored as a plain 'Word64.Word64'.
 instance BinaryBit.BinaryBit XboxId where

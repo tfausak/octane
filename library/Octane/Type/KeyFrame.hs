@@ -4,7 +4,6 @@ import Basics
 
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Word32 as Word32
 
@@ -19,7 +18,7 @@ data KeyFrame = KeyFrame
     -- ^ The bit position of the start of this key frame in the network stream.
     } deriving (Eq, Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''KeyFrame)
+$(overloadedRecord Default.def ''KeyFrame)
 
 -- | Stored with the fields one after the other in order.
 instance Binary.Binary KeyFrame where

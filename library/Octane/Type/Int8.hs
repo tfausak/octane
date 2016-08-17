@@ -12,7 +12,6 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Default.Class as Default
 import qualified Data.Int as Int
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Octane.Utility.Endian as Endian
 
 
@@ -21,7 +20,7 @@ newtype Int8 = Int8
     { int8Unpack :: Int.Int8
     } deriving (Eq, Generic, Num, Ord)
 
-$(OverloadedRecords.overloadedRecord Default.def ''Int8)
+$(overloadedRecord Default.def ''Int8)
 
 instance Binary.Binary Int8 where
     get = do

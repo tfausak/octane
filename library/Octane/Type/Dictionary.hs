@@ -6,7 +6,6 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Exts as Exts
 import qualified Octane.Type.Text as Text
 
@@ -16,7 +15,7 @@ newtype Dictionary a = Dictionary
     { dictionaryUnpack :: (Map.Map Text.Text a)
     } deriving (Eq, Generic)
 
-$(OverloadedRecords.overloadedRecord Default.def ''Dictionary)
+$(overloadedRecord Default.def ''Dictionary)
 
 -- | Elements are stored with the key first, then the value. The dictionary
 -- ends when a key is @"None"@.

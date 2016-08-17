@@ -6,7 +6,6 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.Map as Map
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
 import qualified Octane.Type.Dictionary as Dictionary
@@ -73,7 +72,7 @@ data Replay = Replay
     , replayFrames :: [Frame.Frame]
     } deriving (Eq, Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''Replay)
+$(overloadedRecord Default.def ''Replay)
 
 instance Binary.Binary Replay where
     get = do
