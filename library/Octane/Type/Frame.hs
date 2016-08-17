@@ -1,24 +1,13 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE StrictData #-}
-
 module Octane.Type.Frame (Frame(..)) where
 
-import Data.Aeson ((.=))
-import Data.Function ((&))
-import Data.Monoid ((<>))
+import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Bimap as Bimap
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
-import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Float32 as Float32
-import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Value as Value
@@ -31,84 +20,86 @@ import qualified Octane.Type.Word8 as Word8
 -- This cannot be an instance of 'Data.Binary.Bits.BinaryBit' because it
 -- requires out-of-band information (the class property map) to decode.
 data Frame = Frame
-    { number :: Word
+    { frameNumber :: Word
     -- ^ This frame's number in the network stream. Starts at 0.
-    , isKeyFrame :: Bool
+    , frameIsKeyFrame :: Bool
     -- ^ Is this frame a key frame?
-    , time :: Float32.Float32
+    , frameTime :: Float32.Float32
     -- ^ The since the start of the match that this frame occurred.
-    , delta :: Float32.Float32
+    , frameDelta :: Float32.Float32
     -- ^ The time between the last frame and this one.
-    , replications :: [Replication.Replication]
+    , frameReplications :: [Replication.Replication]
     -- ^ A list of all the replications in this frame.
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
-instance DeepSeq.NFData Frame where
+$(overloadedRecord def ''Frame)
 
-instance Aeson.ToJSON Frame where
+instance NFData Frame where
+
+instance ToJSON Frame where
     toJSON frame = Aeson.object
-        [ "Number" .= number frame
-        , "IsKeyFrame" .= isKeyFrame frame
-        , "Time" .= time frame
-        , "Delta" .= delta frame
-        , "Spawned" .= (frame & replications & getSpawned)
-        , "Updated" .= (frame & replications & getUpdated)
-        , "Destroyed" .= (frame & replications & getDestroyed)
+        [ "Number" .= #number frame
+        , "IsKeyFrame" .= #isKeyFrame frame
+        , "Time" .= #time frame
+        , "Delta" .= #delta frame
+        , "Spawned" .= (frame & #replications & getSpawned)
+        , "Updated" .= (frame & #replications & getUpdated)
+        , "Destroyed" .= (frame & #replications & getDestroyed)
         ]
 
 
 newtype Spawned = Spawned [Replication.Replication]
 
-instance Aeson.ToJSON Spawned where
+instance ToJSON Spawned where
     toJSON (Spawned xs) = xs
         & map (\ x -> do
-            let k = x & Replication.actorId & CompressedWord.value & show & StrictText.pack
+            let k = x & #actorId & #value & show & StrictText.pack
             let v = Aeson.object
-                    [ "Name" .= Replication.objectName x
-                    , "Class" .= Replication.className x
-                    , "Position" .= (x & Replication.initialization & fmap Initialization.location)
-                    , "Rotation" .= (x & Replication.initialization & fmap Initialization.rotation)
+                    [ "Name" .= #objectName x
+                    , "Class" .= #className x
+                    , "Position" .= (x & #initialization & fmap #location)
+                    , "Rotation" .= (x & #initialization & fmap #rotation)
                     ]
             (k, v))
         & Map.fromList
-        & Aeson.toJSON
+        & toJSON
 
 getSpawned :: [Replication.Replication] -> Spawned
 getSpawned xs = xs
     & filter (\ x -> x
-        & Replication.state
+        & #state
         & (== State.SOpening))
     & Spawned
 
 
 newtype Updated = Updated [Replication.Replication]
 
-instance Aeson.ToJSON Updated where
+instance ToJSON Updated where
     toJSON (Updated xs) = xs
         & map (\ x -> do
             let k = x
-                    & Replication.actorId
-                    & CompressedWord.value
+                    & #actorId
+                    & #value
                     & show
                     & StrictText.pack
             let v = x
-                    & Replication.properties
+                    & #properties
                     & Map.map (\ value -> Aeson.object
                         [ "Type" .= getType value
                         , "Value" .= getValue value
                         ])
             (k, v))
         & Map.fromList
-        & Aeson.toJSON
+        & toJSON
 
 
 getUpdated :: [Replication.Replication] -> Updated
 getUpdated xs = xs
     & filter (\ x -> x
-        & Replication.state
+        & #state
         & (== State.SExisting))
     & filter (\ x -> x
-        & Replication.properties
+        & #properties
         & null
         & not)
     & Updated
@@ -116,21 +107,21 @@ getUpdated xs = xs
 
 newtype Destroyed = Destroyed [Replication.Replication]
 
-instance Aeson.ToJSON Destroyed where
+instance ToJSON Destroyed where
     toJSON (Destroyed xs) = xs
-        & map Replication.actorId
-        & map CompressedWord.value
-        & Aeson.toJSON
+        & map #actorId
+        & map #value
+        & toJSON
 
 getDestroyed :: [Replication.Replication] -> Destroyed
 getDestroyed xs = xs
     & filter (\ x -> x
-        & Replication.state
+        & #state
         & (== State.SClosing))
     & Destroyed
 
 
-getType :: Value.Value -> StrictText.Text
+getType :: Value.Value -> StrictText
 getType value = case value of
     Value.VBoolean _ -> "Boolean"
     Value.VByte _ -> "Byte"
@@ -159,97 +150,97 @@ getType value = case value of
 
 getValue :: Value.Value -> Aeson.Value
 getValue value = case value of
-    Value.VBoolean x -> Aeson.toJSON x
-    Value.VByte x -> Aeson.toJSON x
+    Value.VBoolean x -> toJSON x
+    Value.VByte x -> toJSON x
     Value.VCamSettings fov height angle distance stiffness swivelSpeed -> Aeson.object
-        [ ("FOV", Aeson.toJSON fov)
-        , ("Height", Aeson.toJSON height)
-        , ("Angle", Aeson.toJSON angle)
-        , ("Distance", Aeson.toJSON distance)
-        , ("Stiffness", Aeson.toJSON stiffness)
-        , ("SwivelSpeed", Aeson.toJSON swivelSpeed)
+        [ ("FOV", toJSON fov)
+        , ("Height", toJSON height)
+        , ("Angle", toJSON angle)
+        , ("Distance", toJSON distance)
+        , ("Stiffness", toJSON stiffness)
+        , ("SwivelSpeed", toJSON swivelSpeed)
         ]
-    Value.VDemolish a b c d e f -> Aeson.toJSON (a, b, c, d, e, f)
-    Value.VEnum x y -> Aeson.toJSON (x, y)
-    Value.VExplosion a b c -> Aeson.toJSON (a, b, c)
-    Value.VFlaggedInt x y -> Aeson.toJSON (x, y)
-    Value.VFloat x -> Aeson.toJSON x
+    Value.VDemolish a b c d e f -> toJSON (a, b, c, d, e, f)
+    Value.VEnum x y -> toJSON (x, y)
+    Value.VExplosion a b c -> toJSON (a, b, c)
+    Value.VFlaggedInt x y -> toJSON (x, y)
+    Value.VFloat x -> toJSON x
     Value.VGameMode gameMode -> Aeson.object
-        [ ("Id", Aeson.toJSON gameMode)
-        , ("Name", gameMode & getGameMode & Aeson.toJSON)
+        [ ("Id", toJSON gameMode)
+        , ("Name", gameMode & getGameMode & toJSON)
         ]
-    Value.VInt x -> Aeson.toJSON x
+    Value.VInt x -> toJSON x
     Value.VLoadout version body decal wheels rocketTrail antenna topper x y -> Aeson.object
-        [ ("Version", Aeson.toJSON version)
+        [ ("Version", toJSON version)
         , ("Body", Aeson.object
-            [ ("Id", Aeson.toJSON body)
-            , ("Name", body & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON body)
+            , ("Name", body & getProduct & toJSON)
             ])
         , ("Decal", Aeson.object
-            [ ("Id", Aeson.toJSON decal)
-            , ("Name", decal & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON decal)
+            , ("Name", decal & getProduct & toJSON)
             ])
         , ("Wheels", Aeson.object
-            [ ("Id", Aeson.toJSON wheels)
-            , ("Name", wheels & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON wheels)
+            , ("Name", wheels & getProduct & toJSON)
             ])
         , ("RocketTrail", Aeson.object
-            [ ("Id", Aeson.toJSON rocketTrail)
-            , ("Name", rocketTrail & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON rocketTrail)
+            , ("Name", rocketTrail & getProduct & toJSON)
             ])
         , ("Antenna", Aeson.object
-            [ ("Id", Aeson.toJSON antenna)
-            , ("Name", antenna & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON antenna)
+            , ("Name", antenna & getProduct & toJSON)
             ])
         , ("Topper", Aeson.object
-            [ ("Id", Aeson.toJSON topper)
-            , ("Name", topper & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON topper)
+            , ("Name", topper & getProduct & toJSON)
             ])
-        , ("Unknown1", Aeson.toJSON x)
-        , ("Unknown2", Aeson.toJSON y)
+        , ("Unknown1", toJSON x)
+        , ("Unknown2", toJSON y)
         ]
-    Value.VLoadoutOnline a -> Aeson.toJSON a
-    Value.VLocation x -> Aeson.toJSON x
-    Value.VMusicStinger a b c -> Aeson.toJSON (a, b, c)
-    Value.VPickup a b c -> Aeson.toJSON (a, b, c)
+    Value.VLoadoutOnline a -> toJSON a
+    Value.VLocation x -> toJSON x
+    Value.VMusicStinger a b c -> toJSON (a, b, c)
+    Value.VPickup a b c -> toJSON (a, b, c)
     Value.VPrivateMatchSettings mutators joinableBy maxPlayers name password x -> Aeson.object
-        [ ("Mutators", Aeson.toJSON mutators)
-        , ("JoinableBy", Aeson.toJSON joinableBy)
-        , ("MaxPlayers", Aeson.toJSON maxPlayers)
-        , ("Name", Aeson.toJSON name)
-        , ("Password", Aeson.toJSON password)
-        , ("Unknown", Aeson.toJSON x)
+        [ ("Mutators", toJSON mutators)
+        , ("JoinableBy", toJSON joinableBy)
+        , ("MaxPlayers", toJSON maxPlayers)
+        , ("Name", toJSON name)
+        , ("Password", toJSON password)
+        , ("Unknown", toJSON x)
         ]
-    Value.VQWord x -> Aeson.toJSON x
-    Value.VRelativeRotation x -> Aeson.toJSON x
+    Value.VQWord x -> toJSON x
+    Value.VRelativeRotation x -> toJSON x
     Value.VReservation num systemId remoteId localId name x y -> Aeson.object
-        [ ("Number", Aeson.toJSON num)
-        , ("SystemId", Aeson.toJSON systemId)
-        , ("RemoteId", Aeson.toJSON remoteId)
-        , ("LocalId", Aeson.toJSON localId)
-        , ("Name", Aeson.toJSON name)
-        , ("Unknown1", Aeson.toJSON x)
-        , ("Unknown2", Aeson.toJSON y)
+        [ ("Number", toJSON num)
+        , ("SystemId", toJSON systemId)
+        , ("RemoteId", toJSON remoteId)
+        , ("LocalId", toJSON localId)
+        , ("Name", toJSON name)
+        , ("Unknown1", toJSON x)
+        , ("Unknown2", toJSON y)
         ]
     Value.VRigidBodyState sleeping position rotation linear angular -> Aeson.object
-        [ ("Sleeping", Aeson.toJSON sleeping)
-        , ("Position", Aeson.toJSON position)
-        , ("Rotation", Aeson.toJSON rotation)
-        , ("LinearVelocity", Aeson.toJSON linear)
-        , ("AngularVelocity", Aeson.toJSON angular)
+        [ ("Sleeping", toJSON sleeping)
+        , ("Position", toJSON position)
+        , ("Rotation", toJSON rotation)
+        , ("LinearVelocity", toJSON linear)
+        , ("AngularVelocity", toJSON angular)
         ]
-    Value.VString x -> Aeson.toJSON x
+    Value.VString x -> toJSON x
     Value.VTeamPaint team color1 color2 finish1 finish2 -> Aeson.object
-        [ ("Team", Aeson.toJSON team)
-        , ("PrimaryColor", Aeson.toJSON color1)
-        , ("AccentColor", Aeson.toJSON color2)
+        [ ("Team", toJSON team)
+        , ("PrimaryColor", toJSON color1)
+        , ("AccentColor", toJSON color2)
         , ("PrimaryFinish", Aeson.object
-            [ ("Id", Aeson.toJSON finish1)
-            , ("Name", finish1 & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON finish1)
+            , ("Name", finish1 & getProduct & toJSON)
             ])
         , ("AccentFinish", Aeson.object
-            [ ("Id", Aeson.toJSON finish2)
-            , ("Name", finish2 & getProduct & Aeson.toJSON)
+            [ ("Id", toJSON finish2)
+            , ("Name", finish2 & getProduct & toJSON)
             ])
         ]
     Value.VUniqueId systemId remoteId localId -> Aeson.object
@@ -259,14 +250,14 @@ getValue value = case value of
             2 -> "PlayStation"
             4 -> "Xbox"
             _ -> Aeson.String ("Unknown system " <> StrictText.pack (show systemId)))
-        , ("Remote", Aeson.toJSON remoteId)
-        , ("Local", Aeson.toJSON localId)
+        , ("Remote", toJSON remoteId)
+        , ("Local", toJSON localId)
         ]
 
 
-getGameMode :: Word8.Word8 -> Maybe StrictText.Text
+getGameMode :: Word8.Word8 -> Maybe StrictText
 getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
 
 
-getProduct :: Word32.Word32 -> Maybe StrictText.Text
+getProduct :: Word32.Word32 -> Maybe StrictText
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products

@@ -1,43 +1,32 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE StrictData #-}
-
 module Octane.Type.Message (Message(..)) where
 
-import Data.Function ((&))
+import Basics
 
-import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Binary as Binary
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
 -- | A debugging message. Replays do not have any of these anymore.
 data Message = Message
-    { frame :: Word32.Word32
+    { messageFrame :: Word32.Word32
     -- ^ The frame this message corresponds to.
-    , name :: Text.Text
+    , messageName :: Text.Text
     -- ^ The primary player name.
-    , content :: Text.Text
+    , messageContent :: Text.Text
     -- ^ The actual content of the message.
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
+
+$(overloadedRecord def ''Message)
 
 -- | Fields stored in order, one after the other.
---
--- >>> Binary.decode "\x01\x00\x00\x00\x02\x00\x00\x00\x41\x00\x02\x00\x00\x00\x42\x00" :: Message
--- Message {frame = 0x00000001, name = "A", content = "B"}
---
--- >>> Binary.encode (Message 1 "A" "B")
--- "\SOH\NUL\NUL\NUL\STX\NUL\NUL\NULA\NUL\STX\NUL\NUL\NULB\NUL"
-instance Binary.Binary Message where
+instance Binary Message where
     get = Message
-        <$> Binary.get
-        <*> Binary.get
-        <*> Binary.get
+        <$> get
+        <*> get
+        <*> get
 
     put message = do
-        message & frame & Binary.put
-        message & name & Binary.put
-        message & content & Binary.put
+        message & #frame & put
+        message & #name & put
+        message & #content & put
 
-instance DeepSeq.NFData Message where
+instance NFData Message where

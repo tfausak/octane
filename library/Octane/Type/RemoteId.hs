@@ -1,8 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE StrictData #-}
-
 module Octane.Type.RemoteId
     ( RemoteId(..)
     , SteamId(..)
@@ -11,76 +6,28 @@ module Octane.Type.RemoteId
     , XboxId(..)
     ) where
 
-import Data.Aeson ((.=))
-import Data.Function ((&))
+import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Utility.Endian as Endian
-import qualified Text.Printf as Printf
-
--- $setup
--- >>> import qualified Data.Binary.Get as Binary
--- >>> import qualified Data.Binary.Put as Binary
-
-
--- | A player's canonical remote ID. This is the best way to uniquely identify
--- players
-data RemoteId
-    = RemotePlayStationId PlayStationId
-    | RemoteSplitscreenId SplitscreenId
-    | RemoteSteamId SteamId
-    | RemoteXboxId XboxId
-    deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData RemoteId where
-
--- | Encodes the remote ID as an object with "Type" and "Value" keys.
---
--- >>> Aeson.encode (RemoteSteamId (SteamId 1))
--- "{\"Value\":1,\"Type\":\"Steam\"}"
-instance Aeson.ToJSON RemoteId where
-    toJSON remoteId = case remoteId of
-        RemotePlayStationId x -> Aeson.object
-            [ "Type" .= ("PlayStation" :: Text.Text)
-            , "Value" .= Aeson.toJSON x
-            ]
-        RemoteSplitscreenId x -> Aeson.object
-            [ "Type" .= ("Splitscreen" :: Text.Text)
-            , "Value" .= Aeson.toJSON x
-            ]
-        RemoteSteamId x -> Aeson.object
-            [ "Type" .= ("Steam" :: Text.Text)
-            , "Value" .= Aeson.toJSON x
-            ]
-        RemoteXboxId x -> Aeson.object
-            [ "Type" .= ("Xbox" :: Text.Text)
-            , "Value" .= Aeson.toJSON x
-            ]
 
 
 data PlayStationId = PlayStationId
-    { playStationName :: Text.Text
-    , playStationUnknown :: LazyBytes.ByteString
-    } deriving (Eq, Generics.Generic, Show)
+    { playStationIdName :: Text.Text
+    , playStationIdUnknown :: LazyBytes
+    } deriving (Eq, Generic, Show)
+
+$(overloadedRecord def ''PlayStationId)
 
 -- | Each part is stored as exactly 16 bits.
---
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x42\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80" :: PlayStationId
--- PlayStationId {playStationName = "B", playStationUnknown = "\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\SOH"}
---
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (PlayStationId "A" "\x01")))
--- "\130\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\NUL\128"
-instance BinaryBit.BinaryBit PlayStationId where
+instance BinaryBit PlayStationId where
     getBits _ = do
         nameBytes <- BinaryBit.getByteString 16
         let name = nameBytes
@@ -98,8 +45,8 @@ instance BinaryBit.BinaryBit PlayStationId where
 
     putBits _ playStationId = do
         playStationId
-            & playStationName
-            & Text.unpack
+            & #name
+            & #unpack
             & StrictText.justifyLeft 16 '\x00'
             & StrictText.take 16
             & Text.encodeLatin1
@@ -107,39 +54,33 @@ instance BinaryBit.BinaryBit PlayStationId where
             & BinaryBit.putByteString
 
         playStationId
-            & playStationUnknown
+            & #unknown
             & LazyBytes.toStrict
             & Endian.reverseBitsInStrictBytes
             & BinaryBit.putByteString
 
-instance DeepSeq.NFData PlayStationId where
+instance NFData PlayStationId where
 
--- | >>> Aeson.encode (PlayStationId "A" "B")
--- "{\"Unknown\":\"0x42\",\"Name\":\"A\"}"
-instance Aeson.ToJSON PlayStationId where
+instance ToJSON PlayStationId where
     toJSON playStationId = Aeson.object
-        [ "Name" .= playStationName playStationId
+        [ "Name" .= #name playStationId
         , "Unknown" .= (playStationId
-            & playStationUnknown
+            & #unknown
             & LazyBytes.unpack
-            & concatMap (Printf.printf "%02x")
+            & concatMap (printf "%02x")
             & ("0x" ++)
             & StrictText.pack)
         ]
 
 
 newtype SplitscreenId = SplitscreenId
-    { unpackSplitscreenId :: Maybe Int
-    } deriving (Eq, Generics.Generic, Show)
+    { splitscreenIdUnpack :: Maybe Int
+    } deriving (Eq, Generic, Show)
+
+$(overloadedRecord def ''SplitscreenId)
 
 -- | Stored as a bare byte string.
---
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x00\x00\x00" :: SplitscreenId
--- SplitscreenId {unpackSplitscreenId = Just 0}
---
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (SplitscreenId (Just 0))))
--- "\NUL\NUL\NUL"
-instance BinaryBit.BinaryBit SplitscreenId where
+instance BinaryBit SplitscreenId where
     getBits _ = do
         bytes <- BinaryBit.getByteString 3
         case bytes of
@@ -151,71 +92,83 @@ instance BinaryBit.BinaryBit SplitscreenId where
     putBits _ _splitscreenId = do
         BinaryBit.putByteString "\x00\x00\x00"
 
-instance DeepSeq.NFData SplitscreenId where
+instance NFData SplitscreenId where
 
 -- | Encoded as an optional number.
---
--- >>> Aeson.encode (SplitscreenId Nothing)
--- "null"
---
--- >>> Aeson.encode (SplitscreenId (Just 0))
--- "0"
-instance Aeson.ToJSON SplitscreenId where
-    toJSON splitscreenId = splitscreenId & unpackSplitscreenId & Aeson.toJSON
+instance ToJSON SplitscreenId where
+    toJSON splitscreenId = splitscreenId & #unpack & toJSON
 
 
 newtype SteamId = SteamId
-    { unpackSteamId :: Word64.Word64
-    } deriving (Eq, Generics.Generic, Show)
+    { steamIdUnpack :: Word64.Word64
+    } deriving (Eq, Generic, Show)
+
+$(overloadedRecord def ''SteamId)
 
 -- | Stored as a plain 'Word64.Word64'.
---
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00\x00\x00\x00\x00" :: SteamId
--- SteamId {unpackSteamId = 0x0000000000000001}
---
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (SteamId 1)))
--- "\128\NUL\NUL\NUL\NUL\NUL\NUL\NUL"
-instance BinaryBit.BinaryBit SteamId where
+instance BinaryBit SteamId where
     getBits _ = do
-        steamId <- BinaryBit.getBits 0
+        steamId <- getBits 0
         pure (SteamId steamId)
 
-    putBits _ steamId = steamId & unpackSteamId & BinaryBit.putBits 0
+    putBits _ steamId = steamId & #unpack & putBits 0
 
-instance DeepSeq.NFData SteamId where
+instance NFData SteamId where
 
 -- | Encoded directly as a number.
---
--- >>> Aeson.encode (SteamId 1)
--- "1"
-instance Aeson.ToJSON SteamId where
-    toJSON steamId = steamId & unpackSteamId & Aeson.toJSON
+instance ToJSON SteamId where
+    toJSON steamId = steamId & #unpack & toJSON
 
 
 newtype XboxId = XboxId
-    { unpackXboxId :: Word64.Word64
-    } deriving (Eq, Generics.Generic, Show)
+    { xboxIdUnpack :: Word64.Word64
+    } deriving (Eq, Generic, Show)
+
+$(overloadedRecord def ''XboxId)
 
 -- | Stored as a plain 'Word64.Word64'.
---
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00\x00\x00\x00\x00" :: XboxId
--- XboxId {unpackXboxId = 0x0000000000000001}
---
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 (XboxId 1)))
--- "\128\NUL\NUL\NUL\NUL\NUL\NUL\NUL"
-instance BinaryBit.BinaryBit XboxId where
+instance BinaryBit XboxId where
     getBits _ = do
-        xboxId <- BinaryBit.getBits 0
+        xboxId <- getBits 0
         pure (XboxId xboxId)
 
-    putBits _ xboxId = xboxId & unpackXboxId & BinaryBit.putBits 0
+    putBits _ xboxId = xboxId & #unpack & putBits 0
 
 
-instance DeepSeq.NFData XboxId where
+instance NFData XboxId where
 
 -- | Encoded directly as a number.
---
--- >>> Aeson.encode (XboxId 1)
--- "1"
-instance Aeson.ToJSON XboxId where
-    toJSON xboxId = xboxId & unpackXboxId & Aeson.toJSON
+instance ToJSON XboxId where
+    toJSON xboxId = xboxId & #unpack & toJSON
+
+
+-- | A player's canonical remote ID. This is the best way to uniquely identify
+-- players
+data RemoteId
+    = RemotePlayStationId PlayStationId
+    | RemoteSplitscreenId SplitscreenId
+    | RemoteSteamId SteamId
+    | RemoteXboxId XboxId
+    deriving (Eq, Generic, Show)
+
+instance NFData RemoteId where
+
+-- | Encodes the remote ID as an object with "Type" and "Value" keys.
+instance ToJSON RemoteId where
+    toJSON remoteId = case remoteId of
+        RemotePlayStationId x -> Aeson.object
+            [ "Type" .= ("PlayStation" :: Text.Text)
+            , "Value" .= toJSON x
+            ]
+        RemoteSplitscreenId x -> Aeson.object
+            [ "Type" .= ("Splitscreen" :: Text.Text)
+            , "Value" .= toJSON x
+            ]
+        RemoteSteamId x -> Aeson.object
+            [ "Type" .= ("Steam" :: Text.Text)
+            , "Value" .= toJSON x
+            ]
+        RemoteXboxId x -> Aeson.object
+            [ "Type" .= ("Xbox" :: Text.Text)
+            , "Value" .= toJSON x
+            ]

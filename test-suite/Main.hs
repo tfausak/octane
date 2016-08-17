@@ -1,5 +1,7 @@
 module Main (main) where
 
+import Prelude
+
 import qualified OctaneSpec
 import qualified Test.Tasty as Tasty
 import qualified Test.Tasty.Hspec as Hspec

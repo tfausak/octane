@@ -11,6 +11,22 @@ benchmarks:
     main: Main.hs
     source-dirs: benchmark
 category: Game
+default-extensions:
+- BinaryLiterals
+- DataKinds
+- DeriveGeneric
+- FlexibleContexts
+- FlexibleInstances
+- GeneralizedNewtypeDeriving
+- MultiParamTypeClasses
+- NoImplicitPrelude
+- OverloadedLabels
+- OverloadedStrings
+- PackageImports
+- ScopedTypeVariables
+- StrictData
+- TemplateHaskell
+- TypeFamilies
 description: Octane parses Rocket League replays.
 executables:
   octane:
@@ -41,14 +57,18 @@ library:
   - bytestring ==0.10.*
   - containers ==0.5.*
   - data-binary-ieee754 ==0.4.*
+  - data-default-class ==0.0.*
   - deepseq ==1.4.*
   - file-embed ==0.0.*
   - http-client >=0.4.30 && <0.6
   - http-client-tls >=0.2 && <0.4
+  - overloaded-records ==0.4.*
   - regex-compat ==0.95.*
   - text ==1.2.*
   - unordered-containers ==0.2.*
   - vector ==0.11.*
+  other-modules:
+  - Basics
   source-dirs: library
 license: MIT
 license-file: LICENSE.markdown
@@ -56,17 +76,6 @@ maintainer: Taylor Fausak
 name: octane
 synopsis: Parse Rocket League replays.
 tests:
-  octane-doctest:
-    dependencies:
-    - base
-    - octane
-    - doctest ==0.11.*
-    ghc-options:
-    - -rtsopts
-    - -threaded
-    - -with-rtsopts=-N
-    main: DocTest.hs
-    source-dirs: test-suite
   octane-test-suite:
     dependencies:
     - base

@@ -1,8 +1,7 @@
 module Octane.Utility.Generator (generateStream) where
 
-import Data.Function ((&))
+import Basics
 
-import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Put as Binary
 import qualified Octane.Type.Boolean as Boolean
@@ -32,7 +31,7 @@ generateStream frames _objects _names _classes _cache = do
     Stream.Stream bytes
 
 
-putFrames :: [Frame.Frame] -> BinaryBit.BitPut ()
+putFrames :: [Frame.Frame] -> BitPut ()
 putFrames frames = do
     case frames of
         [] -> pure ()
@@ -41,51 +40,51 @@ putFrames frames = do
             putFrames rest
 
 
-putFrame :: Frame.Frame -> BinaryBit.BitPut ()
+putFrame :: Frame.Frame -> BitPut ()
 putFrame frame = do
-    frame & Frame.time & BinaryBit.putBits 32
-    frame & Frame.delta & BinaryBit.putBits 32
-    frame & Frame.replications & putReplications
+    frame & #time & putBits 32
+    frame & #delta & putBits 32
+    frame & #replications & putReplications
 
 
-putReplications :: [Replication.Replication] -> BinaryBit.BitPut ()
+putReplications :: [Replication.Replication] -> BitPut ()
 putReplications replications = do
     case replications of
         [] -> do
-            False & Boolean.Boolean & BinaryBit.putBits 1
+            False & Boolean.Boolean & putBits 1
         replication : rest -> do
-            True & Boolean.Boolean & BinaryBit.putBits 1
+            True & Boolean.Boolean & putBits 1
             putReplication replication
             putReplications rest
 
 
-putReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putReplication :: Replication.Replication -> BitPut ()
 putReplication replication = do
-    replication & Replication.actorId & BinaryBit.putBits 0
-    case Replication.state replication of
+    replication & #actorId & putBits 0
+    case #state replication of
         State.SOpening -> putNewReplication replication
         State.SExisting -> putExistingReplication replication
         State.SClosing -> putClosedReplication replication
 
 
-putNewReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putNewReplication :: Replication.Replication -> BitPut ()
 putNewReplication replication = do
-    True & Boolean.Boolean & BinaryBit.putBits 1 -- open
-    True & Boolean.Boolean & BinaryBit.putBits 1 -- new
-    False & Boolean.Boolean & BinaryBit.putBits 1 -- unknown
+    True & Boolean.Boolean & putBits 1 -- open
+    True & Boolean.Boolean & putBits 1 -- new
+    False & Boolean.Boolean & putBits 1 -- unknown
     -- TODO: convert object name into ID and put it
-    case Replication.initialization replication of
+    case #initialization replication of
         Nothing -> pure ()
         Just x -> Initialization.putInitialization x
 
 
-putExistingReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putExistingReplication :: Replication.Replication -> BitPut ()
 putExistingReplication _replication = do
-    True & Boolean.Boolean & BinaryBit.putBits 1 -- open
-    False & Boolean.Boolean & BinaryBit.putBits 1 -- existing
+    True & Boolean.Boolean & putBits 1 -- open
+    False & Boolean.Boolean & putBits 1 -- existing
     -- TODO: put props
 
 
-putClosedReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putClosedReplication :: Replication.Replication -> BitPut ()
 putClosedReplication _replication = do
-    False & Boolean.Boolean & BinaryBit.putBits 1 -- closed
+    False & Boolean.Boolean & putBits 1 -- closed

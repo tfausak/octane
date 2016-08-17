@@ -1,13 +1,7 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE StrictData #-}
-
 module Octane.Type.Replication (Replication(..)) where
 
-import qualified Control.DeepSeq as DeepSeq
-import qualified Data.Map.Strict as Map
-import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
+import Basics
+
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.State as State
@@ -19,19 +13,21 @@ import qualified Octane.Type.Value as Value
 -- This cannot be an instance of 'Data.Binary.Bits.BinaryBit' because it
 -- requires out-of-band information (the class property map) to decode.
 data Replication = Replication
-    { actorId :: CompressedWord.CompressedWord
+    { replicationActorId :: CompressedWord.CompressedWord
     -- ^ The actor's ID.
-    , objectName :: StrictText.Text
+    , replicationObjectName :: StrictText
     -- ^ The name of the actor's object.
-    , className :: StrictText.Text
+    , replicationClassName :: StrictText
     -- ^ The name of the actor's class.
-    , state :: State.State
+    , replicationState :: State.State
     -- ^ Which state this actor's replication is in.
-    , initialization :: Maybe Initialization.Initialization
+    , replicationInitialization :: Maybe Initialization.Initialization
     -- ^ The optional initialization information for this actor. These only
     -- exist for new actors.
-    , properties :: Map.Map StrictText.Text Value.Value
+    , replicationProperties :: StrictMap StrictText Value.Value
     -- ^ The property updates associated with this actor's replication.
-    } deriving (Eq, Generics.Generic, Show)
+    } deriving (Eq, Generic, Show)
 
-instance DeepSeq.NFData Replication where
+$(overloadedRecord def ''Replication)
+
+instance NFData Replication where

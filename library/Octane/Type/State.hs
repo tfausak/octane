@@ -1,9 +1,7 @@
-{-# LANGUAGE DeriveGeneric #-}
-
 module Octane.Type.State (State(..)) where
 
-import qualified Control.DeepSeq as DeepSeq
-import qualified GHC.Generics as Generics
+import Basics
+
 
 
 -- | The state of an actor in a replication.
@@ -14,6 +12,6 @@ data State
     -- ^ We have seen this actor before.
     | SClosing
     -- ^ This actor is going away.
-    deriving (Eq, Generics.Generic, Show)
+    deriving (Eq, Generic, Show)
 
-instance DeepSeq.NFData State where
+instance NFData State where

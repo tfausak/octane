@@ -1,17 +1,8 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE StrictData #-}
-
 module Octane.Type.Property (Property(..)) where
 
-import Data.Aeson ((.=))
-import Data.Function ((&))
+import Basics
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Binary as Binary
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Float32 as Float32
@@ -49,111 +40,111 @@ data Property
     | StrProperty
         Word64.Word64
         Text.Text
-    deriving (Eq, Generics.Generic, Show)
+    deriving (Eq, Generic, Show)
 
 -- | Stored with the size first, then the value.
-instance Binary.Binary Property where
+instance Binary Property where
     get = do
-        kind <- Binary.get
+        kind <- get
         case kind of
             _ | kind == arrayProperty -> do
-                size <- Binary.get
-                value <- Binary.get
+                size <- get
+                value <- get
                 value & ArrayProperty size & pure
 
             _ | kind == boolProperty -> do
-                size <- Binary.get
-                value <- Binary.get
+                size <- get
+                value <- get
                 value & BoolProperty size & pure
 
             _ | kind == byteProperty -> do
-                size <- Binary.get
-                key <- Binary.get
+                size <- get
+                key <- get
                 if key == "OnlinePlatform_Steam"
                     then ("OnlinePlatform", key) & ByteProperty size & pure
                     else do
-                        value <- Binary.get
+                        value <- get
                         (key, value) & ByteProperty size & pure
 
             _ | kind == floatProperty -> do
-                size <- Binary.get
-                value <- case Word64.unpack size of
-                    4 -> Binary.get
+                size <- get
+                value <- case #unpack size of
+                    4 -> get
                     x -> fail ("unknown FloatProperty size " ++ show x)
                 value & FloatProperty size & pure
 
             _ | kind == intProperty -> do
-                size <- Binary.get
-                value <- case Word64.unpack size of
-                    4 -> Binary.get
+                size <- get
+                value <- case #unpack size of
+                    4 -> get
                     x -> fail ("unknown IntProperty size " ++ show x)
                 value & IntProperty size & pure
 
             _ | kind == nameProperty -> do
-                size <- Binary.get
-                value <- Binary.get
+                size <- get
+                value <- get
                 value & NameProperty size & pure
 
             _ | kind == qWordProperty -> do
-                size <- Binary.get
-                value <- case Word64.unpack size of
-                    8 -> Binary.get
+                size <- get
+                value <- case #unpack size of
+                    8 -> get
                     x -> fail ("unknown QWordProperty size " ++ show x)
                 value & QWordProperty size & pure
 
             _ | kind == strProperty -> do
-                size <- Binary.get
-                value <- Binary.get
+                size <- get
+                value <- get
                 value & StrProperty size & pure
 
-            _ -> fail ("unknown property type " ++ show (Text.unpack kind))
+            _ -> fail ("unknown property type " ++ show (#unpack kind))
 
     put property =
         case property of
             ArrayProperty size value -> do
-                Binary.put arrayProperty
-                Binary.put size
-                Binary.put value
+                put arrayProperty
+                put size
+                put value
 
             BoolProperty size value -> do
-                Binary.put boolProperty
-                Binary.put size
-                Binary.put value
+                put boolProperty
+                put size
+                put value
 
             ByteProperty size (key, value) -> do
-                Binary.put byteProperty
-                Binary.put size
-                Binary.put key
-                Binary.put value
+                put byteProperty
+                put size
+                put key
+                put value
 
             FloatProperty size value -> do
-                Binary.put floatProperty
-                Binary.put size
-                Binary.put value
+                put floatProperty
+                put size
+                put value
 
             IntProperty size value -> do
-                Binary.put intProperty
-                Binary.put size
-                Binary.put value
+                put intProperty
+                put size
+                put value
 
             NameProperty size value -> do
-                Binary.put nameProperty
-                Binary.put size
-                Binary.put value
+                put nameProperty
+                put size
+                put value
 
             QWordProperty size value -> do
-                Binary.put qWordProperty
-                Binary.put size
-                Binary.put value
+                put qWordProperty
+                put size
+                put value
 
             StrProperty size value -> do
-                Binary.put strProperty
-                Binary.put size
-                Binary.put value
+                put strProperty
+                put size
+                put value
 
-instance DeepSeq.NFData Property where
+instance NFData Property where
 
-instance Aeson.ToJSON Property where
+instance ToJSON Property where
     toJSON property = case property of
         ArrayProperty size x -> Aeson.object
             [ "Type" .= ("Array" :: Text.Text)

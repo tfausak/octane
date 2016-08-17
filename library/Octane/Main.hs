@@ -1,5 +1,7 @@
 module Octane.Main (main) where
 
+import Basics
+
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.ByteString.Lazy as LazyBytes

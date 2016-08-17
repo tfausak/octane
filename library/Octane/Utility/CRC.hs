@@ -1,5 +1,7 @@
 module Octane.Utility.CRC (crc32) where
 
+import Basics
+
 import qualified Data.Bits as Bits
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Vector.Unboxed as Vector
@@ -8,13 +10,7 @@ import qualified Data.Word as Word
 
 -- | Computes the CRC32 of some bytes. Note that this is a non-standard CRC32.
 -- It probably only works for Rocket League.
---
--- >>> crc32 ""
--- 4023120385
---
--- >>> crc32 "123456789"
--- 3690624627
-crc32 :: LazyBytes.ByteString -> Word.Word32
+crc32 :: LazyBytes -> Word.Word32
 crc32 bytes = do
     let update = crc32Update crc32Table
     let initial = Bits.complement crc32Initial
