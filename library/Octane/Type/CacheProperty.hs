@@ -3,7 +3,6 @@ module Octane.Type.CacheProperty (CacheProperty(..)) where
 import Basics
 
 import qualified Data.Binary as Binary
-import qualified Data.Default.Class as Default
 import qualified Octane.Type.Word32 as Word32
 
 
@@ -15,7 +14,7 @@ data CacheProperty = CacheProperty
     -- ^ The object's ID in the network stream.
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''CacheProperty)
+$(overloadedRecord def ''CacheProperty)
 
 -- | Fields are stored one after the other in order.
 instance Binary.Binary CacheProperty where

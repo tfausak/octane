@@ -10,7 +10,6 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
-import qualified Data.Default.Class as Default
 import qualified Octane.Utility.CRC as CRC
 import qualified Octane.Type.Word32 as Word32
 import qualified Text.Printf as Printf
@@ -39,7 +38,7 @@ data RawReplay = RawReplay
     -- invalid to put something here.
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''RawReplay)
+$(overloadedRecord def ''RawReplay)
 
 -- | Decoding will fail if the CRCs don't match, but it is possible to encode
 -- invalid replays. That means @decode (encode rawReplay)@ can fail.

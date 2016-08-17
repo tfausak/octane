@@ -3,7 +3,6 @@ module Octane.Type.ReplayWithFrames (ReplayWithFrames(..), fromReplayWithoutFram
 import Basics
 
 import qualified Data.Binary as Binary
-import qualified Data.Default.Class as Default
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.Dictionary as Dictionary
@@ -41,7 +40,7 @@ data ReplayWithFrames = ReplayWithFrames
     , replayWithFramesCache :: List.List CacheItem.CacheItem
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''ReplayWithFrames)
+$(overloadedRecord def ''ReplayWithFrames)
 
 instance Binary.Binary ReplayWithFrames where
     get = do

@@ -2,7 +2,6 @@ module Octane.Type.Replication (Replication(..)) where
 
 import Basics
 
-import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as StrictText
 import qualified Octane.Type.CompressedWord as CompressedWord
@@ -31,6 +30,6 @@ data Replication = Replication
     -- ^ The property updates associated with this actor's replication.
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''Replication)
+$(overloadedRecord def ''Replication)
 
 instance NFData Replication where

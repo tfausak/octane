@@ -4,7 +4,6 @@ import Basics
 
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import qualified Data.Default.Class as Default
 import qualified Data.Map as Map
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
@@ -72,7 +71,7 @@ data Replay = Replay
     , replayFrames :: [Frame.Frame]
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''Replay)
+$(overloadedRecord def ''Replay)
 
 instance Binary.Binary Replay where
     get = do

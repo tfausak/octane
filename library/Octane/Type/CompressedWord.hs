@@ -7,7 +7,6 @@ import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Bits as Bits
-import qualified Data.Default.Class as Default
 import qualified Octane.Type.Boolean as Boolean
 
 
@@ -20,7 +19,7 @@ data CompressedWord = CompressedWord
     , compressedWordValue :: Word
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''CompressedWord)
+$(overloadedRecord def ''CompressedWord)
 
 -- | Abuses the first argument to 'BinaryBit.getBits' as the maximum value.
 instance BinaryBit.BinaryBit CompressedWord where

@@ -3,7 +3,6 @@ module Octane.Type.ClassItem (ClassItem(..)) where
 import Basics
 
 import qualified Data.Binary as Binary
-import qualified Data.Default.Class as Default
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -17,7 +16,7 @@ data ClassItem = ClassItem
     -- ^ The class's ID in the network stream.
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''ClassItem)
+$(overloadedRecord def ''ClassItem)
 
 -- | Fields are stored one after the other in order.
 instance Binary.Binary ClassItem where

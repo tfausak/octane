@@ -7,7 +7,6 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
-import qualified Data.Default.Class as Default
 
 
 -- | A boolean value.
@@ -15,7 +14,7 @@ newtype Boolean = Boolean
     { booleanUnpack :: Bool
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''Boolean)
+$(overloadedRecord def ''Boolean)
 
 -- | Stored in the last bit of a byte. Decoding will fail if the byte is
 -- anything other than @0b00000000@ or @0b00000001@.

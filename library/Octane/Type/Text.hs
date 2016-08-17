@@ -11,7 +11,6 @@ import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Char8 as StrictBytes
 import qualified Data.Char as Char
-import qualified Data.Default.Class as Default
 import qualified Data.String as String
 import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
@@ -24,7 +23,7 @@ newtype Text = Text
     { textUnpack :: StrictText.Text
     } deriving (Eq, Generic, Ord)
 
-$(overloadedRecord Default.def ''Text)
+$(overloadedRecord def ''Text)
 
 -- | Text is both length-prefixed and null-terminated.
 instance Binary.Binary Text where

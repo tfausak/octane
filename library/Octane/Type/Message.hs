@@ -3,7 +3,6 @@ module Octane.Type.Message (Message(..)) where
 import Basics
 
 import qualified Data.Binary as Binary
-import qualified Data.Default.Class as Default
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
@@ -17,7 +16,7 @@ data Message = Message
     -- ^ The actual content of the message.
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''Message)
+$(overloadedRecord def ''Message)
 
 -- | Fields stored in order, one after the other.
 instance Binary.Binary Message where

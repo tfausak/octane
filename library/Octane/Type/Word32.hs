@@ -10,7 +10,6 @@ import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
-import qualified Data.Default.Class as Default
 import qualified Data.Word as Word
 import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
@@ -21,7 +20,7 @@ newtype Word32 = Word32
     { word32Unpack :: Word.Word32
     } deriving (Eq, Generic, Num, Ord)
 
-$(overloadedRecord Default.def ''Word32)
+$(overloadedRecord def ''Word32)
 
 -- | Little-endian.
 instance Binary.Binary Word32 where

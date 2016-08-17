@@ -6,7 +6,6 @@ import qualified Data.Binary as Binary
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
-import qualified Data.Default.Class as Default
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.Dictionary as Dictionary
@@ -42,7 +41,7 @@ data ReplayWithoutFrames = ReplayWithoutFrames
     , replayWithoutFramesCache :: List.List CacheItem.CacheItem
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''ReplayWithoutFrames)
+$(overloadedRecord def ''ReplayWithoutFrames)
 
 instance Binary.Binary ReplayWithoutFrames where
     get = do

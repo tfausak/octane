@@ -8,7 +8,6 @@ import Basics
 
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
-import qualified Data.Default.Class as Default
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 import qualified Octane.Data as Data
@@ -27,7 +26,7 @@ data Initialization = Initialization
     -- ^ The instance's initial rotation.
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''Initialization)
+$(overloadedRecord def ''Initialization)
 
 instance NFData Initialization where
 

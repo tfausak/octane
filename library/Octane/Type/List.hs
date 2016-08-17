@@ -5,7 +5,6 @@ import Basics
 import qualified Control.Monad as Monad
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import qualified Data.Default.Class as Default
 import qualified GHC.Exts as Exts
 import qualified Octane.Type.Word32 as Word32
 
@@ -15,7 +14,7 @@ newtype List a = List
     { listUnpack :: [a]
     } deriving (Eq, Generic, Ord)
 
-$(overloadedRecord Default.def ''List)
+$(overloadedRecord def ''List)
 
 -- | Prefixed with the number of elements in the list.
 instance (Binary.Binary a) => Binary.Binary (List a) where

@@ -4,7 +4,6 @@ import Basics
 
 import qualified Data.Aeson as Aeson
 import qualified Data.Bimap as Bimap
-import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as StrictText
 import qualified Octane.Data as Data
@@ -33,7 +32,7 @@ data Frame = Frame
     -- ^ A list of all the replications in this frame.
     } deriving (Eq, Generic, Show)
 
-$(overloadedRecord Default.def ''Frame)
+$(overloadedRecord def ''Frame)
 
 instance NFData Frame where
 
