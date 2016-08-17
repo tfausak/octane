@@ -30,7 +30,7 @@ instance Binary Int8 where
         Binary.putInt8 value
 
 -- | Stored with the bits reversed.
-instance BinaryBit.BinaryBit Int8 where
+instance BinaryBit Int8 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 1
         bytes

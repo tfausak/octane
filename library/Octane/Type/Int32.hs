@@ -31,7 +31,7 @@ instance Binary Int32 where
         Binary.putInt32le value
 
 -- | Little-endian with the bits in each byte reversed.
-instance BinaryBit.BinaryBit Int32 where
+instance BinaryBit Int32 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 4
         bytes

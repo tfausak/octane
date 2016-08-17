@@ -39,7 +39,7 @@ instance Binary Text where
 
 -- | Both length-prefixed and null-terminated. The bits in each byte are
 -- reversed.
-instance BinaryBit.BinaryBit Text where
+instance BinaryBit Text where
     getBits _ = getText
         (BinaryBit.getBits 32)
         BinaryBit.getByteString

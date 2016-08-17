@@ -32,7 +32,7 @@ generateStream frames _objects _names _classes _cache = do
     Stream.Stream bytes
 
 
-putFrames :: [Frame.Frame] -> BinaryBit.BitPut ()
+putFrames :: [Frame.Frame] -> BitPut ()
 putFrames frames = do
     case frames of
         [] -> pure ()
@@ -41,14 +41,14 @@ putFrames frames = do
             putFrames rest
 
 
-putFrame :: Frame.Frame -> BinaryBit.BitPut ()
+putFrame :: Frame.Frame -> BitPut ()
 putFrame frame = do
     frame & #time & BinaryBit.putBits 32
     frame & #delta & BinaryBit.putBits 32
     frame & #replications & putReplications
 
 
-putReplications :: [Replication.Replication] -> BinaryBit.BitPut ()
+putReplications :: [Replication.Replication] -> BitPut ()
 putReplications replications = do
     case replications of
         [] -> do
@@ -59,7 +59,7 @@ putReplications replications = do
             putReplications rest
 
 
-putReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putReplication :: Replication.Replication -> BitPut ()
 putReplication replication = do
     replication & #actorId & BinaryBit.putBits 0
     case #state replication of
@@ -68,7 +68,7 @@ putReplication replication = do
         State.SClosing -> putClosedReplication replication
 
 
-putNewReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putNewReplication :: Replication.Replication -> BitPut ()
 putNewReplication replication = do
     True & Boolean.Boolean & BinaryBit.putBits 1 -- open
     True & Boolean.Boolean & BinaryBit.putBits 1 -- new
@@ -79,13 +79,13 @@ putNewReplication replication = do
         Just x -> Initialization.putInitialization x
 
 
-putExistingReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putExistingReplication :: Replication.Replication -> BitPut ()
 putExistingReplication _replication = do
     True & Boolean.Boolean & BinaryBit.putBits 1 -- open
     False & Boolean.Boolean & BinaryBit.putBits 1 -- existing
     -- TODO: put props
 
 
-putClosedReplication :: Replication.Replication -> BinaryBit.BitPut ()
+putClosedReplication :: Replication.Replication -> BitPut ()
 putClosedReplication _replication = do
     False & Boolean.Boolean & BinaryBit.putBits 1 -- closed

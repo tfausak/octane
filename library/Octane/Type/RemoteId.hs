@@ -29,7 +29,7 @@ data PlayStationId = PlayStationId
 $(overloadedRecord def ''PlayStationId)
 
 -- | Each part is stored as exactly 16 bits.
-instance BinaryBit.BinaryBit PlayStationId where
+instance BinaryBit PlayStationId where
     getBits _ = do
         nameBytes <- BinaryBit.getByteString 16
         let name = nameBytes
@@ -82,7 +82,7 @@ newtype SplitscreenId = SplitscreenId
 $(overloadedRecord def ''SplitscreenId)
 
 -- | Stored as a bare byte string.
-instance BinaryBit.BinaryBit SplitscreenId where
+instance BinaryBit SplitscreenId where
     getBits _ = do
         bytes <- BinaryBit.getByteString 3
         case bytes of
@@ -108,7 +108,7 @@ newtype SteamId = SteamId
 $(overloadedRecord def ''SteamId)
 
 -- | Stored as a plain 'Word64.Word64'.
-instance BinaryBit.BinaryBit SteamId where
+instance BinaryBit SteamId where
     getBits _ = do
         steamId <- BinaryBit.getBits 0
         pure (SteamId steamId)
@@ -129,7 +129,7 @@ newtype XboxId = XboxId
 $(overloadedRecord def ''XboxId)
 
 -- | Stored as a plain 'Word64.Word64'.
-instance BinaryBit.BinaryBit XboxId where
+instance BinaryBit XboxId where
     getBits _ = do
         xboxId <- BinaryBit.getBits 0
         pure (XboxId xboxId)

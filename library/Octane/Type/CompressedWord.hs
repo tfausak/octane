@@ -4,7 +4,6 @@ import Basics
 
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary.Bits as BinaryBit
-import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Bits as Bits
 import qualified Octane.Type.Boolean as Boolean
@@ -22,7 +21,7 @@ data CompressedWord = CompressedWord
 $(overloadedRecord def ''CompressedWord)
 
 -- | Abuses the first argument to 'BinaryBit.getBits' as the maximum value.
-instance BinaryBit.BinaryBit CompressedWord where
+instance BinaryBit CompressedWord where
     getBits n = do
         let limit = fromIntegral n
         value <- getStep limit (bitSize limit) 0 0
@@ -59,7 +58,7 @@ bitSize :: (Integral a, Integral b) => a -> b
 bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling
 
 
-getStep :: Word -> Word -> Word -> Word -> BinaryBit.BitGet Word
+getStep :: Word -> Word -> Word -> Word -> BitGet Word
 getStep limit maxBits position value = do
     let x = Bits.shiftL 1 (fromIntegral position)
     if position < maxBits && value + x <= limit

@@ -32,7 +32,7 @@ instance Binary Boolean where
         & Binary.putWord8
 
 -- | Stored as a bit.
-instance BinaryBit.BinaryBit Boolean where
+instance BinaryBit Boolean where
     getBits _ = do
         value <- BinaryBit.getBool
         value & Boolean & pure

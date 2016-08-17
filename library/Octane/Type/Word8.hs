@@ -31,7 +31,7 @@ instance Binary Word8 where
         Binary.putWord8 value
 
 -- | The bits are reversed.
-instance BinaryBit.BinaryBit Word8 where
+instance BinaryBit Word8 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 1
         bytes

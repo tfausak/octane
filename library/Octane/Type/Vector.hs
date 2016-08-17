@@ -11,8 +11,6 @@ import Basics
 
 import qualified Data.Bits as Bits
 import qualified Data.Binary.Bits as BinaryBit
-import qualified Data.Binary.Bits.Get as BinaryBit
-import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Int8 as Int8
@@ -43,7 +41,7 @@ instance (ToJSON a) => ToJSON (Vector a) where
 
 
 -- | Gets a 'Vector' full of 'Float's.
-getFloatVector :: BinaryBit.BitGet (Vector Float)
+getFloatVector :: BitGet (Vector Float)
 getFloatVector = do
     let maxValue = 1
     let numBits = 16
@@ -55,7 +53,7 @@ getFloatVector = do
     pure (Vector x y z)
 
 
-getFloat :: Int -> Int -> BinaryBit.BitGet Float
+getFloat :: Int -> Int -> BitGet Float
 getFloat maxValue numBits = do
     let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
     let bias = Bits.shiftL 1 (numBits - 1)
@@ -73,7 +71,7 @@ getFloat maxValue numBits = do
 
 
 -- | Gets a 'Vector' full of 'Int8's.
-getInt8Vector :: BinaryBit.BitGet (Vector Int8.Int8)
+getInt8Vector :: BitGet (Vector Int8.Int8)
 getInt8Vector = do
     (hasX :: Boolean.Boolean) <- BinaryBit.getBits 0
     x <- if #unpack hasX then BinaryBit.getBits 0 else pure 0
@@ -88,7 +86,7 @@ getInt8Vector = do
 
 
 -- | Gets a 'Vector' full of 'Int's.
-getIntVector :: BinaryBit.BitGet (Vector Int)
+getIntVector :: BitGet (Vector Int)
 getIntVector = do
     numBits <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits 19)
     let bias = Bits.shiftL 1 (numBits + 1)
@@ -103,12 +101,12 @@ getIntVector = do
 
 
 -- | Puts a 'Vector' full of 'Int8's.
-putInt8Vector :: Vector Int8.Int8 -> BinaryBit.BitPut ()
+putInt8Vector :: Vector Int8.Int8 -> BitPut ()
 putInt8Vector _ = do
     pure ()
 
 
 -- | Puts a 'Vector' full of 'Int's.
-putIntVector :: Vector Int -> BinaryBit.BitPut ()
+putIntVector :: Vector Int -> BitPut ()
 putIntVector _ = do
     pure ()

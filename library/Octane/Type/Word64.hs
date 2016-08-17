@@ -32,7 +32,7 @@ instance Binary Word64 where
         Binary.putWord64le value
 
 -- | Little-endian with the bits in each byte reversed.
-instance BinaryBit.BinaryBit Word64 where
+instance BinaryBit Word64 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 8
         bytes

@@ -31,7 +31,7 @@ instance Binary Float32 where
         & IEEE754.putFloat32le
 
 -- | Little-endian with the bits in each byte reversed.
-instance BinaryBit.BinaryBit Float32 where
+instance BinaryBit Float32 where
     getBits _ = do
         bytes <- BinaryBit.getByteString 4
         bytes
