@@ -4,7 +4,6 @@ import Basics
 
 import qualified Data.Bimap as Bimap
 import qualified Data.FileEmbed as FileEmbed
-import qualified Data.Set as Set
 import qualified Octane.Utility.Embed as Embed
 
 
@@ -16,12 +15,12 @@ classes = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
 
 
 -- | A set of classes that have an initial location vector.
-classesWithLocation :: Set.Set StrictText
+classesWithLocation :: Set StrictText
 classesWithLocation = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-location.json")
 
 
 -- | A set of classes that have an initial rotation vector.
-classesWithRotation :: Set.Set StrictText
+classesWithRotation :: Set StrictText
 classesWithRotation = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-rotation.json")
 
 

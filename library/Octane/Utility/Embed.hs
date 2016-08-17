@@ -40,7 +40,7 @@ decodeMap bytes = bytes
 decodeSet
     :: (FromJSON a, Ord a)
     => StrictBytes
-    -> Set.Set a
+    -> Set a
 decodeSet bytes = bytes
     & Aeson.decodeStrict
     & Maybe.fromMaybe Set.empty

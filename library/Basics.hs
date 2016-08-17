@@ -24,6 +24,7 @@ import Prelude
 import qualified Data.ByteString
 import qualified Data.ByteString.Lazy
 import qualified Data.Map.Strict
+import qualified Data.Set
 import qualified Data.Text
 
 
@@ -31,5 +32,7 @@ type LazyBytes = Data.ByteString.Lazy.ByteString
 type StrictBytes = Data.ByteString.ByteString
 
 type StrictMap = Data.Map.Strict.Map
+
+type Set = Data.Set.Set
 
 type StrictText = Data.Text.Text

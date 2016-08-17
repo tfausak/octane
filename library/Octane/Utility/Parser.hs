@@ -567,7 +567,7 @@ data Context = Context
     , contextClassPropertyMap :: ClassPropertyMap
     , contextThings :: (IntMap.IntMap Thing)
     , contextClassMap :: ClassMap
-    , contextKeyFrames :: (Set.Set Word)
+    , contextKeyFrames :: (Set Word)
     , contextVersion :: Version.Version
     } deriving (Eq, Generic, Show)
 
