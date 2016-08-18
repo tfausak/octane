@@ -16,6 +16,6 @@ on_success:
 - powershell -File tools/attach-binary.ps1
 platform: x64
 test_script:
-- stack.exe --no-terminal build --bench --ghc-options -O2 --no-run-benchmarks --pedantic --test
+- stack.exe build --bench --ghc-options -O2 --no-run-benchmarks --pedantic --test
 - stack.exe sdist
 version: '{build}'
