@@ -23,6 +23,9 @@ os:
 - osx
 script:
 - stack setup
-- travis_wait stack build --bench --ghc-options -O2 --no-run-benchmarks --pedantic --test
+- stack build --bench --only-dependencies --test
+- stack build --ghc-options -O2 --pedantic
+- stack build --pedantic --test
+- stack build --bench --no-run-benchmarks --pedantic
 - stack sdist
 sudo: false
