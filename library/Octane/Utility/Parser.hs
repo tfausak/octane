@@ -90,14 +90,12 @@ getMaybeFrame context number = do
 getFrame :: Context -> Word -> Float32.Float32 -> Float32.Float32 -> BinaryBit.BitGet (Context, Frame.Frame)
 getFrame context number time delta = do
     (newContext, replications) <- getReplications context
-    let frame =
-            Frame.Frame
-            { Frame.frameNumber = number
-            , Frame.frameIsKeyFrame = context & contextKeyFrames & Set.member number
-            , Frame.frameTime = time
-            , Frame.frameDelta = delta
-            , Frame.frameReplications = replications
-            }
+    let frame = Frame.Frame
+            number
+            (context & contextKeyFrames & Set.member number)
+            time
+            delta
+            replications
     (newContext, frame) & DeepSeq.force & pure
 
 
@@ -173,16 +171,13 @@ getNewReplication context actorId = do
     let things = contextThings context
     let newThings = IntMap.insert (CompressedWord.fromCompressedWord actorId) thing things
     let newContext = context { contextThings = newThings }
-    pure
-        ( newContext
-        , Replication.Replication
-          { Replication.replicationActorId = actorId
-          , Replication.replicationObjectName = objectName
-          , Replication.replicationClassName = className
-          , Replication.replicationState = State.SOpening
-          , Replication.replicationInitialization = Just classInit
-          , Replication.replicationProperties = Map.empty
-          })
+    pure (newContext, Replication.Replication
+        actorId
+        objectName
+        className
+        State.SOpening
+        (Just classInit)
+        Map.empty)
 
 
 getExistingReplication :: Context
@@ -194,13 +189,12 @@ getExistingReplication context actorId = do
         Just x -> pure x
     props <- getProps context thing
     pure (context, Replication.Replication
-        { Replication.replicationActorId = actorId
-        , Replication.replicationObjectName = thingObjectName thing
-        , Replication.replicationClassName = thingClassName thing
-        , Replication.replicationState = State.SExisting
-        , Replication.replicationInitialization = Nothing
-        , Replication.replicationProperties = props
-        })
+        actorId
+        (thingObjectName thing)
+        (thingClassName thing)
+        State.SExisting
+        Nothing
+        props)
 
 
 getClosedReplication :: Context
@@ -212,16 +206,13 @@ getClosedReplication context actorId = do
         Just x -> pure x
     let newThings = context & contextThings & IntMap.delete (CompressedWord.fromCompressedWord actorId)
     let newContext = context { contextThings = newThings }
-    pure
-        ( newContext
-        , Replication.Replication
-          { Replication.replicationActorId = actorId
-          , Replication.replicationObjectName = thingObjectName thing
-          , Replication.replicationClassName = thingClassName thing
-          , Replication.replicationState = State.SClosing
-          , Replication.replicationInitialization = Nothing
-          , Replication.replicationProperties = Map.empty
-          })
+    pure (newContext, Replication.Replication
+          actorId
+          (thingObjectName thing)
+          (thingClassName thing)
+          State.SClosing
+          Nothing
+          Map.empty)
 
 
 getProps :: Context -> Thing -> BinaryBit.BitGet (Map.Map StrictText.Text Value.Value)
