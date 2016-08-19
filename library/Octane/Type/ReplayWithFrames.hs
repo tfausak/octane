@@ -8,9 +8,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.ReplayWithFrames (ReplayWithFrames(..), fromReplayWithoutFrames, toReplayWithoutFrames) where
-
-import Data.Function ((&))
+module Octane.Type.ReplayWithFrames
+    ( ReplayWithFrames(..)
+    , fromReplayWithoutFrames
+    , toReplayWithoutFrames
+    ) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
@@ -72,46 +74,45 @@ instance DeepSeq.NFData ReplayWithFrames where
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 fromReplayWithoutFrames :: (Monad m) => ReplayWithoutFrames.ReplayWithoutFrames -> m ReplayWithFrames
 fromReplayWithoutFrames replayWithoutFrames = do
-    pure ReplayWithFrames
-        { replayWithFramesVersion1 = replayWithoutFrames & #version1
-        , replayWithFramesVersion2 = replayWithoutFrames & #version2
-        , replayWithFramesLabel = replayWithoutFrames & #label
-        , replayWithFramesProperties = replayWithoutFrames & #properties
-        , replayWithFramesLevels = replayWithoutFrames & #levels
-        , replayWithFramesKeyFrames = replayWithoutFrames & #keyFrames
-        , replayWithFramesFrames = replayWithoutFrames & Parser.parseStream
-        , replayWithFramesMessages = replayWithoutFrames & #messages
-        , replayWithFramesMarks = replayWithoutFrames & #marks
-        , replayWithFramesPackages = replayWithoutFrames & #packages
-        , replayWithFramesObjects = replayWithoutFrames & #objects
-        , replayWithFramesNames = replayWithoutFrames & #names
-        , replayWithFramesClasses = replayWithoutFrames & #classes
-        , replayWithFramesCache = replayWithoutFrames & #cache
-        }
+    pure (ReplayWithFrames
+        (#version1 replayWithoutFrames)
+        (#version2 replayWithoutFrames)
+        (#label replayWithoutFrames)
+        (#properties replayWithoutFrames)
+        (#levels replayWithoutFrames)
+        (#keyFrames replayWithoutFrames)
+        (Parser.parseStream replayWithoutFrames)
+        (#messages replayWithoutFrames)
+        (#marks replayWithoutFrames)
+        (#packages replayWithoutFrames)
+        (#objects replayWithoutFrames)
+        (#names replayWithoutFrames)
+        (#classes replayWithoutFrames)
+        (#cache replayWithoutFrames))
 
 
 -- | Converts a 'ReplayWithFrames' into a 'ReplayWithoutFrames.ReplayWithoutFrames'.
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 toReplayWithoutFrames :: (Monad m) => ReplayWithFrames -> m ReplayWithoutFrames.ReplayWithoutFrames
 toReplayWithoutFrames replayWithFrames = do
-    pure ReplayWithoutFrames.ReplayWithoutFrames
-        { ReplayWithoutFrames.replayWithoutFramesVersion1 = replayWithFrames & #version1
-        , ReplayWithoutFrames.replayWithoutFramesVersion2 = replayWithFrames & #version2
-        , ReplayWithoutFrames.replayWithoutFramesLabel = replayWithFrames & #label
-        , ReplayWithoutFrames.replayWithoutFramesProperties = replayWithFrames & #properties
-        , ReplayWithoutFrames.replayWithoutFramesLevels = replayWithFrames & #levels
-        , ReplayWithoutFrames.replayWithoutFramesKeyFrames = replayWithFrames & #keyFrames
-        , ReplayWithoutFrames.replayWithoutFramesStream = Generator.generateStream
-            (replayWithFrames & #frames)
-            (replayWithFrames & #objects)
-            (replayWithFrames & #names)
-            (replayWithFrames & #classes)
-            (replayWithFrames & #cache)
-        , ReplayWithoutFrames.replayWithoutFramesMessages = replayWithFrames & #messages
-        , ReplayWithoutFrames.replayWithoutFramesMarks = replayWithFrames & #marks
-        , ReplayWithoutFrames.replayWithoutFramesPackages = replayWithFrames & #packages
-        , ReplayWithoutFrames.replayWithoutFramesObjects = replayWithFrames & #objects
-        , ReplayWithoutFrames.replayWithoutFramesNames = replayWithFrames & #names
-        , ReplayWithoutFrames.replayWithoutFramesClasses = replayWithFrames & #classes
-        , ReplayWithoutFrames.replayWithoutFramesCache = replayWithFrames & #cache
-        }
+    let stream = Generator.generateStream
+            (#frames replayWithFrames)
+            (#objects replayWithFrames)
+            (#names replayWithFrames)
+            (#classes replayWithFrames)
+            (#cache replayWithFrames)
+    pure (ReplayWithoutFrames.ReplayWithoutFrames
+        (#version1 replayWithFrames)
+        (#version2 replayWithFrames)
+        (#label replayWithFrames)
+        (#properties replayWithFrames)
+        (#levels replayWithFrames)
+        (#keyFrames replayWithFrames)
+        stream
+        (#messages replayWithFrames)
+        (#marks replayWithFrames)
+        (#packages replayWithFrames)
+        (#objects replayWithFrames)
+        (#names replayWithFrames)
+        (#classes replayWithFrames)
+        (#cache replayWithFrames))

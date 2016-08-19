@@ -9,7 +9,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.Replay (Replay(..), fromOptimizedReplay, toOptimizedReplay) where
+module Octane.Type.Replay
+    ( Replay(..)
+    , fromOptimizedReplay
+    , toOptimizedReplay
+    ) where
 
 import Data.Aeson ((.=))
 import Data.Function ((&))

@@ -8,7 +8,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.ReplayWithoutFrames (ReplayWithoutFrames(..), fromRawReplay, toRawReplay) where
+module Octane.Type.ReplayWithoutFrames
+    ( ReplayWithoutFrames(..)
+    , fromRawReplay
+    , toRawReplay
+    ) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
@@ -90,7 +94,21 @@ fromRawReplay rawReplay = do
             classes <- Binary.get
             cache <- Binary.get
 
-            pure (ReplayWithoutFrames version1 version2 label properties levels keyFrames stream messages marks packages objects names classes cache)
+            pure (ReplayWithoutFrames
+                version1
+                version2
+                label
+                properties
+                levels
+                keyFrames
+                stream
+                messages
+                marks
+                packages
+                objects
+                names
+                classes
+                cache)
     let bytes = LazyBytes.append header content
 
     pure (Binary.runGet get bytes)

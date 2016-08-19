@@ -21,6 +21,7 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word64 as Word64
 
 
+-- TODO: Split these into individual data types like RemoteId.
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.

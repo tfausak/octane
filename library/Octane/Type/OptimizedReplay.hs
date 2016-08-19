@@ -76,41 +76,40 @@ instance DeepSeq.NFData OptimizedReplay where
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 fromReplayWithFrames :: (Monad m) => ReplayWithFrames.ReplayWithFrames -> m OptimizedReplay
 fromReplayWithFrames replayWithFrames = do
-    pure OptimizedReplay
-        { optimizedReplayVersion1 = replayWithFrames & #version1
-        , optimizedReplayVersion2 = replayWithFrames & #version2
-        , optimizedReplayLabel = replayWithFrames & #label
-        , optimizedReplayProperties = replayWithFrames & #properties
-        , optimizedReplayLevels = replayWithFrames & #levels
-        , optimizedReplayKeyFrames = replayWithFrames & #keyFrames
-        , optimizedReplayFrames = replayWithFrames & #frames & Optimizer.optimizeFrames
-        , optimizedReplayMessages = replayWithFrames & #messages
-        , optimizedReplayMarks = replayWithFrames & #marks
-        , optimizedReplayPackages = replayWithFrames & #packages
-        , optimizedReplayObjects = replayWithFrames & #objects
-        , optimizedReplayNames = replayWithFrames & #names
-        , optimizedReplayClasses = replayWithFrames & #classes
-        , optimizedReplayCache = replayWithFrames & #cache
-        }
+    let frames = replayWithFrames & #frames & Optimizer.optimizeFrames
+    pure (OptimizedReplay
+        (#version1 replayWithFrames)
+        (#version2 replayWithFrames)
+        (#label replayWithFrames)
+        (#properties replayWithFrames)
+        (#levels replayWithFrames)
+        (#keyFrames replayWithFrames)
+        frames
+        (#messages replayWithFrames)
+        (#marks replayWithFrames)
+        (#packages replayWithFrames)
+        (#objects replayWithFrames)
+        (#names replayWithFrames)
+        (#classes replayWithFrames)
+        (#cache replayWithFrames))
 
 
 -- | Converts an 'OptimizedReplay' into a 'ReplayWithFrames.ReplayWithFrames'.
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 toReplayWithFrames :: (Monad m) => OptimizedReplay -> m ReplayWithFrames.ReplayWithFrames
 toReplayWithFrames optimizedReplay = do
-    pure ReplayWithFrames.ReplayWithFrames
-        { ReplayWithFrames.replayWithFramesVersion1 = optimizedReplay & #version1
-        , ReplayWithFrames.replayWithFramesVersion2 = optimizedReplay & #version2
-        , ReplayWithFrames.replayWithFramesLabel = optimizedReplay & #label
-        , ReplayWithFrames.replayWithFramesProperties = optimizedReplay & #properties
-        , ReplayWithFrames.replayWithFramesLevels = optimizedReplay & #levels
-        , ReplayWithFrames.replayWithFramesKeyFrames = optimizedReplay & #keyFrames
-        , ReplayWithFrames.replayWithFramesFrames = optimizedReplay & #frames
-        , ReplayWithFrames.replayWithFramesMessages = optimizedReplay & #messages
-        , ReplayWithFrames.replayWithFramesMarks = optimizedReplay & #marks
-        , ReplayWithFrames.replayWithFramesPackages = optimizedReplay & #packages
-        , ReplayWithFrames.replayWithFramesObjects = optimizedReplay & #objects
-        , ReplayWithFrames.replayWithFramesNames = optimizedReplay & #names
-        , ReplayWithFrames.replayWithFramesClasses = optimizedReplay & #classes
-        , ReplayWithFrames.replayWithFramesCache = optimizedReplay & #cache
-        }
+    pure (ReplayWithFrames.ReplayWithFrames
+        (#version1 optimizedReplay)
+        (#version2 optimizedReplay)
+        (#label optimizedReplay)
+        (#properties optimizedReplay)
+        (#levels optimizedReplay)
+        (#keyFrames optimizedReplay)
+        (#frames optimizedReplay)
+        (#messages optimizedReplay)
+        (#marks optimizedReplay)
+        (#packages optimizedReplay)
+        (#objects optimizedReplay)
+        (#names optimizedReplay)
+        (#classes optimizedReplay)
+        (#cache optimizedReplay))

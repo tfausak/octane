@@ -10,7 +10,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.CompressedWord (CompressedWord(..), fromCompressedWord) where
+module Octane.Type.CompressedWord
+    ( CompressedWord(..)
+    , fromCompressedWord
+    ) where
 
 import Data.Aeson ((.=))
 import Data.Function ((&))

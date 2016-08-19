@@ -119,10 +119,10 @@ getIntVector = do
 -- | Puts a 'Vector' full of 'Int8's.
 putInt8Vector :: Vector Int8.Int8 -> BinaryBit.BitPut ()
 putInt8Vector _ = do
-    pure ()
+    pure () -- TODO
 
 
 -- | Puts a 'Vector' full of 'Int's.
 putIntVector :: Vector Int -> BinaryBit.BitPut ()
 putIntVector _ = do
-    pure ()
+    pure () -- TODO

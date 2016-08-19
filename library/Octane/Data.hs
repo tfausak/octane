@@ -25,7 +25,8 @@ import qualified Octane.Utility.Embed as Embed
 -- >>> Map.lookup "TheWorld:PersistentLevel.InMapScoreboard_TA" classes
 -- Just "TAGame.InMapScoreboard_TA"
 classes :: Map.Map StrictText.Text StrictText.Text
-classes = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
+classes = Embed.decodeMap
+    $(FileEmbed.embedFile "data/classes.json")
 
 
 -- | A set of classes that have an initial location vector.
@@ -33,7 +34,8 @@ classes = Embed.decodeMap $(FileEmbed.embedFile "data/classes.json")
 -- >>> Set.member "TAGame.Ball_TA" classesWithLocation
 -- True
 classesWithLocation :: Set.Set StrictText.Text
-classesWithLocation = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-location.json")
+classesWithLocation = Embed.decodeSet
+    $(FileEmbed.embedFile "data/classes-with-location.json")
 
 
 -- | A set of classes that have an initial rotation vector.
@@ -41,7 +43,8 @@ classesWithLocation = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-l
 -- >>> Set.member "TAGame.Ball_TA" classesWithRotation
 -- True
 classesWithRotation :: Set.Set StrictText.Text
-classesWithRotation = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-rotation.json")
+classesWithRotation = Embed.decodeSet
+    $(FileEmbed.embedFile "data/classes-with-rotation.json")
 
 
 -- | A one-to-one mapping between game mode IDs and their names.
@@ -49,7 +52,8 @@ classesWithRotation = Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-r
 -- >>> Bimap.lookup 1 gameModes :: Maybe StrictText.Text
 -- Just "Hockey"
 gameModes :: Bimap.Bimap Int StrictText.Text
-gameModes = Embed.decodeBimap $(FileEmbed.embedFile "data/game-modes.json")
+gameModes = Embed.decodeBimap
+    $(FileEmbed.embedFile "data/game-modes.json")
 
 
 -- | A one-to-one mapping between product IDs and their names.
@@ -57,7 +61,8 @@ gameModes = Embed.decodeBimap $(FileEmbed.embedFile "data/game-modes.json")
 -- >>> Bimap.lookup 1 products :: Maybe StrictText.Text
 -- Just "Antenna_8Ball"
 products :: Bimap.Bimap Word StrictText.Text
-products = Embed.decodeBimap $(FileEmbed.embedFile "data/products.json")
+products = Embed.decodeBimap
+    $(FileEmbed.embedFile "data/products.json")
 
 
 -- | A mapping between property names and their serialized type.
@@ -65,4 +70,5 @@ products = Embed.decodeBimap $(FileEmbed.embedFile "data/products.json")
 -- >>> Map.lookup "Engine.Actor:bBlockActors" properties
 -- Just "boolean"
 properties :: Map.Map StrictText.Text StrictText.Text
-properties = Embed.decodeMap $(FileEmbed.embedFile "data/properties.json")
+properties = Embed.decodeMap
+    $(FileEmbed.embedFile "data/properties.json")
