@@ -1,7 +1,13 @@
 {-# LANGUAGE BinaryLiterals #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Utility.Parser (parseStream) where
 
@@ -12,8 +18,10 @@ import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Get as Binary
+import qualified Data.Default.Class as Default
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Map.Strict as Map
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
@@ -39,6 +47,70 @@ import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 import qualified Octane.Utility.ClassPropertyMap as CPM
 import qualified Text.Printf as Printf
+
+
+-- Data types
+
+
+-- { class stream id => { property stream id => name } }
+type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap StrictText.Text)
+
+
+-- { stream id => object name }
+type ObjectMap = IntMap.IntMap StrictText.Text
+
+
+-- { class name => class id }
+type ClassMap = Map.Map StrictText.Text Int
+
+
+data Thing = Thing
+    { thingFlag :: Boolean.Boolean
+    , thingObjectId :: Int32.Int32
+    , thingObjectName :: StrictText.Text
+    , thingClassId :: Int
+    , thingClassName :: StrictText.Text
+    , thingInitialization :: Initialization.Initialization
+    } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Thing)
+
+instance DeepSeq.NFData Thing
+
+
+data Context = Context
+    { contextObjectMap :: ObjectMap
+    , contextClassPropertyMap :: ClassPropertyMap
+    , contextThings :: IntMap.IntMap Thing
+    , contextClassMap :: ClassMap
+    , contextKeyFrames :: Set.Set Word
+    , contextVersion :: Version.Version
+    } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''Context)
+
+instance DeepSeq.NFData Context
+
+
+extractContext :: ReplayWithoutFrames.ReplayWithoutFrames -> Context
+extractContext replay = do
+    let keyFrames = replay
+            & #keyFrames
+            & #unpack
+            & map #frame
+            & map Word32.fromWord32
+            & Set.fromList
+    let version =
+            [ replay & #version1
+            , replay & #version2
+            ] & map Word32.fromWord32 & Version.makeVersion
+    Context
+        (CPM.getPropertyMap replay)
+        (CPM.getClassPropertyMap replay)
+        IntMap.empty
+        (CPM.getActorMap replay)
+        keyFrames
+        version
 
 
 -- | Parses the network stream and returns a list of frames.
@@ -92,7 +164,7 @@ getFrame context number time delta = do
     (newContext, replications) <- getReplications context
     let frame = Frame.Frame
             number
-            (context & contextKeyFrames & Set.member number)
+            (context & #keyFrames & Set.member number)
             time
             delta
             replications
@@ -151,24 +223,23 @@ getNewReplication context actorId = do
         then fail "the unknown flag in a new replication is true! what does it mean?"
         else pure ()
     objectId <- getInt32
-    objectName <- case context & contextObjectMap & IntMap.lookup (Int32.fromInt32 objectId) of
+    objectName <- case context & #objectMap & IntMap.lookup (Int32.fromInt32 objectId) of
         Nothing -> fail ("could not find object name for id " ++ show objectId)
         Just x -> pure x
     (classId, className) <- CPM.getClass
-        (contextObjectMap context)
+        (#objectMap context)
         Data.classes
-        (contextClassMap context)
+        (#classMap context)
         (Int32.fromInt32 objectId)
     classInit <- Initialization.getInitialization className
     let thing = Thing
-            { thingFlag = unknownFlag
-            , thingObjectId = objectId
-            , thingObjectName = objectName
-            , thingClassId = classId
-            , thingClassName = className
-            , thingInitialization = classInit
-            }
-    let things = contextThings context
+            unknownFlag
+            objectId
+            objectName
+            classId
+            className
+            classInit
+    let things = #things context
     let newThings = IntMap.insert (CompressedWord.fromCompressedWord actorId) thing things
     let newContext = context { contextThings = newThings }
     pure (newContext, Replication.Replication
@@ -184,14 +255,14 @@ getExistingReplication :: Context
                        -> CompressedWord.CompressedWord
                        -> BinaryBit.BitGet (Context, Replication.Replication)
 getExistingReplication context actorId = do
-    thing <- case context & contextThings & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
+    thing <- case context & #things & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
         Nothing -> fail ("could not find thing for existing actor " ++ show actorId)
         Just x -> pure x
     props <- getProps context thing
     pure (context, Replication.Replication
         actorId
-        (thingObjectName thing)
-        (thingClassName thing)
+        (#objectName thing)
+        (#className thing)
         State.SExisting
         Nothing
         props)
@@ -201,15 +272,15 @@ getClosedReplication :: Context
                      -> CompressedWord.CompressedWord
                      -> BinaryBit.BitGet (Context, Replication.Replication)
 getClosedReplication context actorId = do
-    thing <- case context & contextThings & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
+    thing <- case context & #things & IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
         Nothing -> fail ("could not find thing for closed actor " ++ show actorId)
         Just x -> pure x
-    let newThings = context & contextThings & IntMap.delete (CompressedWord.fromCompressedWord actorId)
+    let newThings = context & #things & IntMap.delete (CompressedWord.fromCompressedWord actorId)
     let newContext = context { contextThings = newThings }
     pure (newContext, Replication.Replication
           actorId
-          (thingObjectName thing)
-          (thingClassName thing)
+          (#objectName thing)
+          (#className thing)
           State.SClosing
           Nothing
           Map.empty)
@@ -238,8 +309,8 @@ getMaybeProp context thing = do
 
 getProp :: Context -> Thing -> BinaryBit.BitGet (StrictText.Text, Value.Value)
 getProp context thing = do
-    let classId = thing & thingClassId
-    props <- case context & contextClassPropertyMap & IntMap.lookup classId of
+    let classId = #classId thing
+    props <- case context & #classPropertyMap & IntMap.lookup classId of
         Nothing -> fail ("could not find property map for class id " ++ show classId)
         Just x -> pure x
     let maxId = props & IntMap.keys & (0 :) & maximum
@@ -532,64 +603,6 @@ getRemoteId systemId = case systemId of
     _ -> fail ("unknown system id " ++ show systemId)
 
 
--- Data types
-
-
-data Thing = Thing
-    { thingFlag :: Boolean.Boolean
-    , thingObjectId :: Int32.Int32
-    , thingObjectName :: StrictText.Text
-    , thingClassId :: Int
-    , thingClassName :: StrictText.Text
-    , thingInitialization :: Initialization.Initialization
-    } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData Thing
-
-
--- { class stream id => { property stream id => name } }
-type ClassPropertyMap = IntMap.IntMap (IntMap.IntMap StrictText.Text)
-
-
--- { stream id => object name }
-type ObjectMap = IntMap.IntMap StrictText.Text
-
-
--- { class name => class id }
-type ClassMap = Map.Map StrictText.Text Int
-
-
-data Context = Context
-    { contextObjectMap :: ObjectMap
-    , contextClassPropertyMap :: ClassPropertyMap
-    , contextThings :: (IntMap.IntMap Thing)
-    , contextClassMap :: ClassMap
-    , contextKeyFrames :: (Set.Set Word)
-    , contextVersion :: Version.Version
-    } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData Context
-
-
-extractContext :: ReplayWithoutFrames.ReplayWithoutFrames -> Context
-extractContext replay = Context
-    { contextObjectMap = CPM.getPropertyMap replay
-    , contextClassPropertyMap = CPM.getClassPropertyMap replay
-    , contextThings = IntMap.empty
-    , contextClassMap = CPM.getActorMap replay
-    , contextKeyFrames = replay
-        & #keyFrames
-        & #unpack
-        & map #frame
-        & map Word32.fromWord32
-        & Set.fromList
-    , contextVersion =
-        [ replay & #version1
-        , replay & #version2
-        ] & map Word32.fromWord32 & Version.makeVersion
-    }
-
-
 -- Helpers
 
 
@@ -598,7 +611,7 @@ extractContext replay = Context
 -- function takes a context and returns true if the replay was saved by a game
 -- running at least the Neo Tokyo version.
 atLeastNeoTokyo :: Context -> Bool
-atLeastNeoTokyo context = contextVersion context >= neoTokyoVersion
+atLeastNeoTokyo context = #version context >= neoTokyoVersion
 
 
 -- Constants
