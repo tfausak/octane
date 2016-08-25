@@ -47,17 +47,17 @@ instance Binary.Binary BoolProperty where
         content <- Binary.get
         pure (BoolProperty size content)
 
-    put property = do
-        property & #size & Binary.put
-        property & #content & Binary.put
+    put bool = do
+        bool & #size & Binary.put
+        bool & #content & Binary.put
 
 instance DeepSeq.NFData BoolProperty where
 
 instance Aeson.ToJSON BoolProperty where
-    toJSON property = Aeson.object
+    toJSON bool = Aeson.object
         [ "Type" .= ("Bool" :: Text.Text)
-        , "Size" .= #size property
-        , "Value" .= #content property
+        , "Size" .= #size bool
+        , "Value" .= #content bool
         ]
 
 
@@ -80,18 +80,18 @@ instance Binary.Binary ByteProperty where
                 value <- Binary.get
                 pure (ByteProperty size key value)
 
-    put property = do
-        property & #size & Binary.put
-        property & #key & Binary.put
-        property & #value & Binary.put
+    put byte = do
+        byte & #size & Binary.put
+        byte & #key & Binary.put
+        byte & #value & Binary.put
 
 instance DeepSeq.NFData ByteProperty where
 
 instance Aeson.ToJSON ByteProperty where
-    toJSON property = Aeson.object
+    toJSON byte = Aeson.object
         [ "Type" .= ("Byte" :: Text.Text)
-        , "Size" .= #size property
-        , "Value" .= [#key property, #value property]
+        , "Size" .= #size byte
+        , "Value" .= (#key byte, #value byte)
         ]
 
 
@@ -287,15 +287,15 @@ instance Binary.Binary ArrayProperty where
         content <- Binary.get
         pure (ArrayProperty size content)
 
-    put property = do
-        property & #size & Binary.put
-        property & #content & Binary.put
+    put array = do
+        array & #size & Binary.put
+        array & #content & Binary.put
 
 instance DeepSeq.NFData ArrayProperty where
 
 instance Aeson.ToJSON ArrayProperty where
-    toJSON property = Aeson.object
+    toJSON array = Aeson.object
         [ "Type" .= ("Array" :: Text.Text)
-        , "Size" .= #size property
-        , "Value" .= #content property
+        , "Size" .= #size array
+        , "Value" .= #content array
         ]
