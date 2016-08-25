@@ -39,12 +39,35 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word64 as Word64
 
 
+data ArrayProperty = ArrayProperty
+    { arrayPropertySize :: Word64.Word64
+    , arrayPropertyContent :: List.List (Dictionary.Dictionary Property)
+    } deriving (Eq, Generics.Generic, Show)
+
+instance Binary.Binary ArrayProperty where
+    get = do
+        size <- Binary.get
+        content <- Binary.get
+        pure (ArrayProperty size content)
+
+    put array = do
+        array & #size & Binary.put
+        array & #content & Binary.put
+
+instance DeepSeq.NFData ArrayProperty where
+
+instance Aeson.ToJSON ArrayProperty where
+    toJSON array = Aeson.object
+        [ "Type" .= ("Array" :: Text.Text)
+        , "Size" .= #size array
+        , "Value" .= #content array
+        ]
+
+
 data BoolProperty = BoolProperty
     { boolPropertySize :: Word64.Word64
     , boolPropertyContent :: Boolean.Boolean
     } deriving (Eq, Generics.Generic, Show)
-
-$(OverloadedRecords.overloadedRecord Default.def ''BoolProperty)
 
 instance Binary.Binary BoolProperty where
     get = do
@@ -71,8 +94,6 @@ data ByteProperty = ByteProperty
     , bytePropertyKey :: Text.Text
     , bytePropertyValue :: Text.Text
     } deriving (Eq, Generics.Generic, Show)
-
-$(OverloadedRecords.overloadedRecord Default.def ''ByteProperty)
 
 instance Binary.Binary ByteProperty where
     get = do
@@ -105,8 +126,6 @@ data FloatProperty = FloatProperty
     , floatPropertyContent :: Float32.Float32
     } deriving (Eq, Generics.Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''FloatProperty)
-
 instance Binary.Binary FloatProperty where
     get = do
         size <- Binary.get
@@ -133,8 +152,6 @@ data IntProperty = IntProperty
     { intPropertySize :: Word64.Word64
     , intPropertyContent :: Int32.Int32
     } deriving (Eq, Generics.Generic, Show)
-
-$(OverloadedRecords.overloadedRecord Default.def ''IntProperty)
 
 instance Binary.Binary IntProperty where
     get = do
@@ -163,8 +180,6 @@ data NameProperty = NameProperty
     , namePropertyContent :: Text.Text
     } deriving (Eq, Generics.Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''NameProperty)
-
 instance Binary.Binary NameProperty where
     get = do
         size <- Binary.get
@@ -189,8 +204,6 @@ data QWordProperty = QWordProperty
     { qWordPropertySize :: Word64.Word64
     , qWordPropertyContent :: Word64.Word64
     } deriving (Eq, Generics.Generic, Show)
-
-$(OverloadedRecords.overloadedRecord Default.def ''QWordProperty)
 
 instance Binary.Binary QWordProperty where
     get = do
@@ -218,8 +231,6 @@ data StrProperty = StrProperty
     { strPropertySize :: Word64.Word64
     , strPropertyContent :: Text.Text
     } deriving (Eq, Generics.Generic, Show)
-
-$(OverloadedRecords.overloadedRecord Default.def ''StrProperty)
 
 instance Binary.Binary StrProperty where
     get = do
@@ -254,6 +265,17 @@ data Property
     | PropertyQWord QWordProperty
     | PropertyStr StrProperty
     deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecords Default.def
+    [ ''ArrayProperty
+    , ''BoolProperty
+    , ''ByteProperty
+    , ''FloatProperty
+    , ''IntProperty
+    , ''NameProperty
+    , ''QWordProperty
+    , ''StrProperty
+    ])
 
 -- | Stored with the size first, then the value.
 instance Binary.Binary Property where
@@ -372,30 +394,3 @@ qWordProperty = "QWordProperty"
 
 strProperty :: Text.Text
 strProperty = "StrProperty"
-
-
-data ArrayProperty = ArrayProperty
-    { arrayPropertySize :: Word64.Word64
-    , arrayPropertyContent :: List.List (Dictionary.Dictionary Property)
-    } deriving (Eq, Generics.Generic, Show)
-
-$(OverloadedRecords.overloadedRecord Default.def ''ArrayProperty)
-
-instance Binary.Binary ArrayProperty where
-    get = do
-        size <- Binary.get
-        content <- Binary.get
-        pure (ArrayProperty size content)
-
-    put array = do
-        array & #size & Binary.put
-        array & #content & Binary.put
-
-instance DeepSeq.NFData ArrayProperty where
-
-instance Aeson.ToJSON ArrayProperty where
-    toJSON array = Aeson.object
-        [ "Type" .= ("Array" :: Text.Text)
-        , "Size" .= #size array
-        , "Value" .= #content array
-        ]
