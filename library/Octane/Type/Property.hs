@@ -15,6 +15,7 @@ module Octane.Type.Property
     , BoolProperty(..)
     , ByteProperty(..)
     , FloatProperty(..)
+    , IntProperty(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -125,6 +126,35 @@ instance Aeson.ToJSON FloatProperty where
         ]
 
 
+data IntProperty = IntProperty
+    { intPropertySize :: Word64.Word64
+    , intPropertyContent :: Int32.Int32
+    } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''IntProperty)
+
+instance Binary.Binary IntProperty where
+    get = do
+        size <- Binary.get
+        content <- case #unpack size of
+            4 -> Binary.get
+            x -> fail ("unknown IntProperty size " ++ show x)
+        pure (IntProperty size content)
+
+    put int = do
+        int & #size & Binary.put
+        int & #content & Binary.put
+
+instance DeepSeq.NFData IntProperty where
+
+instance Aeson.ToJSON IntProperty where
+    toJSON int = Aeson.object
+        [ "Type" .= ("Int" :: Text.Text)
+        , "Size" .= #size int
+        , "Value" .= #content int
+        ]
+
+
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
@@ -133,9 +163,7 @@ data Property
     | PropertyBool BoolProperty
     | PropertyByte ByteProperty
     | PropertyFloat FloatProperty
-    | IntProperty
-        Word64.Word64
-        Int32.Int32
+    | PropertyInt IntProperty
     | NameProperty
         Word64.Word64
         Text.Text
@@ -169,11 +197,8 @@ instance Binary.Binary Property where
                 pure (PropertyFloat float)
 
             _ | kind == intProperty -> do
-                size <- Binary.get
-                value <- case #unpack size of
-                    4 -> Binary.get
-                    x -> fail ("unknown IntProperty size " ++ show x)
-                value & IntProperty size & pure
+                int <- Binary.get
+                pure (PropertyInt int)
 
             _ | kind == nameProperty -> do
                 size <- Binary.get
@@ -212,10 +237,9 @@ instance Binary.Binary Property where
                 Binary.put floatProperty
                 Binary.put float
 
-            IntProperty size value -> do
+            PropertyInt int -> do
                 Binary.put intProperty
-                Binary.put size
-                Binary.put value
+                Binary.put int
 
             NameProperty size value -> do
                 Binary.put nameProperty
@@ -240,11 +264,7 @@ instance Aeson.ToJSON Property where
         PropertyBool bool -> Aeson.toJSON bool
         PropertyByte byte -> Aeson.toJSON byte
         PropertyFloat float -> Aeson.toJSON float
-        IntProperty size x -> Aeson.object
-            [ "Type" .= ("Int" :: Text.Text)
-            , "Size" .= size
-            , "Value" .= x
-            ]
+        PropertyInt int -> Aeson.toJSON int
         NameProperty size x -> Aeson.object
             [ "Type" .= ("Name" :: Text.Text)
             , "Size" .= size
