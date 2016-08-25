@@ -1,9 +1,18 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.Property (Property(..)) where
+module Octane.Type.Property
+    ( Property(..)
+    , ArrayProperty(..)
+    ) where
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
@@ -11,6 +20,8 @@ import Data.Function ((&))
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.Dictionary as Dictionary
@@ -21,14 +32,11 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word64 as Word64
 
 
--- TODO: Split these into individual data types like RemoteId.
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
 data Property
-    = ArrayProperty
-        Word64.Word64
-        (List.List (Dictionary.Dictionary Property))
+    = PropertyArray ArrayProperty
     | BoolProperty
         Word64.Word64
         Boolean.Boolean
@@ -58,9 +66,8 @@ instance Binary.Binary Property where
         kind <- Binary.get
         case kind of
             _ | kind == arrayProperty -> do
-                size <- Binary.get
-                value <- Binary.get
-                value & ArrayProperty size & pure
+                array <- Binary.get
+                pure (PropertyArray array)
 
             _ | kind == boolProperty -> do
                 size <- Binary.get
@@ -111,10 +118,9 @@ instance Binary.Binary Property where
 
     put property =
         case property of
-            ArrayProperty size value -> do
+            PropertyArray array -> do
                 Binary.put arrayProperty
-                Binary.put size
-                Binary.put value
+                Binary.put array
 
             BoolProperty size value -> do
                 Binary.put boolProperty
@@ -156,11 +162,7 @@ instance DeepSeq.NFData Property where
 
 instance Aeson.ToJSON Property where
     toJSON property = case property of
-        ArrayProperty size x -> Aeson.object
-            [ "Type" .= ("Array" :: Text.Text)
-            , "Size" .= size
-            , "Value" .= x
-            ]
+        PropertyArray array -> Aeson.toJSON array
         BoolProperty size x -> Aeson.object
             [ "Type" .= ("Bool" :: Text.Text)
             , "Size" .= size
@@ -228,3 +230,30 @@ qWordProperty = "QWordProperty"
 
 strProperty :: Text.Text
 strProperty = "StrProperty"
+
+
+data ArrayProperty = ArrayProperty
+    { arrayPropertySize :: Word64.Word64
+    , arrayPropertyContent :: List.List (Dictionary.Dictionary Property)
+    } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''ArrayProperty)
+
+instance Binary.Binary ArrayProperty where
+    get = do
+        size <- Binary.get
+        content <- Binary.get
+        pure (ArrayProperty size content)
+
+    put property = do
+        property & #size & Binary.put
+        property & #content & Binary.put
+
+instance DeepSeq.NFData ArrayProperty where
+
+instance Aeson.ToJSON ArrayProperty where
+    toJSON property = Aeson.object
+        [ "Type" .= ("Array" :: Text.Text)
+        , "Size" .= #size property
+        , "Value" .= #content property
+        ]
