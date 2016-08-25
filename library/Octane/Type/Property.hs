@@ -13,6 +13,7 @@ module Octane.Type.Property
     ( Property(..)
     , ArrayProperty(..)
     , BoolProperty(..)
+    , ByteProperty(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -60,15 +61,47 @@ instance Aeson.ToJSON BoolProperty where
         ]
 
 
+data ByteProperty = ByteProperty
+    { bytePropertySize :: Word64.Word64
+    , bytePropertyKey :: Text.Text
+    , bytePropertyValue :: Text.Text
+    } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''ByteProperty)
+
+instance Binary.Binary ByteProperty where
+    get = do
+        size <- Binary.get
+        key <- Binary.get
+        if key == "OnlinePlatform_Steam"
+            then do
+                pure (ByteProperty size "OnlinePlatform" key)
+            else do
+                value <- Binary.get
+                pure (ByteProperty size key value)
+
+    put property = do
+        property & #size & Binary.put
+        property & #key & Binary.put
+        property & #value & Binary.put
+
+instance DeepSeq.NFData ByteProperty where
+
+instance Aeson.ToJSON ByteProperty where
+    toJSON property = Aeson.object
+        [ "Type" .= ("Byte" :: Text.Text)
+        , "Size" .= #size property
+        , "Value" .= [#key property, #value property]
+        ]
+
+
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
 data Property
     = PropertyArray ArrayProperty
     | PropertyBool BoolProperty
-    | ByteProperty
-        Word64.Word64
-        (Text.Text, Text.Text)
+    | PropertyByte ByteProperty
     | FloatProperty
         Word64.Word64
         Float32.Float32
@@ -100,13 +133,8 @@ instance Binary.Binary Property where
                 pure (PropertyBool bool)
 
             _ | kind == byteProperty -> do
-                size <- Binary.get
-                key <- Binary.get
-                if key == "OnlinePlatform_Steam"
-                    then ("OnlinePlatform", key) & ByteProperty size & pure
-                    else do
-                        value <- Binary.get
-                        (key, value) & ByteProperty size & pure
+                byte <- Binary.get
+                pure (PropertyByte byte)
 
             _ | kind == floatProperty -> do
                 size <- Binary.get
@@ -151,11 +179,9 @@ instance Binary.Binary Property where
                 Binary.put boolProperty
                 Binary.put bool
 
-            ByteProperty size (key, value) -> do
+            PropertyByte byte -> do
                 Binary.put byteProperty
-                Binary.put size
-                Binary.put key
-                Binary.put value
+                Binary.put byte
 
             FloatProperty size value -> do
                 Binary.put floatProperty
@@ -188,11 +214,7 @@ instance Aeson.ToJSON Property where
     toJSON property = case property of
         PropertyArray array -> Aeson.toJSON array
         PropertyBool bool -> Aeson.toJSON bool
-        ByteProperty size x -> Aeson.object
-            [ "Type" .= ("Byte" :: Text.Text)
-            , "Size" .= size
-            , "Value" .= x
-            ]
+        PropertyByte byte -> Aeson.toJSON byte
         FloatProperty size x -> Aeson.object
             [ "Type" .= ("Float" :: Text.Text)
             , "Size" .= size
