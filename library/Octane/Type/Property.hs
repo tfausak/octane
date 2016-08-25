@@ -12,6 +12,7 @@
 module Octane.Type.Property
     ( Property(..)
     , ArrayProperty(..)
+    , BoolProperty(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -32,14 +33,39 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word64 as Word64
 
 
+data BoolProperty = BoolProperty
+    { boolPropertySize :: Word64.Word64
+    , boolPropertyContent :: Boolean.Boolean
+    } deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecord Default.def ''BoolProperty)
+
+instance Binary.Binary BoolProperty where
+    get = do
+        size <- Binary.get
+        content <- Binary.get
+        pure (BoolProperty size content)
+
+    put property = do
+        property & #size & Binary.put
+        property & #content & Binary.put
+
+instance DeepSeq.NFData BoolProperty where
+
+instance Aeson.ToJSON BoolProperty where
+    toJSON property = Aeson.object
+        [ "Type" .= ("Bool" :: Text.Text)
+        , "Size" .= #size property
+        , "Value" .= #content property
+        ]
+
+
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
 data Property
     = PropertyArray ArrayProperty
-    | BoolProperty
-        Word64.Word64
-        Boolean.Boolean
+    | PropertyBool BoolProperty
     | ByteProperty
         Word64.Word64
         (Text.Text, Text.Text)
@@ -70,9 +96,8 @@ instance Binary.Binary Property where
                 pure (PropertyArray array)
 
             _ | kind == boolProperty -> do
-                size <- Binary.get
-                value <- Binary.get
-                value & BoolProperty size & pure
+                bool <- Binary.get
+                pure (PropertyBool bool)
 
             _ | kind == byteProperty -> do
                 size <- Binary.get
@@ -122,10 +147,9 @@ instance Binary.Binary Property where
                 Binary.put arrayProperty
                 Binary.put array
 
-            BoolProperty size value -> do
+            PropertyBool bool -> do
                 Binary.put boolProperty
-                Binary.put size
-                Binary.put value
+                Binary.put bool
 
             ByteProperty size (key, value) -> do
                 Binary.put byteProperty
@@ -163,11 +187,7 @@ instance DeepSeq.NFData Property where
 instance Aeson.ToJSON Property where
     toJSON property = case property of
         PropertyArray array -> Aeson.toJSON array
-        BoolProperty size x -> Aeson.object
-            [ "Type" .= ("Bool" :: Text.Text)
-            , "Size" .= size
-            , "Value" .= x
-            ]
+        PropertyBool bool -> Aeson.toJSON bool
         ByteProperty size x -> Aeson.object
             [ "Type" .= ("Byte" :: Text.Text)
             , "Size" .= size
