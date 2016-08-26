@@ -46,8 +46,6 @@ data PlayStationId = PlayStationId
     , playStationIdUnknown :: LazyBytes.ByteString
     } deriving (Eq, Generics.Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''PlayStationId)
-
 -- | Each part is stored as exactly 16 bits.
 --
 -- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x42\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80" :: PlayStationId
@@ -107,8 +105,6 @@ newtype SplitscreenId = SplitscreenId
     { splitscreenIdUnpack :: Maybe Int
     } deriving (Eq, Generics.Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''SplitscreenId)
-
 -- | Stored as a bare byte string.
 --
 -- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x00\x00\x00" :: SplitscreenId
@@ -145,8 +141,6 @@ newtype SteamId = SteamId
     { steamIdUnpack :: Word64.Word64
     } deriving (Eq, Generics.Generic, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''SteamId)
-
 -- | Stored as a plain 'Word64.Word64'.
 --
 -- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x80\x00\x00\x00\x00\x00\x00\x00" :: SteamId
@@ -174,8 +168,6 @@ instance Aeson.ToJSON SteamId where
 newtype XboxId = XboxId
     { xboxIdUnpack :: Word64.Word64
     } deriving (Eq, Generics.Generic, Show)
-
-$(OverloadedRecords.overloadedRecord Default.def ''XboxId)
 
 -- | Stored as a plain 'Word64.Word64'.
 --
@@ -210,6 +202,13 @@ data RemoteId
     | RemoteSteamId SteamId
     | RemoteXboxId XboxId
     deriving (Eq, Generics.Generic, Show)
+
+$(OverloadedRecords.overloadedRecords Default.def
+    [ ''PlayStationId
+    , ''SplitscreenId
+    , ''SteamId
+    , ''XboxId
+    ])
 
 instance DeepSeq.NFData RemoteId where
 
