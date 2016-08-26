@@ -24,7 +24,6 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
-import qualified Octane.Type.Value as Value
 
 
 -- | A frame in the network stream. This holds all the interesting game data.
@@ -96,10 +95,6 @@ instance Aeson.ToJSON Updated where
                     & StrictText.pack
             let v = x
                     & #properties
-                    & Map.map (\ value -> Aeson.object
-                        [ "Type" .= getType value
-                        , "Value" .= value
-                        ])
             (k, v))
         & Map.fromList
         & Aeson.toJSON
@@ -131,30 +126,3 @@ getDestroyed xs = xs
         & #state
         & (== State.SClosing))
     & Destroyed
-
-
-getType :: Value.Value -> StrictText.Text
-getType value = case value of
-    Value.VBoolean _ -> "Boolean"
-    Value.VByte _ -> "Byte"
-    Value.VCamSettings _ _ _ _ _ _ -> "CameraSettings"
-    Value.VDemolish _ _ _ _ _ _ -> "Demolition"
-    Value.VEnum _ _ -> "Enum"
-    Value.VExplosion _ _ _ -> "Explosion"
-    Value.VFlaggedInt _ _ -> "FlaggedInt"
-    Value.VFloat _ -> "Float"
-    Value.VGameMode _ -> "GameMode"
-    Value.VInt _ -> "Int"
-    Value.VLoadout _ _ _ _ _ _ _ _ _ -> "Loadout"
-    Value.VLoadoutOnline _ -> "OnlineLoadout"
-    Value.VLocation _ -> "Position"
-    Value.VMusicStinger _ _ _ -> "MusicStinger"
-    Value.VPickup _ _ _ -> "Pickup"
-    Value.VPrivateMatchSettings _ _ _ _ _ _ -> "PrivateMatchSettings"
-    Value.VQWord _ -> "QWord"
-    Value.VRelativeRotation _ -> "RelativeRotation"
-    Value.VReservation _ _ _ _ _ _ _ -> "Reservation"
-    Value.VRigidBodyState _ _ _ _ _ -> "RigidBodyState"
-    Value.VString _ -> "String"
-    Value.VTeamPaint _ _ _ _ _ -> "Paint"
-    Value.VUniqueId _ _ _ -> "UniqueId"
