@@ -13,23 +13,18 @@ module Octane.Type.Frame (Frame(..)) where
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
-import Data.Monoid ((<>))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Bimap as Bimap
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
-import qualified Octane.Data as Data
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Value as Value
-import qualified Octane.Type.Word32 as Word32
-import qualified Octane.Type.Word8 as Word8
 
 
 -- | A frame in the network stream. This holds all the interesting game data.
@@ -103,7 +98,7 @@ instance Aeson.ToJSON Updated where
                     & #properties
                     & Map.map (\ value -> Aeson.object
                         [ "Type" .= getType value
-                        , "Value" .= getValue value
+                        , "Value" .= value
                         ])
             (k, v))
         & Map.fromList
@@ -163,118 +158,3 @@ getType value = case value of
     Value.VString _ -> "String"
     Value.VTeamPaint _ _ _ _ _ -> "Paint"
     Value.VUniqueId _ _ _ -> "UniqueId"
-
-
-getValue :: Value.Value -> Aeson.Value
-getValue value = case value of
-    Value.VBoolean x -> Aeson.toJSON x
-    Value.VByte x -> Aeson.toJSON x
-    Value.VCamSettings fov height angle distance stiffness swivelSpeed -> Aeson.object
-        [ ("FOV", Aeson.toJSON fov)
-        , ("Height", Aeson.toJSON height)
-        , ("Angle", Aeson.toJSON angle)
-        , ("Distance", Aeson.toJSON distance)
-        , ("Stiffness", Aeson.toJSON stiffness)
-        , ("SwivelSpeed", Aeson.toJSON swivelSpeed)
-        ]
-    Value.VDemolish a b c d e f -> Aeson.toJSON (a, b, c, d, e, f)
-    Value.VEnum x y -> Aeson.toJSON (x, y)
-    Value.VExplosion a b c -> Aeson.toJSON (a, b, c)
-    Value.VFlaggedInt x y -> Aeson.toJSON (x, y)
-    Value.VFloat x -> Aeson.toJSON x
-    Value.VGameMode gameMode -> Aeson.object
-        [ ("Id", Aeson.toJSON gameMode)
-        , ("Name", gameMode & getGameMode & Aeson.toJSON)
-        ]
-    Value.VInt x -> Aeson.toJSON x
-    Value.VLoadout version body decal wheels rocketTrail antenna topper x y -> Aeson.object
-        [ ("Version", Aeson.toJSON version)
-        , ("Body", Aeson.object
-            [ ("Id", Aeson.toJSON body)
-            , ("Name", body & getProduct & Aeson.toJSON)
-            ])
-        , ("Decal", Aeson.object
-            [ ("Id", Aeson.toJSON decal)
-            , ("Name", decal & getProduct & Aeson.toJSON)
-            ])
-        , ("Wheels", Aeson.object
-            [ ("Id", Aeson.toJSON wheels)
-            , ("Name", wheels & getProduct & Aeson.toJSON)
-            ])
-        , ("RocketTrail", Aeson.object
-            [ ("Id", Aeson.toJSON rocketTrail)
-            , ("Name", rocketTrail & getProduct & Aeson.toJSON)
-            ])
-        , ("Antenna", Aeson.object
-            [ ("Id", Aeson.toJSON antenna)
-            , ("Name", antenna & getProduct & Aeson.toJSON)
-            ])
-        , ("Topper", Aeson.object
-            [ ("Id", Aeson.toJSON topper)
-            , ("Name", topper & getProduct & Aeson.toJSON)
-            ])
-        , ("Unknown1", Aeson.toJSON x)
-        , ("Unknown2", Aeson.toJSON y)
-        ]
-    Value.VLoadoutOnline a -> Aeson.toJSON a
-    Value.VLocation x -> Aeson.toJSON x
-    Value.VMusicStinger a b c -> Aeson.toJSON (a, b, c)
-    Value.VPickup a b c -> Aeson.toJSON (a, b, c)
-    Value.VPrivateMatchSettings mutators joinableBy maxPlayers name password x -> Aeson.object
-        [ ("Mutators", Aeson.toJSON mutators)
-        , ("JoinableBy", Aeson.toJSON joinableBy)
-        , ("MaxPlayers", Aeson.toJSON maxPlayers)
-        , ("Name", Aeson.toJSON name)
-        , ("Password", Aeson.toJSON password)
-        , ("Unknown", Aeson.toJSON x)
-        ]
-    Value.VQWord x -> Aeson.toJSON x
-    Value.VRelativeRotation x -> Aeson.toJSON x
-    Value.VReservation num systemId remoteId localId name x y -> Aeson.object
-        [ ("Number", Aeson.toJSON num)
-        , ("SystemId", Aeson.toJSON systemId)
-        , ("RemoteId", Aeson.toJSON remoteId)
-        , ("LocalId", Aeson.toJSON localId)
-        , ("Name", Aeson.toJSON name)
-        , ("Unknown1", Aeson.toJSON x)
-        , ("Unknown2", Aeson.toJSON y)
-        ]
-    Value.VRigidBodyState sleeping position rotation linear angular -> Aeson.object
-        [ ("Sleeping", Aeson.toJSON sleeping)
-        , ("Position", Aeson.toJSON position)
-        , ("Rotation", Aeson.toJSON rotation)
-        , ("LinearVelocity", Aeson.toJSON linear)
-        , ("AngularVelocity", Aeson.toJSON angular)
-        ]
-    Value.VString x -> Aeson.toJSON x
-    Value.VTeamPaint team color1 color2 finish1 finish2 -> Aeson.object
-        [ ("Team", Aeson.toJSON team)
-        , ("PrimaryColor", Aeson.toJSON color1)
-        , ("AccentColor", Aeson.toJSON color2)
-        , ("PrimaryFinish", Aeson.object
-            [ ("Id", Aeson.toJSON finish1)
-            , ("Name", finish1 & getProduct & Aeson.toJSON)
-            ])
-        , ("AccentFinish", Aeson.object
-            [ ("Id", Aeson.toJSON finish2)
-            , ("Name", finish2 & getProduct & Aeson.toJSON)
-            ])
-        ]
-    Value.VUniqueId systemId remoteId localId -> Aeson.object
-        [ ("System", case systemId of
-            0 -> "Local"
-            1 -> "Steam"
-            2 -> "PlayStation"
-            4 -> "Xbox"
-            _ -> Aeson.String ("Unknown system " <> StrictText.pack (show systemId)))
-        , ("Remote", Aeson.toJSON remoteId)
-        , ("Local", Aeson.toJSON localId)
-        ]
-
-
-getGameMode :: Word8.Word8 -> Maybe StrictText.Text
-getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
-
-
-getProduct :: Word32.Word32 -> Maybe StrictText.Text
-getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
