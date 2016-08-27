@@ -15,7 +15,12 @@ description: Octane parses Rocket League replays.
 executables:
   octane:
     dependencies:
+    - aeson
     - base
+    - binary
+    - bytestring
+    - http-client >=0.4.30 && <0.6
+    - http-client-tls >=0.2 && <0.4
     - octane
     ghc-options:
     - -rtsopts
@@ -44,8 +49,6 @@ library:
   - data-default-class <0.2
   - deepseq ==1.4.*
   - file-embed ==0.0.*
-  - http-client >=0.4.30 && <0.6
-  - http-client-tls >=0.2 && <0.4
   - overloaded-records ==0.4.*
   - regex-compat ==0.95.*
   - text ==1.2.*
