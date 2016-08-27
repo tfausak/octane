@@ -13,6 +13,7 @@ module Octane.Type.Value
     ( Value(..)
     , BooleanValue(..)
     , ByteValue(..)
+    , CamSettingsValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -52,17 +53,23 @@ newtype ByteValue = ByteValue
 instance DeepSeq.NFData ByteValue where
 
 
+data CamSettingsValue = CamSettingsValue
+    { camSettingsValueFov :: Float32.Float32
+    , camSettingsValueHeight :: Float32.Float32
+    , camSettingsValueAngle :: Float32.Float32
+    , camSettingsValueDistance :: Float32.Float32
+    , camSettingsValueStiffness :: Float32.Float32
+    , camSettingsValueSwivelSpeed :: Float32.Float32
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData CamSettingsValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
     | ValueByte ByteValue
-    | VCamSettings
-        Float32.Float32
-        Float32.Float32
-        Float32.Float32
-        Float32.Float32
-        Float32.Float32
-        Float32.Float32
+    | ValueCamSettings CamSettingsValue
     | VDemolish
         Boolean.Boolean
         Word32.Word32
@@ -150,6 +157,7 @@ data Value
 $(OverloadedRecords.overloadedRecords Default.def
     [ ''BooleanValue
     , ''ByteValue
+    , ''CamSettingsValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -165,7 +173,7 @@ typeName :: Value -> StrictText.Text
 typeName value = case value of
     ValueBoolean _ -> "Boolean"
     ValueByte _ -> "Byte"
-    VCamSettings _ _ _ _ _ _ -> "CameraSettings"
+    ValueCamSettings _ -> "CameraSettings"
     VDemolish _ _ _ _ _ _ -> "Demolition"
     VEnum _ _ -> "Enum"
     VExplosion _ _ _ -> "Explosion"
@@ -192,13 +200,13 @@ jsonValue :: Value -> Aeson.Value
 jsonValue value = case value of
     ValueBoolean x -> Aeson.toJSON (#unpack x)
     ValueByte x -> Aeson.toJSON (#unpack x)
-    VCamSettings fov height angle distance stiffness swivelSpeed -> Aeson.object
-        [ "FOV" .= fov
-        , "Height" .= height
-        , "Angle" .= angle
-        , "Distance" .= distance
-        , "Stiffness" .= stiffness
-        , "SwivelSpeed" .= swivelSpeed
+    ValueCamSettings x -> Aeson.object
+        [ "FOV" .= #fov x
+        , "Height" .= #height x
+        , "Angle" .= #angle x
+        , "Distance" .= #distance x
+        , "Stiffness" .= #stiffness x
+        , "SwivelSpeed" .= #swivelSpeed x
         ]
     VDemolish a b c d e f -> Aeson.toJSON (a, b, c, d, e, f)
     VEnum x y -> Aeson.toJSON (x, y)

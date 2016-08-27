@@ -374,7 +374,7 @@ getCamSettingsProperty = do
     distance <- getFloat32
     stiffness <- getFloat32
     swivelSpeed <- getFloat32
-    pure (Value.VCamSettings fov height angle distance stiffness swivelSpeed)
+    pure (Value.ValueCamSettings (Value.CamSettingsValue fov height angle distance stiffness swivelSpeed))
 
 
 getDemolishProperty :: BinaryBit.BitGet Value.Value
