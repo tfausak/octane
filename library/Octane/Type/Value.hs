@@ -12,6 +12,7 @@
 module Octane.Type.Value
     ( Value(..)
     , BooleanValue(..)
+    , ByteValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -44,11 +45,17 @@ newtype BooleanValue = BooleanValue
 instance DeepSeq.NFData BooleanValue where
 
 
+newtype ByteValue = ByteValue
+    { byteValueUnpack :: Word8.Word8
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData ByteValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
-    | VByte
-        Word8.Word8
+    | ValueByte ByteValue
     | VCamSettings
         Float32.Float32
         Float32.Float32
@@ -142,6 +149,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords Default.def
     [ ''BooleanValue
+    , ''ByteValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -156,7 +164,7 @@ instance Aeson.ToJSON Value where
 typeName :: Value -> StrictText.Text
 typeName value = case value of
     ValueBoolean _ -> "Boolean"
-    VByte _ -> "Byte"
+    ValueByte _ -> "Byte"
     VCamSettings _ _ _ _ _ _ -> "CameraSettings"
     VDemolish _ _ _ _ _ _ -> "Demolition"
     VEnum _ _ -> "Enum"
@@ -183,7 +191,7 @@ typeName value = case value of
 jsonValue :: Value -> Aeson.Value
 jsonValue value = case value of
     ValueBoolean x -> Aeson.toJSON (#unpack x)
-    VByte x -> Aeson.toJSON x
+    ValueByte x -> Aeson.toJSON (#unpack x)
     VCamSettings fov height angle distance stiffness swivelSpeed -> Aeson.object
         [ "FOV" .= fov
         , "Height" .= height

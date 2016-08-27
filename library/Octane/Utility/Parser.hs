@@ -363,7 +363,7 @@ getBooleanProperty = do
 getByteProperty :: BinaryBit.BitGet Value.Value
 getByteProperty = do
     word <- getWord8
-    pure (Value.VByte word)
+    pure (Value.ValueByte (Value.ByteValue word))
 
 
 getCamSettingsProperty :: BinaryBit.BitGet Value.Value
