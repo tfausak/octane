@@ -1,14 +1,26 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.Value (Value(..)) where
+module Octane.Type.Value
+    ( Value(..)
+    , BooleanValue(..)
+    ) where
 
 import Data.Aeson ((.=))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Bimap as Bimap
+import qualified Data.Default.Class as Default
+import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
@@ -25,11 +37,16 @@ import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 
 
--- TODO: Split these into individual data types like RemoteId.
+newtype BooleanValue = BooleanValue
+    { booleanValueUnpack :: Boolean.Boolean
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData BooleanValue where
+
+
 -- | A replicated property's value.
 data Value
-    = VBoolean
-        Boolean.Boolean
+    = ValueBoolean BooleanValue
     | VByte
         Word8.Word8
     | VCamSettings
@@ -123,6 +140,10 @@ data Value
         (Maybe Word8.Word8)
     deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecords Default.def
+    [ ''BooleanValue
+    ])
+
 instance DeepSeq.NFData Value where
 
 instance Aeson.ToJSON Value where
@@ -134,7 +155,7 @@ instance Aeson.ToJSON Value where
 
 typeName :: Value -> StrictText.Text
 typeName value = case value of
-    VBoolean _ -> "Boolean"
+    ValueBoolean _ -> "Boolean"
     VByte _ -> "Byte"
     VCamSettings _ _ _ _ _ _ -> "CameraSettings"
     VDemolish _ _ _ _ _ _ -> "Demolition"
@@ -161,7 +182,7 @@ typeName value = case value of
 
 jsonValue :: Value -> Aeson.Value
 jsonValue value = case value of
-    VBoolean x -> Aeson.toJSON x
+    ValueBoolean x -> Aeson.toJSON (#unpack x)
     VByte x -> Aeson.toJSON x
     VCamSettings fov height angle distance stiffness swivelSpeed -> Aeson.object
         [ "FOV" .= fov

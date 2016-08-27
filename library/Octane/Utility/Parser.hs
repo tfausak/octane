@@ -357,7 +357,7 @@ getPropValue context name = case Map.lookup name Data.properties of
 getBooleanProperty :: BinaryBit.BitGet Value.Value
 getBooleanProperty = do
     bool <- getBool
-    pure (Value.VBoolean bool)
+    pure (Value.ValueBoolean (Value.BooleanValue bool))
 
 
 getByteProperty :: BinaryBit.BitGet Value.Value
