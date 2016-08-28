@@ -17,6 +17,7 @@ module Octane.Type.Value
     , DemolishValue(..)
     , EnumValue(..)
     , ExplosionValue(..)
+    , FlaggedIntValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -99,6 +100,14 @@ data ExplosionValue = ExplosionValue
 instance DeepSeq.NFData ExplosionValue where
 
 
+data FlaggedIntValue = FlaggedIntValue
+    { flaggedIntValueFlag :: Boolean.Boolean
+    , flaggedIntValueInt :: Int32.Int32
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData FlaggedIntValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -107,9 +116,7 @@ data Value
     | ValueDemolish DemolishValue
     | ValueEnum EnumValue
     | ValueExplosion ExplosionValue
-    | VFlaggedInt
-        Boolean.Boolean
-        Int32.Int32
+    | ValueFlaggedInt FlaggedIntValue
     | VFloat
         Float32.Float32
     | VGameMode
@@ -184,6 +191,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''DemolishValue
     , ''EnumValue
     , ''ExplosionValue
+    , ''FlaggedIntValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -203,7 +211,7 @@ typeName value = case value of
     ValueDemolish _ -> "Demolition"
     ValueEnum _ -> "Enum"
     ValueExplosion _ -> "Explosion"
-    VFlaggedInt _ _ -> "FlaggedInt"
+    ValueFlaggedInt _ -> "FlaggedInt"
     VFloat _ -> "Float"
     VGameMode _ -> "GameMode"
     VInt _ -> "Int"
@@ -251,7 +259,10 @@ jsonValue value = case value of
         , #y x
         , #z x
         )
-    VFlaggedInt x y -> Aeson.toJSON (x, y)
+    ValueFlaggedInt x -> Aeson.object
+        [ "Flag" .= #flag x
+        , "Int" .= #int x
+        ]
     VFloat x -> Aeson.toJSON x
     VGameMode gameMode -> Aeson.object
         [ "Id" .= gameMode

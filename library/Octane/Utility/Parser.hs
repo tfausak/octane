@@ -411,7 +411,7 @@ getFlaggedIntProperty :: BinaryBit.BitGet Value.Value
 getFlaggedIntProperty = do
     flag <- getBool
     int <- getInt32
-    pure (Value.VFlaggedInt flag int)
+    pure (Value.ValueFlaggedInt (Value.FlaggedIntValue flag int))
 
 
 getFloatProperty :: BinaryBit.BitGet Value.Value
