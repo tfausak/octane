@@ -417,7 +417,7 @@ getFlaggedIntProperty = do
 getFloatProperty :: BinaryBit.BitGet Value.Value
 getFloatProperty = do
     float <- getFloat32
-    pure (Value.VFloat float)
+    pure (Value.ValueFloat (Value.FloatValue float))
 
 
 getGameModeProperty :: Context -> BinaryBit.BitGet Value.Value
