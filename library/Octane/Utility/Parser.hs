@@ -394,7 +394,7 @@ getEnumProperty = do
     y <- if x == 1023
         then getBool
         else fail ("unexpected enum value " ++ show x)
-    pure (Value.VEnum (Word16.toWord16 x) y)
+    pure (Value.ValueEnum (Value.EnumValue (Word16.toWord16 x) y))
 
 
 getExplosionProperty :: BinaryBit.BitGet Value.Value

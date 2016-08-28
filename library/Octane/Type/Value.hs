@@ -15,6 +15,7 @@ module Octane.Type.Value
     , ByteValue(..)
     , CamSettingsValue(..)
     , DemolishValue(..)
+    , EnumValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -78,15 +79,21 @@ data DemolishValue = DemolishValue
 instance DeepSeq.NFData DemolishValue where
 
 
+data EnumValue = EnumValue
+    { enumValueX :: Word16.Word16
+    , enumValueY :: Boolean.Boolean
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData EnumValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
     | ValueByte ByteValue
     | ValueCamSettings CamSettingsValue
     | ValueDemolish DemolishValue
-    | VEnum
-        Word16.Word16
-        Boolean.Boolean
+    | ValueEnum EnumValue
     | VExplosion
         Boolean.Boolean
         (Maybe Int32.Int32)
@@ -166,6 +173,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''ByteValue
     , ''CamSettingsValue
     , ''DemolishValue
+    , ''EnumValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -183,7 +191,7 @@ typeName value = case value of
     ValueByte _ -> "Byte"
     ValueCamSettings _ -> "CameraSettings"
     ValueDemolish _ -> "Demolition"
-    VEnum _ _ -> "Enum"
+    ValueEnum _ -> "Enum"
     VExplosion _ _ _ -> "Explosion"
     VFlaggedInt _ _ -> "FlaggedInt"
     VFloat _ -> "Float"
@@ -224,7 +232,10 @@ jsonValue value = case value of
         , "AttackerVelocity" .= #attackerVelocity x
         , "VictimVelocity" .= #victimVelocity x
         ]
-    VEnum x y -> Aeson.toJSON (x, y)
+    ValueEnum x -> Aeson.toJSON
+        ( #x x
+        , #y x
+        )
     VExplosion a b c -> Aeson.toJSON (a, b, c)
     VFlaggedInt x y -> Aeson.toJSON (x, y)
     VFloat x -> Aeson.toJSON x
