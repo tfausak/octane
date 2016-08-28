@@ -424,7 +424,7 @@ getGameModeProperty :: Context -> BinaryBit.BitGet Value.Value
 getGameModeProperty context = do
     let numBits = if atLeastNeoTokyo context then 8 else 2
     x <- BinaryBit.getWord8 numBits
-    pure (Value.VGameMode (Word8.toWord8 x))
+    pure (Value.ValueGameMode (Value.GameModeValue (Word8.toWord8 x)))
 
 
 getIntProperty :: BinaryBit.BitGet Value.Value
