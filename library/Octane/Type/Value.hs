@@ -21,6 +21,7 @@ module Octane.Type.Value
     , FloatValue(..)
     , GameModeValue(..)
     , IntValue(..)
+    , LoadoutValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -132,6 +133,21 @@ newtype IntValue = IntValue
 instance DeepSeq.NFData IntValue
 
 
+data LoadoutValue = LoadoutValue
+    { loadoutValueVersion :: Word8.Word8
+    , loadoutValueBody :: Word32.Word32
+    , loadoutValueDecal :: Word32.Word32
+    , loadoutValueWheels :: Word32.Word32
+    , loadoutValueRocketTrail :: Word32.Word32
+    , loadoutValueAntenna :: Word32.Word32
+    , loadoutValueTopper :: Word32.Word32
+    , loadoutValueUnknown1 :: Word32.Word32
+    , loadoutValueUnknown2 :: Maybe Word32.Word32
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData LoadoutValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -144,16 +160,7 @@ data Value
     | ValueFloat FloatValue
     | ValueGameMode GameModeValue
     | ValueInt IntValue
-    | VLoadout
-        Word8.Word8
-        Word32.Word32
-        Word32.Word32
-        Word32.Word32
-        Word32.Word32
-        Word32.Word32
-        Word32.Word32
-        Word32.Word32
-        (Maybe Word32.Word32)
+    | ValueLoadout LoadoutValue
     | VLoadoutOnline
         [[(Word32.Word32, CompressedWord.CompressedWord)]]
     | VLocation
@@ -216,6 +223,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''FloatValue
     , ''GameModeValue
     , ''IntValue
+    , ''LoadoutValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -239,7 +247,7 @@ typeName value = case value of
     ValueFloat _ -> "Float"
     ValueGameMode _ -> "GameMode"
     ValueInt _ -> "Int"
-    VLoadout _ _ _ _ _ _ _ _ _ -> "Loadout"
+    ValueLoadout _ -> "Loadout"
     VLoadoutOnline _ -> "OnlineLoadout"
     VLocation _ -> "Position"
     VMusicStinger _ _ _ -> "MusicStinger"
@@ -293,34 +301,34 @@ jsonValue value = case value of
         , "Name" .= getGameMode (#unpack x)
         ]
     ValueInt x -> Aeson.toJSON (#unpack x)
-    VLoadout version body decal wheels rocketTrail antenna topper x y -> Aeson.object
-        [ "Version" .= version
+    ValueLoadout x -> Aeson.object
+        [ "Version" .= #version x
         , "Body" .= Aeson.object
-            [ "Id" .= body
-            , "Name" .= getProduct body
+            [ "Id" .= #body x
+            , "Name" .= getProduct (#body x)
             ]
         , "Decal" .= Aeson.object
-            [ "Id" .= decal
-            , "Name" .= getProduct decal
+            [ "Id" .= #decal x
+            , "Name" .= getProduct (#decal x)
             ]
         , "Wheels" .= Aeson.object
-            [ "Id" .= wheels
-            , "Name" .= getProduct wheels
+            [ "Id" .= #wheels x
+            , "Name" .= getProduct (#wheels x)
             ]
         , "RocketTrail" .= Aeson.object
-            [ "Id" .= rocketTrail
-            , "Name" .= getProduct rocketTrail
+            [ "Id" .= #rocketTrail x
+            , "Name" .= getProduct (#rocketTrail x)
             ]
         , "Antenna" .= Aeson.object
-            [ "Id" .= antenna
-            , "Name" .= getProduct antenna
+            [ "Id" .= #antenna x
+            , "Name" .= getProduct (#antenna x)
             ]
         , "Topper" .= Aeson.object
-            [ "Id" .= topper
-            , "Name" .= getProduct topper
+            [ "Id" .= #topper x
+            , "Name" .= getProduct (#topper x)
             ]
-        , "Unknown1" .= x
-        , "Unknown2" .= y
+        , "Unknown1" .= #unknown1 x
+        , "Unknown2" .= #unknown2 x
         ]
     VLoadoutOnline a -> Aeson.toJSON a
     VLocation x -> Aeson.toJSON x

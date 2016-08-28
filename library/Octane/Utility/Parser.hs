@@ -456,7 +456,7 @@ getLoadoutProperty = do
     topper <- getWord32
     g <- getWord32
     h <- if version > 10 then fmap Just getWord32 else pure Nothing
-    pure (Value.VLoadout version body decal wheels rocketTrail antenna topper g h)
+    pure (Value.ValueLoadout (Value.LoadoutValue version body decal wheels rocketTrail antenna topper g h))
 
 
 getLocationProperty :: BinaryBit.BitGet Value.Value
