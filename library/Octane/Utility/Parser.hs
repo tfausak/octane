@@ -430,7 +430,7 @@ getGameModeProperty context = do
 getIntProperty :: BinaryBit.BitGet Value.Value
 getIntProperty = do
     int <- getInt32
-    pure (Value.VInt int)
+    pure (Value.ValueInt (Value.IntValue int))
 
 
 getLoadoutOnlineProperty :: BinaryBit.BitGet Value.Value

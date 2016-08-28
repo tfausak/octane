@@ -20,6 +20,7 @@ module Octane.Type.Value
     , FlaggedIntValue(..)
     , FloatValue(..)
     , GameModeValue(..)
+    , IntValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -124,6 +125,13 @@ newtype GameModeValue = GameModeValue
 instance DeepSeq.NFData GameModeValue
 
 
+newtype IntValue = IntValue
+    { intValueUnpack :: Int32.Int32
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData IntValue
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -135,8 +143,7 @@ data Value
     | ValueFlaggedInt FlaggedIntValue
     | ValueFloat FloatValue
     | ValueGameMode GameModeValue
-    | VInt
-        Int32.Int32
+    | ValueInt IntValue
     | VLoadout
         Word8.Word8
         Word32.Word32
@@ -208,6 +215,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''FlaggedIntValue
     , ''FloatValue
     , ''GameModeValue
+    , ''IntValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -230,7 +238,7 @@ typeName value = case value of
     ValueFlaggedInt _ -> "FlaggedInt"
     ValueFloat _ -> "Float"
     ValueGameMode _ -> "GameMode"
-    VInt _ -> "Int"
+    ValueInt _ -> "Int"
     VLoadout _ _ _ _ _ _ _ _ _ -> "Loadout"
     VLoadoutOnline _ -> "OnlineLoadout"
     VLocation _ -> "Position"
@@ -284,7 +292,7 @@ jsonValue value = case value of
         [ "Id" .= #unpack x
         , "Name" .= getGameMode (#unpack x)
         ]
-    VInt x -> Aeson.toJSON x
+    ValueInt x -> Aeson.toJSON (#unpack x)
     VLoadout version body decal wheels rocketTrail antenna topper x y -> Aeson.object
         [ "Version" .= version
         , "Body" .= Aeson.object
