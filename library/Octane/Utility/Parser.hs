@@ -399,12 +399,12 @@ getEnumProperty = do
 
 getExplosionProperty :: BinaryBit.BitGet Value.Value
 getExplosionProperty = do
-    noGoal <- getBool
-    a <- if #unpack noGoal
+    x <- getBool
+    y <- if #unpack x
         then pure Nothing
         else fmap Just getInt32
-    b <- Vector.getIntVector
-    pure (Value.VExplosion noGoal a b)
+    z <- Vector.getIntVector
+    pure (Value.ValueExplosion (Value.ExplosionValue x y z))
 
 
 getFlaggedIntProperty :: BinaryBit.BitGet Value.Value

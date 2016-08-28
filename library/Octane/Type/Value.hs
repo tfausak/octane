@@ -16,6 +16,7 @@ module Octane.Type.Value
     , CamSettingsValue(..)
     , DemolishValue(..)
     , EnumValue(..)
+    , ExplosionValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -79,12 +80,23 @@ data DemolishValue = DemolishValue
 instance DeepSeq.NFData DemolishValue where
 
 
+-- TODO: What do these fields represent?
 data EnumValue = EnumValue
     { enumValueX :: Word16.Word16
     , enumValueY :: Boolean.Boolean
     } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData EnumValue where
+
+
+-- TODO: What do these fields represent?
+data ExplosionValue = ExplosionValue
+    { explosionValueX :: Boolean.Boolean -- presence of next field?
+    , explosionValueY :: Maybe Int32.Int32 -- actor id?
+    , explosionValueZ :: Vector.Vector Int -- position?
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData ExplosionValue where
 
 
 -- | A replicated property's value.
@@ -94,10 +106,7 @@ data Value
     | ValueCamSettings CamSettingsValue
     | ValueDemolish DemolishValue
     | ValueEnum EnumValue
-    | VExplosion
-        Boolean.Boolean
-        (Maybe Int32.Int32)
-        (Vector.Vector Int)
+    | ValueExplosion ExplosionValue
     | VFlaggedInt
         Boolean.Boolean
         Int32.Int32
@@ -174,6 +183,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''CamSettingsValue
     , ''DemolishValue
     , ''EnumValue
+    , ''ExplosionValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -192,7 +202,7 @@ typeName value = case value of
     ValueCamSettings _ -> "CameraSettings"
     ValueDemolish _ -> "Demolition"
     ValueEnum _ -> "Enum"
-    VExplosion _ _ _ -> "Explosion"
+    ValueExplosion _ -> "Explosion"
     VFlaggedInt _ _ -> "FlaggedInt"
     VFloat _ -> "Float"
     VGameMode _ -> "GameMode"
@@ -236,7 +246,11 @@ jsonValue value = case value of
         ( #x x
         , #y x
         )
-    VExplosion a b c -> Aeson.toJSON (a, b, c)
+    ValueExplosion x -> Aeson.toJSON
+        ( #x x
+        , #y x
+        , #z x
+        )
     VFlaggedInt x y -> Aeson.toJSON (x, y)
     VFloat x -> Aeson.toJSON x
     VGameMode gameMode -> Aeson.object
