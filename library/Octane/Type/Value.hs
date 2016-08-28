@@ -14,6 +14,7 @@ module Octane.Type.Value
     , BooleanValue(..)
     , ByteValue(..)
     , CamSettingsValue(..)
+    , DemolishValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -65,18 +66,24 @@ data CamSettingsValue = CamSettingsValue
 instance DeepSeq.NFData CamSettingsValue where
 
 
+data DemolishValue = DemolishValue
+    { demolishValueAttackerFlag :: Boolean.Boolean
+    , demolishValueAttackerActorId :: Word32.Word32
+    , demolishValueVictimFlag :: Boolean.Boolean
+    , demolishValueVictimActorId :: Word32.Word32
+    , demolishValueAttackerVelocity :: Vector.Vector Int
+    , demolishValueVictimVelocity :: Vector.Vector Int
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData DemolishValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
     | ValueByte ByteValue
     | ValueCamSettings CamSettingsValue
-    | VDemolish
-        Boolean.Boolean
-        Word32.Word32
-        Boolean.Boolean
-        Word32.Word32
-        (Vector.Vector Int)
-        (Vector.Vector Int)
+    | ValueDemolish DemolishValue
     | VEnum
         Word16.Word16
         Boolean.Boolean
@@ -158,6 +165,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     [ ''BooleanValue
     , ''ByteValue
     , ''CamSettingsValue
+    , ''DemolishValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -174,7 +182,7 @@ typeName value = case value of
     ValueBoolean _ -> "Boolean"
     ValueByte _ -> "Byte"
     ValueCamSettings _ -> "CameraSettings"
-    VDemolish _ _ _ _ _ _ -> "Demolition"
+    ValueDemolish _ -> "Demolition"
     VEnum _ _ -> "Enum"
     VExplosion _ _ _ -> "Explosion"
     VFlaggedInt _ _ -> "FlaggedInt"
@@ -208,7 +216,14 @@ jsonValue value = case value of
         , "Stiffness" .= #stiffness x
         , "SwivelSpeed" .= #swivelSpeed x
         ]
-    VDemolish a b c d e f -> Aeson.toJSON (a, b, c, d, e, f)
+    ValueDemolish x -> Aeson.object
+        [ "AttackerFlag" .= #attackerFlag x
+        , "AttackerActorId" .= #attackerActorId x
+        , "VictimFlag" .= #victimFlag x
+        , "VictimActorId" .= #victimActorId x
+        , "AttackerVelocity" .= #attackerVelocity x
+        , "VictimVelocity" .= #victimVelocity x
+        ]
     VEnum x y -> Aeson.toJSON (x, y)
     VExplosion a b c -> Aeson.toJSON (a, b, c)
     VFlaggedInt x y -> Aeson.toJSON (x, y)

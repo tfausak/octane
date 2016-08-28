@@ -379,13 +379,13 @@ getCamSettingsProperty = do
 
 getDemolishProperty :: BinaryBit.BitGet Value.Value
 getDemolishProperty = do
-    atkFlag <- getBool
-    atk <- getWord32
-    vicFlag <- getBool
-    vic <- getWord32
-    vec1 <- Vector.getIntVector
-    vec2 <- Vector.getIntVector
-    pure (Value.VDemolish atkFlag atk vicFlag vic vec1 vec2)
+    attackerFlag <- getBool
+    attackerActorId <- getWord32
+    victimFlag <- getBool
+    victimActorId <- getWord32
+    attackerVelocity <- Vector.getIntVector
+    victimVelocity <- Vector.getIntVector
+    pure (Value.ValueDemolish (Value.DemolishValue attackerFlag attackerActorId victimFlag victimActorId attackerVelocity victimVelocity))
 
 
 getEnumProperty :: BinaryBit.BitGet Value.Value
