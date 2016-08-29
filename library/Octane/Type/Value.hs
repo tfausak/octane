@@ -27,6 +27,7 @@ module Octane.Type.Value
     , MusicStingerValue(..)
     , PickupValue(..)
     , PrivateMatchSettingsValue(..)
+    , QWordValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -197,6 +198,13 @@ data PrivateMatchSettingsValue = PrivateMatchSettingsValue
 instance DeepSeq.NFData PrivateMatchSettingsValue where
 
 
+newtype QWordValue = QWordValue
+    { qWordValueUnpack :: Word64.Word64
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData QWordValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -215,8 +223,7 @@ data Value
     | ValueMusicStinger MusicStingerValue
     | ValuePickup PickupValue
     | ValuePrivateMatchSettings PrivateMatchSettingsValue
-    | VQWord
-        Word64.Word64
+    | ValueQWord QWordValue
     | VRelativeRotation
         (Vector.Vector Float)
     | VReservation
@@ -264,6 +271,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''MusicStingerValue
     , ''PickupValue
     , ''PrivateMatchSettingsValue
+    , ''QWordValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -293,7 +301,7 @@ typeName value = case value of
     ValueMusicStinger _ -> "MusicStinger"
     ValuePickup _ -> "Pickup"
     ValuePrivateMatchSettings _ -> "PrivateMatchSettings"
-    VQWord _ -> "QWord"
+    ValueQWord _ -> "QWord"
     VRelativeRotation _ -> "RelativeRotation"
     VReservation _ _ _ _ _ _ _ -> "Reservation"
     VRigidBodyState _ _ _ _ _ -> "RigidBodyState"
@@ -390,7 +398,7 @@ jsonValue value = case value of
         , "Password" .= #password x
         , "Unknown" .= #flag x
         ]
-    VQWord x -> Aeson.toJSON x
+    ValueQWord x -> Aeson.toJSON (#unpack x)
     VRelativeRotation x -> Aeson.toJSON x
     VReservation num systemId remoteId localId name x y -> Aeson.object
         [ "Number" .= num

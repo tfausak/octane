@@ -497,7 +497,7 @@ getPrivateMatchSettingsProperty = do
 getQWordProperty :: BinaryBit.BitGet Value.Value
 getQWordProperty = do
     qword <- getWord64
-    pure (Value.VQWord qword)
+    pure (Value.ValueQWord (Value.QWordValue qword))
 
 
 getRelativeRotationProperty :: BinaryBit.BitGet Value.Value
