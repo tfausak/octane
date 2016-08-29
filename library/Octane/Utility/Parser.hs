@@ -545,7 +545,7 @@ getRigidBodyStateProperty = do
 getStringProperty :: BinaryBit.BitGet Value.Value
 getStringProperty = do
     string <- getText
-    pure (Value.VString string)
+    pure (Value.ValueString (Value.StringValue string))
 
 
 getTeamPaintProperty :: BinaryBit.BitGet Value.Value

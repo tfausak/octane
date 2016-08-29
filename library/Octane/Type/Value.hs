@@ -31,6 +31,7 @@ module Octane.Type.Value
     , RelativeRotationValue(..)
     , ReservationValue(..)
     , RigidBodyStateValue(..)
+    , StringValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -239,6 +240,13 @@ data RigidBodyStateValue = RigidBodyStateValue
 instance DeepSeq.NFData RigidBodyStateValue where
 
 
+newtype StringValue = StringValue
+    { stringValueUnpack :: Text.Text
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData StringValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -261,8 +269,7 @@ data Value
     | ValueRelativeRotation RelativeRotationValue
     | ValueReservation ReservationValue
     | ValueRigidBodyState RigidBodyStateValue
-    | VString
-        Text.Text
+    | ValueString StringValue
     | VTeamPaint
         Word8.Word8
         Word8.Word8
@@ -296,6 +303,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''RelativeRotationValue
     , ''ReservationValue
     , ''RigidBodyStateValue
+    , ''StringValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -329,7 +337,7 @@ typeName value = case value of
     ValueRelativeRotation _ -> "RelativeRotation"
     ValueReservation _ -> "Reservation"
     ValueRigidBodyState _ -> "RigidBodyState"
-    VString _ -> "String"
+    ValueString _ -> "String"
     VTeamPaint _ _ _ _ _ -> "Paint"
     VUniqueId _ _ _ -> "UniqueId"
 
@@ -440,7 +448,7 @@ jsonValue value = case value of
         , "LinearVelocity" .= #linearVelocity x
         , "AngularVelocity" .= #angularVelocity x
         ]
-    VString x -> Aeson.toJSON x
+    ValueString x -> Aeson.toJSON (#unpack x)
     VTeamPaint team color1 color2 finish1 finish2 -> Aeson.object
         [ "Team" .= team
         , "PrimaryColor" .= color1
