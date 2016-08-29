@@ -29,6 +29,7 @@ module Octane.Type.Value
     , PrivateMatchSettingsValue(..)
     , QWordValue(..)
     , RelativeRotationValue(..)
+    , ReservationValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -213,6 +214,19 @@ newtype RelativeRotationValue = RelativeRotationValue
 instance DeepSeq.NFData RelativeRotationValue where
 
 
+data ReservationValue = ReservationValue
+    { reservationValueNumber :: CompressedWord.CompressedWord
+    , reservationValueSystemId :: Word8.Word8
+    , reservationValueRemoteId :: RemoteId.RemoteId
+    , reservationValueLocalId :: Maybe Word8.Word8
+    , reservationValuePlayerName :: Maybe Text.Text
+    , reservationValueUnknown1 :: Boolean.Boolean
+    , reservationValueUnknown2 :: Boolean.Boolean
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData ReservationValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -233,14 +247,7 @@ data Value
     | ValuePrivateMatchSettings PrivateMatchSettingsValue
     | ValueQWord QWordValue
     | ValueRelativeRotation RelativeRotationValue
-    | VReservation
-        CompressedWord.CompressedWord
-        Word8.Word8
-        RemoteId.RemoteId
-        (Maybe Word8.Word8)
-        (Maybe Text.Text)
-        Boolean.Boolean
-        Boolean.Boolean
+    | ValueReservation ReservationValue
     | VRigidBodyState
         Boolean.Boolean
         (Vector.Vector Int)
@@ -280,6 +287,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''PrivateMatchSettingsValue
     , ''QWordValue
     , ''RelativeRotationValue
+    , ''ReservationValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -311,7 +319,7 @@ typeName value = case value of
     ValuePrivateMatchSettings _ -> "PrivateMatchSettings"
     ValueQWord _ -> "QWord"
     ValueRelativeRotation _ -> "RelativeRotation"
-    VReservation _ _ _ _ _ _ _ -> "Reservation"
+    ValueReservation _ -> "Reservation"
     VRigidBodyState _ _ _ _ _ -> "RigidBodyState"
     VString _ -> "String"
     VTeamPaint _ _ _ _ _ -> "Paint"
@@ -408,14 +416,14 @@ jsonValue value = case value of
         ]
     ValueQWord x -> Aeson.toJSON (#unpack x)
     ValueRelativeRotation x -> Aeson.toJSON (#unpack x)
-    VReservation num systemId remoteId localId name x y -> Aeson.object
-        [ "Number" .= num
-        , "SystemId" .= systemId
-        , "RemoteId" .= remoteId
-        , "LocalId" .= localId
-        , "Name" .= name
-        , "Unknown1" .= x
-        , "Unknown2" .= y
+    ValueReservation x -> Aeson.object
+        [ "Number" .= #number x
+        , "SystemId" .= #systemId x
+        , "RemoteId" .= #remoteId x
+        , "LocalId" .= #localId x
+        , "Name" .= #playerName x
+        , "Unknown1" .= #unknown1 x
+        , "Unknown2" .= #unknown2 x
         ]
     VRigidBodyState sleeping position rotation linear angular -> Aeson.object
         [ "Sleeping" .= sleeping

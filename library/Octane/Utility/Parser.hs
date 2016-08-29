@@ -525,7 +525,7 @@ getReservationProperty context = do
         Monad.when (x /= 0b000000) (do
             fail (Printf.printf "Read 6 reservation bits and they weren't all 0! 0b%06b" x)))
 
-    pure (Value.VReservation number systemId remoteId localId playerName a b)
+    pure (Value.ValueReservation (Value.ReservationValue number systemId remoteId localId playerName a b))
 
 
 getRigidBodyStateProperty :: BinaryBit.BitGet Value.Value
