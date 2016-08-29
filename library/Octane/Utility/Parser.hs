@@ -555,7 +555,7 @@ getTeamPaintProperty = do
     accentColor <- getWord8
     primaryFinish <- getWord32
     accentFinish <- getWord32
-    pure (Value.VTeamPaint team primaryColor accentColor primaryFinish accentFinish)
+    pure (Value.ValueTeamPaint (Value.TeamPaintValue team primaryColor accentColor primaryFinish accentFinish))
 
 
 getUniqueIdProperty :: BinaryBit.BitGet Value.Value

@@ -32,6 +32,7 @@ module Octane.Type.Value
     , ReservationValue(..)
     , RigidBodyStateValue(..)
     , StringValue(..)
+    , TeamPaintValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -247,6 +248,17 @@ newtype StringValue = StringValue
 instance DeepSeq.NFData StringValue where
 
 
+data TeamPaintValue = TeamPaintValue
+    { teamPaintValueTeam :: Word8.Word8
+    , teamPaintValuePrimaryColor :: Word8.Word8
+    , teamPaintValueAccentColor :: Word8.Word8
+    , teamPaintValuePrimaryFinish :: Word32.Word32
+    , teamPaintValueAccentFinish :: Word32.Word32
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData TeamPaintValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -270,12 +282,7 @@ data Value
     | ValueReservation ReservationValue
     | ValueRigidBodyState RigidBodyStateValue
     | ValueString StringValue
-    | VTeamPaint
-        Word8.Word8
-        Word8.Word8
-        Word8.Word8
-        Word32.Word32
-        Word32.Word32
+    | ValueTeamPaint TeamPaintValue
     | VUniqueId
         Word8.Word8
         RemoteId.RemoteId
@@ -304,6 +311,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''ReservationValue
     , ''RigidBodyStateValue
     , ''StringValue
+    , ''TeamPaintValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -338,7 +346,7 @@ typeName value = case value of
     ValueReservation _ -> "Reservation"
     ValueRigidBodyState _ -> "RigidBodyState"
     ValueString _ -> "String"
-    VTeamPaint _ _ _ _ _ -> "Paint"
+    ValueTeamPaint _ -> "Paint"
     VUniqueId _ _ _ -> "UniqueId"
 
 
@@ -449,17 +457,17 @@ jsonValue value = case value of
         , "AngularVelocity" .= #angularVelocity x
         ]
     ValueString x -> Aeson.toJSON (#unpack x)
-    VTeamPaint team color1 color2 finish1 finish2 -> Aeson.object
-        [ "Team" .= team
-        , "PrimaryColor" .= color1
-        , "AccentColor" .= color2
+    ValueTeamPaint x -> Aeson.object
+        [ "Team" .= #team x
+        , "PrimaryColor" .= #primaryColor x
+        , "AccentColor" .= #accentColor x
         , "PrimaryFinish" .= Aeson.object
-            [ "Id" .= finish1
-            , "Name" .= getProduct finish1
+            [ "Id" .= #primaryFinish x
+            , "Name" .= getProduct (#primaryFinish x)
             ]
         , "AccentFinish" .= Aeson.object
-            [ "Id" .= finish2
-            , "Name" .= getProduct finish2
+            [ "Id" .= #accentFinish x
+            , "Name" .= getProduct (#accentFinish x)
             ]
         ]
     VUniqueId systemId remoteId localId -> Aeson.object
