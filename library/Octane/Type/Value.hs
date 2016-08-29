@@ -22,6 +22,7 @@ module Octane.Type.Value
     , GameModeValue(..)
     , IntValue(..)
     , LoadoutValue(..)
+    , LoadoutOnlineValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -148,6 +149,13 @@ data LoadoutValue = LoadoutValue
 instance DeepSeq.NFData LoadoutValue where
 
 
+newtype LoadoutOnlineValue = LoadoutOnlineValue
+    { loadoutOnlineValueUnpack :: [[(Word32.Word32, CompressedWord.CompressedWord)]]
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData LoadoutOnlineValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -161,8 +169,7 @@ data Value
     | ValueGameMode GameModeValue
     | ValueInt IntValue
     | ValueLoadout LoadoutValue
-    | VLoadoutOnline
-        [[(Word32.Word32, CompressedWord.CompressedWord)]]
+    | ValueLoadoutOnline LoadoutOnlineValue
     | VLocation
         (Vector.Vector Int)
     | VMusicStinger
@@ -224,6 +231,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''GameModeValue
     , ''IntValue
     , ''LoadoutValue
+    , ''LoadoutOnlineValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -248,7 +256,7 @@ typeName value = case value of
     ValueGameMode _ -> "GameMode"
     ValueInt _ -> "Int"
     ValueLoadout _ -> "Loadout"
-    VLoadoutOnline _ -> "OnlineLoadout"
+    ValueLoadoutOnline _ -> "OnlineLoadout"
     VLocation _ -> "Position"
     VMusicStinger _ _ _ -> "MusicStinger"
     VPickup _ _ _ -> "Pickup"
@@ -330,7 +338,7 @@ jsonValue value = case value of
         , "Unknown1" .= #unknown1 x
         , "Unknown2" .= #unknown2 x
         ]
-    VLoadoutOnline a -> Aeson.toJSON a
+    ValueLoadoutOnline x -> Aeson.toJSON (#unpack x)
     VLocation x -> Aeson.toJSON x
     VMusicStinger a b c -> Aeson.toJSON (a, b, c)
     VPickup a b c -> Aeson.toJSON (a, b, c)

@@ -442,7 +442,7 @@ getLoadoutOnlineProperty = do
             x <- getWord32
             y <- BinaryBit.getBits 27
             pure (x, y)))
-    pure (Value.VLoadoutOnline values)
+    pure (Value.ValueLoadoutOnline (Value.LoadoutOnlineValue values))
 
 
 getLoadoutProperty :: BinaryBit.BitGet Value.Value
