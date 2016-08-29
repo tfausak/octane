@@ -28,6 +28,7 @@ module Octane.Type.Value
     , PickupValue(..)
     , PrivateMatchSettingsValue(..)
     , QWordValue(..)
+    , RelativeRotationValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -205,6 +206,13 @@ newtype QWordValue = QWordValue
 instance DeepSeq.NFData QWordValue where
 
 
+newtype RelativeRotationValue = RelativeRotationValue
+    { relativeRotationValueUnpack :: Vector.Vector Float
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData RelativeRotationValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -224,8 +232,7 @@ data Value
     | ValuePickup PickupValue
     | ValuePrivateMatchSettings PrivateMatchSettingsValue
     | ValueQWord QWordValue
-    | VRelativeRotation
-        (Vector.Vector Float)
+    | ValueRelativeRotation RelativeRotationValue
     | VReservation
         CompressedWord.CompressedWord
         Word8.Word8
@@ -272,6 +279,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''PickupValue
     , ''PrivateMatchSettingsValue
     , ''QWordValue
+    , ''RelativeRotationValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -302,7 +310,7 @@ typeName value = case value of
     ValuePickup _ -> "Pickup"
     ValuePrivateMatchSettings _ -> "PrivateMatchSettings"
     ValueQWord _ -> "QWord"
-    VRelativeRotation _ -> "RelativeRotation"
+    ValueRelativeRotation _ -> "RelativeRotation"
     VReservation _ _ _ _ _ _ _ -> "Reservation"
     VRigidBodyState _ _ _ _ _ -> "RigidBodyState"
     VString _ -> "String"
@@ -399,7 +407,7 @@ jsonValue value = case value of
         , "Unknown" .= #flag x
         ]
     ValueQWord x -> Aeson.toJSON (#unpack x)
-    VRelativeRotation x -> Aeson.toJSON x
+    ValueRelativeRotation x -> Aeson.toJSON (#unpack x)
     VReservation num systemId remoteId localId name x y -> Aeson.object
         [ "Number" .= num
         , "SystemId" .= systemId

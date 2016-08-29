@@ -503,7 +503,7 @@ getQWordProperty = do
 getRelativeRotationProperty :: BinaryBit.BitGet Value.Value
 getRelativeRotationProperty = do
     vector <- Vector.getFloatVector
-    pure (Value.VRelativeRotation vector)
+    pure (Value.ValueRelativeRotation (Value.RelativeRotationValue vector))
 
 
 getReservationProperty :: Context -> BinaryBit.BitGet Value.Value
