@@ -480,7 +480,7 @@ getPickupProperty = do
         then fmap Just getWord32
         else pure Nothing
     pickedUp <- getBool
-    pure (Value.VPickup instigator instigatorId pickedUp)
+    pure (Value.ValuePickup (Value.PickupValue instigator instigatorId pickedUp))
 
 
 getPrivateMatchSettingsProperty :: BinaryBit.BitGet Value.Value

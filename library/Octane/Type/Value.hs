@@ -25,6 +25,7 @@ module Octane.Type.Value
     , LoadoutOnlineValue(..)
     , LocationValue(..)
     , MusicStingerValue(..)
+    , PickupValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -174,6 +175,15 @@ data MusicStingerValue = MusicStingerValue
 instance DeepSeq.NFData MusicStingerValue where
 
 
+data PickupValue = PickupValue
+    { pickupValueHasInstigator :: Boolean.Boolean
+    , pickupValueInstigatorId :: Maybe Word32.Word32
+    , pickupValuePickedUp :: Boolean.Boolean
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData PickupValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -190,10 +200,7 @@ data Value
     | ValueLoadoutOnline LoadoutOnlineValue
     | ValueLocation LocationValue
     | ValueMusicStinger MusicStingerValue
-    | VPickup
-        Boolean.Boolean
-        (Maybe Word32.Word32)
-        Boolean.Boolean
+    | ValuePickup PickupValue
     | VPrivateMatchSettings
         Text.Text
         Word32.Word32
@@ -248,6 +255,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''LoadoutOnlineValue
     , ''LocationValue
     , ''MusicStingerValue
+    , ''PickupValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -275,7 +283,7 @@ typeName value = case value of
     ValueLoadoutOnline _ -> "OnlineLoadout"
     ValueLocation _ -> "Position"
     ValueMusicStinger _ -> "MusicStinger"
-    VPickup _ _ _ -> "Pickup"
+    ValuePickup _ -> "Pickup"
     VPrivateMatchSettings _ _ _ _ _ _ -> "PrivateMatchSettings"
     VQWord _ -> "QWord"
     VRelativeRotation _ -> "RelativeRotation"
@@ -361,7 +369,11 @@ jsonValue value = case value of
         , "Cue" .= #cue x
         , "Trigger" .= #trigger x
         ]
-    VPickup a b c -> Aeson.toJSON (a, b, c)
+    ValuePickup x -> Aeson.object
+        [ "HasInstigator" .= #hasInstigator x
+        , "InstigatorId" .= #instigatorId x
+        , "PickedUp" .= #pickedUp x
+        ]
     VPrivateMatchSettings mutators joinableBy maxPlayers name password x -> Aeson.object
         [ "Mutators" .= mutators
         , "JoinableBy" .= joinableBy
