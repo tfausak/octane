@@ -462,7 +462,7 @@ getLoadoutProperty = do
 getLocationProperty :: BinaryBit.BitGet Value.Value
 getLocationProperty = do
     vector <- Vector.getIntVector
-    pure (Value.VLocation vector)
+    pure (Value.ValueLocation (Value.LocationValue vector))
 
 
 getMusicStingerProperty :: BinaryBit.BitGet Value.Value

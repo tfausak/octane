@@ -23,6 +23,7 @@ module Octane.Type.Value
     , IntValue(..)
     , LoadoutValue(..)
     , LoadoutOnlineValue(..)
+    , LocationValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -156,6 +157,13 @@ newtype LoadoutOnlineValue = LoadoutOnlineValue
 instance DeepSeq.NFData LoadoutOnlineValue where
 
 
+newtype LocationValue = LocationValue
+    { locationValueUnpack :: Vector.Vector Int
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData LocationValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -170,8 +178,7 @@ data Value
     | ValueInt IntValue
     | ValueLoadout LoadoutValue
     | ValueLoadoutOnline LoadoutOnlineValue
-    | VLocation
-        (Vector.Vector Int)
+    | ValueLocation LocationValue
     | VMusicStinger
         Boolean.Boolean
         Word32.Word32
@@ -232,6 +239,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''IntValue
     , ''LoadoutValue
     , ''LoadoutOnlineValue
+    , ''LocationValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -257,7 +265,7 @@ typeName value = case value of
     ValueInt _ -> "Int"
     ValueLoadout _ -> "Loadout"
     ValueLoadoutOnline _ -> "OnlineLoadout"
-    VLocation _ -> "Position"
+    ValueLocation _ -> "Position"
     VMusicStinger _ _ _ -> "MusicStinger"
     VPickup _ _ _ -> "Pickup"
     VPrivateMatchSettings _ _ _ _ _ _ -> "PrivateMatchSettings"
@@ -339,7 +347,7 @@ jsonValue value = case value of
         , "Unknown2" .= #unknown2 x
         ]
     ValueLoadoutOnline x -> Aeson.toJSON (#unpack x)
-    VLocation x -> Aeson.toJSON x
+    ValueLocation x -> Aeson.toJSON (#unpack x)
     VMusicStinger a b c -> Aeson.toJSON (a, b, c)
     VPickup a b c -> Aeson.toJSON (a, b, c)
     VPrivateMatchSettings mutators joinableBy maxPlayers name password x -> Aeson.object
