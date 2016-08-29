@@ -491,7 +491,7 @@ getPrivateMatchSettingsProperty = do
     gameName <- getText
     password <- getText
     flag <- getBool
-    pure (Value.VPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
+    pure (Value.ValuePrivateMatchSettings (Value.PrivateMatchSettingsValue mutators joinableBy maxPlayers gameName password flag))
 
 
 getQWordProperty :: BinaryBit.BitGet Value.Value

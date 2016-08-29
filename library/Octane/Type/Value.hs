@@ -26,6 +26,7 @@ module Octane.Type.Value
     , LocationValue(..)
     , MusicStingerValue(..)
     , PickupValue(..)
+    , PrivateMatchSettingsValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -184,6 +185,18 @@ data PickupValue = PickupValue
 instance DeepSeq.NFData PickupValue where
 
 
+data PrivateMatchSettingsValue = PrivateMatchSettingsValue
+    { privateMatchSettingsValueMutators :: Text.Text
+    , privateMatchSettingsValueJoinableBy :: Word32.Word32
+    , privateMatchSettingsValueMaxPlayers :: Word32.Word32
+    , privateMatchSettingsValueGameName :: Text.Text
+    , privateMatchSettingsValuePassword :: Text.Text
+    , privateMatchSettingsValueFlag :: Boolean.Boolean
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData PrivateMatchSettingsValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -201,13 +214,7 @@ data Value
     | ValueLocation LocationValue
     | ValueMusicStinger MusicStingerValue
     | ValuePickup PickupValue
-    | VPrivateMatchSettings
-        Text.Text
-        Word32.Word32
-        Word32.Word32
-        Text.Text
-        Text.Text
-        Boolean.Boolean
+    | ValuePrivateMatchSettings PrivateMatchSettingsValue
     | VQWord
         Word64.Word64
     | VRelativeRotation
@@ -256,6 +263,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''LocationValue
     , ''MusicStingerValue
     , ''PickupValue
+    , ''PrivateMatchSettingsValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -284,7 +292,7 @@ typeName value = case value of
     ValueLocation _ -> "Position"
     ValueMusicStinger _ -> "MusicStinger"
     ValuePickup _ -> "Pickup"
-    VPrivateMatchSettings _ _ _ _ _ _ -> "PrivateMatchSettings"
+    ValuePrivateMatchSettings _ -> "PrivateMatchSettings"
     VQWord _ -> "QWord"
     VRelativeRotation _ -> "RelativeRotation"
     VReservation _ _ _ _ _ _ _ -> "Reservation"
@@ -374,13 +382,13 @@ jsonValue value = case value of
         , "InstigatorId" .= #instigatorId x
         , "PickedUp" .= #pickedUp x
         ]
-    VPrivateMatchSettings mutators joinableBy maxPlayers name password x -> Aeson.object
-        [ "Mutators" .= mutators
-        , "JoinableBy" .= joinableBy
-        , "MaxPlayers" .= maxPlayers
-        , "Name" .= name
-        , "Password" .= password
-        , "Unknown" .= x
+    ValuePrivateMatchSettings x -> Aeson.object
+        [ "Mutators" .= #mutators x
+        , "JoinableBy" .= #joinableBy x
+        , "MaxPlayers" .= #maxPlayers x
+        , "Name" .= #gameName x
+        , "Password" .= #password x
+        , "Unknown" .= #flag x
         ]
     VQWord x -> Aeson.toJSON x
     VRelativeRotation x -> Aeson.toJSON x
