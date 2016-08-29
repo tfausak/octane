@@ -33,6 +33,7 @@ module Octane.Type.Value
     , RigidBodyStateValue(..)
     , StringValue(..)
     , TeamPaintValue(..)
+    , UniqueIdValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -259,6 +260,15 @@ data TeamPaintValue = TeamPaintValue
 instance DeepSeq.NFData TeamPaintValue where
 
 
+data UniqueIdValue = UniqueIdValue
+    { uniqueIdValueSystemId :: Word8.Word8
+    , uniqueIdValueRemoteId :: RemoteId.RemoteId
+    , uniqueIdValueLocalId :: Maybe Word8.Word8
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData UniqueIdValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -283,10 +293,7 @@ data Value
     | ValueRigidBodyState RigidBodyStateValue
     | ValueString StringValue
     | ValueTeamPaint TeamPaintValue
-    | VUniqueId
-        Word8.Word8
-        RemoteId.RemoteId
-        (Maybe Word8.Word8)
+    | ValueUniqueId UniqueIdValue
     deriving (Eq, Generics.Generic, Show)
 
 $(OverloadedRecords.overloadedRecords Default.def
@@ -312,6 +319,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''RigidBodyStateValue
     , ''StringValue
     , ''TeamPaintValue
+    , ''UniqueIdValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -347,7 +355,7 @@ typeName value = case value of
     ValueRigidBodyState _ -> "RigidBodyState"
     ValueString _ -> "String"
     ValueTeamPaint _ -> "Paint"
-    VUniqueId _ _ _ -> "UniqueId"
+    ValueUniqueId _ -> "UniqueId"
 
 
 jsonValue :: Value -> Aeson.Value
@@ -470,15 +478,15 @@ jsonValue value = case value of
             , "Name" .= getProduct (#accentFinish x)
             ]
         ]
-    VUniqueId systemId remoteId localId -> Aeson.object
-        [ "System" .= case systemId of
+    ValueUniqueId x -> Aeson.object
+        [ "System" .= case #systemId x of
             0 -> "Local"
             1 -> "Steam"
             2 -> "PlayStation"
             4 -> "Xbox"
-            _ -> "Unknown system " ++ show systemId
-        , "Remote" .= remoteId
-        , "Local" .= localId
+            y -> "Unknown system " ++ show y
+        , "Remote" .= #remoteId x
+        , "Local" .= #localId x
         ]
 
 

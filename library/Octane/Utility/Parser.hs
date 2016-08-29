@@ -561,7 +561,7 @@ getTeamPaintProperty = do
 getUniqueIdProperty :: BinaryBit.BitGet Value.Value
 getUniqueIdProperty = do
     (systemId, remoteId, localId) <- getUniqueId
-    pure (Value.VUniqueId systemId remoteId localId)
+    pure (Value.ValueUniqueId (Value.UniqueIdValue systemId remoteId localId))
 
 
 -- | Even though this is just a unique ID property, it must be handled
@@ -575,7 +575,7 @@ getPartyLeaderProperty = do
             remoteId <- getRemoteId systemId
             localId <- fmap Just getWord8
             pure (remoteId, localId)
-    pure (Value.VUniqueId systemId remoteId localId)
+    pure (Value.ValueUniqueId (Value.UniqueIdValue systemId remoteId localId))
 
 
 getUniqueId :: BinaryBit.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
