@@ -24,6 +24,7 @@ module Octane.Type.Value
     , LoadoutValue(..)
     , LoadoutOnlineValue(..)
     , LocationValue(..)
+    , MusicStingerValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -164,6 +165,15 @@ newtype LocationValue = LocationValue
 instance DeepSeq.NFData LocationValue where
 
 
+data MusicStingerValue = MusicStingerValue
+    { musicStingerValueFlag :: Boolean.Boolean
+    , musicStingerValueCue :: Word32.Word32
+    , musicStingerValueTrigger :: Word8.Word8
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData MusicStingerValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -179,10 +189,7 @@ data Value
     | ValueLoadout LoadoutValue
     | ValueLoadoutOnline LoadoutOnlineValue
     | ValueLocation LocationValue
-    | VMusicStinger
-        Boolean.Boolean
-        Word32.Word32
-        Word8.Word8
+    | ValueMusicStinger MusicStingerValue
     | VPickup
         Boolean.Boolean
         (Maybe Word32.Word32)
@@ -240,6 +247,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''LoadoutValue
     , ''LoadoutOnlineValue
     , ''LocationValue
+    , ''MusicStingerValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -266,7 +274,7 @@ typeName value = case value of
     ValueLoadout _ -> "Loadout"
     ValueLoadoutOnline _ -> "OnlineLoadout"
     ValueLocation _ -> "Position"
-    VMusicStinger _ _ _ -> "MusicStinger"
+    ValueMusicStinger _ -> "MusicStinger"
     VPickup _ _ _ -> "Pickup"
     VPrivateMatchSettings _ _ _ _ _ _ -> "PrivateMatchSettings"
     VQWord _ -> "QWord"
@@ -348,7 +356,11 @@ jsonValue value = case value of
         ]
     ValueLoadoutOnline x -> Aeson.toJSON (#unpack x)
     ValueLocation x -> Aeson.toJSON (#unpack x)
-    VMusicStinger a b c -> Aeson.toJSON (a, b, c)
+    ValueMusicStinger x -> Aeson.object
+        [ "Flag" .= #flag x
+        , "Cue" .= #cue x
+        , "Trigger" .= #trigger x
+        ]
     VPickup a b c -> Aeson.toJSON (a, b, c)
     VPrivateMatchSettings mutators joinableBy maxPlayers name password x -> Aeson.object
         [ "Mutators" .= mutators

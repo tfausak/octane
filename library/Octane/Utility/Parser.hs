@@ -470,7 +470,7 @@ getMusicStingerProperty = do
     flag <- getBool
     cue <- getWord32
     trigger <- getWord8
-    pure (Value.VMusicStinger flag cue trigger)
+    pure (Value.ValueMusicStinger (Value.MusicStingerValue flag cue trigger))
 
 
 getPickupProperty :: BinaryBit.BitGet Value.Value
