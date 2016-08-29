@@ -30,6 +30,7 @@ module Octane.Type.Value
     , QWordValue(..)
     , RelativeRotationValue(..)
     , ReservationValue(..)
+    , RigidBodyStateValue(..)
     ) where
 
 import Data.Aeson ((.=))
@@ -227,6 +228,17 @@ data ReservationValue = ReservationValue
 instance DeepSeq.NFData ReservationValue where
 
 
+data RigidBodyStateValue = RigidBodyStateValue
+    { rigidBodyStateValueSleeping :: Boolean.Boolean
+    , rigidBodyStateValuePosition :: Vector.Vector Int
+    , rigidBodyStateValueRotation :: Vector.Vector Float
+    , rigidBodyStateValueLinearVelocity :: Maybe (Vector.Vector Int)
+    , rigidBodyStateValueAngularVelocity :: Maybe (Vector.Vector Int)
+    } deriving (Eq, Generics.Generic, Show)
+
+instance DeepSeq.NFData RigidBodyStateValue where
+
+
 -- | A replicated property's value.
 data Value
     = ValueBoolean BooleanValue
@@ -248,12 +260,7 @@ data Value
     | ValueQWord QWordValue
     | ValueRelativeRotation RelativeRotationValue
     | ValueReservation ReservationValue
-    | VRigidBodyState
-        Boolean.Boolean
-        (Vector.Vector Int)
-        (Vector.Vector Float)
-        (Maybe (Vector.Vector Int))
-        (Maybe (Vector.Vector Int))
+    | ValueRigidBodyState RigidBodyStateValue
     | VString
         Text.Text
     | VTeamPaint
@@ -288,6 +295,7 @@ $(OverloadedRecords.overloadedRecords Default.def
     , ''QWordValue
     , ''RelativeRotationValue
     , ''ReservationValue
+    , ''RigidBodyStateValue
     ])
 
 instance DeepSeq.NFData Value where
@@ -320,7 +328,7 @@ typeName value = case value of
     ValueQWord _ -> "QWord"
     ValueRelativeRotation _ -> "RelativeRotation"
     ValueReservation _ -> "Reservation"
-    VRigidBodyState _ _ _ _ _ -> "RigidBodyState"
+    ValueRigidBodyState _ -> "RigidBodyState"
     VString _ -> "String"
     VTeamPaint _ _ _ _ _ -> "Paint"
     VUniqueId _ _ _ -> "UniqueId"
@@ -425,12 +433,12 @@ jsonValue value = case value of
         , "Unknown1" .= #unknown1 x
         , "Unknown2" .= #unknown2 x
         ]
-    VRigidBodyState sleeping position rotation linear angular -> Aeson.object
-        [ "Sleeping" .= sleeping
-        , "Position" .= position
-        , "Rotation" .= rotation
-        , "LinearVelocity" .= linear
-        , "AngularVelocity" .= angular
+    ValueRigidBodyState x -> Aeson.object
+        [ "Sleeping" .= #sleeping x
+        , "Position" .= #position x
+        , "Rotation" .= #rotation x
+        , "LinearVelocity" .= #linearVelocity x
+        , "AngularVelocity" .= #angularVelocity x
         ]
     VString x -> Aeson.toJSON x
     VTeamPaint team color1 color2 finish1 finish2 -> Aeson.object

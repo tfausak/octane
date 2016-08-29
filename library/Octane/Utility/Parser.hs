@@ -539,7 +539,7 @@ getRigidBodyStateProperty = do
     y <- if #unpack flag
         then pure Nothing
         else fmap Just Vector.getIntVector
-    pure (Value.VRigidBodyState flag position rotation x y)
+    pure (Value.ValueRigidBodyState (Value.RigidBodyStateValue flag position rotation x y))
 
 
 getStringProperty :: BinaryBit.BitGet Value.Value
