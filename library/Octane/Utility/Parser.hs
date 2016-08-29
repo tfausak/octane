@@ -357,13 +357,13 @@ getPropValue context name = case Map.lookup name Data.properties of
 getBooleanProperty :: BinaryBit.BitGet Value.Value
 getBooleanProperty = do
     bool <- getBool
-    pure (Value.VBoolean bool)
+    pure (Value.ValueBoolean (Value.BooleanValue bool))
 
 
 getByteProperty :: BinaryBit.BitGet Value.Value
 getByteProperty = do
     word <- getWord8
-    pure (Value.VByte word)
+    pure (Value.ValueByte (Value.ByteValue word))
 
 
 getCamSettingsProperty :: BinaryBit.BitGet Value.Value
@@ -374,18 +374,18 @@ getCamSettingsProperty = do
     distance <- getFloat32
     stiffness <- getFloat32
     swivelSpeed <- getFloat32
-    pure (Value.VCamSettings fov height angle distance stiffness swivelSpeed)
+    pure (Value.ValueCamSettings (Value.CamSettingsValue fov height angle distance stiffness swivelSpeed))
 
 
 getDemolishProperty :: BinaryBit.BitGet Value.Value
 getDemolishProperty = do
-    atkFlag <- getBool
-    atk <- getWord32
-    vicFlag <- getBool
-    vic <- getWord32
-    vec1 <- Vector.getIntVector
-    vec2 <- Vector.getIntVector
-    pure (Value.VDemolish atkFlag atk vicFlag vic vec1 vec2)
+    attackerFlag <- getBool
+    attackerActorId <- getWord32
+    victimFlag <- getBool
+    victimActorId <- getWord32
+    attackerVelocity <- Vector.getIntVector
+    victimVelocity <- Vector.getIntVector
+    pure (Value.ValueDemolish (Value.DemolishValue attackerFlag attackerActorId victimFlag victimActorId attackerVelocity victimVelocity))
 
 
 getEnumProperty :: BinaryBit.BitGet Value.Value
@@ -394,43 +394,43 @@ getEnumProperty = do
     y <- if x == 1023
         then getBool
         else fail ("unexpected enum value " ++ show x)
-    pure (Value.VEnum (Word16.toWord16 x) y)
+    pure (Value.ValueEnum (Value.EnumValue (Word16.toWord16 x) y))
 
 
 getExplosionProperty :: BinaryBit.BitGet Value.Value
 getExplosionProperty = do
-    noGoal <- getBool
-    a <- if #unpack noGoal
+    x <- getBool
+    y <- if #unpack x
         then pure Nothing
         else fmap Just getInt32
-    b <- Vector.getIntVector
-    pure (Value.VExplosion noGoal a b)
+    z <- Vector.getIntVector
+    pure (Value.ValueExplosion (Value.ExplosionValue x y z))
 
 
 getFlaggedIntProperty :: BinaryBit.BitGet Value.Value
 getFlaggedIntProperty = do
     flag <- getBool
     int <- getInt32
-    pure (Value.VFlaggedInt flag int)
+    pure (Value.ValueFlaggedInt (Value.FlaggedIntValue flag int))
 
 
 getFloatProperty :: BinaryBit.BitGet Value.Value
 getFloatProperty = do
     float <- getFloat32
-    pure (Value.VFloat float)
+    pure (Value.ValueFloat (Value.FloatValue float))
 
 
 getGameModeProperty :: Context -> BinaryBit.BitGet Value.Value
 getGameModeProperty context = do
     let numBits = if atLeastNeoTokyo context then 8 else 2
     x <- BinaryBit.getWord8 numBits
-    pure (Value.VGameMode (Word8.toWord8 x))
+    pure (Value.ValueGameMode (Value.GameModeValue (Word8.toWord8 x)))
 
 
 getIntProperty :: BinaryBit.BitGet Value.Value
 getIntProperty = do
     int <- getInt32
-    pure (Value.VInt int)
+    pure (Value.ValueInt (Value.IntValue int))
 
 
 getLoadoutOnlineProperty :: BinaryBit.BitGet Value.Value
@@ -442,7 +442,7 @@ getLoadoutOnlineProperty = do
             x <- getWord32
             y <- BinaryBit.getBits 27
             pure (x, y)))
-    pure (Value.VLoadoutOnline values)
+    pure (Value.ValueLoadoutOnline (Value.LoadoutOnlineValue values))
 
 
 getLoadoutProperty :: BinaryBit.BitGet Value.Value
@@ -456,13 +456,13 @@ getLoadoutProperty = do
     topper <- getWord32
     g <- getWord32
     h <- if version > 10 then fmap Just getWord32 else pure Nothing
-    pure (Value.VLoadout version body decal wheels rocketTrail antenna topper g h)
+    pure (Value.ValueLoadout (Value.LoadoutValue version body decal wheels rocketTrail antenna topper g h))
 
 
 getLocationProperty :: BinaryBit.BitGet Value.Value
 getLocationProperty = do
     vector <- Vector.getIntVector
-    pure (Value.VLocation vector)
+    pure (Value.ValueLocation (Value.LocationValue vector))
 
 
 getMusicStingerProperty :: BinaryBit.BitGet Value.Value
@@ -470,7 +470,7 @@ getMusicStingerProperty = do
     flag <- getBool
     cue <- getWord32
     trigger <- getWord8
-    pure (Value.VMusicStinger flag cue trigger)
+    pure (Value.ValueMusicStinger (Value.MusicStingerValue flag cue trigger))
 
 
 getPickupProperty :: BinaryBit.BitGet Value.Value
@@ -480,7 +480,7 @@ getPickupProperty = do
         then fmap Just getWord32
         else pure Nothing
     pickedUp <- getBool
-    pure (Value.VPickup instigator instigatorId pickedUp)
+    pure (Value.ValuePickup (Value.PickupValue instigator instigatorId pickedUp))
 
 
 getPrivateMatchSettingsProperty :: BinaryBit.BitGet Value.Value
@@ -491,19 +491,19 @@ getPrivateMatchSettingsProperty = do
     gameName <- getText
     password <- getText
     flag <- getBool
-    pure (Value.VPrivateMatchSettings mutators joinableBy maxPlayers gameName password flag)
+    pure (Value.ValuePrivateMatchSettings (Value.PrivateMatchSettingsValue mutators joinableBy maxPlayers gameName password flag))
 
 
 getQWordProperty :: BinaryBit.BitGet Value.Value
 getQWordProperty = do
     qword <- getWord64
-    pure (Value.VQWord qword)
+    pure (Value.ValueQWord (Value.QWordValue qword))
 
 
 getRelativeRotationProperty :: BinaryBit.BitGet Value.Value
 getRelativeRotationProperty = do
     vector <- Vector.getFloatVector
-    pure (Value.VRelativeRotation vector)
+    pure (Value.ValueRelativeRotation (Value.RelativeRotationValue vector))
 
 
 getReservationProperty :: Context -> BinaryBit.BitGet Value.Value
@@ -525,7 +525,7 @@ getReservationProperty context = do
         Monad.when (x /= 0b000000) (do
             fail (Printf.printf "Read 6 reservation bits and they weren't all 0! 0b%06b" x)))
 
-    pure (Value.VReservation number systemId remoteId localId playerName a b)
+    pure (Value.ValueReservation (Value.ReservationValue number systemId remoteId localId playerName a b))
 
 
 getRigidBodyStateProperty :: BinaryBit.BitGet Value.Value
@@ -539,13 +539,13 @@ getRigidBodyStateProperty = do
     y <- if #unpack flag
         then pure Nothing
         else fmap Just Vector.getIntVector
-    pure (Value.VRigidBodyState flag position rotation x y)
+    pure (Value.ValueRigidBodyState (Value.RigidBodyStateValue flag position rotation x y))
 
 
 getStringProperty :: BinaryBit.BitGet Value.Value
 getStringProperty = do
     string <- getText
-    pure (Value.VString string)
+    pure (Value.ValueString (Value.StringValue string))
 
 
 getTeamPaintProperty :: BinaryBit.BitGet Value.Value
@@ -555,13 +555,13 @@ getTeamPaintProperty = do
     accentColor <- getWord8
     primaryFinish <- getWord32
     accentFinish <- getWord32
-    pure (Value.VTeamPaint team primaryColor accentColor primaryFinish accentFinish)
+    pure (Value.ValueTeamPaint (Value.TeamPaintValue team primaryColor accentColor primaryFinish accentFinish))
 
 
 getUniqueIdProperty :: BinaryBit.BitGet Value.Value
 getUniqueIdProperty = do
     (systemId, remoteId, localId) <- getUniqueId
-    pure (Value.VUniqueId systemId remoteId localId)
+    pure (Value.ValueUniqueId (Value.UniqueIdValue systemId remoteId localId))
 
 
 -- | Even though this is just a unique ID property, it must be handled
@@ -575,7 +575,7 @@ getPartyLeaderProperty = do
             remoteId <- getRemoteId systemId
             localId <- fmap Just getWord8
             pure (remoteId, localId)
-    pure (Value.VUniqueId systemId remoteId localId)
+    pure (Value.ValueUniqueId (Value.UniqueIdValue systemId remoteId localId))
 
 
 getUniqueId :: BinaryBit.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
