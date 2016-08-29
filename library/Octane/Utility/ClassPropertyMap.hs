@@ -199,8 +199,8 @@ normalizeName name = name
 
 
 replace :: String -> String -> String -> String
-replace pattern replacement input =
-    Regex.subRegex (Regex.mkRegex pattern) input replacement
+replace needle replacement haystack =
+    Regex.subRegex (Regex.mkRegex needle) haystack replacement
 
 
 getClassName :: (Monad m) => Map.Map StrictText.Text StrictText.Text -> StrictText.Text -> m StrictText.Text
