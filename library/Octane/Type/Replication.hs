@@ -7,7 +7,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.Replication (Replication(..)) where
+module Octane.Type.Replication
+  ( Replication(..)
+  ) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Default.Class as Default
@@ -20,27 +22,26 @@ import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Value as Value
 
-
 -- | A replicated actor in a frame.
 --
 -- This cannot be an instance of 'Data.Binary.Bits.BinaryBit' because it
 -- requires out-of-band information (the class property map) to decode.
 data Replication = Replication
-    { replicationActorId :: CompressedWord.CompressedWord
+  { replicationActorId :: CompressedWord.CompressedWord
     -- ^ The actor's ID.
-    , replicationObjectName :: StrictText.Text
+  , replicationObjectName :: StrictText.Text
     -- ^ The name of the actor's object.
-    , replicationClassName :: StrictText.Text
+  , replicationClassName :: StrictText.Text
     -- ^ The name of the actor's class.
-    , replicationState :: State.State
+  , replicationState :: State.State
     -- ^ Which state this actor's replication is in.
-    , replicationInitialization :: Maybe Initialization.Initialization
+  , replicationInitialization :: Maybe Initialization.Initialization
     -- ^ The optional initialization information for this actor. These only
     -- exist for new actors.
-    , replicationProperties :: Map.Map StrictText.Text Value.Value
+  , replicationProperties :: Map.Map StrictText.Text Value.Value
     -- ^ The property updates associated with this actor's replication.
-    } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Generics.Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Replication)
 
-instance DeepSeq.NFData Replication where
+instance DeepSeq.NFData Replication

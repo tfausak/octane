@@ -8,7 +8,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.Float32 (Float32(..)) where
+module Octane.Type.Float32
+  ( Float32(..)
+  ) where
 
 import Data.Function ((&))
 
@@ -27,49 +29,38 @@ import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 
-
 -- | A 32-bit float.
 newtype Float32 = Float32
-    { float32Unpack :: Float
-    } deriving (Eq, Fractional, Generics.Generic, Num, Ord)
+  { float32Unpack :: Float
+  } deriving (Eq, Fractional, Generics.Generic, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Float32)
 
 -- | Little-endian.
 instance Binary.Binary Float32 where
-    get = do
-        value <- IEEE754.getFloat32le
-        value & Float32 & pure
-
-    put float32 = float32
-        & #unpack
-        & IEEE754.putFloat32le
+  get = do
+    value <- IEEE754.getFloat32le
+    value & Float32 & pure
+  put float32 = float32 & #unpack & IEEE754.putFloat32le
 
 -- | Little-endian with the bits in each byte reversed.
 instance BinaryBit.BinaryBit Float32 where
-    getBits _ = do
-        bytes <- BinaryBit.getByteString 4
-        bytes
-            & LazyBytes.fromStrict
-            & Endian.reverseBitsInLazyBytes
-            & Binary.runGet Binary.get
-            & pure
-
-    putBits _ float32 = float32
-        & Binary.put
-        & Binary.runPut
-        & Endian.reverseBitsInLazyBytes
-        & LazyBytes.toStrict
-        & BinaryBit.putByteString
+  getBits _ = do
+    bytes <- BinaryBit.getByteString 4
+    bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes &
+      Binary.runGet Binary.get &
+      pure
+  putBits _ float32 =
+    float32 & Binary.put & Binary.runPut & Endian.reverseBitsInLazyBytes &
+    LazyBytes.toStrict &
+    BinaryBit.putByteString
 
 instance DeepSeq.NFData Float32
 
 -- | Shown as @12.34@.
 instance Show Float32 where
-    show float32 = show (#unpack float32)
+  show float32 = show (#unpack float32)
 
 -- | Encoded directly as a JSON number.
 instance Aeson.ToJSON Float32 where
-    toJSON float32 = float32
-        & #unpack
-        & Aeson.toJSON
+  toJSON float32 = float32 & #unpack & Aeson.toJSON

@@ -10,10 +10,10 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.OptimizedReplay
-    ( OptimizedReplay(..)
-    , fromReplayWithFrames
-    , toReplayWithFrames
-    ) where
+  ( OptimizedReplay(..)
+  , fromReplayWithFrames
+  , toReplayWithFrames
+  ) where
 
 import Data.Function ((&))
 
@@ -36,80 +36,82 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Utility.Optimizer as Optimizer
 
-
 -- | A fully-processed replay with optimized frames. That means any unnecessary
 -- replications have been removed.
 --
 -- See 'Octane.Type.Replay.Replay'.
 data OptimizedReplay = OptimizedReplay
-    { optimizedReplayVersion1 :: Word32.Word32
-    , optimizedReplayVersion2 :: Word32.Word32
-    , optimizedReplayLabel :: Text.Text
-    , optimizedReplayProperties :: Dictionary.Dictionary Property.Property
-    , optimizedReplayLevels :: List.List Text.Text
-    , optimizedReplayKeyFrames :: List.List KeyFrame.KeyFrame
-    , optimizedReplayFrames :: [Frame.Frame]
-    , optimizedReplayMessages :: List.List Message.Message
-    , optimizedReplayMarks :: List.List Mark.Mark
-    , optimizedReplayPackages :: List.List Text.Text
-    , optimizedReplayObjects :: List.List Text.Text
-    , optimizedReplayNames :: List.List Text.Text
-    , optimizedReplayClasses :: List.List ClassItem.ClassItem
-    , optimizedReplayCache :: List.List CacheItem.CacheItem
-    } deriving (Eq, Generics.Generic, Show)
+  { optimizedReplayVersion1 :: Word32.Word32
+  , optimizedReplayVersion2 :: Word32.Word32
+  , optimizedReplayLabel :: Text.Text
+  , optimizedReplayProperties :: Dictionary.Dictionary Property.Property
+  , optimizedReplayLevels :: List.List Text.Text
+  , optimizedReplayKeyFrames :: List.List KeyFrame.KeyFrame
+  , optimizedReplayFrames :: [Frame.Frame]
+  , optimizedReplayMessages :: List.List Message.Message
+  , optimizedReplayMarks :: List.List Mark.Mark
+  , optimizedReplayPackages :: List.List Text.Text
+  , optimizedReplayObjects :: List.List Text.Text
+  , optimizedReplayNames :: List.List Text.Text
+  , optimizedReplayClasses :: List.List ClassItem.ClassItem
+  , optimizedReplayCache :: List.List CacheItem.CacheItem
+  } deriving (Eq, Generics.Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''OptimizedReplay)
 
 instance Binary.Binary OptimizedReplay where
-    get = do
-        replayWithFrames <- Binary.get
-        fromReplayWithFrames replayWithFrames
+  get = do
+    replayWithFrames <- Binary.get
+    fromReplayWithFrames replayWithFrames
+  put replay = do
+    replayWithFrames <- toReplayWithFrames replay
+    Binary.put replayWithFrames
 
-    put replay = do
-        replayWithFrames <- toReplayWithFrames replay
-        Binary.put replayWithFrames
-
-instance DeepSeq.NFData OptimizedReplay where
-
+instance DeepSeq.NFData OptimizedReplay
 
 -- | Converts a 'ReplayWithFrames.ReplayWithFrames' into an 'OptimizedReplay'.
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
-fromReplayWithFrames :: (Monad m) => ReplayWithFrames.ReplayWithFrames -> m OptimizedReplay
+fromReplayWithFrames
+  :: (Monad m)
+  => ReplayWithFrames.ReplayWithFrames -> m OptimizedReplay
 fromReplayWithFrames replayWithFrames = do
-    let frames = replayWithFrames & #frames & Optimizer.optimizeFrames
-    pure (OptimizedReplay
-        (#version1 replayWithFrames)
-        (#version2 replayWithFrames)
-        (#label replayWithFrames)
-        (#properties replayWithFrames)
-        (#levels replayWithFrames)
-        (#keyFrames replayWithFrames)
-        frames
-        (#messages replayWithFrames)
-        (#marks replayWithFrames)
-        (#packages replayWithFrames)
-        (#objects replayWithFrames)
-        (#names replayWithFrames)
-        (#classes replayWithFrames)
-        (#cache replayWithFrames))
-
+  let frames = replayWithFrames & #frames & Optimizer.optimizeFrames
+  pure
+    (OptimizedReplay
+       (#version1 replayWithFrames)
+       (#version2 replayWithFrames)
+       (#label replayWithFrames)
+       (#properties replayWithFrames)
+       (#levels replayWithFrames)
+       (#keyFrames replayWithFrames)
+       frames
+       (#messages replayWithFrames)
+       (#marks replayWithFrames)
+       (#packages replayWithFrames)
+       (#objects replayWithFrames)
+       (#names replayWithFrames)
+       (#classes replayWithFrames)
+       (#cache replayWithFrames))
 
 -- | Converts an 'OptimizedReplay' into a 'ReplayWithFrames.ReplayWithFrames'.
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
-toReplayWithFrames :: (Monad m) => OptimizedReplay -> m ReplayWithFrames.ReplayWithFrames
+toReplayWithFrames
+  :: (Monad m)
+  => OptimizedReplay -> m ReplayWithFrames.ReplayWithFrames
 toReplayWithFrames optimizedReplay = do
-    pure (ReplayWithFrames.ReplayWithFrames
-        (#version1 optimizedReplay)
-        (#version2 optimizedReplay)
-        (#label optimizedReplay)
-        (#properties optimizedReplay)
-        (#levels optimizedReplay)
-        (#keyFrames optimizedReplay)
-        (#frames optimizedReplay)
-        (#messages optimizedReplay)
-        (#marks optimizedReplay)
-        (#packages optimizedReplay)
-        (#objects optimizedReplay)
-        (#names optimizedReplay)
-        (#classes optimizedReplay)
-        (#cache optimizedReplay))
+  pure
+    (ReplayWithFrames.ReplayWithFrames
+       (#version1 optimizedReplay)
+       (#version2 optimizedReplay)
+       (#label optimizedReplay)
+       (#properties optimizedReplay)
+       (#levels optimizedReplay)
+       (#keyFrames optimizedReplay)
+       (#frames optimizedReplay)
+       (#messages optimizedReplay)
+       (#marks optimizedReplay)
+       (#packages optimizedReplay)
+       (#objects optimizedReplay)
+       (#names optimizedReplay)
+       (#classes optimizedReplay)
+       (#cache optimizedReplay))

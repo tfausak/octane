@@ -8,7 +8,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.CacheItem (CacheItem(..)) where
+module Octane.Type.CacheItem
+  ( CacheItem(..)
+  ) where
 
 import Data.Function ((&))
 
@@ -21,33 +23,27 @@ import qualified Octane.Type.CacheProperty as CacheProperty
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Word32 as Word32
 
-
 -- | An item in the class net cache map.
 data CacheItem = CacheItem
-    { cacheItemClassId :: Word32.Word32
+  { cacheItemClassId :: Word32.Word32
     -- ^ The class ID.
-    , cacheItemParentCacheId :: Word32.Word32
+  , cacheItemParentCacheId :: Word32.Word32
     -- ^ The cache ID of the parent class.
-    , cacheItemCacheId :: Word32.Word32
+  , cacheItemCacheId :: Word32.Word32
     -- ^ The cache ID of the class.
-    , cacheItemProperties :: List.List CacheProperty.CacheProperty
+  , cacheItemProperties :: List.List CacheProperty.CacheProperty
     -- ^ The properties that belong to this class.
-    } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Generics.Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''CacheItem)
 
 -- | Fields are stored one after the other in order.
 instance Binary.Binary CacheItem where
-    get = CacheItem
-        <$> Binary.get
-        <*> Binary.get
-        <*> Binary.get
-        <*> Binary.get
+  get = CacheItem <$> Binary.get <*> Binary.get <*> Binary.get <*> Binary.get
+  put cacheItem = do
+    cacheItem & #classId & Binary.put
+    cacheItem & #parentCacheId & Binary.put
+    cacheItem & #cacheId & Binary.put
+    cacheItem & #properties & Binary.put
 
-    put cacheItem = do
-        cacheItem & #classId & Binary.put
-        cacheItem & #parentCacheId & Binary.put
-        cacheItem & #cacheId & Binary.put
-        cacheItem & #properties & Binary.put
-
-instance DeepSeq.NFData CacheItem where
+instance DeepSeq.NFData CacheItem
