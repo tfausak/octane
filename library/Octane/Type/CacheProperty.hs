@@ -31,12 +31,6 @@ data CacheProperty = CacheProperty
 $(OverloadedRecords.overloadedRecord Default.def ''CacheProperty)
 
 -- | Fields are stored one after the other in order.
---
--- >>> Binary.decode "\x01\x00\x00\x00\x02\x00\x00\x00" :: CacheProperty
--- CacheProperty {cachePropertyObjectId = 0x00000001, cachePropertyStreamId = 0x00000002}
---
--- >>> Binary.encode (CacheProperty 1 2)
--- "\SOH\NUL\NUL\NUL\STX\NUL\NUL\NUL"
 instance Binary.Binary CacheProperty where
     get = CacheProperty
         <$> Binary.get

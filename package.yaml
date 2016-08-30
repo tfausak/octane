@@ -62,17 +62,6 @@ maintainer: Taylor Fausak
 name: octane
 synopsis: Parse Rocket League replays.
 tests:
-  octane-doctest:
-    dependencies:
-    - base
-    - octane
-    - doctest ==0.11.*
-    ghc-options:
-    - -rtsopts
-    - -threaded
-    - -with-rtsopts=-N
-    main: DocTest.hs
-    source-dirs: test-suite
   octane-test-suite:
     dependencies:
     - base

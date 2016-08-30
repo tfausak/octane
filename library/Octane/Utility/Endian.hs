@@ -12,17 +12,11 @@ import qualified Data.Word as Word
 
 
 -- | Reverses all the bits in each lazy byte.
---
--- >>> reverseBitsInLazyBytes "\x01"
--- "\128"
 reverseBitsInLazyBytes :: LazyBytes.ByteString -> LazyBytes.ByteString
 reverseBitsInLazyBytes bytes = LazyBytes.map reverseBits bytes
 
 
 -- | Reverses all the bits in each strict byte.
---
--- >>> reverseBitsInStrictBytes "\x01"
--- "\128"
 reverseBitsInStrictBytes :: StrictBytes.ByteString -> StrictBytes.ByteString
 reverseBitsInStrictBytes bytes = StrictBytes.map reverseBits bytes
 

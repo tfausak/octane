@@ -32,12 +32,6 @@ newtype Word16 = Word16
 $(OverloadedRecords.overloadedRecord Default.def ''Word16)
 
 -- | Little-endian.
---
--- >>> Binary.decode "\x01\x00" :: Word16
--- 0x0001
---
--- >>> Binary.encode (1 :: Word16)
--- "\SOH\NUL"
 instance Binary.Binary Word16 where
     get = do
         value <- Binary.getWord16le
@@ -50,16 +44,10 @@ instance Binary.Binary Word16 where
 instance DeepSeq.NFData Word16 where
 
 -- | Shown as @0x0102@.
---
--- >>> show (1 :: Word16)
--- "0x0001"
 instance Show Word16 where
     show word16 = Printf.printf "0x%04x" (#unpack word16)
 
 -- | Encoded as a JSON number.
---
--- >>> Aeson.encode (1 :: Word16)
--- "1"
 instance Aeson.ToJSON Word16 where
     toJSON word16 = word16
         & #unpack
@@ -67,22 +55,10 @@ instance Aeson.ToJSON Word16 where
 
 
 -- | Converts a 'Word16' into any 'Integral' value.
---
--- >>> fromWord16 0x0001 :: Word.Word16
--- 1
---
--- >>> fromWord16 0xffff :: Data.Int.Int16
--- -1
 fromWord16 :: (Integral a) => Word16 -> a
 fromWord16 word16 = fromIntegral (#unpack word16)
 
 
 -- | Converts any 'Integral' value into a 'Word16'.
---
--- >>> toWord16 (1 :: Word.Word16)
--- 0x0001
---
--- >>> toWord16 (-1 :: Data.Int.Int16)
--- 0xffff
 toWord16 :: (Integral a) => a -> Word16
 toWord16 value = Word16 (fromIntegral value)

@@ -16,9 +16,6 @@ import qualified Data.Set as Set
 -- | Decodes some bytes into a bidirection map. The bytes are assumed to be a
 -- JSON object mapping values to keys. That means the resulting bimap is
 -- 'Bimap.twist'ed from what you might expect.
---
--- >>> decodeBimap "{ \"value\": \"key\" }" :: Bimap.Bimap String String
--- fromList [("key","value")]
 decodeBimap
     :: (Aeson.FromJSON (Map.Map b a), Ord a, Ord b)
     => StrictBytes.ByteString
@@ -33,9 +30,6 @@ decodeBimap bytes = bytes
 
 -- | Decodes some bytes into a map. The bytes are assumed to be a JSON object
 -- mapping keys to values.
---
--- >>> decodeMap "{ \"key\": \"value\" }" :: Map.Map String String
--- fromList [("key","value")]
 decodeMap
     :: (Aeson.FromJSON (Map.Map a b))
     => StrictBytes.ByteString
@@ -46,9 +40,6 @@ decodeMap bytes = bytes
 
 
 -- | Decodes some bytes into a set. The bytes are assumed to be a JSON array.
---
--- >>> decodeSet "[\"element\"]" :: Set.Set String
--- fromList ["element"]
 decodeSet
     :: (Aeson.FromJSON a, Ord a)
     => StrictBytes.ByteString

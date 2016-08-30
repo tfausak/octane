@@ -31,10 +31,6 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Utility.Endian as Endian
 
--- $setup
--- >>> import qualified Data.Binary.Get as Binary
--- >>> import qualified Data.Binary.Put as Binary
-
 
 -- | A thin wrapper around 'StrictText.Text'.
 newtype Text = Text
@@ -44,12 +40,6 @@ newtype Text = Text
 $(OverloadedRecords.overloadedRecord Default.def ''Text)
 
 -- | Text is both length-prefixed and null-terminated.
---
--- >>> Binary.decode "\x02\x00\x00\x00\x4b\x00" :: Text
--- "K"
---
--- >>> Binary.encode ("K" :: Text)
--- "\STX\NUL\NUL\NULK\NUL"
 instance Binary.Binary Text where
     get = getText
         Binary.get
@@ -64,12 +54,6 @@ instance Binary.Binary Text where
 
 -- | Both length-prefixed and null-terminated. The bits in each byte are
 -- reversed.
---
--- >>> Binary.runGet (BinaryBit.runBitGet (BinaryBit.getBits 0)) "\x40\x00\x00\x00\xd2\x00" :: Text
--- "K"
---
--- >>> Binary.runPut (BinaryBit.runBitPut (BinaryBit.putBits 0 ("K" :: Text)))
--- "@\NUL\NUL\NUL\210\NUL"
 instance BinaryBit.BinaryBit Text where
     getBits _ = getText
         (BinaryBit.getBits 32)
@@ -84,25 +68,16 @@ instance BinaryBit.BinaryBit Text where
 
 -- | Allows you to write 'Text' as string literals with @OverloadedStrings@.
 -- Also allows using the 'String.fromString' helper function.
---
--- >>> "K" :: Text
--- "K"
 instance String.IsString Text where
     fromString string = Text (StrictText.pack string)
 
 instance DeepSeq.NFData Text where
 
 -- | Shown as a string literal, like @"this"@.
---
--- >>> show ("K" :: Text)
--- "\"K\""
 instance Show Text where
     show text = show (#unpack text)
 
 -- | Encoded directly as a JSON string.
---
--- >>> Aeson.encode ("K" :: Text)
--- "\"K\""
 instance Aeson.ToJSON Text where
     toJSON text = text
         & #unpack
@@ -162,9 +137,6 @@ putText putInt putBytes convertBytes text = do
 
 -- | Encodes text as Latin-1. Note that this isn't really safe if the text has
 -- characters that can't be encoded in Latin-1.
---
--- >>> encodeLatin1 "A"
--- "A"
 encodeLatin1 :: StrictText.Text -> StrictBytes.ByteString
 encodeLatin1 text = text
     & StrictText.unpack
