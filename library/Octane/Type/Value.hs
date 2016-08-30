@@ -100,11 +100,10 @@ data EnumValue = EnumValue
 
 instance DeepSeq.NFData EnumValue
 
--- TODO: What do these fields represent?
 data ExplosionValue = ExplosionValue
-  { explosionValueX :: Boolean.Boolean -- presence of next field?
-  , explosionValueY :: Maybe Int32.Int32 -- actor id?
-  , explosionValueZ :: Vector.Vector Int -- position?
+  { explosionValueActorless :: Boolean.Boolean
+  , explosionValueActorId :: Maybe Int32.Int32
+  , explosionValuePosition :: Vector.Vector Int
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData ExplosionValue
@@ -356,7 +355,12 @@ jsonValue value =
         , "VictimVelocity" .= #victimVelocity x
         ]
     ValueEnum x -> Aeson.toJSON (#x x, #y x)
-    ValueExplosion x -> Aeson.toJSON (#x x, #y x, #z x)
+    ValueExplosion x ->
+      Aeson.object
+        [ "Actorless" .= #actorless x
+        , "ActorId" .= #actorId x
+        , "Position" .= #position x
+        ]
     ValueFlaggedInt x -> Aeson.object ["Flag" .= #flag x, "Int" .= #int x]
     ValueFloat x -> Aeson.toJSON (#unpack x)
     ValueGameMode x ->
