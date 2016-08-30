@@ -20,11 +20,12 @@ module Octane.Type.Vector
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Bits as Bits
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
+import qualified Data.Bits as Bits
 import qualified Data.Default.Class as Default
+import qualified Data.Foldable as Foldable
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
@@ -116,8 +117,13 @@ getIntVector = do
 
 -- | Puts a 'Vector' full of 'Int8's.
 putInt8Vector :: Vector Int8.Int8 -> BinaryBit.BitPut ()
-putInt8Vector _ = do
-  pure () -- TODO
+putInt8Vector vector = do
+  Foldable.for_ [#x, #y, #z] (\ field -> do
+      case field vector of
+          0 -> BinaryBit.putBits 0 (Boolean.Boolean False)
+          value -> do
+              BinaryBit.putBits 0 (Boolean.Boolean True)
+              BinaryBit.putBits 0 value)
 
 -- | Puts a 'Vector' full of 'Int's.
 putIntVector :: Vector Int -> BinaryBit.BitPut ()
