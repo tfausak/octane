@@ -9,10 +9,10 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.ReplayWithoutFrames
-    ( ReplayWithoutFrames(..)
-    , fromRawReplay
-    , toRawReplay
-    ) where
+  ( ReplayWithoutFrames(..)
+  , fromRawReplay
+  , toRawReplay
+  ) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Binary as Binary
@@ -35,107 +35,104 @@ import qualified Octane.Type.Stream as Stream
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
-
 -- | A partially-processed replay. This has parsed all of the high-level
 -- metadata, but it has not parsed any of the network stream.
 --
 -- See 'Octane.Type.ReplayWithFrames.ReplayWithFrames'.
 data ReplayWithoutFrames = ReplayWithoutFrames
-    { replayWithoutFramesVersion1 :: Word32.Word32
-    , replayWithoutFramesVersion2 :: Word32.Word32
-    , replayWithoutFramesLabel :: Text.Text
-    , replayWithoutFramesProperties :: Dictionary.Dictionary Property.Property
-    , replayWithoutFramesLevels :: List.List Text.Text
-    , replayWithoutFramesKeyFrames :: List.List KeyFrame.KeyFrame
-    , replayWithoutFramesStream :: Stream.Stream
-    , replayWithoutFramesMessages :: List.List Message.Message
-    , replayWithoutFramesMarks :: List.List Mark.Mark
-    , replayWithoutFramesPackages :: List.List Text.Text
-    , replayWithoutFramesObjects :: List.List Text.Text
-    , replayWithoutFramesNames :: List.List Text.Text
-    , replayWithoutFramesClasses :: List.List ClassItem.ClassItem
-    , replayWithoutFramesCache :: List.List CacheItem.CacheItem
-    } deriving (Eq, Generics.Generic, Show)
+  { replayWithoutFramesVersion1 :: Word32.Word32
+  , replayWithoutFramesVersion2 :: Word32.Word32
+  , replayWithoutFramesLabel :: Text.Text
+  , replayWithoutFramesProperties :: Dictionary.Dictionary Property.Property
+  , replayWithoutFramesLevels :: List.List Text.Text
+  , replayWithoutFramesKeyFrames :: List.List KeyFrame.KeyFrame
+  , replayWithoutFramesStream :: Stream.Stream
+  , replayWithoutFramesMessages :: List.List Message.Message
+  , replayWithoutFramesMarks :: List.List Mark.Mark
+  , replayWithoutFramesPackages :: List.List Text.Text
+  , replayWithoutFramesObjects :: List.List Text.Text
+  , replayWithoutFramesNames :: List.List Text.Text
+  , replayWithoutFramesClasses :: List.List ClassItem.ClassItem
+  , replayWithoutFramesCache :: List.List CacheItem.CacheItem
+  } deriving (Eq, Generics.Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''ReplayWithoutFrames)
 
 instance Binary.Binary ReplayWithoutFrames where
-    get = do
-        rawReplay <- Binary.get
-        fromRawReplay rawReplay
+  get = do
+    rawReplay <- Binary.get
+    fromRawReplay rawReplay
+  put replayWithoutFrames = do
+    rawReplay <- toRawReplay replayWithoutFrames
+    Binary.put rawReplay
 
-    put replayWithoutFrames = do
-        rawReplay <- toRawReplay replayWithoutFrames
-        Binary.put rawReplay
-
-instance DeepSeq.NFData ReplayWithoutFrames where
-
+instance DeepSeq.NFData ReplayWithoutFrames
 
 -- | Converts a 'RawReplay.RawReplay' into a 'ReplayWithoutFrames'.
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
-fromRawReplay :: (Monad m) => RawReplay.RawReplay -> m ReplayWithoutFrames
+fromRawReplay
+  :: (Monad m)
+  => RawReplay.RawReplay -> m ReplayWithoutFrames
 fromRawReplay rawReplay = do
-    let header = #header rawReplay
-    let content = #content rawReplay
-
-    let get = do
-            version1 <- Binary.get
-            version2 <- Binary.get
-            label <- Binary.get
-            properties <- Binary.get
-            levels <- Binary.get
-            keyFrames <- Binary.get
-            stream <- Binary.get
-            messages <- Binary.get
-            marks <- Binary.get
-            packages <- Binary.get
-            objects <- Binary.get
-            names <- Binary.get
-            classes <- Binary.get
-            cache <- Binary.get
-
-            pure (ReplayWithoutFrames
-                version1
-                version2
-                label
-                properties
-                levels
-                keyFrames
-                stream
-                messages
-                marks
-                packages
-                objects
-                names
-                classes
-                cache)
-    let bytes = LazyBytes.append header content
-
-    pure (Binary.runGet get bytes)
-
+  let header = #header rawReplay
+  let content = #content rawReplay
+  let get = do
+        version1 <- Binary.get
+        version2 <- Binary.get
+        label <- Binary.get
+        properties <- Binary.get
+        levels <- Binary.get
+        keyFrames <- Binary.get
+        stream <- Binary.get
+        messages <- Binary.get
+        marks <- Binary.get
+        packages <- Binary.get
+        objects <- Binary.get
+        names <- Binary.get
+        classes <- Binary.get
+        cache <- Binary.get
+        pure
+          (ReplayWithoutFrames
+             version1
+             version2
+             label
+             properties
+             levels
+             keyFrames
+             stream
+             messages
+             marks
+             packages
+             objects
+             names
+             classes
+             cache)
+  let bytes = LazyBytes.append header content
+  pure (Binary.runGet get bytes)
 
 -- | Converts a 'ReplayWithoutFrames' into a 'RawReplay.RawReplay'.
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
-toRawReplay :: (Monad m) => ReplayWithoutFrames -> m RawReplay.RawReplay
+toRawReplay
+  :: (Monad m)
+  => ReplayWithoutFrames -> m RawReplay.RawReplay
 toRawReplay replay = do
-    let header = Binary.runPut (do
-            Binary.put (#version1 replay)
-            Binary.put (#version2 replay)
-            Binary.put (#label replay)
-            Binary.put (#properties replay))
-
-    let content = Binary.runPut (do
-            Binary.put (#levels replay)
-            Binary.put (#keyFrames replay)
-            Binary.put (#stream replay)
-            Binary.put (#messages replay)
-            Binary.put (#marks replay)
-            Binary.put (#packages replay)
-            Binary.put (#objects replay)
-            Binary.put (#names replay)
-            Binary.put (#classes replay)
-            Binary.put (#cache replay))
-
-    let footer = LazyBytes.empty
-
-    pure (RawReplay.newRawReplay header content footer)
+  let header =
+        Binary.runPut
+          (do Binary.put (#version1 replay)
+              Binary.put (#version2 replay)
+              Binary.put (#label replay)
+              Binary.put (#properties replay))
+  let content =
+        Binary.runPut
+          (do Binary.put (#levels replay)
+              Binary.put (#keyFrames replay)
+              Binary.put (#stream replay)
+              Binary.put (#messages replay)
+              Binary.put (#marks replay)
+              Binary.put (#packages replay)
+              Binary.put (#objects replay)
+              Binary.put (#names replay)
+              Binary.put (#classes replay)
+              Binary.put (#cache replay))
+  let footer = LazyBytes.empty
+  pure (RawReplay.newRawReplay header content footer)

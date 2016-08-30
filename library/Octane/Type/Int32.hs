@@ -8,7 +8,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.Int32 (Int32(..), fromInt32, toInt32) where
+module Octane.Type.Int32
+  ( Int32(..)
+  , fromInt32
+  , toInt32
+  ) where
 
 import Data.Function ((&))
 
@@ -27,59 +31,52 @@ import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 
-
 -- | A 32-bit signed integer.
 newtype Int32 = Int32
-    { int32Unpack :: Int.Int32
-    } deriving (Eq, Generics.Generic, Num, Ord)
+  { int32Unpack :: Int.Int32
+  } deriving (Eq, Generics.Generic, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Int32)
 
 -- | Little-endian.
 instance Binary.Binary Int32 where
-    get = do
-        value <- Binary.getInt32le
-        pure (Int32 value)
-
-    put int32 = do
-        let value = #unpack int32
-        Binary.putInt32le value
+  get = do
+    value <- Binary.getInt32le
+    pure (Int32 value)
+  put int32 = do
+    let value = #unpack int32
+    Binary.putInt32le value
 
 -- | Little-endian with the bits in each byte reversed.
 instance BinaryBit.BinaryBit Int32 where
-    getBits _ = do
-        bytes <- BinaryBit.getByteString 4
-        bytes
-            & LazyBytes.fromStrict
-            & Endian.reverseBitsInLazyBytes
-            & Binary.runGet Binary.get
-            & pure
+  getBits _ = do
+    bytes <- BinaryBit.getByteString 4
+    bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes &
+      Binary.runGet Binary.get &
+      pure
+  putBits _ int32 =
+    int32 & Binary.put & Binary.runPut & Endian.reverseBitsInLazyBytes &
+    LazyBytes.toStrict &
+    BinaryBit.putByteString
 
-    putBits _ int32 = int32
-        & Binary.put
-        & Binary.runPut
-        & Endian.reverseBitsInLazyBytes
-        & LazyBytes.toStrict
-        & BinaryBit.putByteString
-
-instance DeepSeq.NFData Int32 where
+instance DeepSeq.NFData Int32
 
 -- | Shown as @1234@.
 instance Show Int32 where
-    show int32 = show (#unpack int32)
+  show int32 = show (#unpack int32)
 
 -- | Encoded as a JSON number directly.
 instance Aeson.ToJSON Int32 where
-    toJSON int32 = int32
-        & #unpack
-        & Aeson.toJSON
-
+  toJSON int32 = int32 & #unpack & Aeson.toJSON
 
 -- | Converts a 'Int32' into any 'Integral' value.
-fromInt32 :: (Integral a) => Int32 -> a
+fromInt32
+  :: (Integral a)
+  => Int32 -> a
 fromInt32 int32 = fromIntegral (#unpack int32)
 
-
 -- | Converts any 'Integral' value into a 'Int32'.
-toInt32 :: (Integral a) => a -> Int32
+toInt32
+  :: (Integral a)
+  => a -> Int32
 toInt32 value = Int32 (fromIntegral value)

@@ -8,7 +8,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.CacheProperty (CacheProperty(..)) where
+module Octane.Type.CacheProperty
+  ( CacheProperty(..)
+  ) where
 
 import Data.Function ((&))
 
@@ -19,25 +21,21 @@ import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Word32 as Word32
 
-
 -- | A property on an item in the class net cache map.
 data CacheProperty = CacheProperty
-    { cachePropertyObjectId :: Word32.Word32
+  { cachePropertyObjectId :: Word32.Word32
     -- ^ The object's ID.
-    , cachePropertyStreamId :: Word32.Word32
+  , cachePropertyStreamId :: Word32.Word32
     -- ^ The object's ID in the network stream.
-    } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Generics.Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''CacheProperty)
 
 -- | Fields are stored one after the other in order.
 instance Binary.Binary CacheProperty where
-    get = CacheProperty
-        <$> Binary.get
-        <*> Binary.get
+  get = CacheProperty <$> Binary.get <*> Binary.get
+  put cacheProperty = do
+    cacheProperty & #objectId & Binary.put
+    cacheProperty & #streamId & Binary.put
 
-    put cacheProperty = do
-        cacheProperty & #objectId & Binary.put
-        cacheProperty & #streamId & Binary.put
-
-instance DeepSeq.NFData CacheProperty where
+instance DeepSeq.NFData CacheProperty

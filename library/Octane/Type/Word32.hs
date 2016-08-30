@@ -8,7 +8,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.Word32 (Word32(..), fromWord32, toWord32) where
+module Octane.Type.Word32
+  ( Word32(..)
+  , fromWord32
+  , toWord32
+  ) where
 
 import Data.Function ((&))
 
@@ -28,59 +32,52 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
-
 -- | A 32-bit unsigned integer.
 newtype Word32 = Word32
-    { word32Unpack :: Word.Word32
-    } deriving (Eq, Generics.Generic, Num, Ord)
+  { word32Unpack :: Word.Word32
+  } deriving (Eq, Generics.Generic, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Word32)
 
 -- | Little-endian.
 instance Binary.Binary Word32 where
-    get = do
-        value <- Binary.getWord32le
-        pure (Word32 value)
-
-    put word32 = do
-        let value = #unpack word32
-        Binary.putWord32le value
+  get = do
+    value <- Binary.getWord32le
+    pure (Word32 value)
+  put word32 = do
+    let value = #unpack word32
+    Binary.putWord32le value
 
 -- | Little-endian with the bits in each byte reversed.
 instance BinaryBit.BinaryBit Word32 where
-    getBits _ = do
-        bytes <- BinaryBit.getByteString 4
-        bytes
-            & LazyBytes.fromStrict
-            & Endian.reverseBitsInLazyBytes
-            & Binary.runGet Binary.get
-            & pure
+  getBits _ = do
+    bytes <- BinaryBit.getByteString 4
+    bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes &
+      Binary.runGet Binary.get &
+      pure
+  putBits _ word32 =
+    word32 & Binary.put & Binary.runPut & Endian.reverseBitsInLazyBytes &
+    LazyBytes.toStrict &
+    BinaryBit.putByteString
 
-    putBits _ word32 = word32
-        & Binary.put
-        & Binary.runPut
-        & Endian.reverseBitsInLazyBytes
-        & LazyBytes.toStrict
-        & BinaryBit.putByteString
-
-instance DeepSeq.NFData Word32 where
+instance DeepSeq.NFData Word32
 
 -- | Shown as @0x01020304@.
 instance Show Word32 where
-    show word32 = Printf.printf "0x%08x" (#unpack word32)
+  show word32 = Printf.printf "0x%08x" (#unpack word32)
 
 -- | Encoded as a JSON number.
 instance Aeson.ToJSON Word32 where
-    toJSON word32 = word32
-        & #unpack
-        & Aeson.toJSON
-
+  toJSON word32 = word32 & #unpack & Aeson.toJSON
 
 -- | Converts a 'Word32' into any 'Integral' value.
-fromWord32 :: (Integral a) => Word32 -> a
+fromWord32
+  :: (Integral a)
+  => Word32 -> a
 fromWord32 word32 = fromIntegral (#unpack word32)
 
-
 -- | Converts any 'Integral' value into a 'Word32'.
-toWord32 :: (Integral a) => a -> Word32
+toWord32
+  :: (Integral a)
+  => a -> Word32
 toWord32 value = Word32 (fromIntegral value)

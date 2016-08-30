@@ -1,19 +1,20 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Octane.Type.State (State(..)) where
+module Octane.Type.State
+  ( State(..)
+  ) where
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified GHC.Generics as Generics
 
-
 -- | The state of an actor in a replication.
 data State
-    = SOpening
+  = SOpening
     -- ^ This is a new actor that we have not seen before.
-    | SExisting
+  | SExisting
     -- ^ We have seen this actor before.
-    | SClosing
+  | SClosing
     -- ^ This actor is going away.
-    deriving (Eq, Generics.Generic, Show)
+  deriving (Eq, Generics.Generic, Show)
 
-instance DeepSeq.NFData State where
+instance DeepSeq.NFData State

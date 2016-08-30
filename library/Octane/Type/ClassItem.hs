@@ -8,7 +8,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.ClassItem (ClassItem(..)) where
+module Octane.Type.ClassItem
+  ( ClassItem(..)
+  ) where
 
 import Data.Function ((&))
 
@@ -20,26 +22,22 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 
-
 -- | A class (like @Core.Object@) and it's associated ID in the net stream
 -- (like @0@).
 data ClassItem = ClassItem
-    { classItemName :: Text.Text
+  { classItemName :: Text.Text
     -- ^ The class's name.
-    , classItemStreamId :: Word32.Word32
+  , classItemStreamId :: Word32.Word32
     -- ^ The class's ID in the network stream.
-    } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Generics.Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''ClassItem)
 
 -- | Fields are stored one after the other in order.
 instance Binary.Binary ClassItem where
-    get = ClassItem
-        <$> Binary.get
-        <*> Binary.get
+  get = ClassItem <$> Binary.get <*> Binary.get
+  put classItem = do
+    classItem & #name & Binary.put
+    classItem & #streamId & Binary.put
 
-    put classItem = do
-        classItem & #name & Binary.put
-        classItem & #streamId & Binary.put
-
-instance DeepSeq.NFData ClassItem where
+instance DeepSeq.NFData ClassItem
