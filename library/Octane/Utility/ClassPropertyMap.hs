@@ -18,16 +18,14 @@ import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
-import qualified Octane.Type.ReplayWithoutFrames
-       as ReplayWithoutFrames
+import qualified Octane.Type.ReplayWithoutFrames as Replay
 import qualified Octane.Type.Word32 as Word32
 import qualified "regex-compat" Text.Regex as Regex
 
 -- | The class property map is a map from class IDs in the stream to a map from
 -- property IDs in the stream to property names.
-getClassPropertyMap
-  :: ReplayWithoutFrames.ReplayWithoutFrames
-  -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
+getClassPropertyMap :: Replay.ReplayWithoutFrames
+                    -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
 getClassPropertyMap replay =
   let basicClassPropertyMap = getBasicClassPropertyMap replay
       classMap = getClassMap replay
@@ -55,7 +53,7 @@ getClassPropertyMap replay =
 
 -- | The class cache is a list of 3-tuples where the first element is a class
 -- ID, the second is its cache ID, and the third is its parent's cache ID.
-getClassCache :: ReplayWithoutFrames.ReplayWithoutFrames -> [(Int, Int, Int)]
+getClassCache :: Replay.ReplayWithoutFrames -> [(Int, Int, Int)]
 getClassCache replay =
   replay & #cache & #unpack &
   map
@@ -65,7 +63,7 @@ getClassCache replay =
         , x & #parentCacheId & Word32.fromWord32))
 
 -- | The class IDs in a replay. Comes from the class cache.
-getClassIds :: ReplayWithoutFrames.ReplayWithoutFrames -> [Int]
+getClassIds :: Replay.ReplayWithoutFrames -> [Int]
 getClassIds replay = replay & getClassCache & map (\(x, _, _) -> x)
 
 -- | Gets the parent class ID for the given parent cache ID. This is necessary
@@ -83,7 +81,7 @@ getParentClassId parentCacheId xs =
 -- | The basic class map is a naive mapping from class ID to its parent class
 -- ID. It's naive because it only maps the class ID to its immediate parent.
 -- It does not chase the inheritance all the way down.
-getBasicClassMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap Int
+getBasicClassMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap Int
 getBasicClassMap replay =
   replay & getClassCache & reverse & List.tails &
   Maybe.mapMaybe
@@ -104,7 +102,7 @@ getParentClassIds classId basicClassMap =
     Just parentClassId -> parentClassId : getParentClassIds parentClassId basicClassMap
 
 -- | The class map is a mapping from a class ID to all of its parent class IDs.
-getClassMap :: ReplayWithoutFrames.ReplayWithoutFrames -> IntMap.IntMap [Int]
+getClassMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap [Int]
 getClassMap replay =
   let basicClassMap = getBasicClassMap replay
   in replay & getClassIds &
@@ -112,17 +110,15 @@ getClassMap replay =
      IntMap.fromList
 
 -- | The property map is a mapping from property IDs to property names.
-getPropertyMap :: ReplayWithoutFrames.ReplayWithoutFrames
-               -> IntMap.IntMap StrictText.Text
+getPropertyMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap StrictText.Text
 getPropertyMap replay =
   replay & #objects & #unpack & map #unpack & zip [0 ..] & IntMap.fromList
 
 -- | The basic class property map is a naive mapping from class IDs to a
 -- mapping from property IDs to property names. It's naive because it does
 -- not include the properties from the class's parents.
-getBasicClassPropertyMap
-  :: ReplayWithoutFrames.ReplayWithoutFrames
-  -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
+getBasicClassPropertyMap :: Replay.ReplayWithoutFrames
+                         -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
 getBasicClassPropertyMap replay =
   let propertyMap = getPropertyMap replay
   in replay & #cache & #unpack &
@@ -143,8 +139,7 @@ getBasicClassPropertyMap replay =
      IntMap.fromList
 
 -- | The actor map is a mapping from class names to their IDs.
-getActorMap :: ReplayWithoutFrames.ReplayWithoutFrames
-            -> Map.Map StrictText.Text Int
+getActorMap :: Replay.ReplayWithoutFrames -> Map.Map StrictText.Text Int
 getActorMap replay =
   replay & #classes & #unpack &
   map

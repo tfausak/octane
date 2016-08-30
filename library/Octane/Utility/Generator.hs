@@ -71,7 +71,7 @@ putNewReplication replication = do
   True & Boolean.Boolean & BinaryBit.putBits 1 -- open
   True & Boolean.Boolean & BinaryBit.putBits 1 -- new
   False & Boolean.Boolean & BinaryBit.putBits 1 -- unknown
-  -- TODO: convert object name into ID and put it
+  pure () -- TODO: convert object name into ID and put it
   case #initialization replication of
     Nothing -> pure ()
     Just x -> Initialization.putInitialization x
@@ -80,7 +80,7 @@ putExistingReplication :: Replication.Replication -> BinaryBit.BitPut ()
 putExistingReplication _replication = do
   True & Boolean.Boolean & BinaryBit.putBits 1 -- open
   False & Boolean.Boolean & BinaryBit.putBits 1 -- existing
--- TODO: put props
+  pure () -- TODO: put props
 
 putClosedReplication :: Replication.Replication -> BinaryBit.BitPut ()
 putClosedReplication _replication = do

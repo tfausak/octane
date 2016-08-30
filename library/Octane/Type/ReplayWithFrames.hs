@@ -28,8 +28,7 @@ import qualified Octane.Type.List as List
 import qualified Octane.Type.Mark as Mark
 import qualified Octane.Type.Message as Message
 import qualified Octane.Type.Property as Property
-import qualified Octane.Type.ReplayWithoutFrames
-       as ReplayWithoutFrames
+import qualified Octane.Type.ReplayWithoutFrames as Replay
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Utility.Generator as Generator
@@ -72,7 +71,7 @@ instance DeepSeq.NFData ReplayWithFrames
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 fromReplayWithoutFrames
   :: (Monad m)
-  => ReplayWithoutFrames.ReplayWithoutFrames -> m ReplayWithFrames
+  => Replay.ReplayWithoutFrames -> m ReplayWithFrames
 fromReplayWithoutFrames replayWithoutFrames = do
   pure
     (ReplayWithFrames
@@ -91,11 +90,11 @@ fromReplayWithoutFrames replayWithoutFrames = do
        (#classes replayWithoutFrames)
        (#cache replayWithoutFrames))
 
--- | Converts a 'ReplayWithFrames' into a 'ReplayWithoutFrames.ReplayWithoutFrames'.
+-- | Converts a 'ReplayWithFrames' into a 'Replay.ReplayWithoutFrames'.
 -- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
 toReplayWithoutFrames
   :: (Monad m)
-  => ReplayWithFrames -> m ReplayWithoutFrames.ReplayWithoutFrames
+  => ReplayWithFrames -> m Replay.ReplayWithoutFrames
 toReplayWithoutFrames replayWithFrames = do
   let stream =
         Generator.generateStream
@@ -105,7 +104,7 @@ toReplayWithoutFrames replayWithFrames = do
           (#classes replayWithFrames)
           (#cache replayWithFrames)
   pure
-    (ReplayWithoutFrames.ReplayWithoutFrames
+    (Replay.ReplayWithoutFrames
        (#version1 replayWithFrames)
        (#version2 replayWithFrames)
        (#label replayWithFrames)

@@ -37,8 +37,7 @@ import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Type.Property as Property
 import qualified Octane.Type.RemoteId as RemoteId
-import qualified Octane.Type.ReplayWithoutFrames
-       as ReplayWithoutFrames
+import qualified Octane.Type.ReplayWithoutFrames as Replay
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Text as Text
@@ -87,7 +86,7 @@ $(OverloadedRecords.overloadedRecord Default.def ''Context)
 
 instance DeepSeq.NFData Context
 
-extractContext :: ReplayWithoutFrames.ReplayWithoutFrames -> Context
+extractContext :: Replay.ReplayWithoutFrames -> Context
 extractContext replay = do
   let keyFrames =
         replay & #keyFrames & #unpack & map #frame & map Word32.fromWord32 &
@@ -104,7 +103,7 @@ extractContext replay = do
     version
 
 -- | Parses the network stream and returns a list of frames.
-parseStream :: ReplayWithoutFrames.ReplayWithoutFrames -> [Frame.Frame]
+parseStream :: Replay.ReplayWithoutFrames -> [Frame.Frame]
 parseStream replay =
   let numFrames =
         replay & #properties & #unpack &
