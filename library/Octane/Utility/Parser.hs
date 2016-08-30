@@ -416,12 +416,12 @@ getDemolishProperty = do
 
 getEnumProperty :: BinaryBit.BitGet Value.Value
 getEnumProperty = do
-  x <- BinaryBit.getWord16be 10
-  y <-
-    if x == 1023
+  value <- BinaryBit.getWord16be 10
+  flag <-
+    if value == 1023
       then getBool
-      else fail ("unexpected enum value " ++ show x)
-  pure (Value.ValueEnum (Value.EnumValue (Word16.toWord16 x) y))
+      else fail ("unexpected enum value " ++ show value)
+  pure (Value.ValueEnum (Value.EnumValue (Word16.toWord16 value) flag))
 
 getExplosionProperty :: BinaryBit.BitGet Value.Value
 getExplosionProperty = do

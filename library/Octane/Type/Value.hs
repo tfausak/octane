@@ -92,10 +92,9 @@ data DemolishValue = DemolishValue
 
 instance DeepSeq.NFData DemolishValue
 
--- TODO: What do these fields represent?
 data EnumValue = EnumValue
-  { enumValueX :: Word16.Word16
-  , enumValueY :: Boolean.Boolean
+  { enumValueValue :: Word16.Word16
+  , enumValueFlag :: Boolean.Boolean
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData EnumValue
@@ -354,7 +353,7 @@ jsonValue value =
         , "AttackerVelocity" .= #attackerVelocity x
         , "VictimVelocity" .= #victimVelocity x
         ]
-    ValueEnum x -> Aeson.toJSON (#x x, #y x)
+    ValueEnum x -> Aeson.object ["Value" .= #value x, "Flag" .= #flag x]
     ValueExplosion x ->
       Aeson.object
         [ "Actorless" .= #actorless x
