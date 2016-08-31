@@ -123,9 +123,11 @@ fromOptimizedReplay optimizedReplay = do
   pure
     Replay
     { replayVersion =
-      [#version1 optimizedReplay, #version2 optimizedReplay] & map Word32.fromWord32 &
+      [#version1 optimizedReplay, #version2 optimizedReplay] &
+      map Word32.fromWord32 &
       Version.makeVersion
-    , replayMetadata = optimizedReplay & #properties & #unpack & Map.mapKeys #unpack
+    , replayMetadata =
+      optimizedReplay & #properties & #unpack & Map.mapKeys #unpack
     , replayLevels = optimizedReplay & #levels & #unpack & map #unpack
     , replayMessages =
       optimizedReplay & #messages & #unpack &

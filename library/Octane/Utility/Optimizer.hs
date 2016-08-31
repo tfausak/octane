@@ -81,7 +81,8 @@ updateState frame state1 =
                       (case maybeValue of
                          Nothing -> (True, #properties replication)
                          Just (alive, properties) ->
-                           (alive, Map.union (#properties replication) properties)))
+                           ( alive
+                           , Map.union (#properties replication) properties)))
                 (replication & #actorId & CompressedWord.fromCompressedWord))
           state3
   in state4
@@ -95,7 +96,9 @@ getDelta state frame =
               let isOpening = #state replication == State.SOpening
                   actorId = #actorId replication
                   currentState =
-                    IntMap.lookup (CompressedWord.fromCompressedWord actorId) state
+                    IntMap.lookup
+                      (CompressedWord.fromCompressedWord actorId)
+                      state
                   isAlive = fmap fst currentState
                   wasAlreadyAlive = isAlive == Just True
               in isOpening && wasAlreadyAlive) &
@@ -114,7 +117,8 @@ getDelta state frame =
                            newProperties &
                            Map.filterWithKey
                              (\name newValue ->
-                                 let oldValue = Map.lookup name currentProperties
+                                 let oldValue =
+                                       Map.lookup name currentProperties
                                  in Just newValue /= oldValue)
                      in replication
                         { Replication.replicationProperties = changes

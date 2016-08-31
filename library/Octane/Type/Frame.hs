@@ -110,4 +110,5 @@ instance Aeson.ToJSON Destroyed where
   toJSON (Destroyed xs) = xs & map #actorId & map #value & Aeson.toJSON
 
 getDestroyed :: [Replication.Replication] -> Destroyed
-getDestroyed xs = xs & filter (\x -> x & #state & (== State.SClosing)) & Destroyed
+getDestroyed xs =
+  xs & filter (\x -> x & #state & (== State.SClosing)) & Destroyed

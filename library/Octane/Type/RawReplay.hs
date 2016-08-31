@@ -65,7 +65,14 @@ instance Binary.Binary RawReplay where
     checkCRC contentCRC content
     footer <- Binary.getRemainingLazyByteString
     pure
-      (RawReplay headerSize headerCRC header contentSize contentCRC content footer)
+      (RawReplay
+         headerSize
+         headerCRC
+         header
+         contentSize
+         contentCRC
+         content
+         footer)
   put replay = do
     Binary.put (#headerSize replay)
     Binary.put (#headerCRC replay)

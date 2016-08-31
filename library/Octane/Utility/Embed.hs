@@ -23,7 +23,8 @@ decodeBimap
   :: (Aeson.FromJSON (Map.Map b a), Ord a, Ord b)
   => StrictBytes.ByteString -> Bimap.Bimap a b
 decodeBimap bytes =
-  bytes & Aeson.decodeStrict & Maybe.fromMaybe Map.empty & Map.toList & Bimap.fromList &
+  bytes & Aeson.decodeStrict & Maybe.fromMaybe Map.empty & Map.toList &
+  Bimap.fromList &
   Bimap.twist
 
 -- | Decodes some bytes into a map. The bytes are assumed to be a JSON object

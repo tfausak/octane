@@ -43,7 +43,9 @@ getClassPropertyMap replay =
                      parentClassIds &
                      map
                        (\parentClassId ->
-                           case IntMap.lookup parentClassId basicClassPropertyMap of
+                           case IntMap.lookup
+                                  parentClassId
+                                  basicClassPropertyMap of
                              Nothing -> IntMap.empty
                              Just x -> x) &
                      IntMap.unions
@@ -99,7 +101,8 @@ getParentClassIds :: Int -> IntMap.IntMap Int -> [Int]
 getParentClassIds classId basicClassMap =
   case IntMap.lookup classId basicClassMap of
     Nothing -> []
-    Just parentClassId -> parentClassId : getParentClassIds parentClassId basicClassMap
+    Just parentClassId ->
+      parentClassId : getParentClassIds parentClassId basicClassMap
 
 -- | The class map is a mapping from a class ID to all of its parent class IDs.
 getClassMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap [Int]

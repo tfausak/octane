@@ -110,9 +110,11 @@ parseStream replay =
         Map.lookup ("NumFrames" & StrictText.pack & Text.Text) &
         (\property ->
             case property of
-              Just (Property.PropertyInt int) -> int & #content & Int32.fromInt32
+              Just (Property.PropertyInt int) ->
+                int & #content & Int32.fromInt32
               _ -> 0)
-      get = replay & extractContext & getFrames 0 numFrames & BinaryBit.runBitGet
+      get =
+        replay & extractContext & getFrames 0 numFrames & BinaryBit.runBitGet
       stream = replay & #stream & #unpack
       (_context, frames) = Binary.runGet get stream
   in frames
@@ -130,7 +132,8 @@ getFrames number numFrames context = do
           case maybeFrame of
             Nothing -> pure (context, [])
             Just (newContext, frame) -> do
-              (newerContext, frames) <- getFrames (number + 1) numFrames newContext
+              (newerContext, frames) <-
+                getFrames (number + 1) numFrames newContext
               pure (newerContext, (frame : frames))
 
 getMaybeFrame :: Context
@@ -610,7 +613,12 @@ getTeamPaintProperty = do
   accentFinish <- getWord32
   pure
     (Value.ValueTeamPaint
-       (Value.TeamPaintValue team primaryColor accentColor primaryFinish accentFinish))
+       (Value.TeamPaintValue
+          team
+          primaryColor
+          accentColor
+          primaryFinish
+          accentFinish))
 
 getUniqueIdProperty :: BinaryBit.BitGet Value.Value
 getUniqueIdProperty = do
@@ -625,7 +633,8 @@ getPartyLeaderProperty = do
   (remoteId, localId) <-
     if systemId == 0
       then pure
-             (RemoteId.RemoteSplitscreenId (RemoteId.SplitscreenId Nothing), Nothing)
+             ( RemoteId.RemoteSplitscreenId (RemoteId.SplitscreenId Nothing)
+             , Nothing)
       else do
         remoteId <- getRemoteId systemId
         localId <- fmap Just getWord8

@@ -50,7 +50,8 @@ instance BinaryBit.BinaryBit PlayStationId where
           StrictText.dropWhileEnd (== '\0') &
           Text.Text
     unknownBytes <- BinaryBit.getByteString 16
-    let unknown = unknownBytes & Endian.reverseBitsInStrictBytes & LazyBytes.fromStrict
+    let unknown =
+          unknownBytes & Endian.reverseBitsInStrictBytes & LazyBytes.fromStrict
     pure (PlayStationId name unknown)
   putBits _ playStationId = do
     playStationId & #name & #unpack & StrictText.justifyLeft 16 '\x00' &
@@ -58,7 +59,8 @@ instance BinaryBit.BinaryBit PlayStationId where
       Text.encodeLatin1 &
       Endian.reverseBitsInStrictBytes &
       BinaryBit.putByteString
-    playStationId & #unknown & LazyBytes.toStrict & Endian.reverseBitsInStrictBytes &
+    playStationId & #unknown & LazyBytes.toStrict &
+      Endian.reverseBitsInStrictBytes &
       BinaryBit.putByteString
 
 instance DeepSeq.NFData PlayStationId

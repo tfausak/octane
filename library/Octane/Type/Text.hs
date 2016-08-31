@@ -49,7 +49,11 @@ instance Binary.Binary Text where
 -- | Both length-prefixed and null-terminated. The bits in each byte are
 -- reversed.
 instance BinaryBit.BinaryBit Text where
-  getBits _ = getText (BinaryBit.getBits 32) BinaryBit.getByteString Endian.reverseBitsInStrictBytes
+  getBits _ =
+    getText
+      (BinaryBit.getBits 32)
+      BinaryBit.getByteString
+      Endian.reverseBitsInStrictBytes
   putBits _ text =
     putText
       (BinaryBit.putBits 32)

@@ -118,12 +118,14 @@ getIntVector = do
 -- | Puts a 'Vector' full of 'Int8's.
 putInt8Vector :: Vector Int8.Int8 -> BinaryBit.BitPut ()
 putInt8Vector vector = do
-  Foldable.for_ [#x, #y, #z] (\ field -> do
-      case field vector of
-          0 -> BinaryBit.putBits 0 (Boolean.Boolean False)
-          value -> do
-              BinaryBit.putBits 0 (Boolean.Boolean True)
-              BinaryBit.putBits 0 value)
+  Foldable.for_
+    [#x, #y, #z]
+    (\field -> do
+       case field vector of
+         0 -> BinaryBit.putBits 0 (Boolean.Boolean False)
+         value -> do
+           BinaryBit.putBits 0 (Boolean.Boolean True)
+           BinaryBit.putBits 0 value)
 
 -- | Puts a 'Vector' full of 'Int's.
 putIntVector :: Vector Int -> BinaryBit.BitPut ()
