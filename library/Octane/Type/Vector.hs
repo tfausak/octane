@@ -127,5 +127,18 @@ putInt8Vector vector = do
 
 -- | Puts a 'Vector' full of 'Int's.
 putIntVector :: Vector Int -> BinaryBit.BitPut ()
-putIntVector _ = do
-  pure () -- TODO
+putIntVector vector = do
+  let fields = map (\field -> fromIntegral (field vector)) [#x, #y, #z]
+  let least = minimum fields
+  let greatest = maximum fields
+  let difference = greatest - least
+  let maxBits = ceiling (logBase (2 :: Float) (fromIntegral difference))
+  let maxValue = 2 ^ maxBits
+  let numBits = maxBits - 2
+  let bias = Bits.shiftL 1 (numBits + 1)
+  let deltas = map (\field -> field + bias) fields
+  BinaryBit.putBits 0 (CompressedWord.CompressedWord 19 (fromIntegral numBits))
+  Foldable.for_
+    deltas
+    (\delta ->
+        BinaryBit.putBits 0 (CompressedWord.CompressedWord maxValue delta))
