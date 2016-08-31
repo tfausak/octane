@@ -58,17 +58,32 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 
+getGameMode :: Word8.Word8 -> Maybe StrictText.Text
+getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
+
+getProduct :: Word32.Word32 -> Maybe StrictText.Text
+getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
+
 newtype BooleanValue = BooleanValue
   { booleanValueUnpack :: Boolean.Boolean
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData BooleanValue
 
+instance Aeson.ToJSON BooleanValue where
+  toJSON x =
+    Aeson.object
+      ["Type" .= ("Boolean" :: StrictText.Text), "Value" .= #unpack x]
+
 newtype ByteValue = ByteValue
   { byteValueUnpack :: Word8.Word8
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData ByteValue
+
+instance Aeson.ToJSON ByteValue where
+  toJSON x =
+    Aeson.object ["Type" .= ("Byte" :: StrictText.Text), "Value" .= #unpack x]
 
 data CamSettingsValue = CamSettingsValue
   { camSettingsValueFov :: Float32.Float32
@@ -81,6 +96,21 @@ data CamSettingsValue = CamSettingsValue
 
 instance DeepSeq.NFData CamSettingsValue
 
+instance Aeson.ToJSON CamSettingsValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("CameraSettings" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "FOV" .= #fov x
+          , "Height" .= #height x
+          , "Angle" .= #angle x
+          , "Distance" .= #distance x
+          , "Stiffness" .= #stiffness x
+          , "SwivelSpeed" .= #swivelSpeed x
+          ]
+      ]
+
 data DemolishValue = DemolishValue
   { demolishValueAttackerFlag :: Boolean.Boolean
   , demolishValueAttackerActorId :: Word32.Word32
@@ -92,12 +122,34 @@ data DemolishValue = DemolishValue
 
 instance DeepSeq.NFData DemolishValue
 
+instance Aeson.ToJSON DemolishValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("Demolition" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "AttackerFlag" .= #attackerFlag x
+          , "AttackerActorId" .= #attackerActorId x
+          , "VictimFlag" .= #victimFlag x
+          , "VictimActorId" .= #victimActorId x
+          , "AttackerVelocity" .= #attackerVelocity x
+          , "VictimVelocity" .= #victimVelocity x
+          ]
+      ]
+
 data EnumValue = EnumValue
   { enumValueValue :: Word16.Word16
   , enumValueFlag :: Boolean.Boolean
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData EnumValue
+
+instance Aeson.ToJSON EnumValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("Enum" :: StrictText.Text)
+      , "Value" .= Aeson.object ["Value" .= #value x, "Flag" .= #flag x]
+      ]
 
 data ExplosionValue = ExplosionValue
   { explosionValueActorless :: Boolean.Boolean
@@ -107,6 +159,18 @@ data ExplosionValue = ExplosionValue
 
 instance DeepSeq.NFData ExplosionValue
 
+instance Aeson.ToJSON ExplosionValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("Explosion" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "Actorless" .= #actorless x
+          , "ActorId" .= #actorId x
+          , "Position" .= #position x
+          ]
+      ]
+
 data FlaggedIntValue = FlaggedIntValue
   { flaggedIntValueFlag :: Boolean.Boolean
   , flaggedIntValueInt :: Int32.Int32
@@ -114,11 +178,22 @@ data FlaggedIntValue = FlaggedIntValue
 
 instance DeepSeq.NFData FlaggedIntValue
 
+instance Aeson.ToJSON FlaggedIntValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("FlaggedInt" :: StrictText.Text)
+      , "Value" .= Aeson.object ["Flag" .= #flag x, "Int" .= #int x]
+      ]
+
 newtype FloatValue = FloatValue
   { floatValueUnpack :: Float32.Float32
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData FloatValue
+
+instance Aeson.ToJSON FloatValue where
+  toJSON x =
+    Aeson.object ["Type" .= ("Float" :: StrictText.Text), "Value" .= #unpack x]
 
 newtype GameModeValue = GameModeValue
   { gameModeValueUnpack :: Word8.Word8
@@ -126,11 +201,23 @@ newtype GameModeValue = GameModeValue
 
 instance DeepSeq.NFData GameModeValue
 
+instance Aeson.ToJSON GameModeValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("GameMode" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object ["Id" .= #unpack x, "Name" .= getGameMode (#unpack x)]
+      ]
+
 newtype IntValue = IntValue
   { intValueUnpack :: Int32.Int32
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData IntValue
+
+instance Aeson.ToJSON IntValue where
+  toJSON x =
+    Aeson.object ["Type" .= ("Int" :: StrictText.Text), "Value" .= #unpack x]
 
 data LoadoutValue = LoadoutValue
   { loadoutValueVersion :: Word8.Word8
@@ -146,17 +233,52 @@ data LoadoutValue = LoadoutValue
 
 instance DeepSeq.NFData LoadoutValue
 
+instance Aeson.ToJSON LoadoutValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("Loadout" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "Version" .= #version x
+          , "Body" .=
+            Aeson.object ["Id" .= #body x, "Name" .= getProduct (#body x)]
+          , "Decal" .=
+            Aeson.object ["Id" .= #decal x, "Name" .= getProduct (#decal x)]
+          , "Wheels" .=
+            Aeson.object ["Id" .= #wheels x, "Name" .= getProduct (#wheels x)]
+          , "RocketTrail" .=
+            Aeson.object
+              ["Id" .= #rocketTrail x, "Name" .= getProduct (#rocketTrail x)]
+          , "Antenna" .=
+            Aeson.object ["Id" .= #antenna x, "Name" .= getProduct (#antenna x)]
+          , "Topper" .=
+            Aeson.object ["Id" .= #topper x, "Name" .= getProduct (#topper x)]
+          , "Unknown1" .= #unknown1 x
+          , "Unknown2" .= #unknown2 x
+          ]
+      ]
+
 newtype LoadoutOnlineValue = LoadoutOnlineValue
   { loadoutOnlineValueUnpack :: [[(Word32.Word32, CompressedWord.CompressedWord)]]
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData LoadoutOnlineValue
 
+instance Aeson.ToJSON LoadoutOnlineValue where
+  toJSON x =
+    Aeson.object
+      ["Type" .= ("OnlineLoadout" :: StrictText.Text), "Value" .= #unpack x]
+
 newtype LocationValue = LocationValue
   { locationValueUnpack :: Vector.Vector Int
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData LocationValue
+
+instance Aeson.ToJSON LocationValue where
+  toJSON x =
+    Aeson.object
+      ["Type" .= ("Position" :: StrictText.Text), "Value" .= #unpack x]
 
 data MusicStingerValue = MusicStingerValue
   { musicStingerValueFlag :: Boolean.Boolean
@@ -166,6 +288,15 @@ data MusicStingerValue = MusicStingerValue
 
 instance DeepSeq.NFData MusicStingerValue
 
+instance Aeson.ToJSON MusicStingerValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("MusicStinger" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          ["Flag" .= #flag x, "Cue" .= #cue x, "Trigger" .= #trigger x]
+      ]
+
 data PickupValue = PickupValue
   { pickupValueHasInstigator :: Boolean.Boolean
   , pickupValueInstigatorId :: Maybe Word32.Word32
@@ -173,6 +304,18 @@ data PickupValue = PickupValue
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData PickupValue
+
+instance Aeson.ToJSON PickupValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("Pickup" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "HasInstigator" .= #hasInstigator x
+          , "InstigatorId" .= #instigatorId x
+          , "PickedUp" .= #pickedUp x
+          ]
+      ]
 
 data PrivateMatchSettingsValue = PrivateMatchSettingsValue
   { privateMatchSettingsValueMutators :: Text.Text
@@ -185,17 +328,41 @@ data PrivateMatchSettingsValue = PrivateMatchSettingsValue
 
 instance DeepSeq.NFData PrivateMatchSettingsValue
 
+instance Aeson.ToJSON PrivateMatchSettingsValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("PrivateMatchSettings" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "Mutators" .= #mutators x
+          , "JoinableBy" .= #joinableBy x
+          , "MaxPlayers" .= #maxPlayers x
+          , "Name" .= #gameName x
+          , "Password" .= #password x
+          , "Unknown" .= #flag x
+          ]
+      ]
+
 newtype QWordValue = QWordValue
   { qWordValueUnpack :: Word64.Word64
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData QWordValue
 
+instance Aeson.ToJSON QWordValue where
+  toJSON x =
+    Aeson.object ["Type" .= ("QWord" :: StrictText.Text), "Value" .= #unpack x]
+
 newtype RelativeRotationValue = RelativeRotationValue
   { relativeRotationValueUnpack :: Vector.Vector Float
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData RelativeRotationValue
+
+instance Aeson.ToJSON RelativeRotationValue where
+  toJSON x =
+    Aeson.object
+      ["Type" .= ("RelativeRotation" :: StrictText.Text), "Value" .= #unpack x]
 
 data ReservationValue = ReservationValue
   { reservationValueNumber :: CompressedWord.CompressedWord
@@ -209,6 +376,22 @@ data ReservationValue = ReservationValue
 
 instance DeepSeq.NFData ReservationValue
 
+instance Aeson.ToJSON ReservationValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("Reservation" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "Number" .= #number x
+          , "SystemId" .= #systemId x
+          , "RemoteId" .= #remoteId x
+          , "LocalId" .= #localId x
+          , "Name" .= #playerName x
+          , "Unknown1" .= #unknown1 x
+          , "Unknown2" .= #unknown2 x
+          ]
+      ]
+
 data RigidBodyStateValue = RigidBodyStateValue
   { rigidBodyStateValueSleeping :: Boolean.Boolean
   , rigidBodyStateValuePosition :: Vector.Vector Int
@@ -219,11 +402,29 @@ data RigidBodyStateValue = RigidBodyStateValue
 
 instance DeepSeq.NFData RigidBodyStateValue
 
+instance Aeson.ToJSON RigidBodyStateValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("RigidBodyState" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "Sleeping" .= #sleeping x
+          , "Position" .= #position x
+          , "Rotation" .= #rotation x
+          , "LinearVelocity" .= #linearVelocity x
+          , "AngularVelocity" .= #angularVelocity x
+          ]
+      ]
+
 newtype StringValue = StringValue
   { stringValueUnpack :: Text.Text
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData StringValue
+
+instance Aeson.ToJSON StringValue where
+  toJSON x =
+    Aeson.object ["Type" .= ("String" :: StrictText.Text), "Value" .= #unpack x]
 
 data TeamPaintValue = TeamPaintValue
   { teamPaintValueTeam :: Word8.Word8
@@ -235,6 +436,26 @@ data TeamPaintValue = TeamPaintValue
 
 instance DeepSeq.NFData TeamPaintValue
 
+instance Aeson.ToJSON TeamPaintValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("Paint" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "Team" .= #team x
+          , "PrimaryColor" .= #primaryColor x
+          , "AccentColor" .= #accentColor x
+          , "PrimaryFinish" .=
+            Aeson.object
+              [ "Id" .= #primaryFinish x
+              , "Name" .= getProduct (#primaryFinish x)
+              ]
+          , "AccentFinish" .=
+            Aeson.object
+              ["Id" .= #accentFinish x, "Name" .= getProduct (#accentFinish x)]
+          ]
+      ]
+
 data UniqueIdValue = UniqueIdValue
   { uniqueIdValueSystemId :: Word8.Word8
   , uniqueIdValueRemoteId :: RemoteId.RemoteId
@@ -242,6 +463,24 @@ data UniqueIdValue = UniqueIdValue
   } deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData UniqueIdValue
+
+instance Aeson.ToJSON UniqueIdValue where
+  toJSON x =
+    Aeson.object
+      [ "Type" .= ("UniqueId" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "System" .=
+            case #systemId x of
+              0 -> "Local"
+              1 -> "Steam"
+              2 -> "PlayStation"
+              4 -> "Xbox"
+              y -> "Unknown system " ++ show y
+          , "Remote" .= #remoteId x
+          , "Local" .= #localId x
+          ]
+      ]
 
 -- | A replicated property's value.
 data Value
@@ -301,156 +540,27 @@ instance DeepSeq.NFData Value
 
 instance Aeson.ToJSON Value where
   toJSON value =
-    Aeson.object ["Type" .= typeName value, "Value" .= jsonValue value]
-
-typeName :: Value -> StrictText.Text
-typeName value =
-  case value of
-    ValueBoolean _ -> "Boolean"
-    ValueByte _ -> "Byte"
-    ValueCamSettings _ -> "CameraSettings"
-    ValueDemolish _ -> "Demolition"
-    ValueEnum _ -> "Enum"
-    ValueExplosion _ -> "Explosion"
-    ValueFlaggedInt _ -> "FlaggedInt"
-    ValueFloat _ -> "Float"
-    ValueGameMode _ -> "GameMode"
-    ValueInt _ -> "Int"
-    ValueLoadout _ -> "Loadout"
-    ValueLoadoutOnline _ -> "OnlineLoadout"
-    ValueLocation _ -> "Position"
-    ValueMusicStinger _ -> "MusicStinger"
-    ValuePickup _ -> "Pickup"
-    ValuePrivateMatchSettings _ -> "PrivateMatchSettings"
-    ValueQWord _ -> "QWord"
-    ValueRelativeRotation _ -> "RelativeRotation"
-    ValueReservation _ -> "Reservation"
-    ValueRigidBodyState _ -> "RigidBodyState"
-    ValueString _ -> "String"
-    ValueTeamPaint _ -> "Paint"
-    ValueUniqueId _ -> "UniqueId"
-
-jsonValue :: Value -> Aeson.Value
-jsonValue value =
-  case value of
-    ValueBoolean x -> Aeson.toJSON (#unpack x)
-    ValueByte x -> Aeson.toJSON (#unpack x)
-    ValueCamSettings x ->
-      Aeson.object
-        [ "FOV" .= #fov x
-        , "Height" .= #height x
-        , "Angle" .= #angle x
-        , "Distance" .= #distance x
-        , "Stiffness" .= #stiffness x
-        , "SwivelSpeed" .= #swivelSpeed x
-        ]
-    ValueDemolish x ->
-      Aeson.object
-        [ "AttackerFlag" .= #attackerFlag x
-        , "AttackerActorId" .= #attackerActorId x
-        , "VictimFlag" .= #victimFlag x
-        , "VictimActorId" .= #victimActorId x
-        , "AttackerVelocity" .= #attackerVelocity x
-        , "VictimVelocity" .= #victimVelocity x
-        ]
-    ValueEnum x -> Aeson.object ["Value" .= #value x, "Flag" .= #flag x]
-    ValueExplosion x ->
-      Aeson.object
-        [ "Actorless" .= #actorless x
-        , "ActorId" .= #actorId x
-        , "Position" .= #position x
-        ]
-    ValueFlaggedInt x -> Aeson.object ["Flag" .= #flag x, "Int" .= #int x]
-    ValueFloat x -> Aeson.toJSON (#unpack x)
-    ValueGameMode x ->
-      Aeson.object ["Id" .= #unpack x, "Name" .= getGameMode (#unpack x)]
-    ValueInt x -> Aeson.toJSON (#unpack x)
-    ValueLoadout x ->
-      Aeson.object
-        [ "Version" .= #version x
-        , "Body" .=
-          Aeson.object ["Id" .= #body x, "Name" .= getProduct (#body x)]
-        , "Decal" .=
-          Aeson.object ["Id" .= #decal x, "Name" .= getProduct (#decal x)]
-        , "Wheels" .=
-          Aeson.object ["Id" .= #wheels x, "Name" .= getProduct (#wheels x)]
-        , "RocketTrail" .=
-          Aeson.object
-            ["Id" .= #rocketTrail x, "Name" .= getProduct (#rocketTrail x)]
-        , "Antenna" .=
-          Aeson.object ["Id" .= #antenna x, "Name" .= getProduct (#antenna x)]
-        , "Topper" .=
-          Aeson.object ["Id" .= #topper x, "Name" .= getProduct (#topper x)]
-        , "Unknown1" .= #unknown1 x
-        , "Unknown2" .= #unknown2 x
-        ]
-    ValueLoadoutOnline x -> Aeson.toJSON (#unpack x)
-    ValueLocation x -> Aeson.toJSON (#unpack x)
-    ValueMusicStinger x ->
-      Aeson.object ["Flag" .= #flag x, "Cue" .= #cue x, "Trigger" .= #trigger x]
-    ValuePickup x ->
-      Aeson.object
-        [ "HasInstigator" .= #hasInstigator x
-        , "InstigatorId" .= #instigatorId x
-        , "PickedUp" .= #pickedUp x
-        ]
-    ValuePrivateMatchSettings x ->
-      Aeson.object
-        [ "Mutators" .= #mutators x
-        , "JoinableBy" .= #joinableBy x
-        , "MaxPlayers" .= #maxPlayers x
-        , "Name" .= #gameName x
-        , "Password" .= #password x
-        , "Unknown" .= #flag x
-        ]
-    ValueQWord x -> Aeson.toJSON (#unpack x)
-    ValueRelativeRotation x -> Aeson.toJSON (#unpack x)
-    ValueReservation x ->
-      Aeson.object
-        [ "Number" .= #number x
-        , "SystemId" .= #systemId x
-        , "RemoteId" .= #remoteId x
-        , "LocalId" .= #localId x
-        , "Name" .= #playerName x
-        , "Unknown1" .= #unknown1 x
-        , "Unknown2" .= #unknown2 x
-        ]
-    ValueRigidBodyState x ->
-      Aeson.object
-        [ "Sleeping" .= #sleeping x
-        , "Position" .= #position x
-        , "Rotation" .= #rotation x
-        , "LinearVelocity" .= #linearVelocity x
-        , "AngularVelocity" .= #angularVelocity x
-        ]
-    ValueString x -> Aeson.toJSON (#unpack x)
-    ValueTeamPaint x ->
-      Aeson.object
-        [ "Team" .= #team x
-        , "PrimaryColor" .= #primaryColor x
-        , "AccentColor" .= #accentColor x
-        , "PrimaryFinish" .=
-          Aeson.object
-            ["Id" .= #primaryFinish x, "Name" .= getProduct (#primaryFinish x)]
-        , "AccentFinish" .=
-          Aeson.object
-            ["Id" .= #accentFinish x, "Name" .= getProduct (#accentFinish x)]
-        ]
-    ValueUniqueId x ->
-      Aeson.object
-        [ "System" .=
-          case #systemId x of
-            0 -> "Local"
-            1 -> "Steam"
-            2 -> "PlayStation"
-            4 -> "Xbox"
-            y -> "Unknown system " ++ show y
-        , "Remote" .= #remoteId x
-        , "Local" .= #localId x
-        ]
-
-getGameMode :: Word8.Word8 -> Maybe StrictText.Text
-getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
-
-getProduct :: Word32.Word32 -> Maybe StrictText.Text
-getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
+    case value of
+      ValueBoolean x -> Aeson.toJSON x
+      ValueByte x -> Aeson.toJSON x
+      ValueCamSettings x -> Aeson.toJSON x
+      ValueDemolish x -> Aeson.toJSON x
+      ValueEnum x -> Aeson.toJSON x
+      ValueExplosion x -> Aeson.toJSON x
+      ValueFlaggedInt x -> Aeson.toJSON x
+      ValueFloat x -> Aeson.toJSON x
+      ValueGameMode x -> Aeson.toJSON x
+      ValueInt x -> Aeson.toJSON x
+      ValueLoadout x -> Aeson.toJSON x
+      ValueLoadoutOnline x -> Aeson.toJSON x
+      ValueLocation x -> Aeson.toJSON x
+      ValueMusicStinger x -> Aeson.toJSON x
+      ValuePickup x -> Aeson.toJSON x
+      ValuePrivateMatchSettings x -> Aeson.toJSON x
+      ValueQWord x -> Aeson.toJSON x
+      ValueRelativeRotation x -> Aeson.toJSON x
+      ValueReservation x -> Aeson.toJSON x
+      ValueRigidBodyState x -> Aeson.toJSON x
+      ValueString x -> Aeson.toJSON x
+      ValueTeamPaint x -> Aeson.toJSON x
+      ValueUniqueId x -> Aeson.toJSON x
