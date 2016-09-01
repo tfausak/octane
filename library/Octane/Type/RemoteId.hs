@@ -14,12 +14,13 @@ module Octane.Type.RemoteId
   , module Octane.Type.RemoteId.SteamId
   , PlayStationId(..)
   , SplitscreenId(..)
-  , XboxId(..)
+  , module Octane.Type.RemoteId.XboxId
   ) where
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
 import Octane.Type.RemoteId.SteamId
+import Octane.Type.RemoteId.XboxId
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -33,7 +34,6 @@ import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Text as Text
-import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Utility.Endian as Endian
 import qualified Text.Printf as Printf
 
@@ -99,23 +99,6 @@ instance DeepSeq.NFData SplitscreenId
 instance Aeson.ToJSON SplitscreenId where
   toJSON splitscreenId = splitscreenId & #unpack & Aeson.toJSON
 
-newtype XboxId = XboxId
-  { xboxIdUnpack :: Word64.Word64
-  } deriving (Eq, Generics.Generic, Show)
-
--- | Stored as a plain 'Word64.Word64'.
-instance BinaryBit.BinaryBit XboxId where
-  getBits _ = do
-    xboxId <- BinaryBit.getBits 0
-    pure (XboxId xboxId)
-  putBits _ xboxId = xboxId & #unpack & BinaryBit.putBits 0
-
-instance DeepSeq.NFData XboxId
-
--- | Encoded directly as a number.
-instance Aeson.ToJSON XboxId where
-  toJSON xboxId = xboxId & #unpack & Aeson.toJSON
-
 -- | A player's canonical remote ID. This is the best way to uniquely identify
 -- players
 data RemoteId
@@ -127,7 +110,7 @@ data RemoteId
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [''PlayStationId, ''SplitscreenId, ''XboxId])
+    [''PlayStationId, ''SplitscreenId])
 
 instance DeepSeq.NFData RemoteId
 
