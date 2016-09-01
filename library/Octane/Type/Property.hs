@@ -18,11 +18,12 @@ module Octane.Type.Property
   , IntProperty(..)
   , NameProperty(..)
   , QWordProperty(..)
-  , StrProperty(..)
+  , module Octane.Type.Property.StrProperty
   ) where
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
+import Octane.Type.Property.StrProperty
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -222,30 +223,6 @@ instance Aeson.ToJSON QWordProperty where
       , "Value" .= #content qWord
       ]
 
-data StrProperty = StrProperty
-  { strPropertySize :: Word64.Word64
-  , strPropertyContent :: Text.Text
-  } deriving (Eq, Generics.Generic, Show)
-
-instance Binary.Binary StrProperty where
-  get = do
-    size <- Binary.get
-    content <- Binary.get
-    pure (StrProperty size content)
-  put str = do
-    str & #size & Binary.put
-    str & #content & Binary.put
-
-instance DeepSeq.NFData StrProperty
-
-instance Aeson.ToJSON StrProperty where
-  toJSON str =
-    Aeson.object
-      [ "Type" .= ("Str" :: Text.Text)
-      , "Size" .= #size str
-      , "Value" .= #content str
-      ]
-
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
@@ -269,7 +246,6 @@ $(OverloadedRecords.overloadedRecords
     , ''IntProperty
     , ''NameProperty
     , ''QWordProperty
-    , ''StrProperty
     ])
 
 -- | Stored with the size first, then the value.
@@ -349,7 +325,7 @@ instance Aeson.ToJSON Property where
       PropertyInt int -> Aeson.toJSON int
       PropertyName name -> Aeson.toJSON name
       PropertyQWord qWord -> Aeson.toJSON qWord
-      PropertyStr str -> Aeson.toJSON str
+      PropertyStr x -> Aeson.toJSON x
 
 arrayProperty :: Text.Text
 arrayProperty = "ArrayProperty"
