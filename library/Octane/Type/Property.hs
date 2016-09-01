@@ -15,7 +15,7 @@ module Octane.Type.Property
   , BoolProperty(..)
   , ByteProperty(..)
   , FloatProperty(..)
-  , IntProperty(..)
+  , module Octane.Type.Property.IntProperty
   , module Octane.Type.Property.NameProperty
   , module Octane.Type.Property.QWordProperty
   , module Octane.Type.Property.StrProperty
@@ -23,6 +23,7 @@ module Octane.Type.Property
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
+import Octane.Type.Property.IntProperty
 import Octane.Type.Property.NameProperty
 import Octane.Type.Property.QWordProperty
 import Octane.Type.Property.StrProperty
@@ -36,7 +37,6 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Float32 as Float32
-import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word64 as Word64
@@ -147,33 +147,6 @@ instance Aeson.ToJSON FloatProperty where
       , "Value" .= #content float
       ]
 
-data IntProperty = IntProperty
-  { intPropertySize :: Word64.Word64
-  , intPropertyContent :: Int32.Int32
-  } deriving (Eq, Generics.Generic, Show)
-
-instance Binary.Binary IntProperty where
-  get = do
-    size <- Binary.get
-    content <-
-      case #unpack size of
-        4 -> Binary.get
-        x -> fail ("unknown IntProperty size " ++ show x)
-    pure (IntProperty size content)
-  put int = do
-    int & #size & Binary.put
-    int & #content & Binary.put
-
-instance DeepSeq.NFData IntProperty
-
-instance Aeson.ToJSON IntProperty where
-  toJSON int =
-    Aeson.object
-      [ "Type" .= ("Int" :: Text.Text)
-      , "Size" .= #size int
-      , "Value" .= #content int
-      ]
-
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
@@ -190,12 +163,7 @@ data Property
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''ArrayProperty
-    , ''BoolProperty
-    , ''ByteProperty
-    , ''FloatProperty
-    , ''IntProperty
-    ])
+    [''ArrayProperty, ''BoolProperty, ''ByteProperty, ''FloatProperty])
 
 -- | Stored with the size first, then the value.
 instance Binary.Binary Property where
