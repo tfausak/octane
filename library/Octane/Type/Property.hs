@@ -1,17 +1,11 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Property
   ( Property(..)
-  , ArrayProperty(..)
+  , module Octane.Type.Property.ArrayProperty
   , module Octane.Type.Property.BoolProperty
   , module Octane.Type.Property.ByteProperty
   , module Octane.Type.Property.FloatProperty
@@ -21,8 +15,7 @@ module Octane.Type.Property
   , module Octane.Type.Property.StrProperty
   ) where
 
-import Data.Aeson ((.=))
-import Data.Function ((&))
+import Octane.Type.Property.ArrayProperty
 import Octane.Type.Property.BoolProperty
 import Octane.Type.Property.ByteProperty
 import Octane.Type.Property.FloatProperty
@@ -34,43 +27,14 @@ import Octane.Type.Property.StrProperty
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
-import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
-import qualified Octane.Type.Dictionary as Dictionary
-import qualified Octane.Type.List as List
 import qualified Octane.Type.Text as Text
-import qualified Octane.Type.Word64 as Word64
-
-data ArrayProperty = ArrayProperty
-  { arrayPropertySize :: Word64.Word64
-  , arrayPropertyContent :: List.List (Dictionary.Dictionary Property)
-  } deriving (Eq, Generics.Generic, Show)
-
-instance Binary.Binary ArrayProperty where
-  get = do
-    size <- Binary.get
-    content <- Binary.get
-    pure (ArrayProperty size content)
-  put array = do
-    array & #size & Binary.put
-    array & #content & Binary.put
-
-instance DeepSeq.NFData ArrayProperty
-
-instance Aeson.ToJSON ArrayProperty where
-  toJSON array =
-    Aeson.object
-      [ "Type" .= ("Array" :: Text.Text)
-      , "Size" .= #size array
-      , "Value" .= #content array
-      ]
 
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
 data Property
-  = PropertyArray ArrayProperty
+  = PropertyArray (ArrayProperty Property)
   | PropertyBool BoolProperty
   | PropertyByte ByteProperty
   | PropertyFloat FloatProperty
@@ -79,8 +43,6 @@ data Property
   | PropertyQWord QWordProperty
   | PropertyStr StrProperty
   deriving (Eq, Generics.Generic, Show)
-
-$(OverloadedRecords.overloadedRecords Default.def [''ArrayProperty])
 
 -- | Stored with the size first, then the value.
 instance Binary.Binary Property where
@@ -152,13 +114,13 @@ instance DeepSeq.NFData Property
 instance Aeson.ToJSON Property where
   toJSON property =
     case property of
-      PropertyArray array -> Aeson.toJSON array
-      PropertyBool bool -> Aeson.toJSON bool
-      PropertyByte byte -> Aeson.toJSON byte
-      PropertyFloat float -> Aeson.toJSON float
-      PropertyInt int -> Aeson.toJSON int
-      PropertyName name -> Aeson.toJSON name
-      PropertyQWord qWord -> Aeson.toJSON qWord
+      PropertyArray x -> Aeson.toJSON x
+      PropertyBool x -> Aeson.toJSON x
+      PropertyByte x -> Aeson.toJSON x
+      PropertyFloat x -> Aeson.toJSON x
+      PropertyInt x -> Aeson.toJSON x
+      PropertyName x -> Aeson.toJSON x
+      PropertyQWord x -> Aeson.toJSON x
       PropertyStr x -> Aeson.toJSON x
 
 arrayProperty :: Text.Text
