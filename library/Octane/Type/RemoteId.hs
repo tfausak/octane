@@ -11,7 +11,7 @@
 
 module Octane.Type.RemoteId
   ( RemoteId(..)
-  , SteamId(..)
+  , module Octane.Type.RemoteId.SteamId
   , PlayStationId(..)
   , SplitscreenId(..)
   , XboxId(..)
@@ -19,6 +19,7 @@ module Octane.Type.RemoteId
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
+import Octane.Type.RemoteId.SteamId
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -98,23 +99,6 @@ instance DeepSeq.NFData SplitscreenId
 instance Aeson.ToJSON SplitscreenId where
   toJSON splitscreenId = splitscreenId & #unpack & Aeson.toJSON
 
-newtype SteamId = SteamId
-  { steamIdUnpack :: Word64.Word64
-  } deriving (Eq, Generics.Generic, Show)
-
--- | Stored as a plain 'Word64.Word64'.
-instance BinaryBit.BinaryBit SteamId where
-  getBits _ = do
-    steamId <- BinaryBit.getBits 0
-    pure (SteamId steamId)
-  putBits _ steamId = steamId & #unpack & BinaryBit.putBits 0
-
-instance DeepSeq.NFData SteamId
-
--- | Encoded directly as a number.
-instance Aeson.ToJSON SteamId where
-  toJSON steamId = steamId & #unpack & Aeson.toJSON
-
 newtype XboxId = XboxId
   { xboxIdUnpack :: Word64.Word64
   } deriving (Eq, Generics.Generic, Show)
@@ -143,7 +127,7 @@ data RemoteId
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [''PlayStationId, ''SplitscreenId, ''SteamId, ''XboxId])
+    [''PlayStationId, ''SplitscreenId, ''XboxId])
 
 instance DeepSeq.NFData RemoteId
 
