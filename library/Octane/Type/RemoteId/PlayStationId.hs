@@ -65,10 +65,14 @@ instance DeepSeq.NFData PlayStationId
 instance Aeson.ToJSON PlayStationId where
   toJSON playStationId =
     Aeson.object
-      [ "Name" .= #name playStationId
-      , "Unknown" .=
-        (playStationId & #unknown & LazyBytes.unpack &
-         concatMap (Printf.printf "%02x") &
-         ("0x" ++) &
-         StrictText.pack)
+      [ "Type" .= ("PlayStation" :: StrictText.Text)
+      , "Value" .=
+        Aeson.object
+          [ "Name" .= #name playStationId
+          , "Unknown" .=
+            (playStationId & #unknown & LazyBytes.unpack &
+             concatMap (Printf.printf "%02x") &
+             ("0x" ++) &
+             StrictText.pack)
+          ]
       ]

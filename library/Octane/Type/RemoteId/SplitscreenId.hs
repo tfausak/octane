@@ -12,7 +12,7 @@ module Octane.Type.RemoteId.SplitscreenId
   ( SplitscreenId(..)
   ) where
 
-import Data.Function ((&))
+import Data.Aeson ((.=))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -21,6 +21,7 @@ import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
+import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
 
 newtype SplitscreenId = SplitscreenId
@@ -43,6 +44,9 @@ instance BinaryBit.BinaryBit SplitscreenId where
 
 instance DeepSeq.NFData SplitscreenId
 
--- | Encoded as an optional number.
 instance Aeson.ToJSON SplitscreenId where
-  toJSON splitscreenId = splitscreenId & #unpack & Aeson.toJSON
+  toJSON splitscreenId =
+    Aeson.object
+      [ "Type" .= ("Splitscreen" :: StrictText.Text)
+      , "Value" .= #unpack splitscreenId
+      ]
