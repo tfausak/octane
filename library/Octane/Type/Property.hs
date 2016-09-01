@@ -16,13 +16,14 @@ module Octane.Type.Property
   , ByteProperty(..)
   , FloatProperty(..)
   , IntProperty(..)
-  , NameProperty(..)
+  , module Octane.Type.Property.NameProperty
   , module Octane.Type.Property.QWordProperty
   , module Octane.Type.Property.StrProperty
   ) where
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
+import Octane.Type.Property.NameProperty
 import Octane.Type.Property.QWordProperty
 import Octane.Type.Property.StrProperty
 
@@ -173,30 +174,6 @@ instance Aeson.ToJSON IntProperty where
       , "Value" .= #content int
       ]
 
-data NameProperty = NameProperty
-  { namePropertySize :: Word64.Word64
-  , namePropertyContent :: Text.Text
-  } deriving (Eq, Generics.Generic, Show)
-
-instance Binary.Binary NameProperty where
-  get = do
-    size <- Binary.get
-    content <- Binary.get
-    pure (NameProperty size content)
-  put name = do
-    name & #size & Binary.put
-    name & #content & Binary.put
-
-instance DeepSeq.NFData NameProperty
-
-instance Aeson.ToJSON NameProperty where
-  toJSON name =
-    Aeson.object
-      [ "Type" .= ("Name" :: Text.Text)
-      , "Size" .= #size name
-      , "Value" .= #content name
-      ]
-
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
@@ -218,7 +195,6 @@ $(OverloadedRecords.overloadedRecords
     , ''ByteProperty
     , ''FloatProperty
     , ''IntProperty
-    , ''NameProperty
     ])
 
 -- | Stored with the size first, then the value.
