@@ -17,12 +17,13 @@ module Octane.Type.Property
   , FloatProperty(..)
   , IntProperty(..)
   , NameProperty(..)
-  , QWordProperty(..)
+  , module Octane.Type.Property.QWordProperty
   , module Octane.Type.Property.StrProperty
   ) where
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
+import Octane.Type.Property.QWordProperty
 import Octane.Type.Property.StrProperty
 
 import qualified Control.DeepSeq as DeepSeq
@@ -196,33 +197,6 @@ instance Aeson.ToJSON NameProperty where
       , "Value" .= #content name
       ]
 
-data QWordProperty = QWordProperty
-  { qWordPropertySize :: Word64.Word64
-  , qWordPropertyContent :: Word64.Word64
-  } deriving (Eq, Generics.Generic, Show)
-
-instance Binary.Binary QWordProperty where
-  get = do
-    size <- Binary.get
-    content <-
-      case #unpack size of
-        8 -> Binary.get
-        x -> fail ("unknown QWordProperty size " ++ show x)
-    pure (QWordProperty size content)
-  put qWord = do
-    qWord & #size & Binary.put
-    qWord & #content & Binary.put
-
-instance DeepSeq.NFData QWordProperty
-
-instance Aeson.ToJSON QWordProperty where
-  toJSON qWord =
-    Aeson.object
-      [ "Type" .= ("QWord" :: Text.Text)
-      , "Size" .= #size qWord
-      , "Value" .= #content qWord
-      ]
-
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
@@ -245,7 +219,6 @@ $(OverloadedRecords.overloadedRecords
     , ''FloatProperty
     , ''IntProperty
     , ''NameProperty
-    , ''QWordProperty
     ])
 
 -- | Stored with the size first, then the value.
