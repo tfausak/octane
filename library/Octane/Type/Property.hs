@@ -13,7 +13,7 @@ module Octane.Type.Property
   ( Property(..)
   , ArrayProperty(..)
   , BoolProperty(..)
-  , ByteProperty(..)
+  , module Octane.Type.Property.ByteProperty
   , module Octane.Type.Property.FloatProperty
   , module Octane.Type.Property.IntProperty
   , module Octane.Type.Property.NameProperty
@@ -23,6 +23,7 @@ module Octane.Type.Property
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
+import Octane.Type.Property.ByteProperty
 import Octane.Type.Property.FloatProperty
 import Octane.Type.Property.IntProperty
 import Octane.Type.Property.NameProperty
@@ -89,37 +90,6 @@ instance Aeson.ToJSON BoolProperty where
       , "Value" .= #content bool
       ]
 
-data ByteProperty = ByteProperty
-  { bytePropertySize :: Word64.Word64
-  , bytePropertyKey :: Text.Text
-  , bytePropertyValue :: Text.Text
-  } deriving (Eq, Generics.Generic, Show)
-
-instance Binary.Binary ByteProperty where
-  get = do
-    size <- Binary.get
-    key <- Binary.get
-    if key == "OnlinePlatform_Steam"
-      then do
-        pure (ByteProperty size "OnlinePlatform" key)
-      else do
-        value <- Binary.get
-        pure (ByteProperty size key value)
-  put byte = do
-    byte & #size & Binary.put
-    byte & #key & Binary.put
-    byte & #value & Binary.put
-
-instance DeepSeq.NFData ByteProperty
-
-instance Aeson.ToJSON ByteProperty where
-  toJSON byte =
-    Aeson.object
-      [ "Type" .= ("Byte" :: Text.Text)
-      , "Size" .= #size byte
-      , "Value" .= (#key byte, #value byte)
-      ]
-
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
@@ -136,7 +106,7 @@ data Property
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [''ArrayProperty, ''BoolProperty, ''ByteProperty])
+    [''ArrayProperty, ''BoolProperty])
 
 -- | Stored with the size first, then the value.
 instance Binary.Binary Property where
