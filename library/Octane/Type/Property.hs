@@ -14,7 +14,7 @@ module Octane.Type.Property
   , ArrayProperty(..)
   , BoolProperty(..)
   , ByteProperty(..)
-  , FloatProperty(..)
+  , module Octane.Type.Property.FloatProperty
   , module Octane.Type.Property.IntProperty
   , module Octane.Type.Property.NameProperty
   , module Octane.Type.Property.QWordProperty
@@ -23,6 +23,7 @@ module Octane.Type.Property
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
+import Octane.Type.Property.FloatProperty
 import Octane.Type.Property.IntProperty
 import Octane.Type.Property.NameProperty
 import Octane.Type.Property.QWordProperty
@@ -36,7 +37,6 @@ import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.Dictionary as Dictionary
-import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word64 as Word64
@@ -120,33 +120,6 @@ instance Aeson.ToJSON ByteProperty where
       , "Value" .= (#key byte, #value byte)
       ]
 
-data FloatProperty = FloatProperty
-  { floatPropertySize :: Word64.Word64
-  , floatPropertyContent :: Float32.Float32
-  } deriving (Eq, Generics.Generic, Show)
-
-instance Binary.Binary FloatProperty where
-  get = do
-    size <- Binary.get
-    content <-
-      case #unpack size of
-        4 -> Binary.get
-        x -> fail ("unknown FloatProperty size " ++ show x)
-    pure (FloatProperty size content)
-  put float = do
-    float & #size & Binary.put
-    float & #content & Binary.put
-
-instance DeepSeq.NFData FloatProperty
-
-instance Aeson.ToJSON FloatProperty where
-  toJSON float =
-    Aeson.object
-      [ "Type" .= ("Float" :: Text.Text)
-      , "Size" .= #size float
-      , "Value" .= #content float
-      ]
-
 -- | A metadata property. All properties have a size, but only some actually
 -- use it. The value stored in the property can be an array, a boolean, and
 -- so on.
@@ -163,7 +136,7 @@ data Property
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [''ArrayProperty, ''BoolProperty, ''ByteProperty, ''FloatProperty])
+    [''ArrayProperty, ''BoolProperty, ''ByteProperty])
 
 -- | Stored with the size first, then the value.
 instance Binary.Binary Property where
