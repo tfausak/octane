@@ -247,7 +247,7 @@ getNewReplication context actorId = do
         actorId
         objectName
         className
-        State.SOpening
+        State.Opening
         (Just classInit)
         Map.empty)
 
@@ -269,7 +269,7 @@ getExistingReplication context actorId = do
         actorId
         (#objectName thing)
         (#className thing)
-        State.SExisting
+        State.Existing
         Nothing
         props)
 
@@ -296,7 +296,7 @@ getClosedReplication context actorId = do
         actorId
         (#objectName thing)
         (#className thing)
-        State.SClosing
+        State.Closing
         Nothing
         Map.empty)
 

@@ -62,9 +62,9 @@ putReplication :: Replication.Replication -> BinaryBit.BitPut ()
 putReplication replication = do
   replication & #actorId & BinaryBit.putBits 0
   case #state replication of
-    State.SOpening -> putNewReplication replication
-    State.SExisting -> putExistingReplication replication
-    State.SClosing -> putClosedReplication replication
+    State.Opening -> putNewReplication replication
+    State.Existing -> putExistingReplication replication
+    State.Closing -> putClosedReplication replication
 
 putNewReplication :: Replication.Replication -> BinaryBit.BitPut ()
 putNewReplication replication = do

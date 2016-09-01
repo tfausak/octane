@@ -81,7 +81,7 @@ instance Aeson.ToJSON Spawned where
     Aeson.toJSON
 
 getSpawned :: [Replication.Replication] -> Spawned
-getSpawned xs = xs & filter (\x -> x & #state & (== State.SOpening)) & Spawned
+getSpawned xs = xs & filter (\x -> x & #state & State.isOpening) & Spawned
 
 newtype Updated =
   Updated [Replication.Replication]
@@ -99,7 +99,7 @@ instance Aeson.ToJSON Updated where
 
 getUpdated :: [Replication.Replication] -> Updated
 getUpdated xs =
-  xs & filter (\x -> x & #state & (== State.SExisting)) &
+  xs & filter (\x -> x & #state & State.isExisting) &
   filter (\x -> x & #properties & null & not) &
   Updated
 
@@ -110,5 +110,4 @@ instance Aeson.ToJSON Destroyed where
   toJSON (Destroyed xs) = xs & map #actorId & map #value & Aeson.toJSON
 
 getDestroyed :: [Replication.Replication] -> Destroyed
-getDestroyed xs =
-  xs & filter (\x -> x & #state & (== State.SClosing)) & Destroyed
+getDestroyed xs = xs & filter (\x -> x & #state & State.isClosing) & Destroyed

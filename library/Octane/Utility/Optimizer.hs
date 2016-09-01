@@ -40,7 +40,7 @@ updateState :: Frame.Frame -> State -> State
 updateState frame state1 =
   let spawned =
         frame & #replications &
-        filter (\replication -> replication & #state & (== State.SOpening)) &
+        filter (\replication -> replication & #state & State.isOpening) &
         map #actorId &
         map CompressedWord.fromCompressedWord
       state2 =
@@ -55,7 +55,7 @@ updateState frame state1 =
           state1
       destroyed =
         frame & #replications &
-        filter (\replication -> replication & #state & (== State.SClosing)) &
+        filter (\replication -> replication & #state & State.isClosing) &
         map #actorId &
         map CompressedWord.fromCompressedWord
       state3 =
@@ -70,7 +70,7 @@ updateState frame state1 =
           state2
       updated =
         frame & #replications &
-        filter (\replication -> replication & #state & (== State.SExisting))
+        filter (\replication -> replication & #state & State.isExisting)
       state4 =
         updated &
         foldr
@@ -93,7 +93,7 @@ getDelta state frame =
         frame & #replications &
         reject
           (\replication ->
-              let isOpening = #state replication == State.SOpening
+              let isOpening = replication & #state & State.isOpening
                   actorId = #actorId replication
                   currentState =
                     IntMap.lookup
@@ -104,7 +104,7 @@ getDelta state frame =
               in isOpening && wasAlreadyAlive) &
         map
           (\replication ->
-              if #state replication == State.SExisting
+              if replication & #state & State.isExisting
                 then let actorId = #actorId replication
                          currentState =
                            IntMap.findWithDefault
