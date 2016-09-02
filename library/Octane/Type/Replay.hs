@@ -159,7 +159,7 @@ toOptimizedReplay replay = do
         replay & #version & Version.versionBranch & map Word32.toWord32
   -- Key frames aren't important for replays. Mark the first frame as a key
   -- frame and the rest as regular frames.
-  let frames_ =
+  let frames =
         replay & #frames & zip [0 :: Int ..] &
         map (\(index, frame) -> frame {Frame.frameIsKeyFrame = index == 0})
   pure
@@ -172,7 +172,7 @@ toOptimizedReplay replay = do
     , OptimizedReplay.optimizedReplayLevels =
         replay & #levels & map Text.Text & List.List
     , OptimizedReplay.optimizedReplayKeyFrames =
-        frames_ & filter #isKeyFrame &
+        frames & filter #isKeyFrame &
         map
           (\frame ->
               KeyFrame.KeyFrame
@@ -180,7 +180,7 @@ toOptimizedReplay replay = do
                 (frame & #number & Word32.toWord32)
                 0) &
         List.List
-    , OptimizedReplay.optimizedReplayFrames = frames_
+    , OptimizedReplay.optimizedReplayFrames = frames
     , OptimizedReplay.optimizedReplayMessages =
         replay & #messages & Map.toList &
         map
