@@ -237,10 +237,7 @@ getNewReplication context actorId = do
   let things = #things context
   let newThings =
         IntMap.insert (CompressedWord.fromCompressedWord actorId) thing things
-  let newContext =
-        context
-        { contextThings = newThings
-        }
+  let newContext = context {contextThings = newThings}
   pure
     ( newContext
     , Replication.Replication
@@ -286,10 +283,7 @@ getClosedReplication context actorId = do
   let newThings =
         context & #things &
         IntMap.delete (CompressedWord.fromCompressedWord actorId)
-  let newContext =
-        context
-        { contextThings = newThings
-        }
+  let newContext = context {contextThings = newThings}
   pure
     ( newContext
     , Replication.Replication

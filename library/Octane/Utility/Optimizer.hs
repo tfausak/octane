@@ -121,12 +121,9 @@ getDelta state frame =
                                        Map.lookup name currentProperties
                                  in Just newValue /= oldValue)
                      in replication
-                        { Replication.replicationProperties = changes
-                        }
+                        {Replication.replicationProperties = changes}
                 else replication)
-  in frame
-     { Frame.frameReplications = newReplications
-     }
+  in frame {Frame.frameReplications = newReplications}
 
 reject :: (a -> Bool) -> [a] -> [a]
 reject p xs = filter (\x -> not (p x)) xs

@@ -54,9 +54,7 @@ getInitialization className = do
       else pure Nothing
   pure
     Initialization
-    { initializationLocation = location
-    , initializationRotation = rotation
-    }
+    {initializationLocation = location, initializationRotation = rotation}
 
 -- | Puts the 'Initialization'. Note that unlike 'getInitialization', this does
 -- not require the class name.
