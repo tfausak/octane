@@ -24,6 +24,7 @@ import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
+import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
@@ -199,7 +200,11 @@ toOptimizedReplay replay = do
         List.List
     , OptimizedReplay.optimizedReplayPackages =
         replay & #packages & map Text.Text & List.List
-    , OptimizedReplay.optimizedReplayObjects = List.List [] -- TODO
+    , OptimizedReplay.optimizedReplayObjects =
+        frames & concatMap #replications & map #objectName & Set.fromList &
+        Set.toAscList &
+        map Text.Text &
+        List.List
     , OptimizedReplay.optimizedReplayNames = List.List [] -- TODO
     , OptimizedReplay.optimizedReplayClasses = List.List [] -- TODO
     , OptimizedReplay.optimizedReplayCache = List.List [] -- TODO
