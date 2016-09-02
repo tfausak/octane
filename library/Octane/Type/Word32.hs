@@ -35,7 +35,7 @@ import qualified Text.Printf as Printf
 -- | A 32-bit unsigned integer.
 newtype Word32 = Word32
   { word32Unpack :: Word.Word32
-  } deriving (Eq, Generics.Generic, Num, Ord)
+  } deriving (Enum, Eq, Generics.Generic, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Word32)
 

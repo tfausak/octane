@@ -28,6 +28,7 @@ import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
+import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.KeyFrame as KeyFrame
@@ -163,6 +164,26 @@ toOptimizedReplay replay = do
   let frames =
         replay & #frames & zip [0 :: Int ..] &
         map (\(index, frame) -> frame {Frame.frameIsKeyFrame = index == 0})
+  let objects =
+        frames & concatMap #replications & map #objectName & Set.fromList &
+        Set.toAscList &
+        map Text.Text &
+        List.List
+  let objectsToPosition = objects & #unpack & flip zip [0 ..] & Map.fromList
+  let classNames =
+        frames & concatMap #replications & map #className & Set.fromList &
+        Set.toAscList &
+        map Text.Text
+  classes <-
+    classNames &
+    mapM
+      (\className ->
+          case Map.lookup className objectsToPosition of
+            Nothing ->
+              fail
+                ("class " ++ show className ++ " not found in list of objects")
+            Just position -> pure (ClassItem.ClassItem className position)) &
+    fmap List.List
   pure
     OptimizedReplay.OptimizedReplay
     { OptimizedReplay.optimizedReplayVersion1 = version1
@@ -200,12 +221,8 @@ toOptimizedReplay replay = do
         List.List
     , OptimizedReplay.optimizedReplayPackages =
         replay & #packages & map Text.Text & List.List
-    , OptimizedReplay.optimizedReplayObjects =
-        frames & concatMap #replications & map #objectName & Set.fromList &
-        Set.toAscList &
-        map Text.Text &
-        List.List
+    , OptimizedReplay.optimizedReplayObjects = objects
     , OptimizedReplay.optimizedReplayNames = List.List [] -- TODO
-    , OptimizedReplay.optimizedReplayClasses = List.List [] -- TODO
+    , OptimizedReplay.optimizedReplayClasses = classes
     , OptimizedReplay.optimizedReplayCache = List.List [] -- TODO
     }
