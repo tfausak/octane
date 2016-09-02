@@ -143,4 +143,4 @@ putIntVector vector = do
   Foldable.for_
     deltas
     (\delta ->
-        BinaryBit.putBits 0 (CompressedWord.CompressedWord maxValue delta))
+       BinaryBit.putBits 0 (CompressedWord.CompressedWord maxValue delta))

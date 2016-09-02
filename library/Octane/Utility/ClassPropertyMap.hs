@@ -32,25 +32,23 @@ getClassPropertyMap replay =
   in replay & getClassIds &
      map
        (\classId ->
-           let ownProperties =
-                 case IntMap.lookup classId basicClassPropertyMap of
-                   Nothing -> IntMap.empty
-                   Just x -> x
-               parentProperties =
-                 case IntMap.lookup classId classMap of
-                   Nothing -> IntMap.empty
-                   Just parentClassIds ->
-                     parentClassIds &
-                     map
-                       (\parentClassId ->
-                           case IntMap.lookup
-                                  parentClassId
-                                  basicClassPropertyMap of
-                             Nothing -> IntMap.empty
-                             Just x -> x) &
-                     IntMap.unions
-               properties = IntMap.union ownProperties parentProperties
-           in (classId, properties)) &
+          let ownProperties =
+                case IntMap.lookup classId basicClassPropertyMap of
+                  Nothing -> IntMap.empty
+                  Just x -> x
+              parentProperties =
+                case IntMap.lookup classId classMap of
+                  Nothing -> IntMap.empty
+                  Just parentClassIds ->
+                    parentClassIds &
+                    map
+                      (\parentClassId ->
+                         case IntMap.lookup parentClassId basicClassPropertyMap of
+                           Nothing -> IntMap.empty
+                           Just x -> x) &
+                    IntMap.unions
+              properties = IntMap.union ownProperties parentProperties
+          in (classId, properties)) &
      IntMap.fromList
 
 -- | The class cache is a list of 3-tuples where the first element is a class
@@ -60,9 +58,9 @@ getClassCache replay =
   replay & #cache & #unpack &
   map
     (\x ->
-        ( x & #classId & Word32.fromWord32
-        , x & #cacheId & Word32.fromWord32
-        , x & #parentCacheId & Word32.fromWord32))
+       ( x & #classId & Word32.fromWord32
+       , x & #cacheId & Word32.fromWord32
+       , x & #parentCacheId & Word32.fromWord32))
 
 -- | The class IDs in a replay. Comes from the class cache.
 getClassIds :: Replay.ReplayWithoutFrames -> [Int]
@@ -88,11 +86,11 @@ getBasicClassMap replay =
   replay & getClassCache & reverse & List.tails &
   Maybe.mapMaybe
     (\xs ->
-        case xs of
-          [] -> Nothing
-          (classId, _, parentCacheId):ys -> do
-            parentClassId <- getParentClassId parentCacheId ys
-            pure (classId, parentClassId)) &
+       case xs of
+         [] -> Nothing
+         (classId, _, parentCacheId):ys -> do
+           parentClassId <- getParentClassId parentCacheId ys
+           pure (classId, parentClassId)) &
   IntMap.fromList
 
 -- | Given a naive mapping from class ID to its parent class ID, pure all of
@@ -127,18 +125,18 @@ getBasicClassPropertyMap replay =
   in replay & #cache & #unpack &
      map
        (\x ->
-           let classId = x & #classId & Word32.fromWord32
-               properties =
-                 x & #properties & #unpack &
-                 Maybe.mapMaybe
-                   (\y ->
-                       let streamId = y & #streamId & Word32.fromWord32
-                           propertyId = y & #objectId & Word32.fromWord32
-                       in case IntMap.lookup propertyId propertyMap of
-                            Nothing -> Nothing
-                            Just name -> Just (streamId, name)) &
-                 IntMap.fromList
-           in (classId, properties)) &
+          let classId = x & #classId & Word32.fromWord32
+              properties =
+                x & #properties & #unpack &
+                Maybe.mapMaybe
+                  (\y ->
+                     let streamId = y & #streamId & Word32.fromWord32
+                         propertyId = y & #objectId & Word32.fromWord32
+                     in case IntMap.lookup propertyId propertyMap of
+                          Nothing -> Nothing
+                          Just name -> Just (streamId, name)) &
+                IntMap.fromList
+          in (classId, properties)) &
      IntMap.fromList
 
 -- | The actor map is a mapping from class names to their IDs.
@@ -147,9 +145,9 @@ getActorMap replay =
   replay & #classes & #unpack &
   map
     (\x ->
-        let className = x & #name & #unpack
-            classId = x & #streamId & Word32.fromWord32
-        in (className, classId)) &
+       let className = x & #name & #unpack
+           classId = x & #streamId & Word32.fromWord32
+       in (className, classId)) &
   Map.fromList
 
 -- | Gets the class ID and name for a given property ID.

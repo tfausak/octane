@@ -23,9 +23,9 @@ optimizeFrames frames =
   frames &
   Foldable.foldl'
     (\(state, fs) f ->
-        let newState = updateState f state
-            minimalFrame = getDelta state f
-        in (newState, minimalFrame : fs))
+       let newState = updateState f state
+           minimalFrame = getDelta state f
+       in (newState, minimalFrame : fs))
     (initialState, []) &
   snd &
   reverse
@@ -48,10 +48,10 @@ updateState frame state1 =
         foldr
           (IntMap.alter
              (\maybeValue ->
-                 Just
-                   (case maybeValue of
-                      Nothing -> (True, Map.empty)
-                      Just (_, properties) -> (True, properties))))
+                Just
+                  (case maybeValue of
+                     Nothing -> (True, Map.empty)
+                     Just (_, properties) -> (True, properties))))
           state1
       destroyed =
         frame & #replications &
@@ -63,10 +63,10 @@ updateState frame state1 =
         foldr
           (IntMap.alter
              (\maybeValue ->
-                 Just
-                   (case maybeValue of
-                      Nothing -> (False, Map.empty)
-                      Just (_, properties) -> (False, properties))))
+                Just
+                  (case maybeValue of
+                     Nothing -> (False, Map.empty)
+                     Just (_, properties) -> (False, properties))))
           state2
       updated =
         frame & #replications &
@@ -75,15 +75,14 @@ updateState frame state1 =
         updated &
         foldr
           (\replication ->
-              IntMap.alter
-                (\maybeValue ->
-                    Just
-                      (case maybeValue of
-                         Nothing -> (True, #properties replication)
-                         Just (alive, properties) ->
-                           ( alive
-                           , Map.union (#properties replication) properties)))
-                (replication & #actorId & CompressedWord.fromCompressedWord))
+             IntMap.alter
+               (\maybeValue ->
+                  Just
+                    (case maybeValue of
+                       Nothing -> (True, #properties replication)
+                       Just (alive, properties) ->
+                         (alive, Map.union (#properties replication) properties)))
+               (replication & #actorId & CompressedWord.fromCompressedWord))
           state3
   in state4
 
@@ -93,36 +92,34 @@ getDelta state frame =
         frame & #replications &
         reject
           (\replication ->
-              let isOpening = replication & #state & State.isOpening
-                  actorId = #actorId replication
-                  currentState =
-                    IntMap.lookup
-                      (CompressedWord.fromCompressedWord actorId)
-                      state
-                  isAlive = fmap fst currentState
-                  wasAlreadyAlive = isAlive == Just True
-              in isOpening && wasAlreadyAlive) &
+             let isOpening = replication & #state & State.isOpening
+                 actorId = #actorId replication
+                 currentState =
+                   IntMap.lookup
+                     (CompressedWord.fromCompressedWord actorId)
+                     state
+                 isAlive = fmap fst currentState
+                 wasAlreadyAlive = isAlive == Just True
+             in isOpening && wasAlreadyAlive) &
         map
           (\replication ->
-              if replication & #state & State.isExisting
-                then let actorId = #actorId replication
-                         currentState =
-                           IntMap.findWithDefault
-                             (True, Map.empty)
-                             (CompressedWord.fromCompressedWord actorId)
-                             state
-                         currentProperties = snd currentState
-                         newProperties = #properties replication
-                         changes =
-                           newProperties &
-                           Map.filterWithKey
-                             (\name newValue ->
-                                 let oldValue =
-                                       Map.lookup name currentProperties
-                                 in Just newValue /= oldValue)
-                     in replication
-                        {Replication.replicationProperties = changes}
-                else replication)
+             if replication & #state & State.isExisting
+               then let actorId = #actorId replication
+                        currentState =
+                          IntMap.findWithDefault
+                            (True, Map.empty)
+                            (CompressedWord.fromCompressedWord actorId)
+                            state
+                        currentProperties = snd currentState
+                        newProperties = #properties replication
+                        changes =
+                          newProperties &
+                          Map.filterWithKey
+                            (\name newValue ->
+                               let oldValue = Map.lookup name currentProperties
+                               in Just newValue /= oldValue)
+                    in replication {Replication.replicationProperties = changes}
+               else replication)
   in frame {Frame.frameReplications = newReplications}
 
 reject :: (a -> Bool) -> [a] -> [a]

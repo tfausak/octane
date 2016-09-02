@@ -180,11 +180,11 @@ toOptimizedReplay replay = do
     map Text.Text &
     mapM
       (\className ->
-          case Map.lookup className objectsToPosition of
-            Nothing ->
-              fail
-                ("class " ++ show className ++ " not found in list of objects")
-            Just position -> pure (ClassItem.ClassItem className position)) &
+         case Map.lookup className objectsToPosition of
+           Nothing ->
+             fail
+               ("class " ++ show className ++ " not found in list of objects")
+           Just position -> pure (ClassItem.ClassItem className position)) &
     fmap List.List
   pure
     OptimizedReplay.OptimizedReplay
@@ -199,10 +199,10 @@ toOptimizedReplay replay = do
         frames & filter #isKeyFrame &
         map
           (\frame ->
-              KeyFrame.KeyFrame
-                (#time frame)
-                (frame & #number & Word32.toWord32)
-                0) &
+             KeyFrame.KeyFrame
+               (#time frame)
+               (frame & #number & Word32.toWord32)
+               0) &
         List.List
     , OptimizedReplay.optimizedReplayFrames = frames
     , OptimizedReplay.optimizedReplayMessages =
