@@ -164,18 +164,20 @@ toOptimizedReplay replay = do
   let frames =
         replay & #frames & zip [0 :: Int ..] &
         map (\(index, frame) -> frame {Frame.frameIsKeyFrame = index == 0})
+  let objectNames = frames & concatMap #replications & map #objectName
+  let classNames = frames & concatMap #replications & map #className
+  let propertyNames =
+        frames & concatMap #replications & map #properties & concatMap Map.keys
   let objects =
-        frames & concatMap #replications & map #objectName & Set.fromList &
+        [objectNames, classNames, propertyNames] & concat & Set.fromList &
         Set.toAscList &
         map Text.Text &
         List.List
   let objectsToPosition = objects & #unpack & flip zip [0 ..] & Map.fromList
-  let classNames =
-        frames & concatMap #replications & map #className & Set.fromList &
-        Set.toAscList &
-        map Text.Text
   classes <-
-    classNames &
+    frames & concatMap #replications & map #className & Set.fromList &
+    Set.toAscList &
+    map Text.Text &
     mapM
       (\className ->
           case Map.lookup className objectsToPosition of
