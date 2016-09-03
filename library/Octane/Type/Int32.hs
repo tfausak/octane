@@ -34,7 +34,7 @@ import qualified Octane.Utility.Endian as Endian
 -- | A 32-bit signed integer.
 newtype Int32 = Int32
   { int32Unpack :: Int.Int32
-  } deriving (Eq, Generics.Generic, Num, Ord)
+  } deriving (Enum, Eq, Generics.Generic, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Int32)
 
