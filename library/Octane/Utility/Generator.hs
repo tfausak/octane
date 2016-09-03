@@ -87,7 +87,7 @@ putReplication context replication = do
   case #state replication of
     State.Opening -> putNewReplication context replication
     State.Existing -> putExistingReplication context replication
-    State.Closing -> putClosedReplication replication
+    State.Closing -> putClosedReplication
 
 putNewReplication :: Context -> Replication.Replication -> BinaryBit.BitPut ()
 putNewReplication context replication = do
@@ -110,8 +110,8 @@ putExistingReplication context replication = do
   False & Boolean.Boolean & BinaryBit.putBits 1 -- existing
   replication & #properties & Map.toAscList & mapM_ (putProperty context)
 
-putClosedReplication :: Replication.Replication -> BinaryBit.BitPut ()
-putClosedReplication _replication = do
+putClosedReplication :: BinaryBit.BitPut ()
+putClosedReplication = do
   False & Boolean.Boolean & BinaryBit.putBits 1 -- closed
 
 putProperty :: Context -> (StrictText.Text, Value.Value) -> BinaryBit.BitPut ()
