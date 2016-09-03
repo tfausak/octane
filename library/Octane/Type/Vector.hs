@@ -14,6 +14,7 @@ module Octane.Type.Vector
   , getFloatVector
   , getInt8Vector
   , getIntVector
+  , putFloatVector
   , putInt8Vector
   , putIntVector
   ) where
@@ -114,6 +115,11 @@ getIntVector = do
   dy <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
   dz <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
   pure (Vector (dx - bias) (dy - bias) (dz - bias))
+
+-- | Puts a 'Vector' full of 'Float's.
+putFloatVector :: Vector Float -> BinaryBit.BitPut ()
+putFloatVector _vector = do
+  pure () -- TODO
 
 -- | Puts a 'Vector' full of 'Int8's.
 putInt8Vector :: Vector Int8.Int8 -> BinaryBit.BitPut ()
