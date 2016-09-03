@@ -31,6 +31,7 @@ import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Stream as Stream
 import qualified Octane.Type.Text as Text
+import qualified Octane.Type.Value as Value
 
 data Context = Context
   { contextObjectMap :: Map.Map StrictText.Text Int32.Int32
@@ -85,7 +86,7 @@ putReplication context replication = do
   replication & #actorId & BinaryBit.putBits 0
   case #state replication of
     State.Opening -> putNewReplication context replication
-    State.Existing -> putExistingReplication replication
+    State.Existing -> putExistingReplication context replication
     State.Closing -> putClosedReplication replication
 
 putNewReplication :: Context -> Replication.Replication -> BinaryBit.BitPut ()
@@ -101,12 +102,20 @@ putNewReplication context replication = do
     Nothing -> pure ()
     Just x -> Initialization.putInitialization x
 
-putExistingReplication :: Replication.Replication -> BinaryBit.BitPut ()
-putExistingReplication _replication = do
+putExistingReplication :: Context
+                       -> Replication.Replication
+                       -> BinaryBit.BitPut ()
+putExistingReplication context replication = do
   True & Boolean.Boolean & BinaryBit.putBits 1 -- open
   False & Boolean.Boolean & BinaryBit.putBits 1 -- existing
-  pure () -- TODO: put props
+  replication & #properties & Map.toAscList & mapM_ (putProperty context)
 
 putClosedReplication :: Replication.Replication -> BinaryBit.BitPut ()
 putClosedReplication _replication = do
   False & Boolean.Boolean & BinaryBit.putBits 1 -- closed
+
+putProperty :: Context -> (StrictText.Text, Value.Value) -> BinaryBit.BitPut ()
+putProperty _context (_name, _value) = do
+  True & Boolean.Boolean & BinaryBit.putBits 1 -- has property
+  pure () -- TODO: get property id for name and put it
+  pure () -- TODO: put property value
