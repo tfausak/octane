@@ -32,7 +32,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.ReservationValue
   , module Octane.Type.Value.RigidBodyStateValue
   , module Octane.Type.Value.StringValue
-  , TeamPaintValue(..)
+  , module Octane.Type.Value.TeamPaintValue
   , UniqueIdValue(..)
   ) where
 
@@ -58,51 +58,16 @@ import Octane.Type.Value.RelativeRotationValue
 import Octane.Type.Value.ReservationValue
 import Octane.Type.Value.RigidBodyStateValue
 import Octane.Type.Value.StringValue
+import Octane.Type.Value.TeamPaintValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Bimap as Bimap
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
-import qualified Octane.Data as Data
 import qualified Octane.Type.RemoteId as RemoteId
-import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word8 as Word8
-
-getProduct :: Word32.Word32 -> Maybe StrictText.Text
-getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data TeamPaintValue = TeamPaintValue
-  { teamPaintValueTeam :: Word8.Word8
-  , teamPaintValuePrimaryColor :: Word8.Word8
-  , teamPaintValueAccentColor :: Word8.Word8
-  , teamPaintValuePrimaryFinish :: Word32.Word32
-  , teamPaintValueAccentFinish :: Word32.Word32
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData TeamPaintValue
-
-instance Aeson.ToJSON TeamPaintValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("Paint" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          [ "Team" .= #team x
-          , "PrimaryColor" .= #primaryColor x
-          , "AccentColor" .= #accentColor x
-          , "PrimaryFinish" .=
-            Aeson.object
-              [ "Id" .= #primaryFinish x
-              , "Name" .= getProduct (#primaryFinish x)
-              ]
-          , "AccentFinish" .=
-            Aeson.object
-              ["Id" .= #accentFinish x, "Name" .= getProduct (#accentFinish x)]
-          ]
-      ]
 
 data UniqueIdValue = UniqueIdValue
   { uniqueIdValueSystemId :: Word8.Word8
@@ -159,8 +124,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''TeamPaintValue
-    , ''UniqueIdValue
+    [ ''UniqueIdValue
     ])
 
 instance DeepSeq.NFData Value
