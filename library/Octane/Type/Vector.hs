@@ -118,7 +118,15 @@ getIntVector = do
 
 -- | Puts a 'Vector' full of 'Float's.
 putFloatVector :: Vector Float -> BinaryBit.BitPut ()
-putFloatVector _vector = do
+putFloatVector vector = do
+  let maxValue = 1
+  let numBits = 16
+  putFloat maxValue numBits (#x vector)
+  putFloat maxValue numBits (#y vector)
+  putFloat maxValue numBits (#z vector)
+
+putFloat :: Int -> Int -> Float -> BinaryBit.BitPut ()
+putFloat _maxValue _numBits _value = do
   pure () -- TODO
 
 -- | Puts a 'Vector' full of 'Int8's.
