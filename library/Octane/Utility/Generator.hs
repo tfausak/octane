@@ -53,14 +53,18 @@ generateStream
   -> List.List CacheItem.CacheItem
   -> Stream.Stream
 generateStream frames objects _names _classes _cache = do
-  let objectMap =
-        objects & #unpack & map #unpack & zip [0 ..] & map Tuple.swap &
-        Map.fromList
-  let context = Context objectMap
+  let context = makeContext objects
   let bitPut = putFrames context frames
   let bytePut = BinaryBit.runBitPut bitPut
   let bytes = Binary.runPut bytePut
   Stream.Stream bytes
+
+makeContext :: List.List Text.Text -> Context
+makeContext objects = do
+  let objectMap =
+        objects & #unpack & map #unpack & zip [0 ..] & map Tuple.swap &
+        Map.fromList
+  Context objectMap
 
 putFrames :: Context -> [Frame.Frame] -> BinaryBit.BitPut ()
 putFrames context frames = do
