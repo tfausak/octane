@@ -15,7 +15,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.ByteValue
   , module Octane.Type.Value.CamSettingsValue
   , module Octane.Type.Value.DemolishValue
-  , EnumValue(..)
+  , module Octane.Type.Value.EnumValue
   , ExplosionValue(..)
   , FlaggedIntValue(..)
   , FloatValue(..)
@@ -41,6 +41,7 @@ import Octane.Type.Value.BooleanValue
 import Octane.Type.Value.ByteValue
 import Octane.Type.Value.CamSettingsValue
 import Octane.Type.Value.DemolishValue
+import Octane.Type.Value.EnumValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -57,7 +58,6 @@ import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Type.RemoteId as RemoteId
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Vector as Vector
-import qualified Octane.Type.Word16 as Word16
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
@@ -67,20 +67,6 @@ getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data EnumValue = EnumValue
-  { enumValueValue :: Word16.Word16
-  , enumValueFlag :: Boolean.Boolean
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData EnumValue
-
-instance Aeson.ToJSON EnumValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("Enum" :: StrictText.Text)
-      , "Value" .= Aeson.object ["Value" .= #value x, "Flag" .= #flag x]
-      ]
 
 data ExplosionValue = ExplosionValue
   { explosionValueActorless :: Boolean.Boolean
@@ -442,8 +428,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''EnumValue
-    , ''ExplosionValue
+    [ ''ExplosionValue
     , ''FlaggedIntValue
     , ''FloatValue
     , ''GameModeValue
