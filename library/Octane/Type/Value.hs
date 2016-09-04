@@ -21,7 +21,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.FloatValue
   , module Octane.Type.Value.GameModeValue
   , module Octane.Type.Value.IntValue
-  , LoadoutValue(..)
+  , module Octane.Type.Value.LoadoutValue
   , LoadoutOnlineValue(..)
   , LocationValue(..)
   , MusicStingerValue(..)
@@ -47,6 +47,7 @@ import Octane.Type.Value.FlaggedIntValue
 import Octane.Type.Value.FloatValue
 import Octane.Type.Value.GameModeValue
 import Octane.Type.Value.IntValue
+import Octane.Type.Value.LoadoutValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -67,45 +68,6 @@ import qualified Octane.Type.Word8 as Word8
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data LoadoutValue = LoadoutValue
-  { loadoutValueVersion :: Word8.Word8
-  , loadoutValueBody :: Word32.Word32
-  , loadoutValueDecal :: Word32.Word32
-  , loadoutValueWheels :: Word32.Word32
-  , loadoutValueRocketTrail :: Word32.Word32
-  , loadoutValueAntenna :: Word32.Word32
-  , loadoutValueTopper :: Word32.Word32
-  , loadoutValueUnknown1 :: Word32.Word32
-  , loadoutValueUnknown2 :: Maybe Word32.Word32
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData LoadoutValue
-
-instance Aeson.ToJSON LoadoutValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("Loadout" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          [ "Version" .= #version x
-          , "Body" .=
-            Aeson.object ["Id" .= #body x, "Name" .= getProduct (#body x)]
-          , "Decal" .=
-            Aeson.object ["Id" .= #decal x, "Name" .= getProduct (#decal x)]
-          , "Wheels" .=
-            Aeson.object ["Id" .= #wheels x, "Name" .= getProduct (#wheels x)]
-          , "RocketTrail" .=
-            Aeson.object
-              ["Id" .= #rocketTrail x, "Name" .= getProduct (#rocketTrail x)]
-          , "Antenna" .=
-            Aeson.object ["Id" .= #antenna x, "Name" .= getProduct (#antenna x)]
-          , "Topper" .=
-            Aeson.object ["Id" .= #topper x, "Name" .= getProduct (#topper x)]
-          , "Unknown1" .= #unknown1 x
-          , "Unknown2" .= #unknown2 x
-          ]
-      ]
 
 newtype LoadoutOnlineValue = LoadoutOnlineValue
   { loadoutOnlineValueUnpack :: [[(Word32.Word32, CompressedWord.CompressedWord)]]
@@ -360,8 +322,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''LoadoutValue
-    , ''LoadoutOnlineValue
+    [ ''LoadoutOnlineValue
     , ''LocationValue
     , ''MusicStingerValue
     , ''PickupValue
