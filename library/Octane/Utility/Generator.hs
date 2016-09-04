@@ -24,6 +24,7 @@ import qualified Data.Tuple as Tuple
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
+import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.Int32 as Int32
@@ -40,6 +41,9 @@ import qualified Octane.Type.Word8 as Word8
 
 data Context = Context
   { contextObjectMap :: Map.Map StrictText.Text Int32.Int32
+    -- ^ { object name => object id }
+  , contextClassPropertyMap :: Map.Map StrictText.Text (Map.Map StrictText.Text CompressedWord.CompressedWord)
+    -- ^ { class name => { property name => property id } }
   }
 
 $(OverloadedRecords.overloadedRecord Default.def ''Context)
@@ -64,7 +68,8 @@ makeContext objects = do
   let objectMap =
         objects & #unpack & map #unpack & zip [0 ..] & map Tuple.swap &
         Map.fromList
-  Context objectMap
+  let classPropertyMap = Map.empty -- TODO
+  Context objectMap classPropertyMap
 
 putFrames :: Context -> [Frame.Frame] -> BinaryBit.BitPut ()
 putFrames context frames = do
@@ -117,16 +122,30 @@ putExistingReplication :: Context
 putExistingReplication context replication = do
   True & Boolean.Boolean & BinaryBit.putBits 1 -- open
   False & Boolean.Boolean & BinaryBit.putBits 1 -- existing
-  replication & #properties & Map.toAscList & mapM_ (putProperty context)
+  let className = #className replication
+  let properties = replication & #properties & Map.toAscList
+  mapM_ (putProperty context className) properties
 
 putClosedReplication :: BinaryBit.BitPut ()
 putClosedReplication = do
   False & Boolean.Boolean & BinaryBit.putBits 1 -- closed
 
-putProperty :: Context -> (StrictText.Text, Value.Value) -> BinaryBit.BitPut ()
-putProperty _context (_name, value) = do
+putProperty
+  :: Context
+  -> StrictText.Text
+  -> (StrictText.Text, Value.Value)
+  -> BinaryBit.BitPut ()
+putProperty context className (propertyName, value) = do
   True & Boolean.Boolean & BinaryBit.putBits 1 -- has property
-  pure () -- TODO: get property id for name and put it
+  case Map.lookup className (#classPropertyMap context) of
+    Nothing -> fail ("could not find properties for class " ++ show className)
+    Just properties ->
+      case Map.lookup propertyName properties of
+        Nothing ->
+          fail
+            ("could not find property id for name " ++
+             show propertyName ++ " in class " ++ show className)
+        Just propertyId -> BinaryBit.putBits 0 propertyId
   putValue value
 
 putValue :: Value.Value -> BinaryBit.BitPut ()
