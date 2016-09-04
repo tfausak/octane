@@ -13,7 +13,7 @@ module Octane.Type.Value
   ( Value(..)
   , module Octane.Type.Value.BooleanValue
   , module Octane.Type.Value.ByteValue
-  , CamSettingsValue(..)
+  , module Octane.Type.Value.CamSettingsValue
   , DemolishValue(..)
   , EnumValue(..)
   , ExplosionValue(..)
@@ -39,6 +39,7 @@ module Octane.Type.Value
 import Data.Aeson ((.=))
 import Octane.Type.Value.BooleanValue
 import Octane.Type.Value.ByteValue
+import Octane.Type.Value.CamSettingsValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -65,32 +66,6 @@ getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data CamSettingsValue = CamSettingsValue
-  { camSettingsValueFov :: Float32.Float32
-  , camSettingsValueHeight :: Float32.Float32
-  , camSettingsValueAngle :: Float32.Float32
-  , camSettingsValueDistance :: Float32.Float32
-  , camSettingsValueStiffness :: Float32.Float32
-  , camSettingsValueSwivelSpeed :: Float32.Float32
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData CamSettingsValue
-
-instance Aeson.ToJSON CamSettingsValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("CameraSettings" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          [ "FOV" .= #fov x
-          , "Height" .= #height x
-          , "Angle" .= #angle x
-          , "Distance" .= #distance x
-          , "Stiffness" .= #stiffness x
-          , "SwivelSpeed" .= #swivelSpeed x
-          ]
-      ]
 
 data DemolishValue = DemolishValue
   { demolishValueAttackerFlag :: Boolean.Boolean
@@ -492,8 +467,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''CamSettingsValue
-    , ''DemolishValue
+    [ ''DemolishValue
     , ''EnumValue
     , ''ExplosionValue
     , ''FlaggedIntValue
