@@ -31,7 +31,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.RelativeRotationValue
   , module Octane.Type.Value.ReservationValue
   , module Octane.Type.Value.RigidBodyStateValue
-  , StringValue(..)
+  , module Octane.Type.Value.StringValue
   , TeamPaintValue(..)
   , UniqueIdValue(..)
   ) where
@@ -57,6 +57,7 @@ import Octane.Type.Value.QWordValue
 import Octane.Type.Value.RelativeRotationValue
 import Octane.Type.Value.ReservationValue
 import Octane.Type.Value.RigidBodyStateValue
+import Octane.Type.Value.StringValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -67,22 +68,11 @@ import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.RemoteId as RemoteId
-import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word8 as Word8
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-newtype StringValue = StringValue
-  { stringValueUnpack :: Text.Text
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData StringValue
-
-instance Aeson.ToJSON StringValue where
-  toJSON x =
-    Aeson.object ["Type" .= ("String" :: StrictText.Text), "Value" .= #unpack x]
 
 data TeamPaintValue = TeamPaintValue
   { teamPaintValueTeam :: Word8.Word8
@@ -169,8 +159,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''StringValue
-    , ''TeamPaintValue
+    [ ''TeamPaintValue
     , ''UniqueIdValue
     ])
 
