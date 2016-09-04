@@ -26,7 +26,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.LocationValue
   , module Octane.Type.Value.MusicStingerValue
   , module Octane.Type.Value.PickupValue
-  , PrivateMatchSettingsValue(..)
+  , module Octane.Type.Value.PrivateMatchSettingsValue
   , QWordValue(..)
   , RelativeRotationValue(..)
   , ReservationValue(..)
@@ -52,6 +52,7 @@ import Octane.Type.Value.LoadoutOnlineValue
 import Octane.Type.Value.LocationValue
 import Octane.Type.Value.MusicStingerValue
 import Octane.Type.Value.PickupValue
+import Octane.Type.Value.PrivateMatchSettingsValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -72,32 +73,6 @@ import qualified Octane.Type.Word8 as Word8
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data PrivateMatchSettingsValue = PrivateMatchSettingsValue
-  { privateMatchSettingsValueMutators :: Text.Text
-  , privateMatchSettingsValueJoinableBy :: Word32.Word32
-  , privateMatchSettingsValueMaxPlayers :: Word32.Word32
-  , privateMatchSettingsValueGameName :: Text.Text
-  , privateMatchSettingsValuePassword :: Text.Text
-  , privateMatchSettingsValueFlag :: Boolean.Boolean
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData PrivateMatchSettingsValue
-
-instance Aeson.ToJSON PrivateMatchSettingsValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("PrivateMatchSettings" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          [ "Mutators" .= #mutators x
-          , "JoinableBy" .= #joinableBy x
-          , "MaxPlayers" .= #maxPlayers x
-          , "Name" .= #gameName x
-          , "Password" .= #password x
-          , "Unknown" .= #flag x
-          ]
-      ]
 
 newtype QWordValue = QWordValue
   { qWordValueUnpack :: Word64.Word64
@@ -267,8 +242,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''PrivateMatchSettingsValue
-    , ''QWordValue
+    [ ''QWordValue
     , ''RelativeRotationValue
     , ''ReservationValue
     , ''RigidBodyStateValue
