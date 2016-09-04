@@ -26,11 +26,11 @@ newtype LocationValue = LocationValue
   { locationValueUnpack :: Vector.Vector Int
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''LocationValue)
+
 instance DeepSeq.NFData LocationValue
 
 instance Aeson.ToJSON LocationValue where
   toJSON x =
     Aeson.object
       ["Type" .= ("Position" :: StrictText.Text), "Value" .= #unpack x]
-
-$(OverloadedRecords.overloadedRecord Default.def ''LocationValue)

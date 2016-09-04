@@ -30,6 +30,8 @@ data UniqueIdValue = UniqueIdValue
   , uniqueIdValueLocalId :: Maybe Word8.Word8
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''UniqueIdValue)
+
 instance DeepSeq.NFData UniqueIdValue
 
 instance Aeson.ToJSON UniqueIdValue where
@@ -49,5 +51,3 @@ instance Aeson.ToJSON UniqueIdValue where
           , "Local" .= #localId x
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''UniqueIdValue)

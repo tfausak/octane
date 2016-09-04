@@ -26,10 +26,10 @@ newtype FloatValue = FloatValue
   { floatValueUnpack :: Float32.Float32
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''FloatValue)
+
 instance DeepSeq.NFData FloatValue
 
 instance Aeson.ToJSON FloatValue where
   toJSON x =
     Aeson.object ["Type" .= ("Float" :: StrictText.Text), "Value" .= #unpack x]
-
-$(OverloadedRecords.overloadedRecord Default.def ''FloatValue)

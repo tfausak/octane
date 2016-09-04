@@ -32,6 +32,8 @@ data CamSettingsValue = CamSettingsValue
   , camSettingsValueSwivelSpeed :: Float32.Float32
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''CamSettingsValue)
+
 instance DeepSeq.NFData CamSettingsValue
 
 instance Aeson.ToJSON CamSettingsValue where
@@ -48,5 +50,3 @@ instance Aeson.ToJSON CamSettingsValue where
           , "SwivelSpeed" .= #swivelSpeed x
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''CamSettingsValue)

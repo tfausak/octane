@@ -34,6 +34,8 @@ data PrivateMatchSettingsValue = PrivateMatchSettingsValue
   , privateMatchSettingsValueFlag :: Boolean.Boolean
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''PrivateMatchSettingsValue)
+
 instance DeepSeq.NFData PrivateMatchSettingsValue
 
 instance Aeson.ToJSON PrivateMatchSettingsValue where
@@ -50,5 +52,3 @@ instance Aeson.ToJSON PrivateMatchSettingsValue where
           , "Unknown" .= #flag x
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''PrivateMatchSettingsValue)

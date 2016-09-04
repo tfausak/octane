@@ -26,10 +26,10 @@ newtype QWordValue = QWordValue
   { qWordValueUnpack :: Word64.Word64
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''QWordValue)
+
 instance DeepSeq.NFData QWordValue
 
 instance Aeson.ToJSON QWordValue where
   toJSON x =
     Aeson.object ["Type" .= ("QWord" :: StrictText.Text), "Value" .= #unpack x]
-
-$(OverloadedRecords.overloadedRecord Default.def ''QWordValue)

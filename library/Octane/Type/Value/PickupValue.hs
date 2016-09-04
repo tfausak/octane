@@ -30,6 +30,8 @@ data PickupValue = PickupValue
   , pickupValuePickedUp :: Boolean.Boolean
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''PickupValue)
+
 instance DeepSeq.NFData PickupValue
 
 instance Aeson.ToJSON PickupValue where
@@ -43,5 +45,3 @@ instance Aeson.ToJSON PickupValue where
           , "PickedUp" .= #pickedUp x
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''PickupValue)

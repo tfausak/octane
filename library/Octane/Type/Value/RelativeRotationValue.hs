@@ -26,11 +26,11 @@ newtype RelativeRotationValue = RelativeRotationValue
   { relativeRotationValueUnpack :: Vector.Vector Float
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''RelativeRotationValue)
+
 instance DeepSeq.NFData RelativeRotationValue
 
 instance Aeson.ToJSON RelativeRotationValue where
   toJSON x =
     Aeson.object
       ["Type" .= ("RelativeRotation" :: StrictText.Text), "Value" .= #unpack x]
-
-$(OverloadedRecords.overloadedRecord Default.def ''RelativeRotationValue)

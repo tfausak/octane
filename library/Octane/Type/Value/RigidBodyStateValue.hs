@@ -32,6 +32,8 @@ data RigidBodyStateValue = RigidBodyStateValue
   , rigidBodyStateValueAngularVelocity :: Maybe (Vector.Vector Int)
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''RigidBodyStateValue)
+
 instance DeepSeq.NFData RigidBodyStateValue
 
 instance Aeson.ToJSON RigidBodyStateValue where
@@ -47,5 +49,3 @@ instance Aeson.ToJSON RigidBodyStateValue where
           , "AngularVelocity" .= #angularVelocity x
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''RigidBodyStateValue)

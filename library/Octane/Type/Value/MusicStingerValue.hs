@@ -31,6 +31,8 @@ data MusicStingerValue = MusicStingerValue
   , musicStingerValueTrigger :: Word8.Word8
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''MusicStingerValue)
+
 instance DeepSeq.NFData MusicStingerValue
 
 instance Aeson.ToJSON MusicStingerValue where
@@ -41,5 +43,3 @@ instance Aeson.ToJSON MusicStingerValue where
         Aeson.object
           ["Flag" .= #flag x, "Cue" .= #cue x, "Trigger" .= #trigger x]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''MusicStingerValue)

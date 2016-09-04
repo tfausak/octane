@@ -41,6 +41,8 @@ data LoadoutValue = LoadoutValue
   , loadoutValueUnknown2 :: Maybe Word32.Word32
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''LoadoutValue)
+
 instance DeepSeq.NFData LoadoutValue
 
 instance Aeson.ToJSON LoadoutValue where
@@ -67,5 +69,3 @@ instance Aeson.ToJSON LoadoutValue where
           , "Unknown2" .= #unknown2 x
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''LoadoutValue)

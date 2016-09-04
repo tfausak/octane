@@ -26,10 +26,10 @@ newtype StringValue = StringValue
   { stringValueUnpack :: Text.Text
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''StringValue)
+
 instance DeepSeq.NFData StringValue
 
 instance Aeson.ToJSON StringValue where
   toJSON x =
     Aeson.object ["Type" .= ("String" :: StrictText.Text), "Value" .= #unpack x]
-
-$(OverloadedRecords.overloadedRecord Default.def ''StringValue)

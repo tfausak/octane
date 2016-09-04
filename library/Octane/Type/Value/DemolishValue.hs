@@ -34,6 +34,8 @@ data DemolishValue = DemolishValue
   , demolishValueVictimVelocity :: Vector.Vector Int
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''DemolishValue)
+
 instance DeepSeq.NFData DemolishValue
 
 instance Aeson.ToJSON DemolishValue where
@@ -50,5 +52,3 @@ instance Aeson.ToJSON DemolishValue where
           , "VictimVelocity" .= #victimVelocity x
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''DemolishValue)

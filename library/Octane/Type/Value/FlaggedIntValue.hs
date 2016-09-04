@@ -29,6 +29,8 @@ data FlaggedIntValue = FlaggedIntValue
   , flaggedIntValueInt :: Int32.Int32
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''FlaggedIntValue)
+
 instance DeepSeq.NFData FlaggedIntValue
 
 instance Aeson.ToJSON FlaggedIntValue where
@@ -37,5 +39,3 @@ instance Aeson.ToJSON FlaggedIntValue where
       [ "Type" .= ("FlaggedInt" :: StrictText.Text)
       , "Value" .= Aeson.object ["Flag" .= #flag x, "Int" .= #int x]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''FlaggedIntValue)

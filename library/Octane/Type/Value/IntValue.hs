@@ -26,10 +26,10 @@ newtype IntValue = IntValue
   { intValueUnpack :: Int32.Int32
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''IntValue)
+
 instance DeepSeq.NFData IntValue
 
 instance Aeson.ToJSON IntValue where
   toJSON x =
     Aeson.object ["Type" .= ("Int" :: StrictText.Text), "Value" .= #unpack x]
-
-$(OverloadedRecords.overloadedRecord Default.def ''IntValue)

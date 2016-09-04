@@ -31,6 +31,8 @@ data ExplosionValue = ExplosionValue
   , explosionValuePosition :: Vector.Vector Int
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''ExplosionValue)
+
 instance DeepSeq.NFData ExplosionValue
 
 instance Aeson.ToJSON ExplosionValue where
@@ -44,5 +46,3 @@ instance Aeson.ToJSON ExplosionValue where
           , "Position" .= #position x
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''ExplosionValue)

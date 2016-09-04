@@ -37,6 +37,8 @@ data ReservationValue = ReservationValue
   , reservationValueUnknown2 :: Boolean.Boolean
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''ReservationValue)
+
 instance DeepSeq.NFData ReservationValue
 
 instance Aeson.ToJSON ReservationValue where
@@ -54,5 +56,3 @@ instance Aeson.ToJSON ReservationValue where
           , "Unknown2" .= #unknown2 x
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''ReservationValue)

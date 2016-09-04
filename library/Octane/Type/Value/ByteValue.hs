@@ -26,10 +26,10 @@ newtype ByteValue = ByteValue
   { byteValueUnpack :: Word8.Word8
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''ByteValue)
+
 instance DeepSeq.NFData ByteValue
 
 instance Aeson.ToJSON ByteValue where
   toJSON x =
     Aeson.object ["Type" .= ("Byte" :: StrictText.Text), "Value" .= #unpack x]
-
-$(OverloadedRecords.overloadedRecord Default.def ''ByteValue)

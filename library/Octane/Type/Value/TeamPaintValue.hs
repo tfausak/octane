@@ -37,6 +37,8 @@ data TeamPaintValue = TeamPaintValue
   , teamPaintValueAccentFinish :: Word32.Word32
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''TeamPaintValue)
+
 instance DeepSeq.NFData TeamPaintValue
 
 instance Aeson.ToJSON TeamPaintValue where
@@ -58,5 +60,3 @@ instance Aeson.ToJSON TeamPaintValue where
               ["Id" .= #accentFinish x, "Name" .= getProduct (#accentFinish x)]
           ]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''TeamPaintValue)

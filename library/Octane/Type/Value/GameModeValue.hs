@@ -31,6 +31,8 @@ newtype GameModeValue = GameModeValue
   { gameModeValueUnpack :: Word8.Word8
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''GameModeValue)
+
 instance DeepSeq.NFData GameModeValue
 
 instance Aeson.ToJSON GameModeValue where
@@ -40,5 +42,3 @@ instance Aeson.ToJSON GameModeValue where
       , "Value" .=
         Aeson.object ["Id" .= #unpack x, "Name" .= getGameMode (#unpack x)]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''GameModeValue)

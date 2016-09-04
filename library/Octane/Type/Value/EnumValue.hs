@@ -29,6 +29,8 @@ data EnumValue = EnumValue
   , enumValueFlag :: Boolean.Boolean
   } deriving (Eq, Generics.Generic, Show)
 
+$(OverloadedRecords.overloadedRecord Default.def ''EnumValue)
+
 instance DeepSeq.NFData EnumValue
 
 instance Aeson.ToJSON EnumValue where
@@ -37,5 +39,3 @@ instance Aeson.ToJSON EnumValue where
       [ "Type" .= ("Enum" :: StrictText.Text)
       , "Value" .= Aeson.object ["Value" .= #value x, "Flag" .= #flag x]
       ]
-
-$(OverloadedRecords.overloadedRecord Default.def ''EnumValue)
