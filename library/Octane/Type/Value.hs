@@ -24,7 +24,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.LoadoutValue
   , module Octane.Type.Value.LoadoutOnlineValue
   , module Octane.Type.Value.LocationValue
-  , MusicStingerValue(..)
+  , module Octane.Type.Value.MusicStingerValue
   , PickupValue(..)
   , PrivateMatchSettingsValue(..)
   , QWordValue(..)
@@ -50,6 +50,7 @@ import Octane.Type.Value.IntValue
 import Octane.Type.Value.LoadoutValue
 import Octane.Type.Value.LoadoutOnlineValue
 import Octane.Type.Value.LocationValue
+import Octane.Type.Value.MusicStingerValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -70,23 +71,6 @@ import qualified Octane.Type.Word8 as Word8
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data MusicStingerValue = MusicStingerValue
-  { musicStingerValueFlag :: Boolean.Boolean
-  , musicStingerValueCue :: Word32.Word32
-  , musicStingerValueTrigger :: Word8.Word8
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData MusicStingerValue
-
-instance Aeson.ToJSON MusicStingerValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("MusicStinger" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          ["Flag" .= #flag x, "Cue" .= #cue x, "Trigger" .= #trigger x]
-      ]
 
 data PickupValue = PickupValue
   { pickupValueHasInstigator :: Boolean.Boolean
@@ -302,8 +286,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''MusicStingerValue
-    , ''PickupValue
+    [ ''PickupValue
     , ''PrivateMatchSettingsValue
     , ''QWordValue
     , ''RelativeRotationValue
