@@ -126,8 +126,17 @@ putFloatVector vector = do
   putFloat maxValue numBits (#z vector)
 
 putFloat :: Int -> Int -> Float -> BinaryBit.BitPut ()
-putFloat _maxValue _numBits _value = do
-  pure () -- TODO
+putFloat maxValue numBits value = do
+  let serIntMax = Bits.shiftL 1 numBits
+  let bias = Bits.shiftL 1 (numBits - 1)
+  let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
+  let invScale =
+        if maxValue > maxBitValue
+          then fromIntegral maxValue / fromIntegral maxBitValue
+          else 1.0 / (fromIntegral maxBitValue / fromIntegral maxValue)
+  let unscaledValue = value / invScale
+  let delta = round unscaledValue + bias
+  BinaryBit.putBits 0 (CompressedWord.CompressedWord serIntMax delta)
 
 -- | Puts a 'Vector' full of 'Int8's.
 putInt8Vector :: Vector Int8.Int8 -> BinaryBit.BitPut ()
