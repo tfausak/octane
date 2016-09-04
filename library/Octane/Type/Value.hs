@@ -11,7 +11,7 @@
 
 module Octane.Type.Value
   ( Value(..)
-  , BooleanValue(..)
+  , module Octane.Type.Value.BooleanValue
   , ByteValue(..)
   , CamSettingsValue(..)
   , DemolishValue(..)
@@ -37,6 +37,7 @@ module Octane.Type.Value
   ) where
 
 import Data.Aeson ((.=))
+import Octane.Type.Value.BooleanValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -63,17 +64,6 @@ getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-newtype BooleanValue = BooleanValue
-  { booleanValueUnpack :: Boolean.Boolean
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData BooleanValue
-
-instance Aeson.ToJSON BooleanValue where
-  toJSON x =
-    Aeson.object
-      ["Type" .= ("Boolean" :: StrictText.Text), "Value" .= #unpack x]
 
 newtype ByteValue = ByteValue
   { byteValueUnpack :: Word8.Word8
@@ -511,8 +501,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''BooleanValue
-    , ''ByteValue
+    [ ''ByteValue
     , ''CamSettingsValue
     , ''DemolishValue
     , ''EnumValue
