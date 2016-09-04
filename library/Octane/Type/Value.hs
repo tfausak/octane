@@ -1,13 +1,5 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
 
 module Octane.Type.Value
   ( Value(..)
@@ -33,10 +25,9 @@ module Octane.Type.Value
   , module Octane.Type.Value.RigidBodyStateValue
   , module Octane.Type.Value.StringValue
   , module Octane.Type.Value.TeamPaintValue
-  , UniqueIdValue(..)
+  , module Octane.Type.Value.UniqueIdValue
   ) where
 
-import Data.Aeson ((.=))
 import Octane.Type.Value.BooleanValue
 import Octane.Type.Value.ByteValue
 import Octane.Type.Value.CamSettingsValue
@@ -59,41 +50,11 @@ import Octane.Type.Value.ReservationValue
 import Octane.Type.Value.RigidBodyStateValue
 import Octane.Type.Value.StringValue
 import Octane.Type.Value.TeamPaintValue
+import Octane.Type.Value.UniqueIdValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Default.Class as Default
-import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
-import qualified Octane.Type.RemoteId as RemoteId
-import qualified Octane.Type.Word8 as Word8
-
-data UniqueIdValue = UniqueIdValue
-  { uniqueIdValueSystemId :: Word8.Word8
-  , uniqueIdValueRemoteId :: RemoteId.RemoteId
-  , uniqueIdValueLocalId :: Maybe Word8.Word8
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData UniqueIdValue
-
-instance Aeson.ToJSON UniqueIdValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("UniqueId" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          [ "System" .=
-            case #systemId x of
-              0 -> "Local"
-              1 -> "Steam"
-              2 -> "PlayStation"
-              4 -> "Xbox"
-              y -> "Unknown system " ++ show y
-          , "Remote" .= #remoteId x
-          , "Local" .= #localId x
-          ]
-      ]
 
 -- | A replicated property's value.
 data Value
@@ -121,11 +82,6 @@ data Value
   | ValueTeamPaint TeamPaintValue
   | ValueUniqueId UniqueIdValue
   deriving (Eq, Generics.Generic, Show)
-
-$(OverloadedRecords.overloadedRecords
-    Default.def
-    [ ''UniqueIdValue
-    ])
 
 instance DeepSeq.NFData Value
 
