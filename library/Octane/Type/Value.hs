@@ -22,7 +22,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.GameModeValue
   , module Octane.Type.Value.IntValue
   , module Octane.Type.Value.LoadoutValue
-  , LoadoutOnlineValue(..)
+  , module Octane.Type.Value.LoadoutOnlineValue
   , LocationValue(..)
   , MusicStingerValue(..)
   , PickupValue(..)
@@ -48,6 +48,7 @@ import Octane.Type.Value.FloatValue
 import Octane.Type.Value.GameModeValue
 import Octane.Type.Value.IntValue
 import Octane.Type.Value.LoadoutValue
+import Octane.Type.Value.LoadoutOnlineValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -68,17 +69,6 @@ import qualified Octane.Type.Word8 as Word8
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-newtype LoadoutOnlineValue = LoadoutOnlineValue
-  { loadoutOnlineValueUnpack :: [[(Word32.Word32, CompressedWord.CompressedWord)]]
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData LoadoutOnlineValue
-
-instance Aeson.ToJSON LoadoutOnlineValue where
-  toJSON x =
-    Aeson.object
-      ["Type" .= ("OnlineLoadout" :: StrictText.Text), "Value" .= #unpack x]
 
 newtype LocationValue = LocationValue
   { locationValueUnpack :: Vector.Vector Int
@@ -322,8 +312,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''LoadoutOnlineValue
-    , ''LocationValue
+    [ ''LocationValue
     , ''MusicStingerValue
     , ''PickupValue
     , ''PrivateMatchSettingsValue
