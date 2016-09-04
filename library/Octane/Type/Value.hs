@@ -25,7 +25,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.LoadoutOnlineValue
   , module Octane.Type.Value.LocationValue
   , module Octane.Type.Value.MusicStingerValue
-  , PickupValue(..)
+  , module Octane.Type.Value.PickupValue
   , PrivateMatchSettingsValue(..)
   , QWordValue(..)
   , RelativeRotationValue(..)
@@ -51,6 +51,7 @@ import Octane.Type.Value.LoadoutValue
 import Octane.Type.Value.LoadoutOnlineValue
 import Octane.Type.Value.LocationValue
 import Octane.Type.Value.MusicStingerValue
+import Octane.Type.Value.PickupValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -71,26 +72,6 @@ import qualified Octane.Type.Word8 as Word8
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data PickupValue = PickupValue
-  { pickupValueHasInstigator :: Boolean.Boolean
-  , pickupValueInstigatorId :: Maybe Word32.Word32
-  , pickupValuePickedUp :: Boolean.Boolean
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData PickupValue
-
-instance Aeson.ToJSON PickupValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("Pickup" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          [ "HasInstigator" .= #hasInstigator x
-          , "InstigatorId" .= #instigatorId x
-          , "PickedUp" .= #pickedUp x
-          ]
-      ]
 
 data PrivateMatchSettingsValue = PrivateMatchSettingsValue
   { privateMatchSettingsValueMutators :: Text.Text
@@ -286,8 +267,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''PickupValue
-    , ''PrivateMatchSettingsValue
+    [ ''PrivateMatchSettingsValue
     , ''QWordValue
     , ''RelativeRotationValue
     , ''ReservationValue
