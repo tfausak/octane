@@ -18,7 +18,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.EnumValue
   , module Octane.Type.Value.ExplosionValue
   , module Octane.Type.Value.FlaggedIntValue
-  , FloatValue(..)
+  , module Octane.Type.Value.FloatValue
   , GameModeValue(..)
   , IntValue(..)
   , LoadoutValue(..)
@@ -44,6 +44,7 @@ import Octane.Type.Value.DemolishValue
 import Octane.Type.Value.EnumValue
 import Octane.Type.Value.ExplosionValue
 import Octane.Type.Value.FlaggedIntValue
+import Octane.Type.Value.FloatValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -55,7 +56,6 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
-import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Type.RemoteId as RemoteId
 import qualified Octane.Type.Text as Text
@@ -69,16 +69,6 @@ getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-newtype FloatValue = FloatValue
-  { floatValueUnpack :: Float32.Float32
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData FloatValue
-
-instance Aeson.ToJSON FloatValue where
-  toJSON x =
-    Aeson.object ["Type" .= ("Float" :: StrictText.Text), "Value" .= #unpack x]
 
 newtype GameModeValue = GameModeValue
   { gameModeValueUnpack :: Word8.Word8
@@ -396,8 +386,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''FloatValue
-    , ''GameModeValue
+    [ ''GameModeValue
     , ''IntValue
     , ''LoadoutValue
     , ''LoadoutOnlineValue
