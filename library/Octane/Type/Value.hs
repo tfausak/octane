@@ -29,7 +29,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.PrivateMatchSettingsValue
   , module Octane.Type.Value.QWordValue
   , module Octane.Type.Value.RelativeRotationValue
-  , ReservationValue(..)
+  , module Octane.Type.Value.ReservationValue
   , RigidBodyStateValue(..)
   , StringValue(..)
   , TeamPaintValue(..)
@@ -55,6 +55,7 @@ import Octane.Type.Value.PickupValue
 import Octane.Type.Value.PrivateMatchSettingsValue
 import Octane.Type.Value.QWordValue
 import Octane.Type.Value.RelativeRotationValue
+import Octane.Type.Value.ReservationValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -65,7 +66,6 @@ import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
-import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.RemoteId as RemoteId
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Vector as Vector
@@ -74,34 +74,6 @@ import qualified Octane.Type.Word8 as Word8
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data ReservationValue = ReservationValue
-  { reservationValueNumber :: CompressedWord.CompressedWord
-  , reservationValueSystemId :: Word8.Word8
-  , reservationValueRemoteId :: RemoteId.RemoteId
-  , reservationValueLocalId :: Maybe Word8.Word8
-  , reservationValuePlayerName :: Maybe Text.Text
-  , reservationValueUnknown1 :: Boolean.Boolean
-  , reservationValueUnknown2 :: Boolean.Boolean
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData ReservationValue
-
-instance Aeson.ToJSON ReservationValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("Reservation" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          [ "Number" .= #number x
-          , "SystemId" .= #systemId x
-          , "RemoteId" .= #remoteId x
-          , "LocalId" .= #localId x
-          , "Name" .= #playerName x
-          , "Unknown1" .= #unknown1 x
-          , "Unknown2" .= #unknown2 x
-          ]
-      ]
 
 data RigidBodyStateValue = RigidBodyStateValue
   { rigidBodyStateValueSleeping :: Boolean.Boolean
@@ -222,8 +194,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''ReservationValue
-    , ''RigidBodyStateValue
+    [ ''RigidBodyStateValue
     , ''StringValue
     , ''TeamPaintValue
     , ''UniqueIdValue
