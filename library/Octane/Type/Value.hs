@@ -30,7 +30,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.QWordValue
   , module Octane.Type.Value.RelativeRotationValue
   , module Octane.Type.Value.ReservationValue
-  , RigidBodyStateValue(..)
+  , module Octane.Type.Value.RigidBodyStateValue
   , StringValue(..)
   , TeamPaintValue(..)
   , UniqueIdValue(..)
@@ -56,6 +56,7 @@ import Octane.Type.Value.PrivateMatchSettingsValue
 import Octane.Type.Value.QWordValue
 import Octane.Type.Value.RelativeRotationValue
 import Octane.Type.Value.ReservationValue
+import Octane.Type.Value.RigidBodyStateValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -65,39 +66,13 @@ import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
-import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.RemoteId as RemoteId
 import qualified Octane.Type.Text as Text
-import qualified Octane.Type.Vector as Vector
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word8 as Word8
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data RigidBodyStateValue = RigidBodyStateValue
-  { rigidBodyStateValueSleeping :: Boolean.Boolean
-  , rigidBodyStateValuePosition :: Vector.Vector Int
-  , rigidBodyStateValueRotation :: Vector.Vector Float
-  , rigidBodyStateValueLinearVelocity :: Maybe (Vector.Vector Int)
-  , rigidBodyStateValueAngularVelocity :: Maybe (Vector.Vector Int)
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData RigidBodyStateValue
-
-instance Aeson.ToJSON RigidBodyStateValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("RigidBodyState" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          [ "Sleeping" .= #sleeping x
-          , "Position" .= #position x
-          , "Rotation" .= #rotation x
-          , "LinearVelocity" .= #linearVelocity x
-          , "AngularVelocity" .= #angularVelocity x
-          ]
-      ]
 
 newtype StringValue = StringValue
   { stringValueUnpack :: Text.Text
@@ -194,8 +169,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''RigidBodyStateValue
-    , ''StringValue
+    [ ''StringValue
     , ''TeamPaintValue
     , ''UniqueIdValue
     ])
