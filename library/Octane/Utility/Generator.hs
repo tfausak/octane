@@ -37,6 +37,7 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Value as Value
 import qualified Octane.Type.Vector as Vector
 import qualified Octane.Type.Word16 as Word16
+import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word8 as Word8
 
 data Context = Context
@@ -56,19 +57,55 @@ generateStream
   -> List.List ClassItem.ClassItem
   -> List.List CacheItem.CacheItem
   -> Stream.Stream
-generateStream frames objects _names _classes _cache = do
-  let context = makeContext objects
+generateStream frames objects _names _classes cache = do
+  let context = makeContext objects cache
   let bitPut = putFrames context frames
   let bytePut = BinaryBit.runBitPut bitPut
   let bytes = Binary.runPut bytePut
   Stream.Stream bytes
 
-makeContext :: List.List Text.Text -> Context
-makeContext objects = do
+makeContext :: List.List Text.Text -> List.List CacheItem.CacheItem -> Context
+makeContext objects cache = do
   let objectMap =
         objects & #unpack & map #unpack & zip [0 ..] & map Tuple.swap &
         Map.fromList
-  let classPropertyMap = Map.empty -- TODO
+  let classPropertyMap =
+        cache & #unpack &
+        map
+          (\cacheItem -> do
+             let className =
+                   case objectMap & Map.assocs & map Tuple.swap & Map.fromList &
+                        Map.lookup
+                          (cacheItem & #classId & Word32.fromWord32 &
+                           (\x -> x :: Int) &
+                           Int32.toInt32) of
+                     Nothing ->
+                       error ("could not find class id for " ++ show className)
+                     Just name -> name
+             let properties =
+                   cacheItem & #properties & #unpack &
+                   map
+                     (\cacheProperty -> do
+                        let propertyName =
+                              case objectMap & Map.assocs & map Tuple.swap &
+                                   Map.fromList &
+                                   Map.lookup
+                                     (cacheProperty & #objectId &
+                                      Word32.fromWord32 &
+                                      (\x -> x :: Int) &
+                                      Int32.toInt32) of
+                                Nothing ->
+                                  error
+                                    ("coult not find property id for " ++
+                                     show propertyName)
+                                Just name -> name
+                        let propertyId =
+                              cacheProperty & #streamId & Word32.fromWord32 &
+                              CompressedWord.CompressedWord (2 ^ (32 :: Word))
+                        (propertyName, propertyId)) &
+                   Map.fromList
+             (className, properties)) &
+        Map.fromList
   Context objectMap classPropertyMap
 
 putFrames :: Context -> [Frame.Frame] -> BinaryBit.BitPut ()
