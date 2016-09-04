@@ -27,7 +27,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.MusicStingerValue
   , module Octane.Type.Value.PickupValue
   , module Octane.Type.Value.PrivateMatchSettingsValue
-  , QWordValue(..)
+  , module Octane.Type.Value.QWordValue
   , RelativeRotationValue(..)
   , ReservationValue(..)
   , RigidBodyStateValue(..)
@@ -53,6 +53,7 @@ import Octane.Type.Value.LocationValue
 import Octane.Type.Value.MusicStingerValue
 import Octane.Type.Value.PickupValue
 import Octane.Type.Value.PrivateMatchSettingsValue
+import Octane.Type.Value.QWordValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -68,21 +69,10 @@ import qualified Octane.Type.RemoteId as RemoteId
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Vector as Vector
 import qualified Octane.Type.Word32 as Word32
-import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-newtype QWordValue = QWordValue
-  { qWordValueUnpack :: Word64.Word64
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData QWordValue
-
-instance Aeson.ToJSON QWordValue where
-  toJSON x =
-    Aeson.object ["Type" .= ("QWord" :: StrictText.Text), "Value" .= #unpack x]
 
 newtype RelativeRotationValue = RelativeRotationValue
   { relativeRotationValueUnpack :: Vector.Vector Float
@@ -242,8 +232,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''QWordValue
-    , ''RelativeRotationValue
+    [ ''RelativeRotationValue
     , ''ReservationValue
     , ''RigidBodyStateValue
     , ''StringValue
