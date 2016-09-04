@@ -16,7 +16,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.CamSettingsValue
   , module Octane.Type.Value.DemolishValue
   , module Octane.Type.Value.EnumValue
-  , ExplosionValue(..)
+  , module Octane.Type.Value.ExplosionValue
   , FlaggedIntValue(..)
   , FloatValue(..)
   , GameModeValue(..)
@@ -42,6 +42,7 @@ import Octane.Type.Value.ByteValue
 import Octane.Type.Value.CamSettingsValue
 import Octane.Type.Value.DemolishValue
 import Octane.Type.Value.EnumValue
+import Octane.Type.Value.ExplosionValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -67,26 +68,6 @@ getGameMode x = Bimap.lookup (Word8.fromWord8 x) Data.gameModes
 
 getProduct :: Word32.Word32 -> Maybe StrictText.Text
 getProduct x = Bimap.lookup (Word32.fromWord32 x) Data.products
-
-data ExplosionValue = ExplosionValue
-  { explosionValueActorless :: Boolean.Boolean
-  , explosionValueActorId :: Maybe Int32.Int32
-  , explosionValuePosition :: Vector.Vector Int
-  } deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData ExplosionValue
-
-instance Aeson.ToJSON ExplosionValue where
-  toJSON x =
-    Aeson.object
-      [ "Type" .= ("Explosion" :: StrictText.Text)
-      , "Value" .=
-        Aeson.object
-          [ "Actorless" .= #actorless x
-          , "ActorId" .= #actorId x
-          , "Position" .= #position x
-          ]
-      ]
 
 data FlaggedIntValue = FlaggedIntValue
   { flaggedIntValueFlag :: Boolean.Boolean
@@ -428,8 +409,7 @@ data Value
 
 $(OverloadedRecords.overloadedRecords
     Default.def
-    [ ''ExplosionValue
-    , ''FlaggedIntValue
+    [ ''FlaggedIntValue
     , ''FloatValue
     , ''GameModeValue
     , ''IntValue
