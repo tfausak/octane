@@ -18,7 +18,6 @@ import qualified Data.Text as Text
 import qualified Data.Typeable as Typeable
 import qualified Data.Version as Version
 import qualified Octane
-import qualified Test.Hspec.Expectations.Pretty as Pretty
 import qualified Test.Tasty.Hspec as Hspec
 import qualified Test.Tasty.QuickCheck as QuickCheck
 
@@ -38,7 +37,7 @@ spec =
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy (Octane.List ()))
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Mark)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Message)
-      -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.OptimizedReplay)
+      pure () -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.OptimizedReplay)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Property)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy (Octane.ArrayProperty ()))
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.BoolProperty)
@@ -49,9 +48,9 @@ spec =
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.QWordProperty)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.StrProperty)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.RawReplay)
-      -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Replay)
-      -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.ReplayWithFrames)
-      -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.ReplayWithoutFrames)
+      pure () -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Replay)
+      pure () -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.ReplayWithFrames)
+      pure () -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.ReplayWithoutFrames)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Stream)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Text)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word8)
@@ -60,18 +59,25 @@ spec =
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word64)
     Hspec.describe "binary bit" $ do
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Boolean)
-      -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.CompressedWord)
+      pure () -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.CompressedWord)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Float32)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Int8)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Int32)
-      -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.PlayStationId)
-      -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.SplitscreenId)
+      pure () -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.PlayStationId)
+      pure () -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.SplitscreenId)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.SteamId)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.XboxId)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Text)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word8)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word32)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word64)
+    Hspec.describe "custom binary bit" $ do
+      pure () -- TODO: float vector
+      pure () -- TODO: int vector
+      customBinaryBitRoundTrip
+        (Proxy.Proxy :: Proxy.Proxy (Octane.Vector Octane.Int8))
+        Octane.putInt8Vector
+        Octane.getInt8Vector
 
 binaryRoundTrip
   :: forall a.
@@ -95,11 +101,24 @@ binaryBitRoundTrip
      )
   => Proxy.Proxy a -> Hspec.SpecWith ()
 binaryBitRoundTrip proxy =
+  customBinaryBitRoundTrip
+    proxy
+    (BinaryBit.putBits undefined)
+    (BinaryBit.getBits undefined)
+
+customBinaryBitRoundTrip
+  :: forall a.
+     (QuickCheck.Arbitrary a, Eq a, Show a, Typeable.Typeable a)
+  => Proxy.Proxy a
+  -> (a -> BinaryBit.BitPut ())
+  -> BinaryBit.BitGet a
+  -> Hspec.SpecWith ()
+customBinaryBitRoundTrip proxy bitPut bitGet =
   roundTrip
     proxy
     (\x -> do
-       let put = x & BinaryBit.putBits undefined & BinaryBit.runBitPut
-       let get = undefined & BinaryBit.getBits & BinaryBit.runBitGet
+       let put = x & bitPut & BinaryBit.runBitPut
+       let get = bitGet & BinaryBit.runBitGet
        put & Binary.runPut & Binary.runGet get)
 
 roundTrip
@@ -109,7 +128,7 @@ roundTrip
 roundTrip proxy f =
   Hspec.it
     ("can round trip " ++ typeName proxy)
-    (QuickCheck.property (\x -> Pretty.shouldBe (f x) (x :: a)))
+    (QuickCheck.property (\x -> Hspec.shouldBe (f x) (x :: a)))
 
 typeName
   :: forall a.
