@@ -1,8 +1,449 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module OctaneSpec
   ( spec
   ) where
 
+import qualified Data.Binary as Binary
+import qualified Data.ByteString.Lazy as LazyBytes
+import qualified Data.Proxy as Proxy
+import qualified Data.Text as Text
+import qualified Data.Typeable as Typeable
+import qualified Data.Version as Version
+import qualified Octane
+import qualified Test.Hspec.Expectations.Pretty as Pretty
 import qualified Test.Tasty.Hspec as Hspec
+import qualified Test.Tasty.QuickCheck as QuickCheck
 
 spec :: Hspec.Spec
-spec = Hspec.describe "Octane" (do pure ())
+spec =
+  Hspec.describe "Octane" $ do
+    Hspec.describe "binary" $ do
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Boolean)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.CacheItem)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.CacheProperty)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.ClassItem)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy (Octane.Dictionary ()))
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Float32)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Int8)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Int32)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.KeyFrame)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy (Octane.List ()))
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Mark)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Message)
+      -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.OptimizedReplay)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Property)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy (Octane.ArrayProperty ()))
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.BoolProperty)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.ByteProperty)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.FloatProperty)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.IntProperty)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.NameProperty)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.QWordProperty)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.StrProperty)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.RawReplay)
+      -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Replay)
+      -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.ReplayWithFrames)
+      -- TODO: binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.ReplayWithoutFrames)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Stream)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Text)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word8)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word16)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word32)
+      binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word64)
+
+binaryRoundTrip
+  :: forall a.
+     ( QuickCheck.Arbitrary a
+     , Binary.Binary a
+     , Eq a
+     , Show a
+     , Typeable.Typeable a
+     )
+  => Proxy.Proxy a -> Hspec.SpecWith ()
+binaryRoundTrip _ =
+  Hspec.it
+    ("can binary round trip " ++ show (Typeable.typeOf (undefined :: a)))
+    (QuickCheck.property
+       (\x -> Pretty.shouldBe (Binary.decode (Binary.encode x)) (x :: a)))
+
+instance QuickCheck.Arbitrary Octane.Boolean where
+  arbitrary = Octane.Boolean <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.CacheItem where
+  arbitrary =
+    Octane.CacheItem <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.CacheProperty where
+  arbitrary =
+    Octane.CacheProperty <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.ClassItem where
+  arbitrary = Octane.ClassItem <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.CompressedWord where
+  arbitrary =
+    Octane.CompressedWord <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance (QuickCheck.Arbitrary a) =>
+         QuickCheck.Arbitrary (Octane.Dictionary a) where
+  arbitrary =
+    Octane.Dictionary <$> QuickCheck.scale (min 2) QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Float32 where
+  arbitrary = Octane.Float32 <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Frame where
+  arbitrary =
+    Octane.Frame <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Initialization where
+  arbitrary =
+    Octane.Initialization <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Int8 where
+  arbitrary = Octane.Int8 <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Int32 where
+  arbitrary = Octane.Int32 <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.KeyFrame where
+  arbitrary =
+    Octane.KeyFrame <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance (QuickCheck.Arbitrary a) =>
+         QuickCheck.Arbitrary (Octane.List a) where
+  arbitrary = Octane.List <$> QuickCheck.scale (min 2) QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Mark where
+  arbitrary = Octane.Mark <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Message where
+  arbitrary =
+    Octane.Message <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.OptimizedReplay where
+  arbitrary =
+    Octane.OptimizedReplay <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Property where
+  arbitrary =
+    QuickCheck.oneof
+      [ Octane.PropertyArray <$> QuickCheck.arbitrary
+      , Octane.PropertyBool <$> QuickCheck.arbitrary
+      , Octane.PropertyByte <$> QuickCheck.arbitrary
+      , Octane.PropertyFloat <$> QuickCheck.arbitrary
+      , Octane.PropertyInt <$> QuickCheck.arbitrary
+      , Octane.PropertyName <$> QuickCheck.arbitrary
+      , Octane.PropertyQWord <$> QuickCheck.arbitrary
+      , Octane.PropertyStr <$> QuickCheck.arbitrary
+      ]
+
+instance (QuickCheck.Arbitrary a) =>
+         QuickCheck.Arbitrary (Octane.ArrayProperty a) where
+  arbitrary =
+    Octane.ArrayProperty <$> QuickCheck.arbitrary <*>
+    QuickCheck.scale (min 2) QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.BoolProperty where
+  arbitrary =
+    Octane.BoolProperty <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.ByteProperty where
+  arbitrary =
+    Octane.ByteProperty <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.FloatProperty where
+  arbitrary = Octane.FloatProperty <$> pure 4 <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.IntProperty where
+  arbitrary = Octane.IntProperty <$> pure 4 <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.NameProperty where
+  arbitrary =
+    Octane.NameProperty <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.QWordProperty where
+  arbitrary = Octane.QWordProperty <$> pure 8 <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.StrProperty where
+  arbitrary =
+    Octane.StrProperty <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.RawReplay where
+  arbitrary =
+    Octane.newRawReplay <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.RemoteId where
+  arbitrary =
+    QuickCheck.oneof
+      [ Octane.RemotePlayStationId <$> QuickCheck.arbitrary
+      , Octane.RemoteSplitscreenId <$> QuickCheck.arbitrary
+      , Octane.RemoteSteamId <$> QuickCheck.arbitrary
+      , Octane.RemoteXboxId <$> QuickCheck.arbitrary
+      ]
+
+instance QuickCheck.Arbitrary Octane.PlayStationId where
+  arbitrary =
+    Octane.PlayStationId <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.SplitscreenId where
+  arbitrary = Octane.SplitscreenId <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.SteamId where
+  arbitrary = Octane.SteamId <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.XboxId where
+  arbitrary = Octane.XboxId <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Replay where
+  arbitrary =
+    Octane.Replay <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.ReplayWithFrames where
+  arbitrary =
+    Octane.ReplayWithFrames <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.ReplayWithoutFrames where
+  arbitrary =
+    Octane.ReplayWithoutFrames <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Replication where
+  arbitrary =
+    Octane.Replication <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.State where
+  arbitrary =
+    QuickCheck.elements [Octane.Opening, Octane.Existing, Octane.Closing]
+
+instance QuickCheck.Arbitrary Octane.Stream where
+  arbitrary = Octane.Stream <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Text where
+  arbitrary = Octane.Text <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Value where
+  arbitrary =
+    QuickCheck.oneof
+      [ Octane.ValueBoolean <$> QuickCheck.arbitrary
+      , Octane.ValueByte <$> QuickCheck.arbitrary
+      , Octane.ValueCamSettings <$> QuickCheck.arbitrary
+      , Octane.ValueDemolish <$> QuickCheck.arbitrary
+      , Octane.ValueEnum <$> QuickCheck.arbitrary
+      , Octane.ValueExplosion <$> QuickCheck.arbitrary
+      , Octane.ValueFlaggedInt <$> QuickCheck.arbitrary
+      , Octane.ValueFloat <$> QuickCheck.arbitrary
+      , Octane.ValueGameMode <$> QuickCheck.arbitrary
+      , Octane.ValueInt <$> QuickCheck.arbitrary
+      , Octane.ValueLoadout <$> QuickCheck.arbitrary
+      , Octane.ValueLoadoutOnline <$> QuickCheck.arbitrary
+      , Octane.ValueLocation <$> QuickCheck.arbitrary
+      , Octane.ValueMusicStinger <$> QuickCheck.arbitrary
+      , Octane.ValuePickup <$> QuickCheck.arbitrary
+      , Octane.ValuePrivateMatchSettings <$> QuickCheck.arbitrary
+      , Octane.ValueQWord <$> QuickCheck.arbitrary
+      , Octane.ValueRelativeRotation <$> QuickCheck.arbitrary
+      , Octane.ValueReservation <$> QuickCheck.arbitrary
+      , Octane.ValueRigidBodyState <$> QuickCheck.arbitrary
+      , Octane.ValueString <$> QuickCheck.arbitrary
+      , Octane.ValueTeamPaint <$> QuickCheck.arbitrary
+      , Octane.ValueUniqueId <$> QuickCheck.arbitrary
+      ]
+
+instance QuickCheck.Arbitrary Octane.BooleanValue where
+  arbitrary = Octane.BooleanValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.ByteValue where
+  arbitrary = Octane.ByteValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.CamSettingsValue where
+  arbitrary =
+    Octane.CamSettingsValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.DemolishValue where
+  arbitrary =
+    Octane.DemolishValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.EnumValue where
+  arbitrary = Octane.EnumValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.ExplosionValue where
+  arbitrary =
+    Octane.ExplosionValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.FlaggedIntValue where
+  arbitrary =
+    Octane.FlaggedIntValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.FloatValue where
+  arbitrary = Octane.FloatValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.GameModeValue where
+  arbitrary = Octane.GameModeValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.IntValue where
+  arbitrary = Octane.IntValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.LoadoutOnlineValue where
+  arbitrary = Octane.LoadoutOnlineValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.LoadoutValue where
+  arbitrary =
+    Octane.LoadoutValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.LocationValue where
+  arbitrary = Octane.LocationValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.MusicStingerValue where
+  arbitrary =
+    Octane.MusicStingerValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.PickupValue where
+  arbitrary =
+    Octane.PickupValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.PrivateMatchSettingsValue where
+  arbitrary =
+    Octane.PrivateMatchSettingsValue <$> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.QWordValue where
+  arbitrary = Octane.QWordValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.RelativeRotationValue where
+  arbitrary = Octane.RelativeRotationValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.ReservationValue where
+  arbitrary =
+    Octane.ReservationValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.RigidBodyStateValue where
+  arbitrary =
+    Octane.RigidBodyStateValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.StringValue where
+  arbitrary = Octane.StringValue <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.TeamPaintValue where
+  arbitrary =
+    Octane.TeamPaintValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.UniqueIdValue where
+  arbitrary =
+    Octane.UniqueIdValue <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance (QuickCheck.Arbitrary a) =>
+         QuickCheck.Arbitrary (Octane.Vector a) where
+  arbitrary =
+    Octane.Vector <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
+    QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Word8 where
+  arbitrary = Octane.Word8 <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Word16 where
+  arbitrary = Octane.Word16 <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Word32 where
+  arbitrary = Octane.Word32 <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Octane.Word64 where
+  arbitrary = Octane.Word64 <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary LazyBytes.ByteString where
+  arbitrary = LazyBytes.pack <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Text.Text where
+  arbitrary = Text.pack <$> QuickCheck.arbitrary
+
+instance QuickCheck.Arbitrary Version.Version where
+  arbitrary = Version.makeVersion <$> QuickCheck.arbitrary
