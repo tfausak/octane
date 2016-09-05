@@ -19,6 +19,8 @@ module Octane.Type.Vector
   , putIntVector
   ) where
 
+import Data.Function ((&))
+
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary.Bits as BinaryBit
@@ -157,7 +159,8 @@ putIntVector vector = do
   let least = minimum fields
   let greatest = maximum fields
   let difference = greatest - least
-  let maxBits = ceiling (logBase (2 :: Float) (fromIntegral difference))
+  let maxBits =
+        difference & fromIntegral & logBase (2 :: Float) & ceiling & max 2
   let maxValue = 2 ^ maxBits
   let numBits = maxBits - 2
   let bias = Bits.shiftL 1 (numBits + 1)
