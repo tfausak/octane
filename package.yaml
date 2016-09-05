@@ -66,6 +66,7 @@ tests:
     dependencies:
     - base
     - binary
+    - binary-bits
     - bytestring
     - hspec-expectations-pretty-diff ==0.7.*
     - octane

@@ -6,7 +6,13 @@ module OctaneSpec
   ) where
 
 import qualified Data.Binary as Binary
+import qualified Data.Binary.Bits as BinaryBit
+import qualified Data.Binary.Bits.Get as BinaryBit
+import qualified Data.Binary.Bits.Put as BinaryBit
+import qualified Data.Binary.Get as Binary
+import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
+import Data.Function ((&))
 import qualified Data.Proxy as Proxy
 import qualified Data.Text as Text
 import qualified Data.Typeable as Typeable
@@ -52,6 +58,20 @@ spec =
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word16)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word32)
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word64)
+    Hspec.describe "binary bit" $ do
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Boolean)
+      -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.CompressedWord)
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Float32)
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Int8)
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Int32)
+      -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.PlayStationId)
+      -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.SplitscreenId)
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.SteamId)
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.XboxId)
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Text)
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word8)
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word32)
+      binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word64)
 
 binaryRoundTrip
   :: forall a.
@@ -66,7 +86,27 @@ binaryRoundTrip _ =
   Hspec.it
     ("can binary round trip " ++ show (Typeable.typeOf (undefined :: a)))
     (QuickCheck.property
-       (\x -> Pretty.shouldBe (Binary.decode (Binary.encode x)) (x :: a)))
+       (\x -> Pretty.shouldBe (x & Binary.encode & Binary.decode) (x :: a)))
+
+binaryBitRoundTrip
+  :: forall a.
+     ( QuickCheck.Arbitrary a
+     , BinaryBit.BinaryBit a
+     , Eq a
+     , Show a
+     , Typeable.Typeable a
+     )
+  => Proxy.Proxy a -> Hspec.SpecWith ()
+binaryBitRoundTrip _ =
+  Hspec.it
+    ("can binary bit round trip " ++ show (Typeable.typeOf (undefined :: a)))
+    (QuickCheck.property
+       (\x ->
+          Pretty.shouldBe
+            (x & BinaryBit.putBits undefined & BinaryBit.runBitPut &
+             Binary.runPut &
+             Binary.runGet (undefined & BinaryBit.getBits & BinaryBit.runBitGet))
+            (x :: a)))
 
 instance QuickCheck.Arbitrary Octane.Boolean where
   arbitrary = Octane.Boolean <$> QuickCheck.arbitrary
