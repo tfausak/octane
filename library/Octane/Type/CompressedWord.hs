@@ -49,6 +49,9 @@ instance BinaryBit.BinaryBit CompressedWord where
   putBits _ compressedWord = do
     let limit = fromIntegral (#limit compressedWord)
     let value = fromIntegral (#value compressedWord)
+    if value <= limit
+      then pure ()
+      else fail ("value " ++ show value ++ " > limit " ++ show limit)
     let maxBits = bitSize limit
     let upper = (2 ^ (maxBits - 1)) - 1
     let lower = limit - upper
@@ -76,7 +79,7 @@ fromCompressedWord compressedWord = compressedWord & #value & fromIntegral
 bitSize
   :: (Integral a, Integral b)
   => a -> b
-bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling
+bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling & max 1
 
 getStep :: Word -> Word -> Word -> Word -> BinaryBit.BitGet Word
 getStep limit maxBits position value = do
