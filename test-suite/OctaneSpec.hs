@@ -82,11 +82,8 @@ binaryRoundTrip
      , Typeable.Typeable a
      )
   => Proxy.Proxy a -> Hspec.SpecWith ()
-binaryRoundTrip _ =
-  Hspec.it
-    ("can binary round trip " ++ show (Typeable.typeOf (undefined :: a)))
-    (QuickCheck.property
-       (\x -> Pretty.shouldBe (x & Binary.encode & Binary.decode) (x :: a)))
+binaryRoundTrip proxy =
+  roundTrip proxy (\x -> x & Binary.encode & Binary.decode)
 
 binaryBitRoundTrip
   :: forall a.
@@ -97,16 +94,28 @@ binaryBitRoundTrip
      , Typeable.Typeable a
      )
   => Proxy.Proxy a -> Hspec.SpecWith ()
-binaryBitRoundTrip _ =
+binaryBitRoundTrip proxy =
+  roundTrip
+    proxy
+    (\x -> do
+       let put = x & BinaryBit.putBits undefined & BinaryBit.runBitPut
+       let get = undefined & BinaryBit.getBits & BinaryBit.runBitGet
+       put & Binary.runPut & Binary.runGet get)
+
+roundTrip
+  :: forall a.
+     (QuickCheck.Arbitrary a, Eq a, Show a, Typeable.Typeable a)
+  => Proxy.Proxy a -> (a -> a) -> Hspec.SpecWith ()
+roundTrip proxy f =
   Hspec.it
-    ("can binary bit round trip " ++ show (Typeable.typeOf (undefined :: a)))
-    (QuickCheck.property
-       (\x ->
-          Pretty.shouldBe
-            (x & BinaryBit.putBits undefined & BinaryBit.runBitPut &
-             Binary.runPut &
-             Binary.runGet (undefined & BinaryBit.getBits & BinaryBit.runBitGet))
-            (x :: a)))
+    ("can round trip " ++ typeName proxy)
+    (QuickCheck.property (\x -> Pretty.shouldBe (f x) (x :: a)))
+
+typeName
+  :: forall a.
+     (Typeable.Typeable a)
+  => Proxy.Proxy a -> String
+typeName _ = (undefined :: a) & Typeable.typeOf & show
 
 instance QuickCheck.Arbitrary Octane.Boolean where
   arbitrary = Octane.Boolean <$> QuickCheck.arbitrary
