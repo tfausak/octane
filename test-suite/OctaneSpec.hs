@@ -77,7 +77,10 @@ spec =
         (\x -> BinaryBit.putBits undefined x)
         (\x -> BinaryBit.getBits (x & #limit & fromIntegral))
       pure () -- TODO: float vector
-      pure () -- TODO: int vector
+      customBinaryBitRoundTrip
+        (Proxy.Proxy :: Proxy.Proxy (Octane.Vector Int))
+        (\x -> Octane.putIntVector x)
+        (\_ -> Octane.getIntVector)
       customBinaryBitRoundTrip
         (Proxy.Proxy :: Proxy.Proxy (Octane.Vector Octane.Int8))
         (\x -> Octane.putInt8Vector x)

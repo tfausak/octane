@@ -156,7 +156,7 @@ putInt8Vector vector = do
 putIntVector :: Vector Int -> BinaryBit.BitPut ()
 putIntVector vector = do
   let maxNumBits = 19
-  let numBits = 19 -- TODO
+  let numBits = 18 -- TODO
   BinaryBit.putBits 0 (CompressedWord.CompressedWord maxNumBits numBits)
   let bias = Bits.shiftL 1 (fromIntegral numBits + 1)
   let maxBits = numBits + 2
