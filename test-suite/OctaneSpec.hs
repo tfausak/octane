@@ -76,7 +76,23 @@ spec =
         (Proxy.Proxy :: Proxy.Proxy Octane.CompressedWord)
         (\x -> BinaryBit.putBits undefined x)
         (\x -> BinaryBit.getBits (x & #limit & fromIntegral))
-      pure () -- TODO: float vector
+      Hspec.it "can round trip Vector Float" $
+        QuickCheck.property $ \input -> do
+          let put =
+                input & floatVectorUnpack & Octane.putFloatVector &
+                BinaryBit.runBitPut
+          let get =
+                Octane.getFloatVector & BinaryBit.runBitGet & fmap FloatVector
+          let output = put & Binary.runPut & Binary.runGet get
+          let epsilon = 0.0001
+          [#x, #y, #z] &
+            map
+              (\field -> do
+                 let expected = input & floatVectorUnpack & field
+                 let actual = output & floatVectorUnpack & field
+                 let delta = actual - expected
+                 abs delta < epsilon) &
+            and
       customBinaryBitRoundTrip
         (Proxy.Proxy :: Proxy.Proxy (Octane.Vector Int))
         (\x -> Octane.putIntVector x)
@@ -524,3 +540,14 @@ instance QuickCheck.Arbitrary Text.Text where
 
 instance QuickCheck.Arbitrary Version.Version where
   arbitrary = Version.makeVersion <$> QuickCheck.arbitrary
+
+newtype FloatVector = FloatVector
+  { floatVectorUnpack :: Octane.Vector Float
+  } deriving (Eq, Show)
+
+instance QuickCheck.Arbitrary FloatVector where
+  arbitrary = do
+    x <- QuickCheck.choose (-1, 1)
+    y <- QuickCheck.choose (-1, 1)
+    z <- QuickCheck.choose (-1, 1)
+    pure (FloatVector (Octane.Vector x y z))

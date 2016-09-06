@@ -77,14 +77,12 @@ getFloat maxValue numBits = do
   let serIntMax = Bits.shiftL 1 numBits
   delta <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits serIntMax)
   let unscaledValue = (delta :: Int) - bias
-  if maxValue > maxBitValue
-    then do
-      let invScale = fromIntegral maxValue / fromIntegral maxBitValue
-      pure (fromIntegral unscaledValue * invScale)
-    else do
-      let scale = fromIntegral maxBitValue / fromIntegral maxValue
-      let invScale = 1.0 / scale
-      pure (fromIntegral unscaledValue * invScale)
+  let invScale =
+        if maxValue > maxBitValue
+          then fromIntegral maxValue / fromIntegral maxBitValue
+          else 1.0 / (fromIntegral maxBitValue / fromIntegral maxValue)
+  let value = fromIntegral unscaledValue * invScale
+  pure value
 
 -- | Gets a 'Vector' full of 'Int8's.
 getInt8Vector :: BinaryBit.BitGet (Vector Int8.Int8)
@@ -123,9 +121,8 @@ putFloatVector :: Vector Float -> BinaryBit.BitPut ()
 putFloatVector vector = do
   let maxValue = 1
   let numBits = 16
-  putFloat maxValue numBits (#x vector)
-  putFloat maxValue numBits (#y vector)
-  putFloat maxValue numBits (#z vector)
+  [#x, #y, #z] & map (\field -> field vector) &
+    mapM_ (\value -> putFloat maxValue numBits value)
 
 putFloat :: Int -> Int -> Float -> BinaryBit.BitPut ()
 putFloat maxValue numBits value = do
@@ -136,9 +133,12 @@ putFloat maxValue numBits value = do
         if maxValue > maxBitValue
           then fromIntegral maxValue / fromIntegral maxBitValue
           else 1.0 / (fromIntegral maxBitValue / fromIntegral maxValue)
-  let unscaledValue = value / invScale
-  let delta = round unscaledValue + bias
-  BinaryBit.putBits 0 (CompressedWord.CompressedWord serIntMax delta)
+  if abs value > fromIntegral maxValue * (invScale + 1)
+    then fail ("value " ++ show value ++ " > max value " ++ show maxValue)
+    else do
+      let unscaledValue = value / invScale
+      let delta = ceiling (unscaledValue + fromIntegral (bias :: Int))
+      BinaryBit.putBits 0 (CompressedWord.CompressedWord serIntMax delta)
 
 -- | Puts a 'Vector' full of 'Int8's.
 putInt8Vector :: Vector Int8.Int8 -> BinaryBit.BitPut ()
