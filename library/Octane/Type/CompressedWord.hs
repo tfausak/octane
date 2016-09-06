@@ -22,7 +22,6 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
-import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Bits as Bits
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
@@ -47,19 +46,30 @@ instance BinaryBit.BinaryBit CompressedWord where
     value <- getStep limit (bitSize limit) 0 0
     pure (CompressedWord limit value)
   putBits _ compressedWord = do
-    let limit = fromIntegral (#limit compressedWord)
-    let value = fromIntegral (#value compressedWord)
-    if value <= limit
-      then pure ()
-      else fail ("value " ++ show value ++ " > limit " ++ show limit)
+    let limit = compressedWord & #limit
+    let value = compressedWord & #value
+    if value >= limit
+      then fail ("value " ++ show value ++ " >= limit " ++ show limit)
+      else pure ()
     let maxBits = bitSize limit
-    let upper = (2 ^ (maxBits - 1)) - 1
-    let lower = limit - upper
-    let numBits =
-          if lower > value || value > upper
-            then maxBits
-            else maxBits - 1
-    BinaryBit.putWord64be numBits value
+    let go position soFar = do
+          if position < maxBits
+            then do
+              let x = Bits.shiftL 1 position
+              if maxBits > 1 && position == maxBits - 1 && soFar + x > limit
+                then do
+                  pure ()
+                else do
+                  let bit = position & Bits.testBit value
+                  bit & Boolean.Boolean & BinaryBit.putBits 0
+                  let delta =
+                        if bit
+                          then x
+                          else 0
+                  go (position + 1) (soFar + delta)
+            else do
+              pure ()
+    go 0 0
 
 instance DeepSeq.NFData CompressedWord
 

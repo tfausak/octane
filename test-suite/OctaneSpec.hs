@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -59,7 +60,6 @@ spec =
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word64)
     Hspec.describe "binary bit" $ do
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Boolean)
-      pure () -- TODO: binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.CompressedWord)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Float32)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Int8)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Int32)
@@ -72,12 +72,16 @@ spec =
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word32)
       binaryBitRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Word64)
     Hspec.describe "custom binary bit" $ do
+      customBinaryBitRoundTrip
+        (Proxy.Proxy :: Proxy.Proxy Octane.CompressedWord)
+        (\x -> BinaryBit.putBits undefined x)
+        (\x -> BinaryBit.getBits (x & #limit & fromIntegral))
       pure () -- TODO: float vector
       pure () -- TODO: int vector
       customBinaryBitRoundTrip
         (Proxy.Proxy :: Proxy.Proxy (Octane.Vector Octane.Int8))
-        Octane.putInt8Vector
-        Octane.getInt8Vector
+        (\x -> Octane.putInt8Vector x)
+        (\_ -> Octane.getInt8Vector)
 
 binaryRoundTrip
   :: forall a.
@@ -103,22 +107,22 @@ binaryBitRoundTrip
 binaryBitRoundTrip proxy =
   customBinaryBitRoundTrip
     proxy
-    (BinaryBit.putBits undefined)
-    (BinaryBit.getBits undefined)
+    (\x -> BinaryBit.putBits undefined x)
+    (\_ -> BinaryBit.getBits undefined)
 
 customBinaryBitRoundTrip
   :: forall a.
      (QuickCheck.Arbitrary a, Eq a, Show a, Typeable.Typeable a)
   => Proxy.Proxy a
   -> (a -> BinaryBit.BitPut ())
-  -> BinaryBit.BitGet a
+  -> (a -> BinaryBit.BitGet a)
   -> Hspec.SpecWith ()
 customBinaryBitRoundTrip proxy bitPut bitGet =
   roundTrip
     proxy
     (\x -> do
        let put = x & bitPut & BinaryBit.runBitPut
-       let get = bitGet & BinaryBit.runBitGet
+       let get = x & bitGet & BinaryBit.runBitGet
        put & Binary.runPut & Binary.runGet get)
 
 roundTrip
@@ -153,8 +157,10 @@ instance QuickCheck.Arbitrary Octane.ClassItem where
   arbitrary = Octane.ClassItem <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
 
 instance QuickCheck.Arbitrary Octane.CompressedWord where
-  arbitrary =
-    Octane.CompressedWord <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary
+  arbitrary = do
+    limit <- QuickCheck.choose (1, maxBound)
+    value <- QuickCheck.choose (0, limit - 1)
+    pure (Octane.CompressedWord limit value)
 
 instance (QuickCheck.Arbitrary a) =>
          QuickCheck.Arbitrary (Octane.Dictionary a) where
