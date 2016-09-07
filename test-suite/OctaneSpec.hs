@@ -24,6 +24,7 @@ import qualified Test.Tasty.QuickCheck as QuickCheck
 
 spec :: Hspec.Spec
 spec =
+  Hspec.parallel $
   Hspec.describe "Octane" $ do
     Hspec.describe "binary" $ do
       binaryRoundTrip (Proxy.Proxy :: Proxy.Proxy Octane.Boolean)
