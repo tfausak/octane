@@ -15,8 +15,10 @@ import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Foldable as Foldable
 import Data.Function ((&))
+import qualified Data.Functor.Identity as Identity
+import qualified Data.Map.Strict as Map
 import qualified Data.Proxy as Proxy
-import qualified Data.Text as Text
+import qualified Data.Text as StrictText
 import qualified Data.Typeable as Typeable
 import qualified Data.Version as Version
 import qualified Octane
@@ -103,6 +105,13 @@ spec =
         (Proxy.Proxy :: Proxy.Proxy (Octane.Vector Octane.Int8))
         (\x -> Octane.putInt8Vector x)
         (\_ -> Octane.getInt8Vector)
+    Hspec.describe "Replay" $ do
+      let proxy = Proxy.Proxy :: Proxy.Proxy Octane.Replay
+      let rid = Identity.runIdentity
+      roundTrip
+        proxy
+        (\x ->
+           x & Octane.toOptimizedReplay & rid & Octane.fromOptimizedReplay & rid)
 
 binaryRoundTrip
   :: forall a.
@@ -314,13 +323,42 @@ instance QuickCheck.Arbitrary Octane.XboxId where
   arbitrary = Octane.XboxId <$> QuickCheck.arbitrary
 
 instance QuickCheck.Arbitrary Octane.Replay where
-  arbitrary =
-    Octane.Replay <$> QuickCheck.arbitrary <*> QuickCheck.arbitrary <*>
-    QuickCheck.arbitrary <*>
-    QuickCheck.arbitrary <*>
-    QuickCheck.arbitrary <*>
-    QuickCheck.arbitrary <*>
-    QuickCheck.arbitrary
+  arbitrary
+  -- The vesion must have exactly two pieces and both must be non-negative.
+   = do
+    major <- QuickCheck.arbitrarySizedNatural
+    minor <- QuickCheck.arbitrarySizedNatural
+    let version = Version.makeVersion [major, minor]
+    metadata <- QuickCheck.arbitrary
+    levels <- QuickCheck.arbitrary
+    -- The messages and tick marks must have keys that can be read as
+    -- non-negative integers.
+    messages <-
+      fmap Map.fromList $
+      QuickCheck.listOf $ do
+        frame <- QuickCheck.arbitrarySizedNatural
+        let key = frame & (\x -> x :: Word) & show & StrictText.pack
+        value <- QuickCheck.arbitrary
+        pure (key, value)
+    tickMarks <-
+      fmap Map.fromList $
+      QuickCheck.listOf $ do
+        frame <- QuickCheck.arbitrarySizedNatural
+        let key = frame & (\x -> x :: Word) & show & StrictText.pack
+        value <- QuickCheck.arbitrary
+        pure (key, value)
+    packages <- QuickCheck.arbitrary
+    -- Each frame has many replications. Each replication has many values. If
+    -- we don't limit the number of frames, things get out of hand quickly.
+    rawFrames <- QuickCheck.scale (min 10) QuickCheck.arbitrary
+    -- The first frame must be a key frame. Only the first frame can be a key
+    -- frame.
+    let frames =
+          rawFrames & zip (True : repeat False) &
+          map
+            (\(isKeyFrame, frame) -> frame {Octane.frameIsKeyFrame = isKeyFrame})
+    pure
+      (Octane.Replay version metadata levels messages tickMarks packages frames)
 
 instance QuickCheck.Arbitrary Octane.ReplayWithFrames where
   arbitrary =
@@ -537,8 +575,8 @@ instance QuickCheck.Arbitrary Octane.Word64 where
 instance QuickCheck.Arbitrary LazyBytes.ByteString where
   arbitrary = LazyBytes.pack <$> QuickCheck.arbitrary
 
-instance QuickCheck.Arbitrary Text.Text where
-  arbitrary = Text.pack <$> QuickCheck.arbitrary
+instance QuickCheck.Arbitrary StrictText.Text where
+  arbitrary = StrictText.pack <$> QuickCheck.arbitrary
 
 instance QuickCheck.Arbitrary Version.Version where
   arbitrary = Version.makeVersion <$> QuickCheck.arbitrary

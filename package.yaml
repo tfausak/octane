@@ -68,6 +68,7 @@ tests:
     - binary
     - binary-bits
     - bytestring
+    - containers
     - octane
     - tasty ==0.11.*
     - tasty-hspec ==1.1.*
