@@ -112,6 +112,14 @@ spec =
         proxy
         (\x ->
            x & Octane.toOptimizedReplay & rid & Octane.fromOptimizedReplay & rid)
+      roundTrip
+        proxy
+        (\x ->
+           x & Octane.toOptimizedReplay & rid & Octane.toReplayWithFrames & rid &
+           Octane.fromReplayWithFrames &
+           rid &
+           Octane.fromOptimizedReplay &
+           rid)
 
 binaryRoundTrip
   :: forall a.
