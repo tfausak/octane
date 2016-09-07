@@ -48,8 +48,8 @@ instance BinaryBit.BinaryBit CompressedWord where
   putBits _ compressedWord = do
     let limit = compressedWord & #limit
     let value = compressedWord & #value
-    if value >= limit
-      then fail ("value " ++ show value ++ " >= limit " ++ show limit)
+    if value > limit
+      then fail ("value " ++ show value ++ " > limit " ++ show limit)
       else pure ()
     let maxBits = bitSize limit
     let go position soFar = do
