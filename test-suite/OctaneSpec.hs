@@ -13,6 +13,7 @@ import qualified Data.Binary.Bits.Put as BinaryBit
 import qualified Data.Binary.Get as Binary
 import qualified Data.Binary.Put as Binary
 import qualified Data.ByteString.Lazy as LazyBytes
+import qualified Data.Foldable as Foldable
 import Data.Function ((&))
 import qualified Data.Proxy as Proxy
 import qualified Data.Text as Text
@@ -92,8 +93,8 @@ spec =
                  let expected = input & floatVectorUnpack & field
                  let actual = output & floatVectorUnpack & field
                  let delta = actual - expected
-                 abs delta < epsilon) &
-            and
+                 Hspec.shouldSatisfy (abs delta) (< epsilon)) &
+            Foldable.sequence_
       customBinaryBitRoundTrip
         (Proxy.Proxy :: Proxy.Proxy (Octane.Vector Int))
         (\x -> Octane.putIntVector x)
