@@ -101,8 +101,8 @@ makeContext objects cache = do
                                       Int32.toInt32) of
                                 Nothing ->
                                   error
-                                    ("coult not find property id for " ++
-                                     show propertyName)
+                                    ("coult not find property name for " ++
+                                     show cacheProperty)
                                 Just name -> name
                         let propertyId =
                               cacheProperty & #streamId & Word32.fromWord32 &
