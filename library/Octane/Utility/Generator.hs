@@ -82,6 +82,11 @@ makeContext objects cache = do
                      Nothing ->
                        error ("could not find class id for " ++ show className)
                      Just name -> name
+             let maxPropertyId =
+                   cacheItem & #properties & #unpack & map #streamId &
+                   map Word32.fromWord32 &
+                   (0 :) &
+                   maximum
              let properties =
                    cacheItem & #properties & #unpack &
                    map
@@ -101,7 +106,7 @@ makeContext objects cache = do
                                 Just name -> name
                         let propertyId =
                               cacheProperty & #streamId & Word32.fromWord32 &
-                              CompressedWord.CompressedWord (2 ^ (32 :: Word))
+                              CompressedWord.CompressedWord maxPropertyId
                         (propertyName, propertyId)) &
                    Map.fromList
              (className, properties)) &
