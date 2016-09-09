@@ -84,6 +84,7 @@
   "TAGame.GameEvent_TA:bHasLeaveMatchPenalty": "boolean",
   "TAGame.GameEvent_TA:BotSkill": "int",
   "TAGame.GameEvent_TA:GameMode": "game_mode",
+  "TAGame.GameEvent_TA:MatchTypeClass": "flagged_int",
   "TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining": "int",
   "TAGame.GameEvent_TA:ReplicatedStateIndex": "byte",
   "TAGame.GameEvent_TA:ReplicatedStateName": "int",
