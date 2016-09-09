@@ -15,7 +15,7 @@ module Octane.Utility.Parser
   ) where
 
 import Data.Function ((&))
-
+import Debug.Trace
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
@@ -286,7 +286,8 @@ getExistingReplication context actorId = do
   thing <-
     case context & #things &
          IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
-      Nothing ->
+      Nothing -> do
+        traceShowM context
         fail ("could not find thing for existing actor " ++ show actorId)
       Just x -> pure x
   trace
@@ -398,6 +399,8 @@ getPropValue context name =
         "int" -> getIntProperty
         "loadout_online" -> getLoadoutOnlineProperty
         "loadout" -> getLoadoutProperty
+        "loadouts_online" -> getLoadoutsOnlineProperty
+        "loadouts" -> getLoadoutsProperty
         "location" -> getLocationProperty
         "music_stinger" -> getMusicStingerProperty
         "party_leader" -> getPartyLeaderProperty
@@ -515,6 +518,16 @@ getLoadoutOnlineProperty = do
                 pure (x, y)))
   pure (Value.ValueLoadoutOnline (Value.LoadoutOnlineValue values))
 
+getLoadoutsOnlineProperty :: BinaryBit.BitGet Value.Value
+getLoadoutsOnlineProperty = do
+  Value.ValueLoadoutOnline loadout1 <- getLoadoutOnlineProperty
+  Value.ValueLoadoutOnline loadout2 <- getLoadoutOnlineProperty
+  unknown1 <- BinaryBit.getBits 0
+  unknown2 <- BinaryBit.getBits 0
+  pure
+    (Value.ValueLoadoutsOnline
+       (Value.LoadoutsOnlineValue loadout1 loadout2 unknown1 unknown2))
+
 getLoadoutProperty :: BinaryBit.BitGet Value.Value
 getLoadoutProperty = do
   version <- getWord8
@@ -541,6 +554,12 @@ getLoadoutProperty = do
           topper
           g
           h))
+
+getLoadoutsProperty :: BinaryBit.BitGet Value.Value
+getLoadoutsProperty = do
+  Value.ValueLoadout loadout1 <- getLoadoutProperty
+  Value.ValueLoadout loadout2 <- getLoadoutProperty
+  pure (Value.ValueLoadouts (Value.LoadoutsValue loadout1 loadout2))
 
 getLocationProperty :: BinaryBit.BitGet Value.Value
 getLocationProperty = do

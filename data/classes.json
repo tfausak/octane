@@ -20,6 +20,7 @@
   "Archetypes.GameEvent.GameEvent_Soccar": "TAGame.GameEvent_Soccar_TA",
   "Archetypes.GameEvent.GameEvent_SoccarPrivate": "TAGame.GameEvent_SoccarPrivate_TA",
   "Archetypes.GameEvent.GameEvent_SoccarSplitscreen": "TAGame.GameEvent_SoccarSplitscreen_TA",
+  "Archetypes.SpecialPickups.SpecialPickup_BallLasso": "TAGame.SpecialPickup_BallLasso_TA",
   "Archetypes.Teams.Team0": "TAGame.Team_Soccar_TA",
   "Archetypes.Teams.Team1": "TAGame.Team_Soccar_TA",
   "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype": "TAGame.GRI_TA",

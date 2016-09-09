@@ -205,6 +205,8 @@ putValue value =
     Value.ValueInt x -> putIntValue x
     Value.ValueLoadout x -> putLoadoutValue x
     Value.ValueLoadoutOnline x -> putLoadoutOnlineValue x
+    Value.ValueLoadouts x -> putLoadoutsValue x
+    Value.ValueLoadoutsOnline x -> putLoadoutsOnlineValue x
     Value.ValueLocation x -> putLocationValue x
     Value.ValueMusicStinger x -> putMusicStingerValue x
     Value.ValuePickup x -> putPickupValue x
@@ -286,6 +288,11 @@ putLoadoutValue value = do
   value & #unknown1 & BinaryBit.putBits 0
   value & #unknown2 & maybePutBits 0
 
+putLoadoutsValue :: Value.LoadoutsValue -> BinaryBit.BitPut ()
+putLoadoutsValue value = do
+  value & #loadout1 & putLoadoutValue
+  value & #loadout2 & putLoadoutValue
+
 putLoadoutOnlineValue :: Value.LoadoutOnlineValue -> BinaryBit.BitPut ()
 putLoadoutOnlineValue value = do
   value & #unpack & length & Word8.toWord8 & BinaryBit.putBits 0
@@ -298,6 +305,13 @@ putLoadoutOnlineValue value = do
          (\(k, v) -> do
             BinaryBit.putBits 0 k
             BinaryBit.putBits 0 v))
+
+putLoadoutsOnlineValue :: Value.LoadoutsOnlineValue -> BinaryBit.BitPut ()
+putLoadoutsOnlineValue value = do
+  value & #loadout1 & putLoadoutOnlineValue
+  value & #loadout2 & putLoadoutOnlineValue
+  value & #unknown1 & BinaryBit.putBits 0
+  value & #unknown2 & BinaryBit.putBits 0
 
 putLocationValue :: Value.LocationValue -> BinaryBit.BitPut ()
 putLocationValue value = do

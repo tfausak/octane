@@ -13,8 +13,10 @@ module Octane.Type.Value
   , module Octane.Type.Value.FloatValue
   , module Octane.Type.Value.GameModeValue
   , module Octane.Type.Value.IntValue
-  , module Octane.Type.Value.LoadoutValue
   , module Octane.Type.Value.LoadoutOnlineValue
+  , module Octane.Type.Value.LoadoutsOnlineValue
+  , module Octane.Type.Value.LoadoutsValue
+  , module Octane.Type.Value.LoadoutValue
   , module Octane.Type.Value.LocationValue
   , module Octane.Type.Value.MusicStingerValue
   , module Octane.Type.Value.PickupValue
@@ -38,8 +40,10 @@ import Octane.Type.Value.FlaggedIntValue
 import Octane.Type.Value.FloatValue
 import Octane.Type.Value.GameModeValue
 import Octane.Type.Value.IntValue
-import Octane.Type.Value.LoadoutValue
 import Octane.Type.Value.LoadoutOnlineValue
+import Octane.Type.Value.LoadoutsOnlineValue
+import Octane.Type.Value.LoadoutsValue
+import Octane.Type.Value.LoadoutValue
 import Octane.Type.Value.LocationValue
 import Octane.Type.Value.MusicStingerValue
 import Octane.Type.Value.PickupValue
@@ -70,6 +74,8 @@ data Value
   | ValueInt IntValue
   | ValueLoadout LoadoutValue
   | ValueLoadoutOnline LoadoutOnlineValue
+  | ValueLoadouts LoadoutsValue
+  | ValueLoadoutsOnline LoadoutsOnlineValue
   | ValueLocation LocationValue
   | ValueMusicStinger MusicStingerValue
   | ValuePickup PickupValue
@@ -100,6 +106,8 @@ instance Aeson.ToJSON Value where
       ValueInt x -> Aeson.toJSON x
       ValueLoadout x -> Aeson.toJSON x
       ValueLoadoutOnline x -> Aeson.toJSON x
+      ValueLoadouts x -> Aeson.toJSON x
+      ValueLoadoutsOnline x -> Aeson.toJSON x
       ValueLocation x -> Aeson.toJSON x
       ValueMusicStinger x -> Aeson.toJSON x
       ValuePickup x -> Aeson.toJSON x
