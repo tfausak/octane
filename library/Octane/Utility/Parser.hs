@@ -18,6 +18,7 @@ import Data.Function ((&))
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
+import qualified Data.Bimap as Bimap
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Get as BinaryBit
 import qualified Data.Binary.Get as Binary
@@ -111,7 +112,7 @@ extractContext replay = do
     (CPM.getPropertyMap replay)
     (CPM.getClassPropertyMap replay)
     IntMap.empty
-    (CPM.getActorMap replay)
+    (replay & CPM.getActorMap & Bimap.toMap)
     keyFrames
     version
 

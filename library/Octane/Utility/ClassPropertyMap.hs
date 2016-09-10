@@ -13,11 +13,13 @@ module Octane.Utility.ClassPropertyMap
 
 import Data.Function ((&))
 
+import qualified Data.Bimap as Bimap
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
+import qualified Octane.Data as Data
 import qualified Octane.Type.ReplayWithoutFrames as Replay
 import qualified Octane.Type.Word32 as Word32
 import qualified "regex-compat" Text.Regex as Regex
@@ -51,32 +53,47 @@ getClassPropertyMap replay =
           in (classId, properties)) &
      IntMap.fromList
 
--- | The class cache is a list of 3-tuples where the first element is a class
--- ID, the second is its cache ID, and the third is its parent's cache ID.
-getClassCache :: Replay.ReplayWithoutFrames -> [(Int, Int, Int)]
-getClassCache replay =
+-- | The class cache is a list of 4-tuples where the first element is a class
+-- ID, the second is its name, the third is its cache ID, the fourth is its
+-- parent's cache ID.
+getClassCache :: Replay.ReplayWithoutFrames
+              -> [(Int, StrictText.Text, Int, Int)]
+getClassCache replay = do
+  let classNames = replay & getActorMap & Bimap.toMapR
   replay & #cache & #unpack &
-  map
-    (\x ->
-       ( x & #classId & Word32.fromWord32
-       , x & #cacheId & Word32.fromWord32
-       , x & #parentCacheId & Word32.fromWord32))
+    Maybe.mapMaybe
+      (\cacheItem -> do
+         let classId = cacheItem & #classId & Word32.fromWord32
+         className <- Map.lookup classId classNames
+         let cacheId = cacheItem & #cacheId & Word32.fromWord32
+         let parentCacheId = cacheItem & #parentCacheId & Word32.fromWord32
+         pure (classId, className, cacheId, parentCacheId))
 
 -- | The class IDs in a replay. Comes from the class cache.
 getClassIds :: Replay.ReplayWithoutFrames -> [Int]
-getClassIds replay = replay & getClassCache & map (\(x, _, _) -> x)
+getClassIds replay = replay & getClassCache & map (\(x, _, _, _) -> x)
 
 -- | Gets the parent class ID for the given parent cache ID. This is necessary
 -- because there is not always a class with the given cache ID in the cache.
 -- When that happens, the parent cache ID is decremented and tried again.
-getParentClassId :: Int -> [(Int, Int, Int)] -> Maybe Int
-getParentClassId parentCacheId xs =
-  case dropWhile (\(_, cacheId, _) -> cacheId /= parentCacheId) xs of
-    [] ->
-      if parentCacheId <= 0
-        then Nothing
-        else getParentClassId (parentCacheId - 1) xs
-    (parentClassId, _, _):_ -> Just parentClassId
+getParentClassId :: StrictText.Text
+                 -> Int
+                 -> [(Int, StrictText.Text, Int, Int)]
+                 -> Maybe Int
+getParentClassId className parentCacheId xs =
+  case Map.lookup className Data.parentClasses of
+    Just parentClassName ->
+      xs & filter (\(_, name, _, _) -> name == parentClassName) &
+      filter (\(_, _, cacheId, _) -> cacheId == parentCacheId) &
+      map (\(classId, _, _, _) -> classId) &
+      Maybe.listToMaybe
+    Nothing ->
+      case dropWhile (\(_, _, cacheId, _) -> cacheId /= parentCacheId) xs of
+        [] ->
+          if parentCacheId <= 0
+            then Nothing
+            else getParentClassId className (parentCacheId - 1) xs
+        (parentClassId, _, _, _):_ -> Just parentClassId
 
 -- | The basic class map is a naive mapping from class ID to its parent class
 -- ID. It's naive because it only maps the class ID to its immediate parent.
@@ -88,8 +105,8 @@ getBasicClassMap replay =
     (\xs ->
        case xs of
          [] -> Nothing
-         (classId, _, parentCacheId):ys -> do
-           parentClassId <- getParentClassId parentCacheId ys
+         (classId, className, _, parentCacheId):ys -> do
+           parentClassId <- getParentClassId className parentCacheId ys
            pure (classId, parentClassId)) &
   IntMap.fromList
 
@@ -140,7 +157,7 @@ getBasicClassPropertyMap replay =
      IntMap.fromList
 
 -- | The actor map is a mapping from class names to their IDs.
-getActorMap :: Replay.ReplayWithoutFrames -> Map.Map StrictText.Text Int
+getActorMap :: Replay.ReplayWithoutFrames -> Bimap.Bimap StrictText.Text Int
 getActorMap replay =
   replay & #classes & #unpack &
   map
@@ -148,7 +165,7 @@ getActorMap replay =
        let className = x & #name & #unpack
            classId = x & #streamId & Word32.fromWord32
        in (className, classId)) &
-  Map.fromList
+  Bimap.fromList
 
 -- | Gets the class ID and name for a given property ID.
 getClass
