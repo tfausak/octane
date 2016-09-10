@@ -13,6 +13,7 @@ module Octane.Utility.ClassPropertyMap
 
 import Data.Function ((&))
 
+import qualified Data.Bimap as Bimap
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
@@ -140,7 +141,7 @@ getBasicClassPropertyMap replay =
      IntMap.fromList
 
 -- | The actor map is a mapping from class names to their IDs.
-getActorMap :: Replay.ReplayWithoutFrames -> Map.Map StrictText.Text Int
+getActorMap :: Replay.ReplayWithoutFrames -> Bimap.Bimap StrictText.Text Int
 getActorMap replay =
   replay & #classes & #unpack &
   map
@@ -148,7 +149,7 @@ getActorMap replay =
        let className = x & #name & #unpack
            classId = x & #streamId & Word32.fromWord32
        in (className, classId)) &
-  Map.fromList
+  Bimap.fromList
 
 -- | Gets the class ID and name for a given property ID.
 getClass
