@@ -205,6 +205,8 @@ putValue value =
     Value.ValueInt x -> putIntValue x
     Value.ValueLoadout x -> putLoadoutValue x
     Value.ValueLoadoutOnline x -> putLoadoutOnlineValue x
+    Value.ValueLoadouts x -> putLoadoutsValue x
+    Value.ValueLoadoutsOnline x -> putLoadoutsOnlineValue x
     Value.ValueLocation x -> putLocationValue x
     Value.ValueMusicStinger x -> putMusicStingerValue x
     Value.ValuePickup x -> putPickupValue x
@@ -216,6 +218,7 @@ putValue value =
     Value.ValueString x -> putStringValue x
     Value.ValueTeamPaint x -> putTeamPaintValue x
     Value.ValueUniqueId x -> putUniqueIdValue x
+    Value.ValueWeldedInfo x -> putWeldedInfoValue x
 
 putBooleanValue :: Value.BooleanValue -> BinaryBit.BitPut ()
 putBooleanValue value = do
@@ -286,6 +289,11 @@ putLoadoutValue value = do
   value & #unknown1 & BinaryBit.putBits 0
   value & #unknown2 & maybePutBits 0
 
+putLoadoutsValue :: Value.LoadoutsValue -> BinaryBit.BitPut ()
+putLoadoutsValue value = do
+  value & #loadout1 & putLoadoutValue
+  value & #loadout2 & putLoadoutValue
+
 putLoadoutOnlineValue :: Value.LoadoutOnlineValue -> BinaryBit.BitPut ()
 putLoadoutOnlineValue value = do
   value & #unpack & length & Word8.toWord8 & BinaryBit.putBits 0
@@ -298,6 +306,13 @@ putLoadoutOnlineValue value = do
          (\(k, v) -> do
             BinaryBit.putBits 0 k
             BinaryBit.putBits 0 v))
+
+putLoadoutsOnlineValue :: Value.LoadoutsOnlineValue -> BinaryBit.BitPut ()
+putLoadoutsOnlineValue value = do
+  value & #loadout1 & putLoadoutOnlineValue
+  value & #loadout2 & putLoadoutOnlineValue
+  value & #unknown1 & BinaryBit.putBits 0
+  value & #unknown2 & BinaryBit.putBits 0
 
 putLocationValue :: Value.LocationValue -> BinaryBit.BitPut ()
 putLocationValue value = do
@@ -374,6 +389,14 @@ putUniqueIdValue value = do
   value & #systemId & BinaryBit.putBits 0
   value & #remoteId & putRemoteId
   value & #localId & maybePutBits 0
+
+putWeldedInfoValue :: Value.WeldedInfoValue -> BinaryBit.BitPut ()
+putWeldedInfoValue value = do
+  value & #active & BinaryBit.putBits 0
+  value & #actorId & BinaryBit.putBits 0
+  value & #offset & Vector.putIntVector
+  value & #mass & BinaryBit.putBits 0
+  value & #rotation & Vector.putInt8Vector
 
 maybePutBits
   :: (BinaryBit.BinaryBit a)

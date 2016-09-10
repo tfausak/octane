@@ -398,6 +398,8 @@ getPropValue context name =
         "int" -> getIntProperty
         "loadout_online" -> getLoadoutOnlineProperty
         "loadout" -> getLoadoutProperty
+        "loadouts_online" -> getLoadoutsOnlineProperty
+        "loadouts" -> getLoadoutsProperty
         "location" -> getLocationProperty
         "music_stinger" -> getMusicStingerProperty
         "party_leader" -> getPartyLeaderProperty
@@ -410,6 +412,7 @@ getPropValue context name =
         "string" -> getStringProperty
         "team_paint" -> getTeamPaintProperty
         "unique_id" -> getUniqueIdProperty
+        "welded_info" -> getWeldedInfoProperty
         _ ->
           fail
             ("Don't know how to read property type " ++
@@ -515,6 +518,16 @@ getLoadoutOnlineProperty = do
                 pure (x, y)))
   pure (Value.ValueLoadoutOnline (Value.LoadoutOnlineValue values))
 
+getLoadoutsOnlineProperty :: BinaryBit.BitGet Value.Value
+getLoadoutsOnlineProperty = do
+  Value.ValueLoadoutOnline loadout1 <- getLoadoutOnlineProperty
+  Value.ValueLoadoutOnline loadout2 <- getLoadoutOnlineProperty
+  unknown1 <- BinaryBit.getBits 0
+  unknown2 <- BinaryBit.getBits 0
+  pure
+    (Value.ValueLoadoutsOnline
+       (Value.LoadoutsOnlineValue loadout1 loadout2 unknown1 unknown2))
+
 getLoadoutProperty :: BinaryBit.BitGet Value.Value
 getLoadoutProperty = do
   version <- getWord8
@@ -541,6 +554,12 @@ getLoadoutProperty = do
           topper
           g
           h))
+
+getLoadoutsProperty :: BinaryBit.BitGet Value.Value
+getLoadoutsProperty = do
+  Value.ValueLoadout loadout1 <- getLoadoutProperty
+  Value.ValueLoadout loadout2 <- getLoadoutProperty
+  pure (Value.ValueLoadouts (Value.LoadoutsValue loadout1 loadout2))
 
 getLocationProperty :: BinaryBit.BitGet Value.Value
 getLocationProperty = do
@@ -680,6 +699,17 @@ getPartyLeaderProperty = do
         localId <- fmap Just getWord8
         pure (remoteId, localId)
   pure (Value.ValueUniqueId (Value.UniqueIdValue systemId remoteId localId))
+
+getWeldedInfoProperty :: BinaryBit.BitGet Value.Value
+getWeldedInfoProperty = do
+  active <- getBool
+  actorId <- getInt32
+  offset <- Vector.getIntVector
+  mass <- getFloat32
+  rotation <- Vector.getInt8Vector
+  pure
+    (Value.ValueWeldedInfo
+       (Value.WeldedInfoValue active actorId offset mass rotation))
 
 getUniqueId :: BinaryBit.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
 getUniqueId = do

@@ -14,5 +14,17 @@
   "TAGame.GameEvent_SoccarSplitscreen_TA",
   "TAGame.GRI_TA",
   "TAGame.PRI_TA",
+  "TAGame.SpecialPickup_BallCarSpring_TA",
+  "TAGame.SpecialPickup_BallFreeze_TA",
+  "TAGame.SpecialPickup_BallGravity_TA",
+  "TAGame.SpecialPickup_BallGravity_TA",
+  "TAGame.SpecialPickup_BallLasso_TA",
+  "TAGame.SpecialPickup_BallVelcro_TA",
+  "TAGame.SpecialPickup_Batarang_TA",
+  "TAGame.SpecialPickup_BoostOverride_TA",
+  "TAGame.SpecialPickup_GrapplingHook_TA",
+  "TAGame.SpecialPickup_HitForce_TA",
+  "TAGame.SpecialPickup_Swapper_TA",
+  "TAGame.SpecialPickup_Tornado_TA",
   "TAGame.Team_Soccar_TA"
 ]

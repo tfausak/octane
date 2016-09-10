@@ -13,8 +13,10 @@ module Octane.Type.Value
   , module Octane.Type.Value.FloatValue
   , module Octane.Type.Value.GameModeValue
   , module Octane.Type.Value.IntValue
-  , module Octane.Type.Value.LoadoutValue
   , module Octane.Type.Value.LoadoutOnlineValue
+  , module Octane.Type.Value.LoadoutsOnlineValue
+  , module Octane.Type.Value.LoadoutsValue
+  , module Octane.Type.Value.LoadoutValue
   , module Octane.Type.Value.LocationValue
   , module Octane.Type.Value.MusicStingerValue
   , module Octane.Type.Value.PickupValue
@@ -26,6 +28,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.StringValue
   , module Octane.Type.Value.TeamPaintValue
   , module Octane.Type.Value.UniqueIdValue
+  , module Octane.Type.Value.WeldedInfoValue
   ) where
 
 import Octane.Type.Value.BooleanValue
@@ -38,8 +41,10 @@ import Octane.Type.Value.FlaggedIntValue
 import Octane.Type.Value.FloatValue
 import Octane.Type.Value.GameModeValue
 import Octane.Type.Value.IntValue
-import Octane.Type.Value.LoadoutValue
 import Octane.Type.Value.LoadoutOnlineValue
+import Octane.Type.Value.LoadoutsOnlineValue
+import Octane.Type.Value.LoadoutsValue
+import Octane.Type.Value.LoadoutValue
 import Octane.Type.Value.LocationValue
 import Octane.Type.Value.MusicStingerValue
 import Octane.Type.Value.PickupValue
@@ -51,6 +56,7 @@ import Octane.Type.Value.RigidBodyStateValue
 import Octane.Type.Value.StringValue
 import Octane.Type.Value.TeamPaintValue
 import Octane.Type.Value.UniqueIdValue
+import Octane.Type.Value.WeldedInfoValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -70,6 +76,8 @@ data Value
   | ValueInt IntValue
   | ValueLoadout LoadoutValue
   | ValueLoadoutOnline LoadoutOnlineValue
+  | ValueLoadouts LoadoutsValue
+  | ValueLoadoutsOnline LoadoutsOnlineValue
   | ValueLocation LocationValue
   | ValueMusicStinger MusicStingerValue
   | ValuePickup PickupValue
@@ -81,6 +89,7 @@ data Value
   | ValueString StringValue
   | ValueTeamPaint TeamPaintValue
   | ValueUniqueId UniqueIdValue
+  | ValueWeldedInfo WeldedInfoValue
   deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData Value
@@ -100,6 +109,8 @@ instance Aeson.ToJSON Value where
       ValueInt x -> Aeson.toJSON x
       ValueLoadout x -> Aeson.toJSON x
       ValueLoadoutOnline x -> Aeson.toJSON x
+      ValueLoadouts x -> Aeson.toJSON x
+      ValueLoadoutsOnline x -> Aeson.toJSON x
       ValueLocation x -> Aeson.toJSON x
       ValueMusicStinger x -> Aeson.toJSON x
       ValuePickup x -> Aeson.toJSON x
@@ -111,3 +122,4 @@ instance Aeson.ToJSON Value where
       ValueString x -> Aeson.toJSON x
       ValueTeamPaint x -> Aeson.toJSON x
       ValueUniqueId x -> Aeson.toJSON x
+      ValueWeldedInfo x -> Aeson.toJSON x
