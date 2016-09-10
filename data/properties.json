@@ -72,6 +72,7 @@
   "TAGame.CrowdActor_TA:ModifiedNoise": "float",
   "TAGame.CrowdActor_TA:ReplicatedCountDownNumber": "int",
   "TAGame.CrowdActor_TA:ReplicatedOneShotSound": "flagged_int",
+  "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber": "int",
   "TAGame.CrowdManager_TA:GameEvent": "flagged_int",
   "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound": "flagged_int",
   "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit": "boolean",
