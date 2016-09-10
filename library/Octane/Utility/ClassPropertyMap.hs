@@ -75,13 +75,16 @@ getClassIds replay = replay & getClassCache & map (\(x, _, _, _) -> x)
 -- | Gets the parent class ID for the given parent cache ID. This is necessary
 -- because there is not always a class with the given cache ID in the cache.
 -- When that happens, the parent cache ID is decremented and tried again.
-getParentClassId :: Int -> [(Int, StrictText.Text, Int, Int)] -> Maybe Int
-getParentClassId parentCacheId xs =
+getParentClassId :: StrictText.Text
+                 -> Int
+                 -> [(Int, StrictText.Text, Int, Int)]
+                 -> Maybe Int
+getParentClassId className parentCacheId xs =
   case dropWhile (\(_, _, cacheId, _) -> cacheId /= parentCacheId) xs of
     [] ->
       if parentCacheId <= 0
         then Nothing
-        else getParentClassId (parentCacheId - 1) xs
+        else getParentClassId className (parentCacheId - 1) xs
     (parentClassId, _, _, _):_ -> Just parentClassId
 
 -- | The basic class map is a naive mapping from class ID to its parent class
@@ -94,8 +97,8 @@ getBasicClassMap replay =
     (\xs ->
        case xs of
          [] -> Nothing
-         (classId, _, _, parentCacheId):ys -> do
-           parentClassId <- getParentClassId parentCacheId ys
+         (classId, className, _, parentCacheId):ys -> do
+           parentClassId <- getParentClassId className parentCacheId ys
            pure (classId, parentClassId)) &
   IntMap.fromList
 
