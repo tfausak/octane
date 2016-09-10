@@ -57,14 +57,16 @@ getClassPropertyMap replay =
 -- parent's cache ID.
 getClassCache :: Replay.ReplayWithoutFrames
               -> [(Int, StrictText.Text, Int, Int)]
-getClassCache replay =
+getClassCache replay = do
+  let classNames = replay & getActorMap & Bimap.toMapR
   replay & #cache & #unpack &
-  map
-    (\x ->
-       ( x & #classId & Word32.fromWord32
-       , StrictText.empty
-       , x & #cacheId & Word32.fromWord32
-       , x & #parentCacheId & Word32.fromWord32))
+    Maybe.mapMaybe
+      (\cacheItem -> do
+         let classId = cacheItem & #classId & Word32.fromWord32
+         className <- Map.lookup classId classNames
+         let cacheId = cacheItem & #cacheId & Word32.fromWord32
+         let parentCacheId = cacheItem & #parentCacheId & Word32.fromWord32
+         pure (classId, className, cacheId, parentCacheId))
 
 -- | The class IDs in a replay. Comes from the class cache.
 getClassIds :: Replay.ReplayWithoutFrames -> [Int]
