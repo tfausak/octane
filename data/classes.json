@@ -25,6 +25,7 @@
   "Archetypes.SpecialPickups.SpecialPickup_BallLasso": "TAGame.SpecialPickup_BallLasso_TA",
   "Archetypes.SpecialPickups.SpecialPickup_BallSpring": "TAGame.SpecialPickup_BallCarSpring_TA",
   "Archetypes.SpecialPickups.SpecialPickup_BallVelcro": "TAGame.SpecialPickup_BallVelcro_TA",
+  "Archetypes.SpecialPickups.SpecialPickup_Batarang": "TAGame.SpecialPickup_Batarang_TA",
   "Archetypes.SpecialPickups.SpecialPickup_BoostOverride": "TAGame.SpecialPickup_BoostOverride_TA",
   "Archetypes.SpecialPickups.SpecialPickup_CarSpring": "TAGame.SpecialPickup_BallCarSpring_TA",
   "Archetypes.SpecialPickups.SpecialPickup_GravityWell": "TAGame.SpecialPickup_BallGravity_TA",
