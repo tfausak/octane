@@ -412,6 +412,7 @@ getPropValue context name =
         "string" -> getStringProperty
         "team_paint" -> getTeamPaintProperty
         "unique_id" -> getUniqueIdProperty
+        "welded_info" -> getWeldedInfoProperty
         _ ->
           fail
             ("Don't know how to read property type " ++
@@ -698,6 +699,17 @@ getPartyLeaderProperty = do
         localId <- fmap Just getWord8
         pure (remoteId, localId)
   pure (Value.ValueUniqueId (Value.UniqueIdValue systemId remoteId localId))
+
+getWeldedInfoProperty :: BinaryBit.BitGet Value.Value
+getWeldedInfoProperty = do
+  active <- getBool
+  actorId <- getInt32
+  offset <- Vector.getIntVector
+  mass <- getFloat32
+  rotation <- Vector.getInt8Vector
+  pure
+    (Value.ValueWeldedInfo
+       (Value.WeldedInfoValue active actorId offset mass rotation))
 
 getUniqueId :: BinaryBit.BitGet (Word8.Word8, RemoteId.RemoteId, Maybe Word8.Word8)
 getUniqueId = do

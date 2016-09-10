@@ -28,6 +28,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.StringValue
   , module Octane.Type.Value.TeamPaintValue
   , module Octane.Type.Value.UniqueIdValue
+  , module Octane.Type.Value.WeldedInfoValue
   ) where
 
 import Octane.Type.Value.BooleanValue
@@ -55,6 +56,7 @@ import Octane.Type.Value.RigidBodyStateValue
 import Octane.Type.Value.StringValue
 import Octane.Type.Value.TeamPaintValue
 import Octane.Type.Value.UniqueIdValue
+import Octane.Type.Value.WeldedInfoValue
 
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
@@ -87,6 +89,7 @@ data Value
   | ValueString StringValue
   | ValueTeamPaint TeamPaintValue
   | ValueUniqueId UniqueIdValue
+  | ValueWeldedInfo WeldedInfoValue
   deriving (Eq, Generics.Generic, Show)
 
 instance DeepSeq.NFData Value
@@ -119,3 +122,4 @@ instance Aeson.ToJSON Value where
       ValueString x -> Aeson.toJSON x
       ValueTeamPaint x -> Aeson.toJSON x
       ValueUniqueId x -> Aeson.toJSON x
+      ValueWeldedInfo x -> Aeson.toJSON x

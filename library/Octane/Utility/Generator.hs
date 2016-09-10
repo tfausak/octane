@@ -218,6 +218,7 @@ putValue value =
     Value.ValueString x -> putStringValue x
     Value.ValueTeamPaint x -> putTeamPaintValue x
     Value.ValueUniqueId x -> putUniqueIdValue x
+    Value.ValueWeldedInfo x -> putWeldedInfoValue x
 
 putBooleanValue :: Value.BooleanValue -> BinaryBit.BitPut ()
 putBooleanValue value = do
@@ -388,6 +389,14 @@ putUniqueIdValue value = do
   value & #systemId & BinaryBit.putBits 0
   value & #remoteId & putRemoteId
   value & #localId & maybePutBits 0
+
+putWeldedInfoValue :: Value.WeldedInfoValue -> BinaryBit.BitPut ()
+putWeldedInfoValue value = do
+  value & #active & BinaryBit.putBits 0
+  value & #actorId & BinaryBit.putBits 0
+  value & #offset & Vector.putIntVector
+  value & #mass & BinaryBit.putBits 0
+  value & #rotation & Vector.putInt8Vector
 
 maybePutBits
   :: (BinaryBit.BinaryBit a)
