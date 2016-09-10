@@ -19,6 +19,7 @@ import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
+import qualified Octane.Data as Data
 import qualified Octane.Type.ReplayWithoutFrames as Replay
 import qualified Octane.Type.Word32 as Word32
 import qualified "regex-compat" Text.Regex as Regex
@@ -80,12 +81,15 @@ getParentClassId :: StrictText.Text
                  -> [(Int, StrictText.Text, Int, Int)]
                  -> Maybe Int
 getParentClassId className parentCacheId xs =
-  case dropWhile (\(_, _, cacheId, _) -> cacheId /= parentCacheId) xs of
-    [] ->
-      if parentCacheId <= 0
-        then Nothing
-        else getParentClassId className (parentCacheId - 1) xs
-    (parentClassId, _, _, _):_ -> Just parentClassId
+  case Map.lookup className Data.parentClasses of
+    Just _parentClassName -> Nothing
+    Nothing ->
+      case dropWhile (\(_, _, cacheId, _) -> cacheId /= parentCacheId) xs of
+        [] ->
+          if parentCacheId <= 0
+            then Nothing
+            else getParentClassId className (parentCacheId - 1) xs
+        (parentClassId, _, _, _):_ -> Just parentClassId
 
 -- | The basic class map is a naive mapping from class ID to its parent class
 -- ID. It's naive because it only maps the class ID to its immediate parent.

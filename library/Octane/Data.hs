@@ -27,6 +27,10 @@ classesWithRotation =
 gameModes :: Bimap.Bimap Int StrictText.Text
 gameModes = Embed.decodeBimap $(FileEmbed.embedFile "data/game-modes.json")
 
+parentClasses :: Map.Map StrictText.Text StrictText.Text
+parentClasses =
+  Embed.decodeMap $(FileEmbed.embedFile "data/parent-classes.json")
+
 -- | A one-to-one mapping between product IDs and their names.
 products :: Bimap.Bimap Word StrictText.Text
 products = Embed.decodeBimap $(FileEmbed.embedFile "data/products.json")
