@@ -27,6 +27,9 @@ classesWithRotation =
 gameModes :: Bimap.Bimap Int StrictText.Text
 gameModes = Embed.decodeBimap $(FileEmbed.embedFile "data/game-modes.json")
 
+-- | A mapping between classes and their parent classes. Note that not every
+-- class is present in this map. Only classes that are sometimes misrepresented
+-- in the class property map are in this mapping. See #37 for details.
 parentClasses :: Map.Map StrictText.Text StrictText.Text
 parentClasses =
   Embed.decodeMap $(FileEmbed.embedFile "data/parent-classes.json")
