@@ -5,6 +5,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -104,19 +105,20 @@ extractContext replay = do
 
 -- | Parses the network stream and returns a list of frames.
 parseStream :: Replay.ReplayWithoutFrames -> [Frame.Frame]
-parseStream replay =
+parseStream replay = do
+  let get = replay & getStream & BinaryBit.runBitGet
+  let stream = replay & #stream & #unpack
+  Binary.runGet get stream
+
+getStream :: Replay.ReplayWithoutFrames -> BinaryBit.BitGet [Frame.Frame]
+getStream replay = do
   let numFrames =
-        replay & #properties & #unpack &
-        Map.lookup ("NumFrames" & StrictText.pack & Text.Text) &
+        replay & #properties & #unpack & Map.lookup "NumFrames" &
         (\property ->
            case property of
              Just (Property.PropertyInt int) -> int & #content & Int32.fromInt32
              _ -> 0)
-      get =
-        replay & extractContext & getFrames 0 numFrames & BinaryBit.runBitGet
-      stream = replay & #stream & #unpack
-      (_context, frames) = Binary.runGet get stream
-  in frames
+  replay & extractContext & getFrames 0 numFrames & fmap snd
 
 getFrames :: Word -> Int -> Context -> BinaryBit.BitGet (Context, [Frame.Frame])
 getFrames number numFrames context = do
