@@ -82,7 +82,10 @@ getParentClassId :: StrictText.Text
                  -> Maybe Int
 getParentClassId className parentCacheId xs =
   case Map.lookup className Data.parentClasses of
-    Just _parentClassName -> Nothing
+    Just parentClassName ->
+      case dropWhile (\(_, name, _, _) -> name /= parentClassName) xs of
+        (parentClassId, _, _, _):_ -> Just parentClassId
+        _ -> Nothing
     Nothing ->
       case dropWhile (\(_, _, cacheId, _) -> cacheId /= parentCacheId) xs of
         [] ->
