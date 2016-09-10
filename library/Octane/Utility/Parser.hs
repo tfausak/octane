@@ -15,7 +15,7 @@ module Octane.Utility.Parser
   ) where
 
 import Data.Function ((&))
-import Debug.Trace
+
 import qualified Control.DeepSeq as DeepSeq
 import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
@@ -286,8 +286,7 @@ getExistingReplication context actorId = do
   thing <-
     case context & #things &
          IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
-      Nothing -> do
-        traceShowM context
+      Nothing ->
         fail ("could not find thing for existing actor " ++ show actorId)
       Just x -> pure x
   trace
