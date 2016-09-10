@@ -28,6 +28,7 @@ import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
+import qualified Debug.Trace as Trace
 import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
@@ -49,7 +50,18 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 import qualified Octane.Utility.ClassPropertyMap as CPM
+import qualified System.Environment as Environment
+import qualified System.IO.Unsafe as Unsafe
 import qualified Text.Printf as Printf
+
+debug :: Bool
+debug =
+  Unsafe.unsafePerformIO (Environment.lookupEnv "OCTANE_DEBUG") == Just "1"
+
+trace
+  :: (Applicative m)
+  => String -> m ()
+trace message = Monad.when debug (Trace.traceM message)
 
 -- Data types
 -- { class stream id => { property stream id => name } }
@@ -118,10 +130,12 @@ getStream replay = do
            case property of
              Just (Property.PropertyInt int) -> int & #content & Int32.fromInt32
              _ -> 0)
+  trace (Printf.printf "Getting %d frame(s)" numFrames)
   replay & extractContext & getFrames 0 numFrames & fmap snd
 
 getFrames :: Word -> Int -> Context -> BinaryBit.BitGet (Context, [Frame.Frame])
 getFrames number numFrames context = do
+  trace (Printf.printf "Getting frame %d of %d" number numFrames)
   if fromIntegral number >= numFrames
     then pure (context, [])
     else do
@@ -143,6 +157,12 @@ getMaybeFrame :: Context
 getMaybeFrame context number = do
   time <- getFloat32
   delta <- getFloat32
+  trace
+    (Printf.printf
+       "Getting frame %d at time %.2f with delta %.2f"
+       number
+       (#unpack time)
+       (#unpack delta))
   if time == 0 && delta == 0
     then pure Nothing
     else if time < 0.001 || delta < 0.001
@@ -160,6 +180,7 @@ getFrame
   -> Float32.Float32
   -> BinaryBit.BitGet (Context, Frame.Frame)
 getFrame context number time delta = do
+  trace (Printf.printf "Getting replications for frame %d" number)
   (newContext, replications) <- getReplications context
   let frame =
         Frame.Frame
@@ -193,6 +214,7 @@ getMaybeReplication context = do
 getReplication :: Context -> BinaryBit.BitGet (Context, Replication.Replication)
 getReplication context = do
   actorId <- BinaryBit.getBits maxActorId
+  trace (Printf.printf "Getting replication for actor %d" (#value actorId))
   isOpen <- getBool
   let go =
         if #unpack isOpen
@@ -233,6 +255,13 @@ getNewReplication context actorId = do
       Data.classes
       (#classMap context)
       (Int32.fromInt32 objectId)
+  trace
+    (Printf.printf
+       "Got new replication for object %d %s class %d %s"
+       (#unpack objectId)
+       (show objectName)
+       classId
+       (show className))
   classInit <- Initialization.getInitialization className
   let thing = Thing unknownFlag objectId objectName classId className classInit
   let things = #things context
@@ -260,6 +289,13 @@ getExistingReplication context actorId = do
       Nothing ->
         fail ("could not find thing for existing actor " ++ show actorId)
       Just x -> pure x
+  trace
+    (Printf.printf
+       "Getting existing replication properties for object %d %s class %d %s"
+       (thing & #objectId & #unpack)
+       (thing & #objectName & show)
+       (thing & #classId)
+       (thing & #className & show))
   props <- getProps context thing
   pure
     ( context
@@ -281,6 +317,13 @@ getClosedReplication context actorId = do
          IntMap.lookup (CompressedWord.fromCompressedWord actorId) of
       Nothing -> fail ("could not find thing for closed actor " ++ show actorId)
       Just x -> pure x
+  trace
+    (Printf.printf
+       "Got closed replication for object %d %s class %d %s"
+       (thing & #objectId & #unpack)
+       (thing & #objectName & show)
+       (thing & #classId)
+       (thing & #className & show))
   let newThings =
         context & #things &
         IntMap.delete (CompressedWord.fromCompressedWord actorId)
@@ -333,7 +376,9 @@ getProp context thing = do
       Nothing ->
         fail ("could not find property name for property id " ++ show pid)
       Just x -> pure x
+  trace (Printf.printf "Getting property %s" (show name))
   value <- getPropValue context name
+  trace (Printf.printf "Got property %s" (show value))
   pure (name, value)
 
 getPropValue :: Context -> StrictText.Text -> BinaryBit.BitGet Value.Value
