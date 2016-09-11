@@ -17,15 +17,17 @@ module Octane.Type.Replay
 
 import Data.Aeson ((.=))
 import Data.Function ((&))
-
+import Debug.Trace
 import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
+import qualified Data.Maybe as Maybe
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
+import qualified Data.Tuple as Tuple
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.CacheItem as CacheItem
@@ -166,60 +168,80 @@ toOptimizedReplay replay = do
   let frames =
         replay & #frames & zip [0 :: Int ..] &
         map (\(index, frame) -> frame {Frame.frameIsKeyFrame = index == 0})
-  let objectNames = frames & concatMap #replications & map #objectName
-  let classNames = frames & concatMap #replications & map #className
-  let propertyNames =
-        frames & concatMap #replications & map #properties & concatMap Map.keys
-  let objects =
-        [objectNames, classNames, propertyNames] & concat & Set.fromList &
-        Set.toAscList &
-        map Text.Text &
-        List.List
-  let objectsToPosition = objects & #unpack & flip zip [0 ..] & Map.fromList
-  classes <-
-    frames & concatMap #replications & map #className & Set.fromList &
-    Set.toAscList &
-    map Text.Text &
-    mapM
-      (\className ->
-         case Map.lookup className objectsToPosition of
-           Nothing ->
-             fail
-               ("class " ++ show className ++ " not found in list of objects")
-           Just position -> pure (ClassItem.ClassItem className position)) &
-    fmap List.List
-  let numClasses = classes & #unpack & length & fromIntegral
-  classesToProperties <-
-    frames & concatMap #replications &
-    concatMap
-      (\replication ->
-         zip
-           (replication & #className & repeat)
-           (replication & #properties & Map.keys & map Text.Text)) &
-    zip [numClasses ..] &
-    mapM
-      (\(streamId, (className, propertyName)) -> do
-         case Map.lookup propertyName objectsToPosition of
-           Nothing ->
-             fail
-               ("property " ++
-                show propertyName ++ " not found in list of objects")
-           Just propertyId ->
-             pure (className, [CacheProperty.CacheProperty propertyId streamId])) &
-    fmap (Map.fromListWith (++))
-  let cache =
-        classes & #unpack & zip [0 ..] &
-        map
-          (\(index, classItem) -> do
-             let classId = #streamId classItem
-             let parentCacheId = index
-             let cacheId = index
-             let properties =
-                   classesToProperties &
-                   Map.findWithDefault [] (classItem & #name & #unpack) &
-                   List.List
-             CacheItem.CacheItem classId parentCacheId cacheId properties) &
-        List.List
+  -- The actors are a list of all classes, objects, and properties used in the
+  -- replay. An actor's position in this list is their ID, not their stream ID.
+  let classNames = frames
+        & concatMap #replications
+        & map #className
+        & ("Core.Object" :)
+        & Set.fromList
+  classNames & Set.toAscList & map (\ x -> "- " ++ show x) & ("CLASS NAMES" :) & unlines & traceM
+  let objectNames = frames
+        & concatMap #replications
+        & map #objectName
+        & Set.fromList
+  objectNames & Set.toAscList & map (\ x -> "- " ++ show x) & ("OBJECT NAMES" :) & unlines & traceM
+  let propertyNames = frames
+        & concatMap #replications
+        & map #properties
+        & concatMap Map.keys
+        & Set.fromList
+  propertyNames & Set.toAscList & map (\ x -> "- " ++ show x) & ("PROPERTY NAMES" :) & unlines & traceM
+  let actors = classNames
+        & Set.union objectNames
+        & Set.union propertyNames
+        & Set.toAscList
+        & map Text.Text
+        & List.List
+  actors & #unpack & map (\ x -> "- " ++ show x) & ("ACTORS" :) & unlines & traceM
+  -- The class items are a list of class names to their stream IDs.
+  let classItems = classNames
+        & Set.toAscList
+        & map Text.Text
+        & zip [0 ..]
+        & map (\ (streamId, name) -> do
+          ClassItem.ClassItem name streamId)
+        & List.List
+  classItems & #unpack & map (\ x -> "- " ++ show (#streamId x) ++ "\t" ++ show (#name x)) & ("CLASS ITEMS" :) & unlines & traceM
+  -- The cache items are a list of classes together with their cache IDs,
+  -- parent cache IDs, and a list of their property IDs to stream IDs.
+  let classesToId = classItems
+        & #unpack
+        & map (\ x -> (#name x, #streamId x))
+        & Map.fromList
+  classesToId & Map.toAscList & map (\ (k, v) -> "- " ++ show v ++ "\t" ++ show k) & ("CLASS IDS" :) & unlines & traceM
+  let actorsToId = actors
+        & #unpack
+        & zip [0 ..]
+        & map Tuple.swap
+        & Map.fromList
+  actorsToId & Map.toAscList & map (\ (k, v) -> "- " ++ show v ++ "\t" ++ show k) & ("ACTOR IDS" :) & unlines & traceM
+  let propertiesByClass = frames
+        & concatMap #replications
+        & concatMap (\ replication -> zip
+          (replication & #className & Text.Text & repeat)
+          (replication & #properties & Map.keys & map Text.Text))
+        & Set.fromList
+        & Set.toAscList
+        & zip [0 ..]
+        & map (\ (streamId, (className, propertyName)) -> do
+          let propertyId = actorsToId & Map.lookup propertyName & Maybe.fromJust
+          let cacheProperty = CacheProperty.CacheProperty propertyId streamId
+          let cacheProperties = [cacheProperty]
+          (className, cacheProperties))
+        & Map.fromListWith (++)
+  propertiesByClass & Map.toAscList & map (\ (k, v) -> "- " ++ show k ++ "\n" ++ (v & map (\ x -> "  - " ++ show x) & unlines)) & ("PROPERTIES BY CLASS" :) & unlines & traceM
+  let cacheItems = classItems
+        & #unpack
+        & zip [0 ..]
+        & map (\ (cacheId, classItem) -> do
+          let className = #name classItem
+          let classId = classesToId & Map.lookup className & Maybe.fromJust
+          let parentCacheId = 0 -- cacheId
+          let properties = propertiesByClass & Map.findWithDefault [] className & List.List
+          CacheItem.CacheItem classId parentCacheId cacheId properties)
+        & List.List
+  cacheItems & #unpack & map (\ x -> "- class id " ++ show (#classId x) ++ " cache id " ++ show (#cacheId x) ++ " parent cache id " ++ show (#parentCacheId x) ++ "\n" ++ (x & #properties & #unpack & map (\ y -> "  - " ++ show y) & unlines)) & ("CACHE ITEMS" :) & unlines & traceM
   pure
     OptimizedReplay.OptimizedReplay
     { OptimizedReplay.optimizedReplayVersion1 = version1
@@ -257,8 +279,8 @@ toOptimizedReplay replay = do
         List.List
     , OptimizedReplay.optimizedReplayPackages =
         replay & #packages & map Text.Text & List.List
-    , OptimizedReplay.optimizedReplayObjects = objects
+    , OptimizedReplay.optimizedReplayObjects = actors
     , OptimizedReplay.optimizedReplayNames = List.List [] -- TODO
-    , OptimizedReplay.optimizedReplayClasses = classes
-    , OptimizedReplay.optimizedReplayCache = cache
+    , OptimizedReplay.optimizedReplayClasses = classItems
+    , OptimizedReplay.optimizedReplayCache = cacheItems
     }

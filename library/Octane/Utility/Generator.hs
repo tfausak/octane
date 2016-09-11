@@ -11,7 +11,7 @@ module Octane.Utility.Generator
   ) where
 
 import Data.Function ((&))
-
+import Debug.Trace
 import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
@@ -57,28 +57,25 @@ generateStream
   -> List.List ClassItem.ClassItem
   -> List.List CacheItem.CacheItem
   -> Stream.Stream
-generateStream frames objects _names _classes cache = do
-  let context = makeContext objects cache
+generateStream frames objects _names classes cache = do
+  let context = makeContext objects classes cache
   let bitPut = putFrames context frames
   let bytePut = BinaryBit.runBitPut bitPut
   let bytes = Binary.runPut bytePut
   Stream.Stream bytes
 
-makeContext :: List.List Text.Text -> List.List CacheItem.CacheItem -> Context
-makeContext objects cache = do
+makeContext :: List.List Text.Text -> List.List ClassItem.ClassItem -> List.List CacheItem.CacheItem -> Context
+makeContext objects classes cache = do
   let objectMap =
         objects & #unpack & map #unpack & zip [0 ..] & map Tuple.swap &
         Map.fromList
+  let classMap = classes & #unpack & map (\ classItem -> (#streamId classItem, classItem & #name & #unpack)) & Map.fromList
   let classPropertyMap =
         cache & #unpack &
         map
           (\cacheItem -> do
              let className =
-                   case objectMap & Map.assocs & map Tuple.swap & Map.fromList &
-                        Map.lookup
-                          (cacheItem & #classId & Word32.fromWord32 &
-                           (\x -> x :: Int) &
-                           Int32.toInt32) of
+                   case Map.lookup (#classId cacheItem) classMap of
                      Nothing ->
                        error ("could not find class id for " ++ show className)
                      Just name -> name
@@ -180,7 +177,18 @@ putProperty
 putProperty context className (propertyName, value) = do
   True & Boolean.Boolean & BinaryBit.putBits 1 -- has property
   case Map.lookup className (#classPropertyMap context) of
-    Nothing -> fail ("could not find properties for class " ++ show className)
+    Nothing -> do
+      context
+        & #classPropertyMap
+        & Map.toAscList
+        & map (\ (k1, v1) -> "- " ++ show k1 ++ "\n" ++
+          (v1
+            & Map.toAscList
+            & map (\(k2, v2) -> "  - " ++ show k2 ++ "\t" ++ show (#value v2))
+            & unlines))
+        & ("CLASS PROPERTY MAP" :)
+        & unlines
+        & trace $ fail ("could not find properties for class " ++ show className)
     Just properties ->
       case Map.lookup propertyName properties of
         Nothing ->

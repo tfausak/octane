@@ -12,7 +12,7 @@ module Octane.Utility.ClassPropertyMap
   ) where
 
 import Data.Function ((&))
-
+import Debug.Trace
 import qualified Data.Bimap as Bimap
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
@@ -61,13 +61,15 @@ getClassCache :: Replay.ReplayWithoutFrames
 getClassCache replay = do
   let classNames = replay & getActorMap & Bimap.toMapR
   replay & #cache & #unpack &
-    Maybe.mapMaybe
+    map
       (\cacheItem -> do
          let classId = cacheItem & #classId & Word32.fromWord32
-         className <- Map.lookup classId classNames
+         let className = case Map.lookup classId classNames of
+              Nothing -> error ("could not find class name for id " ++ show classId ++ " in " ++ show classNames)
+              Just x -> x
          let cacheId = cacheItem & #cacheId & Word32.fromWord32
          let parentCacheId = cacheItem & #parentCacheId & Word32.fromWord32
-         pure (classId, className, cacheId, parentCacheId))
+         (classId, className, cacheId, parentCacheId))
 
 -- | The class IDs in a replay. Comes from the class cache.
 getClassIds :: Replay.ReplayWithoutFrames -> [Int]
@@ -86,7 +88,8 @@ getParentClassId className parentCacheId xs =
       xs & filter (\(_, name, _, _) -> name == parentClassName) &
       filter (\(_, _, cacheId, _) -> cacheId == parentCacheId) &
       map (\(classId, _, _, _) -> classId) &
-      Maybe.listToMaybe
+      Maybe.listToMaybe &
+      Maybe.maybe (getParentClassId StrictText.empty parentCacheId xs) Just
     Nothing ->
       case dropWhile (\(_, _, cacheId, _) -> cacheId /= parentCacheId) xs of
         [] ->

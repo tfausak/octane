@@ -132,7 +132,27 @@ getStream replay = do
              Just (Property.PropertyInt int) -> int & #content & Int32.fromInt32
              _ -> 0)
   trace (Printf.printf "Getting %d frame(s)" numFrames)
-  replay & extractContext & getFrames 0 numFrames & fmap snd
+  let context = extractContext replay
+  context
+    & #classMap
+    & Map.toAscList
+    & map (\ (k, v) -> show k ++ "\t" ++ show v)
+    & ("CLASS MAP" :)
+    & unlines
+    & trace
+  context
+    & #classPropertyMap
+    & IntMap.toAscList
+    & map (\ (k1, v1) -> show k1 ++ "\n" ++
+      (v1
+        & IntMap.toAscList
+        & map (\(k2, v2) -> "\t" ++ show k2 ++ "\t" ++ show v2)
+        & unlines))
+    & ("CLASS PROPERTY MAP" :)
+    & unlines
+    & trace
+  (_newContext, frames) <- getFrames 0 numFrames context
+  pure frames
 
 getFrames :: Word -> Int -> Context -> BinaryBit.BitGet (Context, [Frame.Frame])
 getFrames number numFrames context = do
@@ -377,7 +397,7 @@ getProp context thing = do
       Nothing ->
         fail ("could not find property name for property id " ++ show pid)
       Just x -> pure x
-  trace (Printf.printf "Getting property %s" (show name))
+  trace (Printf.printf "Getting property %d %s" pid (show name))
   value <- getPropValue context name
   trace (Printf.printf "Got property %s" (show value))
   pure (name, value)
