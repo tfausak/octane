@@ -397,7 +397,7 @@ getProp context thing = do
       Nothing ->
         fail ("could not find property name for property id " ++ show pid)
       Just x -> pure x
-  trace (Printf.printf "Getting property %d %s" pid (show name))
+  trace (Printf.printf "Getting property %d of %d %s" pid maxId (show name))
   value <- getPropValue context name
   trace (Printf.printf "Got property %s" (show value))
   pure (name, value)

@@ -12,7 +12,7 @@ module Octane.Utility.ClassPropertyMap
   ) where
 
 import Data.Function ((&))
-import Debug.Trace
+
 import qualified Data.Bimap as Bimap
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List

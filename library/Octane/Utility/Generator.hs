@@ -59,7 +59,26 @@ generateStream
   -> Stream.Stream
 generateStream frames objects _names classes cache = do
   let context = makeContext objects classes cache
-  let bitPut = putFrames context frames
+  let bitPut = do
+        context
+          & #objectMap
+          & Map.toAscList
+          & map (\ (k, v) -> "- " ++ show v ++ "\t" ++ show k)
+          & ("ACTOR MAP" :)
+          & unlines
+          & traceM
+        context
+          & #classPropertyMap
+          & Map.toAscList
+          & map (\ (k1, v1) -> "- " ++ show k1 ++ "\n" ++
+            (v1
+              & Map.toAscList
+              & map (\(k2, v2) -> "  - " ++ show k2 ++ "\t" ++ show (#value v2))
+              & unlines))
+          & ("CLASS PROPERTY MAP" :)
+          & unlines
+          & traceM
+        putFrames context frames
   let bytePut = BinaryBit.runBitPut bitPut
   let bytes = Binary.runPut bytePut
   Stream.Stream bytes
@@ -177,25 +196,16 @@ putProperty
 putProperty context className (propertyName, value) = do
   True & Boolean.Boolean & BinaryBit.putBits 1 -- has property
   case Map.lookup className (#classPropertyMap context) of
-    Nothing -> do
-      context
-        & #classPropertyMap
-        & Map.toAscList
-        & map (\ (k1, v1) -> "- " ++ show k1 ++ "\n" ++
-          (v1
-            & Map.toAscList
-            & map (\(k2, v2) -> "  - " ++ show k2 ++ "\t" ++ show (#value v2))
-            & unlines))
-        & ("CLASS PROPERTY MAP" :)
-        & unlines
-        & trace $ fail ("could not find properties for class " ++ show className)
+    Nothing -> fail ("could not find properties for class " ++ show className)
     Just properties ->
       case Map.lookup propertyName properties of
         Nothing ->
           fail
             ("could not find property id for name " ++
              show propertyName ++ " in class " ++ show className)
-        Just propertyId -> BinaryBit.putBits 0 propertyId
+        Just propertyId -> do
+          traceM ("Putting " ++ show propertyId ++ " for " ++ show className ++ "." ++ show propertyName)
+          BinaryBit.putBits 0 propertyId
   putValue value
 
 putValue :: Value.Value -> BinaryBit.BitPut ()
