@@ -188,7 +188,7 @@ instance QuickCheck.Arbitrary Octane.ClassItem where
 
 instance QuickCheck.Arbitrary Octane.CompressedWord where
   arbitrary = do
-    limit <- QuickCheck.choose (0, 1024)
+    limit <- QuickCheck.choose (0, Octane.maxActorId)
     value <- QuickCheck.choose (0, limit)
     pure (Octane.CompressedWord limit value)
 

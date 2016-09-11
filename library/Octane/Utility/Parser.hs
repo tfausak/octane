@@ -232,7 +232,7 @@ getMaybeReplication context = do
 
 getReplication :: Context -> BinaryBit.BitGet (Context, Replication.Replication)
 getReplication context = do
-  actorId <- BinaryBit.getBits maxActorId
+  actorId <- BinaryBit.getBits Data.maxActorId
   trace (Printf.printf "Getting replication for actor %d" (#value actorId))
   isOpen <- getBool
   let go =
@@ -765,9 +765,6 @@ atLeastNeoTokyo context = #version context >= neoTokyoVersion
 -- Constants
 neoTokyoVersion :: Version.Version
 neoTokyoVersion = Version.makeVersion [868, 12]
-
-maxActorId :: Int
-maxActorId = 1024
 
 maxConnectionNumber :: Int
 maxConnectionNumber = 7
