@@ -64,9 +64,13 @@ getClassCache replay = do
     map
       (\cacheItem -> do
          let classId = cacheItem & #classId & Word32.fromWord32
-         let className = case Map.lookup classId classNames of
-              Nothing -> error ("could not find class name for id " ++ show classId ++ " in " ++ show classNames)
-              Just x -> x
+         let className =
+               case Map.lookup classId classNames of
+                 Nothing ->
+                   error
+                     ("could not find class name for id " ++
+                      show classId ++ " in " ++ show classNames)
+                 Just x -> x
          let cacheId = cacheItem & #cacheId & Word32.fromWord32
          let parentCacheId = cacheItem & #parentCacheId & Word32.fromWord32
          (classId, className, cacheId, parentCacheId))

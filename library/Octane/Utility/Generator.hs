@@ -11,7 +11,7 @@ module Octane.Utility.Generator
   ) where
 
 import Data.Function ((&))
-import Debug.Trace
+
 import qualified Control.Monad as Monad
 import qualified Data.Binary.Bits as BinaryBit
 import qualified Data.Binary.Bits.Put as BinaryBit
@@ -59,36 +59,24 @@ generateStream
   -> Stream.Stream
 generateStream frames objects _names classes cache = do
   let context = makeContext objects classes cache
-  let bitPut = do
-        context
-          & #objectMap
-          & Map.toAscList
-          & map (\ (k, v) -> "- " ++ show v ++ "\t" ++ show k)
-          & ("ACTOR MAP" :)
-          & unlines
-          & traceM
-        context
-          & #classPropertyMap
-          & Map.toAscList
-          & map (\ (k1, v1) -> "- " ++ show k1 ++ "\n" ++
-            (v1
-              & Map.toAscList
-              & map (\(k2, v2) -> "  - " ++ show k2 ++ "\t" ++ show (#value v2))
-              & unlines))
-          & ("CLASS PROPERTY MAP" :)
-          & unlines
-          & traceM
-        putFrames context frames
+  let bitPut = putFrames context frames
   let bytePut = BinaryBit.runBitPut bitPut
   let bytes = Binary.runPut bytePut
   Stream.Stream bytes
 
-makeContext :: List.List Text.Text -> List.List ClassItem.ClassItem -> List.List CacheItem.CacheItem -> Context
+makeContext
+  :: List.List Text.Text
+  -> List.List ClassItem.ClassItem
+  -> List.List CacheItem.CacheItem
+  -> Context
 makeContext objects classes cache = do
   let objectMap =
         objects & #unpack & map #unpack & zip [0 ..] & map Tuple.swap &
         Map.fromList
-  let classMap = classes & #unpack & map (\ classItem -> (#streamId classItem, classItem & #name & #unpack)) & Map.fromList
+  let classMap =
+        classes & #unpack &
+        map (\classItem -> (#streamId classItem, classItem & #name & #unpack)) &
+        Map.fromList
   let classPropertyMap =
         cache & #unpack &
         map
@@ -147,9 +135,9 @@ putReplications :: Context -> [Replication.Replication] -> BinaryBit.BitPut ()
 putReplications context replications = do
   case replications of
     [] -> do
-      False & Boolean.Boolean & BinaryBit.putBits 1
+      False & Boolean.Boolean & BinaryBit.putBits 1 -- no more replications
     replication:rest -> do
-      True & Boolean.Boolean & BinaryBit.putBits 1
+      True & Boolean.Boolean & BinaryBit.putBits 1 -- has replication
       putReplication context replication
       putReplications context rest
 
@@ -183,6 +171,7 @@ putExistingReplication context replication = do
   let className = #className replication
   let properties = replication & #properties & Map.toAscList
   mapM_ (putProperty context className) properties
+  False & Boolean.Boolean & BinaryBit.putBits 1 -- no more properties
 
 putClosedReplication :: BinaryBit.BitPut ()
 putClosedReplication = do
@@ -203,9 +192,7 @@ putProperty context className (propertyName, value) = do
           fail
             ("could not find property id for name " ++
              show propertyName ++ " in class " ++ show className)
-        Just propertyId -> do
-          traceM ("Putting " ++ show propertyId ++ " for " ++ show className ++ "." ++ show propertyName)
-          BinaryBit.putBits 0 propertyId
+        Just propertyId -> BinaryBit.putBits 0 propertyId
   putValue value
 
 putValue :: Value.Value -> BinaryBit.BitPut ()

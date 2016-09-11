@@ -43,7 +43,8 @@ $(OverloadedRecords.overloadedRecord Default.def ''CompressedWord)
 instance BinaryBit.BinaryBit CompressedWord where
   getBits n = do
     let limit = fromIntegral n
-    value <- getStep limit (bitSize limit) 0 0
+    let maxBits = bitSize limit
+    value <- getStep limit maxBits 0 0
     pure (CompressedWord limit value)
   putBits _ compressedWord = do
     let limit = compressedWord & #limit
@@ -89,7 +90,18 @@ fromCompressedWord compressedWord = compressedWord & #value & fromIntegral
 bitSize
   :: (Integral a, Integral b)
   => a -> b
-bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling & max 1
+bitSize x =
+  case x of
+    2 -> 2
+    4 -> 3
+    8 -> 4
+    16 -> 5
+    32 -> 6
+    64 -> 7
+    128 -> 8
+    256 -> 9
+    512 -> 10
+    _ -> x & fromIntegral & logBase (2 :: Double) & ceiling & max 1
 
 getStep :: Word -> Word -> Word -> Word -> BinaryBit.BitGet Word
 getStep limit maxBits position value = do

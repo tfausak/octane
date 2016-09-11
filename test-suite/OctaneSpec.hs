@@ -196,7 +196,7 @@ instance QuickCheck.Arbitrary Octane.ClassItem where
 
 instance QuickCheck.Arbitrary Octane.CompressedWord where
   arbitrary = do
-    limit <- QuickCheck.choose (1, maxBound)
+    limit <- QuickCheck.choose (0, 1024)
     value <- QuickCheck.choose (0, limit)
     pure (Octane.CompressedWord limit value)
 
@@ -331,12 +331,8 @@ instance QuickCheck.Arbitrary Octane.XboxId where
   arbitrary = Octane.XboxId <$> QuickCheck.arbitrary
 
 instance QuickCheck.Arbitrary Octane.Replay where
-  arbitrary
-  -- The vesion must have exactly two pieces and both must be non-negative.
-   = do
-    major <- QuickCheck.arbitrarySizedNatural
-    minor <- QuickCheck.arbitrarySizedNatural
-    let version = Version.makeVersion [major, minor]
+  arbitrary = do
+    let version = Version.makeVersion [868, 12]
     metadata <- QuickCheck.arbitrary
     levels <- QuickCheck.arbitrary
     -- The messages and tick marks must have keys that can be read as
@@ -585,9 +581,6 @@ instance QuickCheck.Arbitrary LazyBytes.ByteString where
 
 instance QuickCheck.Arbitrary StrictText.Text where
   arbitrary = StrictText.pack <$> QuickCheck.arbitrary
-
-instance QuickCheck.Arbitrary Version.Version where
-  arbitrary = Version.makeVersion <$> QuickCheck.arbitrary
 
 newtype FloatVector = FloatVector
   { floatVectorUnpack :: Octane.Vector Float
