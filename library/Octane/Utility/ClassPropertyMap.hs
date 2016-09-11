@@ -82,25 +82,37 @@ getClassIds replay = replay & getClassCache & map (\(x, _, _, _) -> x)
 -- | Gets the parent class ID for the given parent cache ID. This is necessary
 -- because there is not always a class with the given cache ID in the cache.
 -- When that happens, the parent cache ID is decremented and tried again.
-getParentClassId :: StrictText.Text
+getParentClassId :: Maybe StrictText.Text
                  -> Int
                  -> [(Int, StrictText.Text, Int, Int)]
                  -> Maybe Int
-getParentClassId className parentCacheId xs =
+getParentClassId maybeClassName parentCacheId xs =
+  case maybeClassName of
+    Nothing -> getParentClassIdById parentCacheId xs
+    Just className -> getParentClassIdByName className parentCacheId xs
+
+getParentClassIdById :: Int -> [(Int, StrictText.Text, Int, Int)] -> Maybe Int
+getParentClassIdById parentCacheId xs =
+  case dropWhile (\(_, _, cacheId, _) -> cacheId /= parentCacheId) xs of
+    [] ->
+      if parentCacheId <= 0
+        then Nothing
+        else getParentClassIdById (parentCacheId - 1) xs
+    (parentClassId, _, _, _):_ -> Just parentClassId
+
+getParentClassIdByName :: StrictText.Text
+                       -> Int
+                       -> [(Int, StrictText.Text, Int, Int)]
+                       -> Maybe Int
+getParentClassIdByName className parentCacheId xs =
   case Map.lookup className Data.parentClasses of
     Just parentClassName ->
       xs & filter (\(_, name, _, _) -> name == parentClassName) &
       filter (\(_, _, cacheId, _) -> cacheId == parentCacheId) &
       map (\(classId, _, _, _) -> classId) &
       Maybe.listToMaybe &
-      Maybe.maybe (getParentClassId StrictText.empty parentCacheId xs) Just
-    Nothing ->
-      case dropWhile (\(_, _, cacheId, _) -> cacheId /= parentCacheId) xs of
-        [] ->
-          if parentCacheId <= 0
-            then Nothing
-            else getParentClassId className (parentCacheId - 1) xs
-        (parentClassId, _, _, _):_ -> Just parentClassId
+      Maybe.maybe (getParentClassIdById parentCacheId xs) Just
+    Nothing -> getParentClassIdById parentCacheId xs
 
 -- | The basic class map is a naive mapping from class ID to its parent class
 -- ID. It's naive because it only maps the class ID to its immediate parent.
@@ -113,7 +125,7 @@ getBasicClassMap replay =
        case xs of
          [] -> Nothing
          (classId, className, _, parentCacheId):ys -> do
-           parentClassId <- getParentClassId className parentCacheId ys
+           parentClassId <- getParentClassId (Just className) parentCacheId ys
            pure (classId, parentClassId)) &
   IntMap.fromList
 
