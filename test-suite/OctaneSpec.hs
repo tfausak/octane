@@ -324,7 +324,9 @@ instance QuickCheck.Arbitrary Octane.XboxId where
 
 instance QuickCheck.Arbitrary Octane.Replay where
   arbitrary = do
-    let version = Version.makeVersion [868, 12]
+    let version =
+          Version.makeVersion
+            [Octane.latestMajorVersion, Octane.latestMinorVersion]
     metadata <- QuickCheck.arbitrary
     levels <- QuickCheck.arbitrary
     -- The messages and tick marks must have keys that can be read as

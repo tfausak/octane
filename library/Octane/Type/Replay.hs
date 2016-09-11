@@ -30,6 +30,7 @@ import qualified Data.Text as StrictText
 import qualified Data.Tuple as Tuple
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
+import qualified Octane.Data as Data
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.CacheProperty as CacheProperty
 import qualified Octane.Type.ClassItem as ClassItem
@@ -224,8 +225,8 @@ toOptimizedReplay replay
         List.List
   pure
     OptimizedReplay.OptimizedReplay
-    { OptimizedReplay.optimizedReplayVersion1 = 868
-    , OptimizedReplay.optimizedReplayVersion2 = 12
+    { OptimizedReplay.optimizedReplayVersion1 = Data.latestMajorVersion
+    , OptimizedReplay.optimizedReplayVersion2 = Data.latestMinorVersion
     , OptimizedReplay.optimizedReplayLabel = "TAGame.Replay_Soccar_TA"
     , OptimizedReplay.optimizedReplayProperties =
         replay & #metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
