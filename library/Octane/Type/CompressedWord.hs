@@ -43,8 +43,7 @@ $(OverloadedRecords.overloadedRecord Default.def ''CompressedWord)
 instance BinaryBit.BinaryBit CompressedWord where
   getBits n = do
     let limit = fromIntegral n
-    let maxBits = bitSize limit
-    value <- getStep limit maxBits 0 0
+    value <- getStep limit (bitSize limit) 0 0
     pure (CompressedWord limit value)
   putBits _ compressedWord = do
     let limit = compressedWord & #limit
