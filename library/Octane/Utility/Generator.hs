@@ -57,28 +57,32 @@ generateStream
   -> List.List ClassItem.ClassItem
   -> List.List CacheItem.CacheItem
   -> Stream.Stream
-generateStream frames objects _names _classes cache = do
-  let context = makeContext objects cache
+generateStream frames objects _names classes cache = do
+  let context = makeContext objects classes cache
   let bitPut = putFrames context frames
   let bytePut = BinaryBit.runBitPut bitPut
   let bytes = Binary.runPut bytePut
   Stream.Stream bytes
 
-makeContext :: List.List Text.Text -> List.List CacheItem.CacheItem -> Context
-makeContext objects cache = do
+makeContext
+  :: List.List Text.Text
+  -> List.List ClassItem.ClassItem
+  -> List.List CacheItem.CacheItem
+  -> Context
+makeContext objects classes cache = do
   let objectMap =
         objects & #unpack & map #unpack & zip [0 ..] & map Tuple.swap &
+        Map.fromList
+  let classMap =
+        classes & #unpack &
+        map (\classItem -> (#streamId classItem, classItem & #name & #unpack)) &
         Map.fromList
   let classPropertyMap =
         cache & #unpack &
         map
           (\cacheItem -> do
              let className =
-                   case objectMap & Map.assocs & map Tuple.swap & Map.fromList &
-                        Map.lookup
-                          (cacheItem & #classId & Word32.fromWord32 &
-                           (\x -> x :: Int) &
-                           Int32.toInt32) of
+                   case Map.lookup (#classId cacheItem) classMap of
                      Nothing ->
                        error ("could not find class id for " ++ show className)
                      Just name -> name
@@ -131,9 +135,9 @@ putReplications :: Context -> [Replication.Replication] -> BinaryBit.BitPut ()
 putReplications context replications = do
   case replications of
     [] -> do
-      False & Boolean.Boolean & BinaryBit.putBits 1
+      False & Boolean.Boolean & BinaryBit.putBits 1 -- no more replications
     replication:rest -> do
-      True & Boolean.Boolean & BinaryBit.putBits 1
+      True & Boolean.Boolean & BinaryBit.putBits 1 -- has replication
       putReplication context replication
       putReplications context rest
 
@@ -167,6 +171,7 @@ putExistingReplication context replication = do
   let className = #className replication
   let properties = replication & #properties & Map.toAscList
   mapM_ (putProperty context className) properties
+  False & Boolean.Boolean & BinaryBit.putBits 1 -- no more properties
 
 putClosedReplication :: BinaryBit.BitPut ()
 putClosedReplication = do

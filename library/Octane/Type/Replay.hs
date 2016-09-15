@@ -23,11 +23,14 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
+import qualified Data.Maybe as Maybe
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Set as Set
 import qualified Data.Text as StrictText
+import qualified Data.Tuple as Tuple
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
+import qualified Octane.Data as Data
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.CacheProperty as CacheProperty
 import qualified Octane.Type.ClassItem as ClassItem
@@ -158,72 +161,72 @@ fromOptimizedReplay optimizedReplay = do
 toOptimizedReplay
   :: (Monad m)
   => Replay -> m OptimizedReplay.OptimizedReplay
-toOptimizedReplay replay = do
-  let [version1, version2] =
-        replay & #version & Version.versionBranch & map Word32.toWord32
-  -- Key frames aren't important for replays. Mark the first frame as a key
-  -- frame and the rest as regular frames.
+toOptimizedReplay replay
+                  -- Key frames aren't important for replays. Mark the first frame as a key
+                  -- frame and the rest as regular frames.
+ = do
   let frames =
         replay & #frames & zip [0 :: Int ..] &
         map (\(index, frame) -> frame {Frame.frameIsKeyFrame = index == 0})
-  let objectNames = frames & concatMap #replications & map #objectName
-  let classNames = frames & concatMap #replications & map #className
+  -- The actors are a list of all classes, objects, and properties used in the
+  -- replay. An actor's position in this list is their ID, not their stream ID.
+  let classNames =
+        frames & concatMap #replications & map #className & ("Core.Object" :) &
+        Set.fromList
+  let objectNames =
+        frames & concatMap #replications & map #objectName & Set.fromList
   let propertyNames =
-        frames & concatMap #replications & map #properties & concatMap Map.keys
-  let objects =
-        [objectNames, classNames, propertyNames] & concat & Set.fromList &
+        frames & concatMap #replications & map #properties & concatMap Map.keys &
+        Set.fromList
+  let actors =
+        classNames & Set.union objectNames & Set.union propertyNames &
         Set.toAscList &
         map Text.Text &
         List.List
-  let objectsToPosition = objects & #unpack & flip zip [0 ..] & Map.fromList
-  classes <-
-    frames & concatMap #replications & map #className & Set.fromList &
-    Set.toAscList &
-    map Text.Text &
-    mapM
-      (\className ->
-         case Map.lookup className objectsToPosition of
-           Nothing ->
-             fail
-               ("class " ++ show className ++ " not found in list of objects")
-           Just position -> pure (ClassItem.ClassItem className position)) &
-    fmap List.List
-  let numClasses = classes & #unpack & length & fromIntegral
-  classesToProperties <-
-    frames & concatMap #replications &
-    concatMap
-      (\replication ->
-         zip
-           (replication & #className & repeat)
-           (replication & #properties & Map.keys & map Text.Text)) &
-    zip [numClasses ..] &
-    mapM
-      (\(streamId, (className, propertyName)) -> do
-         case Map.lookup propertyName objectsToPosition of
-           Nothing ->
-             fail
-               ("property " ++
-                show propertyName ++ " not found in list of objects")
-           Just propertyId ->
-             pure (className, [CacheProperty.CacheProperty propertyId streamId])) &
-    fmap (Map.fromListWith (++))
-  let cache =
-        classes & #unpack & zip [0 ..] &
+  -- The class items are a list of class names to their stream IDs.
+  let classItems =
+        classNames & Set.toAscList & map Text.Text & zip [0 ..] &
+        map (\(streamId, name) -> do ClassItem.ClassItem name streamId) &
+        List.List
+  -- The cache items are a list of classes together with their cache IDs,
+  -- parent cache IDs, and a list of their property IDs to stream IDs.
+  let classesToId =
+        classItems & #unpack & map (\x -> (#name x, #streamId x)) & Map.fromList
+  let actorsToId = actors & #unpack & zip [0 ..] & map Tuple.swap & Map.fromList
+  let propertiesByClass =
+        frames & concatMap #replications &
+        concatMap
+          (\replication ->
+             zip
+               (replication & #className & Text.Text & repeat)
+               (replication & #properties & Map.keys & map Text.Text)) &
+        Set.fromList &
+        Set.toAscList &
+        zip [0 ..] &
         map
-          (\(index, classItem) -> do
-             let classId = #streamId classItem
-             let parentCacheId = index
-             let cacheId = index
+          (\(streamId, (className, propertyName)) -> do
+             let propertyId =
+                   actorsToId & Map.lookup propertyName & Maybe.fromJust
+             let cacheProperty = CacheProperty.CacheProperty propertyId streamId
+             let cacheProperties = [cacheProperty]
+             (className, cacheProperties)) &
+        Map.fromListWith (++)
+  let cacheItems =
+        classItems & #unpack & zip [0 ..] &
+        map
+          (\(cacheId, classItem) -> do
+             let className = #name classItem
+             let classId = classesToId & Map.lookup className & Maybe.fromJust
+             let parentCacheId = 0 -- cacheId
              let properties =
-                   classesToProperties &
-                   Map.findWithDefault [] (classItem & #name & #unpack) &
+                   propertiesByClass & Map.findWithDefault [] className &
                    List.List
              CacheItem.CacheItem classId parentCacheId cacheId properties) &
         List.List
   pure
     OptimizedReplay.OptimizedReplay
-    { OptimizedReplay.optimizedReplayVersion1 = version1
-    , OptimizedReplay.optimizedReplayVersion2 = version2
+    { OptimizedReplay.optimizedReplayVersion1 = Data.latestMajorVersion
+    , OptimizedReplay.optimizedReplayVersion2 = Data.latestMinorVersion
     , OptimizedReplay.optimizedReplayLabel = "TAGame.Replay_Soccar_TA"
     , OptimizedReplay.optimizedReplayProperties =
         replay & #metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
@@ -257,8 +260,8 @@ toOptimizedReplay replay = do
         List.List
     , OptimizedReplay.optimizedReplayPackages =
         replay & #packages & map Text.Text & List.List
-    , OptimizedReplay.optimizedReplayObjects = objects
+    , OptimizedReplay.optimizedReplayObjects = actors
     , OptimizedReplay.optimizedReplayNames = List.List [] -- TODO
-    , OptimizedReplay.optimizedReplayClasses = classes
-    , OptimizedReplay.optimizedReplayCache = cache
+    , OptimizedReplay.optimizedReplayClasses = classItems
+    , OptimizedReplay.optimizedReplayCache = cacheItems
     }

@@ -26,6 +26,7 @@ import qualified Data.Bits as Bits
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified GHC.Generics as Generics
+import qualified Octane.Data as Data
 import qualified Octane.Type.Boolean as Boolean
 
 -- | A compressed, unsigned integer. When serialized, the least significant bit
@@ -89,7 +90,11 @@ fromCompressedWord compressedWord = compressedWord & #value & fromIntegral
 bitSize
   :: (Integral a, Integral b)
   => a -> b
-bitSize x = x & fromIntegral & logBase (2 :: Double) & ceiling & max 1
+bitSize x = do
+  let n = x & max 1 & fromIntegral & logBase (2 :: Double) & ceiling & max 1
+  if x < Data.maxActorId && x == 2 ^ n
+    then n + 1
+    else n
 
 getStep :: Word -> Word -> Word -> Word -> BinaryBit.BitGet Word
 getStep limit maxBits position value = do
