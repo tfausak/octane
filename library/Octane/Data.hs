@@ -37,7 +37,9 @@ latestMinorVersion
   => a
 latestMinorVersion = 12
 
-maxActorId :: (Num a) => a
+maxActorId
+  :: (Num a)
+  => a
 maxActorId = 1024
 
 -- | A mapping between classes and their parent classes. Note that not every
