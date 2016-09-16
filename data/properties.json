@@ -88,6 +88,7 @@
   "TAGame.GameEvent_Soccar_TA:SecondsRemaining": "int",
   "TAGame.GameEvent_Soccar_TA:SubRulesArchetype": "flagged_int",
   "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings": "private_match_settings",
+  "TAGame.GameEvent_TA:bCanVoteToForfeit": "boolean",
   "TAGame.GameEvent_TA:bHasLeaveMatchPenalty": "boolean",
   "TAGame.GameEvent_TA:BotSkill": "int",
   "TAGame.GameEvent_TA:GameMode": "game_mode",
