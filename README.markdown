@@ -33,6 +33,13 @@ release][] for your platform. You can run the executable one of three ways:
     $ octane first.replay second.replay > replays.json
     ```
 
+Rocket League saves your replays in a folder that depends on your operating
+system.
+
+- Windows: `%UserProfile%\Documents\My Games\Rocket League\TAGame\Demos`
+- macOS: `$HOME/Library/Application Support/Rocket League/TAGame/Demos`
+- Linux: `$HOME/.local/share/Rocket League/TAGame/Demos`
+
 Octane is written in Haskell. If you're looking for a library written in
 another language, check out the [Rocket League Replays wiki][]. It has links to
 many other Rocket League replay parsers.
