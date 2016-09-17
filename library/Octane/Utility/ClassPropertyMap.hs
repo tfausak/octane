@@ -20,6 +20,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
 import qualified Octane.Data as Data
+import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.List as List
 import qualified Octane.Type.ReplayWithoutFrames as Replay
 import qualified Octane.Type.Text as Text
@@ -61,7 +62,7 @@ getClassPropertyMap replay =
 getClassCache :: Replay.ReplayWithoutFrames
               -> [(Int, StrictText.Text, Int, Int)]
 getClassCache replay = do
-  let classNames = replay & getActorMap & Bimap.toMapR
+  let classNames = replay & #classes & getActorMap & Bimap.toMapR
   replay & #cache & #unpack &
     map
       (\cacheItem -> do
@@ -178,9 +179,9 @@ getBasicClassPropertyMap replay =
      IntMap.fromList
 
 -- | The actor map is a mapping from class names to their IDs.
-getActorMap :: Replay.ReplayWithoutFrames -> Bimap.Bimap StrictText.Text Int
-getActorMap replay =
-  replay & #classes & #unpack &
+getActorMap :: List.List ClassItem.ClassItem -> Bimap.Bimap StrictText.Text Int
+getActorMap classes =
+  classes & #unpack &
   map
     (\x ->
        let className = x & #name & #unpack
