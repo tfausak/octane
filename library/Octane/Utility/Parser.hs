@@ -110,7 +110,7 @@ extractContext replay = do
         Version.makeVersion
   Context
     (replay & #objects & CPM.getPropertyMap)
-    (CPM.getClassPropertyMap replay)
+    (CPM.getClassPropertyMap (#objects replay) (#classes replay) (#cache replay))
     IntMap.empty
     (replay & #classes & CPM.getActorMap & Bimap.toMap)
     keyFrames

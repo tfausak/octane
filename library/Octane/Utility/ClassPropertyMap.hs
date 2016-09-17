@@ -23,20 +23,21 @@ import qualified Octane.Data as Data
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.List as List
-import qualified Octane.Type.ReplayWithoutFrames as Replay
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 import qualified "regex-compat" Text.Regex as Regex
 
 -- | The class property map is a map from class IDs in the stream to a map from
 -- property IDs in the stream to property names.
-getClassPropertyMap :: Replay.ReplayWithoutFrames
-                    -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
-getClassPropertyMap replay =
-  let basicClassPropertyMap =
-        getBasicClassPropertyMap (#objects replay) (#cache replay)
-      classMap = getClassMap (#classes replay) (#cache replay)
-  in getClassIds (#classes replay) (#cache replay) &
+getClassPropertyMap
+  :: List.List Text.Text
+  -> List.List ClassItem.ClassItem
+  -> List.List CacheItem.CacheItem
+  -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
+getClassPropertyMap objects classes cache =
+  let basicClassPropertyMap = getBasicClassPropertyMap objects cache
+      classMap = getClassMap classes cache
+  in getClassIds classes cache &
      map
        (\classId ->
           let ownProperties =
