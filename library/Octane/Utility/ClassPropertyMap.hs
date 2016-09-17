@@ -20,7 +20,9 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
 import qualified Octane.Data as Data
+import qualified Octane.Type.List as List
 import qualified Octane.Type.ReplayWithoutFrames as Replay
+import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 import qualified "regex-compat" Text.Regex as Regex
 
@@ -147,9 +149,9 @@ getClassMap replay =
      IntMap.fromList
 
 -- | The property map is a mapping from property IDs to property names.
-getPropertyMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap StrictText.Text
-getPropertyMap replay =
-  replay & #objects & #unpack & map #unpack & zip [0 ..] & IntMap.fromList
+getPropertyMap :: List.List Text.Text -> IntMap.IntMap StrictText.Text
+getPropertyMap objects =
+  objects & #unpack & map #unpack & zip [0 ..] & IntMap.fromList
 
 -- | The basic class property map is a naive mapping from class IDs to a
 -- mapping from property IDs to property names. It's naive because it does
@@ -157,7 +159,7 @@ getPropertyMap replay =
 getBasicClassPropertyMap :: Replay.ReplayWithoutFrames
                          -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
 getBasicClassPropertyMap replay =
-  let propertyMap = getPropertyMap replay
+  let propertyMap = replay & #objects & getPropertyMap
   in replay & #cache & #unpack &
      map
        (\x ->
