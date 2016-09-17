@@ -37,8 +37,8 @@ import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Value as Value
 import qualified Octane.Type.Vector as Vector
 import qualified Octane.Type.Word16 as Word16
-import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word8 as Word8
+import qualified Octane.Utility.ClassPropertyMap as CPM
 
 data Context = Context
   { contextObjectMap :: Map.Map StrictText.Text Int32.Int32
@@ -73,48 +73,7 @@ makeContext objects classes cache = do
   let objectMap =
         objects & #unpack & map #unpack & zip [0 ..] & map Tuple.swap &
         Map.fromList
-  let classMap =
-        classes & #unpack &
-        map (\classItem -> (#streamId classItem, classItem & #name & #unpack)) &
-        Map.fromList
-  let classPropertyMap =
-        cache & #unpack &
-        map
-          (\cacheItem -> do
-             let className =
-                   case Map.lookup (#classId cacheItem) classMap of
-                     Nothing ->
-                       error ("could not find class id for " ++ show className)
-                     Just name -> name
-             let maxPropertyId =
-                   cacheItem & #properties & #unpack & map #streamId &
-                   map Word32.fromWord32 &
-                   (0 :) &
-                   maximum
-             let properties =
-                   cacheItem & #properties & #unpack &
-                   map
-                     (\cacheProperty -> do
-                        let propertyName =
-                              case objectMap & Map.assocs & map Tuple.swap &
-                                   Map.fromList &
-                                   Map.lookup
-                                     (cacheProperty & #objectId &
-                                      Word32.fromWord32 &
-                                      (\x -> x :: Int) &
-                                      Int32.toInt32) of
-                                Nothing ->
-                                  error
-                                    ("coult not find property name for " ++
-                                     show cacheProperty)
-                                Just name -> name
-                        let propertyId =
-                              cacheProperty & #streamId & Word32.fromWord32 &
-                              CompressedWord.CompressedWord maxPropertyId
-                        (propertyName, propertyId)) &
-                   Map.fromList
-             (className, properties)) &
-        Map.fromList
+  let classPropertyMap = CPM.getClassPropertyMap' objects classes cache
   Context objectMap classPropertyMap
 
 putFrames :: Context -> [Frame.Frame] -> BinaryBit.BitPut ()

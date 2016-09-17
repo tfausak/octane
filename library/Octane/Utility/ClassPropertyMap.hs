@@ -6,6 +6,7 @@
 -- cornerstone of the replay stream parser.
 module Octane.Utility.ClassPropertyMap
   ( getClassPropertyMap
+  , getClassPropertyMap'
   , getPropertyMap
   , getActorMap
   , getClass
@@ -22,13 +23,15 @@ import qualified Data.Text as StrictText
 import qualified Octane.Data as Data
 import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
+import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Text as Text
 import qualified Octane.Type.Word32 as Word32
 import qualified "regex-compat" Text.Regex as Regex
 
 -- | The class property map is a map from class IDs in the stream to a map from
--- property IDs in the stream to property names.
+-- property IDs in the stream to property names. This is used when parsing
+-- replays.
 getClassPropertyMap
   :: List.List Text.Text
   -> List.List ClassItem.ClassItem
@@ -58,6 +61,46 @@ getClassPropertyMap objects classes cache =
               properties = IntMap.union ownProperties parentProperties
           in (classId, properties)) &
      IntMap.fromList
+
+-- | This class property map is a map from class names to a map from property
+-- names to property IDs in the stream. This is used when generating replays.
+getClassPropertyMap'
+  :: List.List Text.Text
+  -> List.List ClassItem.ClassItem
+  -> List.List CacheItem.CacheItem
+  -> Map.Map StrictText.Text (Map.Map StrictText.Text CompressedWord.CompressedWord)
+getClassPropertyMap' objects classes cache = do
+  let classPropertyMap = getClassPropertyMap objects classes cache
+  let classMap =
+        classes & #unpack &
+        map
+          (\classItem -> do
+             let streamId = classItem & #streamId & Word32.fromWord32
+             let name = classItem & #name & #unpack
+             (streamId, name)) &
+        Map.fromList
+  let unsafeGetClassName streamId =
+        case Map.lookup streamId classMap of
+          Nothing ->
+            error ("could not find class name for id " ++ show streamId)
+          Just name -> name
+  let maxPropertyId properties =
+        properties & IntMap.maxViewWithKey & fmap fst & fmap fst &
+        fmap fromIntegral &
+        Maybe.fromMaybe 0
+  classPropertyMap & IntMap.toAscList &
+    map
+      (\(streamId, properties) ->
+         ( unsafeGetClassName streamId
+         , properties & IntMap.toAscList &
+           map
+             (\(propertyId, propertyName) ->
+                ( propertyName
+                , CompressedWord.CompressedWord
+                    (maxPropertyId properties)
+                    (fromIntegral propertyId))) &
+           Map.fromList)) &
+    Map.fromList
 
 -- | The class cache is a list of 4-tuples where the first element is a class
 -- ID, the second is its name, the third is its cache ID, the fourth is its
