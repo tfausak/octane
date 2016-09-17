@@ -35,7 +35,7 @@ getClassPropertyMap :: Replay.ReplayWithoutFrames
 getClassPropertyMap replay =
   let basicClassPropertyMap = getBasicClassPropertyMap replay
       classMap = getClassMap replay
-  in replay & getClassIds &
+  in getClassIds (#classes replay) (#cache replay) &
      map
        (\classId ->
           let ownProperties =
@@ -82,9 +82,11 @@ getClassCache classes cache = do
          (classId, className, cacheId, parentCacheId))
 
 -- | The class IDs in a replay. Comes from the class cache.
-getClassIds :: Replay.ReplayWithoutFrames -> [Int]
-getClassIds replay =
-  getClassCache (#classes replay) (#cache replay) & map (\(x, _, _, _) -> x)
+getClassIds :: List.List ClassItem.ClassItem
+            -> List.List CacheItem.CacheItem
+            -> [Int]
+getClassIds classes cache =
+  getClassCache classes cache & map (\(x, _, _, _) -> x)
 
 -- | Gets the parent class ID for the given parent cache ID. This is necessary
 -- because there is not always a class with the given cache ID in the cache.
@@ -149,7 +151,7 @@ getParentClassIds classId basicClassMap =
 getClassMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap [Int]
 getClassMap replay =
   let basicClassMap = getBasicClassMap replay
-  in replay & getClassIds &
+  in getClassIds (#classes replay) (#cache replay) &
      map (\classId -> (classId, getParentClassIds classId basicClassMap)) &
      IntMap.fromList
 
