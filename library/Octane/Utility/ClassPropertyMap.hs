@@ -126,9 +126,12 @@ getParentClassIdByName className parentCacheId xs =
 -- | The basic class map is a naive mapping from class ID to its parent class
 -- ID. It's naive because it only maps the class ID to its immediate parent.
 -- It does not chase the inheritance all the way down.
-getBasicClassMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap Int
-getBasicClassMap replay =
-  getClassCache (#classes replay) (#cache replay) & reverse & List.tails &
+getBasicClassMap
+  :: List.List ClassItem.ClassItem
+  -> List.List CacheItem.CacheItem
+  -> IntMap.IntMap Int
+getBasicClassMap classes cache =
+  getClassCache classes cache & reverse & List.tails &
   Maybe.mapMaybe
     (\xs ->
        case xs of
@@ -150,7 +153,7 @@ getParentClassIds classId basicClassMap =
 -- | The class map is a mapping from a class ID to all of its parent class IDs.
 getClassMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap [Int]
 getClassMap replay =
-  let basicClassMap = getBasicClassMap replay
+  let basicClassMap = getBasicClassMap (#classes replay) (#cache replay)
   in getClassIds (#classes replay) (#cache replay) &
      map (\classId -> (classId, getParentClassIds classId basicClassMap)) &
      IntMap.fromList
