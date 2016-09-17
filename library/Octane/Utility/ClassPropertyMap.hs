@@ -34,7 +34,7 @@ getClassPropertyMap :: Replay.ReplayWithoutFrames
                     -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
 getClassPropertyMap replay =
   let basicClassPropertyMap = getBasicClassPropertyMap replay
-      classMap = getClassMap replay
+      classMap = getClassMap (#classes replay) (#cache replay)
   in getClassIds (#classes replay) (#cache replay) &
      map
        (\classId ->
@@ -151,10 +151,13 @@ getParentClassIds classId basicClassMap =
       parentClassId : getParentClassIds parentClassId basicClassMap
 
 -- | The class map is a mapping from a class ID to all of its parent class IDs.
-getClassMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap [Int]
-getClassMap replay =
-  let basicClassMap = getBasicClassMap (#classes replay) (#cache replay)
-  in getClassIds (#classes replay) (#cache replay) &
+getClassMap
+  :: List.List ClassItem.ClassItem
+  -> List.List CacheItem.CacheItem
+  -> IntMap.IntMap [Int]
+getClassMap classes cache =
+  let basicClassMap = getBasicClassMap classes cache
+  in getClassIds classes cache &
      map (\classId -> (classId, getParentClassIds classId basicClassMap)) &
      IntMap.fromList
 
