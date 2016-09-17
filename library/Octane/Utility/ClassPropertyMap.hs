@@ -20,6 +20,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as StrictText
 import qualified Octane.Data as Data
+import qualified Octane.Type.CacheItem as CacheItem
 import qualified Octane.Type.ClassItem as ClassItem
 import qualified Octane.Type.List as List
 import qualified Octane.Type.ReplayWithoutFrames as Replay
@@ -59,11 +60,13 @@ getClassPropertyMap replay =
 -- | The class cache is a list of 4-tuples where the first element is a class
 -- ID, the second is its name, the third is its cache ID, the fourth is its
 -- parent's cache ID.
-getClassCache :: Replay.ReplayWithoutFrames
-              -> [(Int, StrictText.Text, Int, Int)]
-getClassCache replay = do
-  let classNames = replay & #classes & getActorMap & Bimap.toMapR
-  replay & #cache & #unpack &
+getClassCache
+  :: List.List ClassItem.ClassItem
+  -> List.List CacheItem.CacheItem
+  -> [(Int, StrictText.Text, Int, Int)]
+getClassCache classes cache = do
+  let classNames = classes & getActorMap & Bimap.toMapR
+  cache & #unpack &
     map
       (\cacheItem -> do
          let classId = cacheItem & #classId & Word32.fromWord32
@@ -80,7 +83,8 @@ getClassCache replay = do
 
 -- | The class IDs in a replay. Comes from the class cache.
 getClassIds :: Replay.ReplayWithoutFrames -> [Int]
-getClassIds replay = replay & getClassCache & map (\(x, _, _, _) -> x)
+getClassIds replay =
+  getClassCache (#classes replay) (#cache replay) & map (\(x, _, _, _) -> x)
 
 -- | Gets the parent class ID for the given parent cache ID. This is necessary
 -- because there is not always a class with the given cache ID in the cache.
@@ -122,7 +126,7 @@ getParentClassIdByName className parentCacheId xs =
 -- It does not chase the inheritance all the way down.
 getBasicClassMap :: Replay.ReplayWithoutFrames -> IntMap.IntMap Int
 getBasicClassMap replay =
-  replay & getClassCache & reverse & List.tails &
+  getClassCache (#classes replay) (#cache replay) & reverse & List.tails &
   Maybe.mapMaybe
     (\xs ->
        case xs of
