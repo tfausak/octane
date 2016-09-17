@@ -24,8 +24,8 @@ import qualified GHC.Generics as Generics
 import qualified Octane.Type.Value.LoadoutValue as LoadoutValue
 
 data LoadoutsValue = LoadoutsValue
-  { loadoutsValueLoadout1 :: LoadoutValue.LoadoutValue
-  , loadoutsValueLoadout2 :: LoadoutValue.LoadoutValue
+  { loadoutsValueLoadout1 :: LoadoutValue.LoadoutValue -- ^ blue
+  , loadoutsValueLoadout2 :: LoadoutValue.LoadoutValue -- ^ orange
   } deriving (Eq, Generics.Generic, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''LoadoutsValue)
