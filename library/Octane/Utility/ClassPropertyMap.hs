@@ -33,7 +33,8 @@ import qualified "regex-compat" Text.Regex as Regex
 getClassPropertyMap :: Replay.ReplayWithoutFrames
                     -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
 getClassPropertyMap replay =
-  let basicClassPropertyMap = getBasicClassPropertyMap replay
+  let basicClassPropertyMap =
+        getBasicClassPropertyMap (#objects replay) (#cache replay)
       classMap = getClassMap (#classes replay) (#cache replay)
   in getClassIds (#classes replay) (#cache replay) &
      map
@@ -169,11 +170,13 @@ getPropertyMap objects =
 -- | The basic class property map is a naive mapping from class IDs to a
 -- mapping from property IDs to property names. It's naive because it does
 -- not include the properties from the class's parents.
-getBasicClassPropertyMap :: Replay.ReplayWithoutFrames
-                         -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
-getBasicClassPropertyMap replay =
-  let propertyMap = replay & #objects & getPropertyMap
-  in replay & #cache & #unpack &
+getBasicClassPropertyMap
+  :: List.List Text.Text
+  -> List.List CacheItem.CacheItem
+  -> IntMap.IntMap (IntMap.IntMap StrictText.Text)
+getBasicClassPropertyMap objects cache =
+  let propertyMap = getPropertyMap objects
+  in cache & #unpack &
      map
        (\x ->
           let classId = x & #classId & Word32.fromWord32
