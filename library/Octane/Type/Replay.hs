@@ -168,11 +168,34 @@ toOptimizedReplay replay
   let frames =
         replay & #frames & zip [0 :: Int ..] &
         map (\(index, frame) -> frame {Frame.frameIsKeyFrame = index == 0})
+  -- These classes typically aren't replicated directly. They must be in the
+  -- class property map. If they aren't, Rocket League either crashes or fails
+  -- to display anything.
+  let constantClassNames =
+        Set.fromList
+          [ "Core.Object"
+          , "Engine.Actor"
+          , "Engine.GameReplicationInfo"
+          , "Engine.Info"
+          , "Engine.Pawn"
+          , "Engine.PlayerReplicationInfo"
+          , "Engine.ReplicationInfo"
+          , "Engine.TeamInfo"
+          , "ProjectX.GRI_X"
+          , "ProjectX.Pawn_X"
+          , "ProjectX.PRI_X"
+          , "TAGame.CarComponent_TA"
+          , "TAGame.GameEvent_TA"
+          , "TAGame.GameEvent_Team_TA"
+          , "TAGame.RBActor_TA"
+          , "TAGame.Team_TA"
+          , "TAGame.Vehicle_TA"
+          ]
   -- The actors are a list of all classes, objects, and properties used in the
   -- replay. An actor's position in this list is their ID, not their stream ID.
   let classNames =
-        frames & concatMap #replications & map #className & ("Core.Object" :) &
-        Set.fromList
+        frames & concatMap #replications & map #className & Set.fromList &
+        Set.union constantClassNames
   let objectNames =
         frames & concatMap #replications & map #objectName & Set.fromList
   let propertyNames =
@@ -217,6 +240,7 @@ toOptimizedReplay replay
           (\(cacheId, classItem) -> do
              let className = #name classItem
              let classId = classesToId & Map.lookup className & Maybe.fromJust
+             -- TODO: Determine this class's actual parent.
              let parentCacheId = 0 -- cacheId
              let properties =
                    propertiesByClass & Map.findWithDefault [] className &
