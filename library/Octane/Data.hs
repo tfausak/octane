@@ -23,6 +23,10 @@ classesWithRotation :: Set.Set StrictText.Text
 classesWithRotation =
   Embed.decodeSet $(FileEmbed.embedFile "data/classes-with-rotation.json")
 
+classProperties :: Map.Map StrictText.Text (Set.Set StrictText.Text)
+classProperties =
+  Embed.decodeMap $(FileEmbed.embedFile "data/class-properties.json")
+
 -- | A one-to-one mapping between game mode IDs and their names.
 gameModes :: Bimap.Bimap Int StrictText.Text
 gameModes = Embed.decodeBimap $(FileEmbed.embedFile "data/game-modes.json")
