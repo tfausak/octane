@@ -221,12 +221,8 @@ toOptimizedReplay replay
           (\(cacheId, classItem) -> do
              let className = #name classItem
              let classId = classesToId & Map.lookup className & Maybe.fromJust
-             let parentCacheId =
-                   case Map.lookup (#unpack className) Data.parentClasses of
-                     Nothing -> 0
-                     Just parentName ->
-                       classesToId & Map.lookup (Text.Text parentName) &
-                       Maybe.fromJust
+             -- TODO: Determine this class's actual parent.
+             let parentCacheId = 0 -- cacheId
              let properties =
                    propertiesByClass & Map.findWithDefault [] className &
                    List.List
