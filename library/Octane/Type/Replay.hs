@@ -171,26 +171,7 @@ toOptimizedReplay replay
   -- These classes typically aren't replicated directly. They must be in the
   -- class property map. If they aren't, Rocket League either crashes or fails
   -- to display anything.
-  let constantClassNames =
-        Set.fromList
-          [ "Core.Object"
-          , "Engine.Actor"
-          , "Engine.GameReplicationInfo"
-          , "Engine.Info"
-          , "Engine.Pawn"
-          , "Engine.PlayerReplicationInfo"
-          , "Engine.ReplicationInfo"
-          , "Engine.TeamInfo"
-          , "ProjectX.GRI_X"
-          , "ProjectX.Pawn_X"
-          , "ProjectX.PRI_X"
-          , "TAGame.CarComponent_TA"
-          , "TAGame.GameEvent_TA"
-          , "TAGame.GameEvent_Team_TA"
-          , "TAGame.RBActor_TA"
-          , "TAGame.Team_TA"
-          , "TAGame.Vehicle_TA"
-          ]
+  let constantClassNames = Data.classProperties & Map.keysSet
   -- The actors are a list of all classes, objects, and properties used in the
   -- replay. An actor's position in this list is their ID, not their stream ID.
   let classNames =
