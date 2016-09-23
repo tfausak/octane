@@ -109,10 +109,10 @@ extractContext replay = do
         [replay & #version1, replay & #version2] & map Word32.fromWord32 &
         Version.makeVersion
   Context
-    (CPM.getPropertyMap replay)
-    (CPM.getClassPropertyMap replay)
+    (replay & #objects & CPM.getPropertyMap)
+    (CPM.getClassPropertyMap (#objects replay) (#classes replay) (#cache replay))
     IntMap.empty
-    (replay & CPM.getActorMap & Bimap.toMap)
+    (replay & #classes & CPM.getActorMap & Bimap.toMap)
     keyFrames
     version
 
