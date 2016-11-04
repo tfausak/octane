@@ -105,20 +105,43 @@ instance Aeson.ToJSON Replay where
       ]
 
 fromRawReplay :: Rattletrap.Replay -> Replay
-fromRawReplay rawReplay =
-  let header = Rattletrap.replayHeader rawReplay
+fromRawReplay replay =
+  let header = Rattletrap.replayHeader replay
       fromWord32 x = x & Rattletrap.word32Value & fromIntegral
+      content = Rattletrap.replayContent replay
       version =
         Version.makeVersion
           [ header & Rattletrap.headerEngineVersion & fromWord32
           , header & Rattletrap.headerLicenseeVersion & fromWord32
           ]
-      metadata = Map.empty
-      levels = []
-      messages = Map.empty
-      tickMarks = Map.empty
-      packages = []
-      frames = []
+      metadata = Map.empty -- TODO
+      levels =
+        content & Rattletrap.contentLevels & Rattletrap.listValue &
+        map Rattletrap.textToString &
+        map StrictText.pack
+      messages =
+        content & Rattletrap.contentMessages & Rattletrap.listValue &
+        map
+          (\message ->
+              ( message & Rattletrap.messageFrame & Rattletrap.word32Value & show &
+                StrictText.pack
+              , message & Rattletrap.messageValue & Rattletrap.textToString &
+                StrictText.pack)) &
+        Map.fromList
+      tickMarks =
+        content & Rattletrap.contentMarks & Rattletrap.listValue &
+        map
+          (\mark ->
+              ( mark & Rattletrap.markFrame & Rattletrap.word32Value & show &
+                StrictText.pack
+              , mark & Rattletrap.markValue & Rattletrap.textToString &
+                StrictText.pack)) &
+        Map.fromList
+      packages =
+        content & Rattletrap.contentPackages & Rattletrap.listValue &
+        map Rattletrap.textToString &
+        map StrictText.pack
+      frames = [] -- TODO
   in Replay
      { replayVersion = version
      , replayMetadata = metadata
@@ -140,22 +163,22 @@ toRawReplay replay =
         , Rattletrap.headerLicenseeVersion = minorVersion
         , Rattletrap.headerLabel =
           Rattletrap.stringToText "TAGame.Replay_Soccar_TA"
-        , Rattletrap.headerProperties = Rattletrap.Dictionary []
+        , Rattletrap.headerProperties = Rattletrap.Dictionary [] -- TODO
         }
       content =
         Rattletrap.Content
-        { Rattletrap.contentLevels = Rattletrap.List []
+        { Rattletrap.contentLevels = Rattletrap.List [] -- TODO
         , Rattletrap.contentKeyFrames = Rattletrap.List []
-        , Rattletrap.contentStreamSize = Rattletrap.Word32 0
-        , Rattletrap.contentFrames = []
+        , Rattletrap.contentStreamSize = Rattletrap.Word32 0 -- TODO
+        , Rattletrap.contentFrames = [] -- TODO
         , Rattletrap.contentTrailingBits = []
-        , Rattletrap.contentMessages = Rattletrap.List []
-        , Rattletrap.contentMarks = Rattletrap.List []
-        , Rattletrap.contentPackages = Rattletrap.List []
-        , Rattletrap.contentObjects = Rattletrap.List []
+        , Rattletrap.contentMessages = Rattletrap.List [] -- TODO
+        , Rattletrap.contentMarks = Rattletrap.List [] -- TODO
+        , Rattletrap.contentPackages = Rattletrap.List [] -- TODO
+        , Rattletrap.contentObjects = Rattletrap.List [] -- TODO
         , Rattletrap.contentNames = Rattletrap.List []
-        , Rattletrap.contentClassMappings = Rattletrap.List []
-        , Rattletrap.contentCaches = Rattletrap.List []
+        , Rattletrap.contentClassMappings = Rattletrap.List [] -- TODO
+        , Rattletrap.contentCaches = Rattletrap.List [] -- TODO
         }
   in Rattletrap.Replay
      { Rattletrap.replayHeader = header
