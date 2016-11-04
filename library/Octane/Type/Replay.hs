@@ -113,12 +113,12 @@ fromRawReplay rawReplay =
           [ header & Rattletrap.headerEngineVersion & fromWord32
           , header & Rattletrap.headerLicenseeVersion & fromWord32
           ]
-      metadata = undefined
-      levels = undefined
-      messages = undefined
-      tickMarks = undefined
-      packages = undefined
-      frames = undefined
+      metadata = Map.empty
+      levels = []
+      messages = Map.empty
+      tickMarks = Map.empty
+      packages = []
+      frames = []
   in Replay
      { replayVersion = version
      , replayMetadata = metadata
@@ -138,23 +138,24 @@ toRawReplay replay =
         Rattletrap.Header
         { Rattletrap.headerEngineVersion = majorVersion
         , Rattletrap.headerLicenseeVersion = minorVersion
-        , Rattletrap.headerLabel = undefined
-        , Rattletrap.headerProperties = undefined
+        , Rattletrap.headerLabel =
+          Rattletrap.stringToText "TAGame.Replay_Soccar_TA"
+        , Rattletrap.headerProperties = Rattletrap.Dictionary []
         }
       content =
         Rattletrap.Content
-        { Rattletrap.contentLevels = undefined
-        , Rattletrap.contentKeyFrames = undefined
-        , Rattletrap.contentStreamSize = undefined
-        , Rattletrap.contentFrames = undefined
-        , Rattletrap.contentTrailingBits = undefined
-        , Rattletrap.contentMessages = undefined
-        , Rattletrap.contentMarks = undefined
-        , Rattletrap.contentPackages = undefined
-        , Rattletrap.contentObjects = undefined
-        , Rattletrap.contentNames = undefined
-        , Rattletrap.contentClassMappings = undefined
-        , Rattletrap.contentCaches = undefined
+        { Rattletrap.contentLevels = Rattletrap.List []
+        , Rattletrap.contentKeyFrames = Rattletrap.List []
+        , Rattletrap.contentStreamSize = Rattletrap.Word32 0
+        , Rattletrap.contentFrames = []
+        , Rattletrap.contentTrailingBits = []
+        , Rattletrap.contentMessages = Rattletrap.List []
+        , Rattletrap.contentMarks = Rattletrap.List []
+        , Rattletrap.contentPackages = Rattletrap.List []
+        , Rattletrap.contentObjects = Rattletrap.List []
+        , Rattletrap.contentNames = Rattletrap.List []
+        , Rattletrap.contentClassMappings = Rattletrap.List []
+        , Rattletrap.contentCaches = Rattletrap.List []
         }
   in Rattletrap.Replay
      { Rattletrap.replayHeader = header
