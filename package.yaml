@@ -1,15 +1,3 @@
-benchmarks:
-  octane-benchmark:
-    dependencies:
-    - base
-    - criterion ==1.1.*
-    - octane
-    ghc-options:
-    - -rtsopts
-    - -threaded
-    - -with-rtsopts=-N
-    main: Main.hs
-    source-dirs: benchmark
 category: Game
 description: Octane parses Rocket League replays.
 executables:
@@ -50,6 +38,7 @@ library:
   - deepseq ==1.4.*
   - file-embed ==0.0.*
   - overloaded-records ==0.4.*
+  - rattletrap ==0.1.*
   - regex-compat ==0.95.*
   - text ==1.2.*
   - unordered-containers ==0.2.*
@@ -61,23 +50,4 @@ license-file: LICENSE.markdown
 maintainer: Taylor Fausak
 name: octane
 synopsis: Parse Rocket League replays.
-tests:
-  octane-test-suite:
-    dependencies:
-    - base
-    - binary
-    - binary-bits
-    - bytestring
-    - containers
-    - octane
-    - tasty ==0.11.*
-    - tasty-hspec ==1.1.*
-    - tasty-quickcheck ==0.8.*
-    - text
-    ghc-options:
-    - -rtsopts
-    - -threaded
-    - -with-rtsopts=-N
-    main: Main.hs
-    source-dirs: test-suite
 version: '0.16.3'

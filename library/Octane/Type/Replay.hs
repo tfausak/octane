@@ -11,8 +11,6 @@
 
 module Octane.Type.Replay
   ( Replay(..)
-  , fromOptimizedReplay
-  , toOptimizedReplay
   ) where
 
 import Data.Aeson ((.=))
@@ -23,31 +21,15 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
-import qualified Data.Maybe as Maybe
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified Data.Set as Set
 import qualified Data.Text as StrictText
-import qualified Data.Tuple as Tuple
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
-import qualified Octane.Data as Data
-import qualified Octane.Type.CacheItem as CacheItem
-import qualified Octane.Type.CacheProperty as CacheProperty
-import qualified Octane.Type.ClassItem as ClassItem
-import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Frame as Frame
-import qualified Octane.Type.KeyFrame as KeyFrame
-import qualified Octane.Type.List as List
-import qualified Octane.Type.Mark as Mark
-import qualified Octane.Type.Message as Message
-import qualified Octane.Type.OptimizedReplay as OptimizedReplay
 import qualified Octane.Type.Property as Property
-import qualified Octane.Type.Text as Text
-import qualified Octane.Type.Word32 as Word32
+import qualified Rattletrap
 
--- | A fully-processed, optimized replay. This is the nicest format for humans
--- to work with. It can be converted all the way back down to a
--- 'Octane.Type.RawReplay.RawReplay' for serialization.
+-- | A fully-processed, optimized replay.
 data Replay = Replay
   { replayVersion :: Version.Version
   , replayMetadata :: Map.Map StrictText.Text Property.Property
@@ -101,11 +83,12 @@ $(OverloadedRecords.overloadedRecord Default.def ''Replay)
 
 instance Binary.Binary Replay where
   get = do
-    optimizedReplay <- Binary.get
-    fromOptimizedReplay optimizedReplay
+    rawReplay <- Rattletrap.getReplay
+    let replay = fromRawReplay rawReplay
+    pure replay
   put replay = do
-    optimizedReplay <- toOptimizedReplay replay
-    Binary.put optimizedReplay
+    let rawReplay = toRawReplay replay
+    Rattletrap.putReplay rawReplay
 
 instance DeepSeq.NFData Replay
 
@@ -121,147 +104,59 @@ instance Aeson.ToJSON Replay where
       , "Frames" .= #frames replay
       ]
 
--- | Converts an 'OptimizedReplay.OptimizedReplay' into a 'Replay'.
--- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
-fromOptimizedReplay
-  :: (Monad m)
-  => OptimizedReplay.OptimizedReplay -> m Replay
-fromOptimizedReplay optimizedReplay = do
-  pure
-    Replay
-    { replayVersion =
-        [#version1 optimizedReplay, #version2 optimizedReplay] &
-        map Word32.fromWord32 &
+fromRawReplay :: Rattletrap.Replay -> Replay
+fromRawReplay rawReplay =
+  let header = Rattletrap.replayHeader rawReplay
+      fromWord32 x = x & Rattletrap.word32Value & fromIntegral
+      version =
         Version.makeVersion
-    , replayMetadata =
-        optimizedReplay & #properties & #unpack & Map.mapKeys #unpack
-    , replayLevels = optimizedReplay & #levels & #unpack & map #unpack
-    , replayMessages =
-        optimizedReplay & #messages & #unpack &
-        map
-          (\message -> do
-             let key = message & #frame & #unpack & show & StrictText.pack
-             let value = message & #content & #unpack
-             (key, value)) &
-        Map.fromList
-    , replayTickMarks =
-        optimizedReplay & #marks & #unpack &
-        map
-          (\mark -> do
-             let key = mark & #frame & #unpack & show & StrictText.pack
-             let value = mark & #label & #unpack
-             (key, value)) &
-        Map.fromList
-    , replayPackages = optimizedReplay & #packages & #unpack & map #unpack
-    , replayFrames = optimizedReplay & #frames
-    }
+          [ header & Rattletrap.headerEngineVersion & fromWord32
+          , header & Rattletrap.headerLicenseeVersion & fromWord32
+          ]
+      metadata = undefined
+      levels = undefined
+      messages = undefined
+      tickMarks = undefined
+      packages = undefined
+      frames = undefined
+  in Replay
+     { replayVersion = version
+     , replayMetadata = metadata
+     , replayLevels = levels
+     , replayMessages = messages
+     , replayTickMarks = tickMarks
+     , replayPackages = packages
+     , replayFrames = frames
+     }
 
--- | Converts a 'Replay' into an 'OptimizedReplay.OptimizedReplay'.
--- Operates in a 'Monad' so that it can 'fail' somewhat gracefully.
-toOptimizedReplay
-  :: (Monad m)
-  => Replay -> m OptimizedReplay.OptimizedReplay
-toOptimizedReplay replay
-                  -- Key frames aren't important for replays. Mark the first frame as a key
-                  -- frame and the rest as regular frames.
- = do
-  let frames =
-        replay & #frames & zip [0 :: Int ..] &
-        map (\(index, frame) -> frame {Frame.frameIsKeyFrame = index == 0})
-  -- The actors are a list of all classes, objects, and properties used in the
-  -- replay. An actor's position in this list is their ID, not their stream ID.
-  let classNames =
-        frames & concatMap #replications & map #className & ("Core.Object" :) &
-        Set.fromList
-  let objectNames =
-        frames & concatMap #replications & map #objectName & Set.fromList
-  let propertyNames =
-        frames & concatMap #replications & map #properties & concatMap Map.keys &
-        Set.fromList
-  let actors =
-        classNames & Set.union objectNames & Set.union propertyNames &
-        Set.toAscList &
-        map Text.Text &
-        List.List
-  -- The class items are a list of class names to their stream IDs.
-  let classItems =
-        classNames & Set.toAscList & map Text.Text & zip [0 ..] &
-        map (\(streamId, name) -> do ClassItem.ClassItem name streamId) &
-        List.List
-  -- The cache items are a list of classes together with their cache IDs,
-  -- parent cache IDs, and a list of their property IDs to stream IDs.
-  let classesToId =
-        classItems & #unpack & map (\x -> (#name x, #streamId x)) & Map.fromList
-  let actorsToId = actors & #unpack & zip [0 ..] & map Tuple.swap & Map.fromList
-  let propertiesByClass =
-        frames & concatMap #replications &
-        concatMap
-          (\replication ->
-             zip
-               (replication & #className & Text.Text & repeat)
-               (replication & #properties & Map.keys & map Text.Text)) &
-        Set.fromList &
-        Set.toAscList &
-        zip [0 ..] &
-        map
-          (\(streamId, (className, propertyName)) -> do
-             let propertyId =
-                   actorsToId & Map.lookup propertyName & Maybe.fromJust
-             let cacheProperty = CacheProperty.CacheProperty propertyId streamId
-             let cacheProperties = [cacheProperty]
-             (className, cacheProperties)) &
-        Map.fromListWith (++)
-  let cacheItems =
-        classItems & #unpack & zip [0 ..] &
-        map
-          (\(cacheId, classItem) -> do
-             let className = #name classItem
-             let classId = classesToId & Map.lookup className & Maybe.fromJust
-             let parentCacheId = 0 -- cacheId
-             let properties =
-                   propertiesByClass & Map.findWithDefault [] className &
-                   List.List
-             CacheItem.CacheItem classId parentCacheId cacheId properties) &
-        List.List
-  pure
-    OptimizedReplay.OptimizedReplay
-    { OptimizedReplay.optimizedReplayVersion1 = Data.latestMajorVersion
-    , OptimizedReplay.optimizedReplayVersion2 = Data.latestMinorVersion
-    , OptimizedReplay.optimizedReplayLabel = "TAGame.Replay_Soccar_TA"
-    , OptimizedReplay.optimizedReplayProperties =
-        replay & #metadata & Map.mapKeys Text.Text & Dictionary.Dictionary
-    , OptimizedReplay.optimizedReplayLevels =
-        replay & #levels & map Text.Text & List.List
-    , OptimizedReplay.optimizedReplayKeyFrames =
-        frames & filter #isKeyFrame &
-        map
-          (\frame ->
-             KeyFrame.KeyFrame
-               (#time frame)
-               (frame & #number & Word32.toWord32)
-               0) &
-        List.List
-    , OptimizedReplay.optimizedReplayFrames = frames
-    , OptimizedReplay.optimizedReplayMessages =
-        replay & #messages & Map.toList &
-        map
-          (\(key, value) -> do
-             let frame = key & StrictText.unpack & read & Word32.Word32
-             let content = value & Text.Text
-             Message.Message frame "" content) &
-        List.List
-    , OptimizedReplay.optimizedReplayMarks =
-        replay & #tickMarks & Map.toList &
-        map
-          (\(key, value) -> do
-             let label = value & Text.Text
-             let frame = key & StrictText.unpack & read & Word32.Word32
-             Mark.Mark label frame) &
-        List.List
-    , OptimizedReplay.optimizedReplayPackages =
-        replay & #packages & map Text.Text & List.List
-    , OptimizedReplay.optimizedReplayObjects = actors
-    , OptimizedReplay.optimizedReplayNames = List.List [] -- TODO
-    , OptimizedReplay.optimizedReplayClasses = classItems
-    , OptimizedReplay.optimizedReplayCache = cacheItems
-    }
+toRawReplay :: Replay -> Rattletrap.Replay
+toRawReplay replay =
+  let toWord32 x = x & fromIntegral & Rattletrap.Word32
+      [majorVersion, minorVersion] =
+        replay & replayVersion & Version.versionBranch & map toWord32
+      header =
+        Rattletrap.Header
+        { Rattletrap.headerEngineVersion = majorVersion
+        , Rattletrap.headerLicenseeVersion = minorVersion
+        , Rattletrap.headerLabel = undefined
+        , Rattletrap.headerProperties = undefined
+        }
+      content =
+        Rattletrap.Content
+        { Rattletrap.contentLevels = undefined
+        , Rattletrap.contentKeyFrames = undefined
+        , Rattletrap.contentStreamSize = undefined
+        , Rattletrap.contentFrames = undefined
+        , Rattletrap.contentTrailingBits = undefined
+        , Rattletrap.contentMessages = undefined
+        , Rattletrap.contentMarks = undefined
+        , Rattletrap.contentPackages = undefined
+        , Rattletrap.contentObjects = undefined
+        , Rattletrap.contentNames = undefined
+        , Rattletrap.contentClassMappings = undefined
+        , Rattletrap.contentCaches = undefined
+        }
+  in Rattletrap.Replay
+     { Rattletrap.replayHeader = header
+     , Rattletrap.replayContent = content
+     }

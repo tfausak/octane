@@ -14,13 +14,9 @@ module Octane.Type
   , module Octane.Type.List
   , module Octane.Type.Mark
   , module Octane.Type.Message
-  , module Octane.Type.OptimizedReplay
   , module Octane.Type.Property
-  , module Octane.Type.RawReplay
   , module Octane.Type.RemoteId
   , module Octane.Type.Replay
-  , module Octane.Type.ReplayWithFrames
-  , module Octane.Type.ReplayWithoutFrames
   , module Octane.Type.Replication
   , module Octane.Type.State
   , module Octane.Type.Stream
@@ -48,13 +44,9 @@ import Octane.Type.KeyFrame
 import Octane.Type.List
 import Octane.Type.Mark
 import Octane.Type.Message
-import Octane.Type.OptimizedReplay
 import Octane.Type.Property
-import Octane.Type.RawReplay
 import Octane.Type.RemoteId
 import Octane.Type.Replay
-import Octane.Type.ReplayWithFrames
-import Octane.Type.ReplayWithoutFrames
 import Octane.Type.Replication
 import Octane.Type.State
 import Octane.Type.Stream
