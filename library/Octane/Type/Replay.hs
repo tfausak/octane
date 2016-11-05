@@ -21,12 +21,20 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
+import qualified Data.Maybe as Maybe
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
+import qualified Octane.Type.Boolean as Boolean
+import qualified Octane.Type.Dictionary as Dictionary
+import qualified Octane.Type.Float32 as Float32
+import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Type.Frame as Frame
+import qualified Octane.Type.List as List
 import qualified Octane.Type.Property as Property
+import qualified Octane.Type.Text as Text
+import qualified Octane.Type.Word64 as Word64
 import qualified Rattletrap
 
 -- | A fully-processed, optimized replay.
@@ -114,7 +122,17 @@ fromRawReplay replay =
           [ header & Rattletrap.headerEngineVersion & fromWord32
           , header & Rattletrap.headerLicenseeVersion & fromWord32
           ]
-      metadata = Map.empty -- TODO
+      metadata =
+        header & Rattletrap.headerProperties & Rattletrap.dictionaryValue &
+        Maybe.mapMaybe
+          (\(key, maybeValue) ->
+              case maybeValue of
+                Nothing -> Nothing
+                Just value ->
+                  Just
+                    ( key & Rattletrap.textToString & StrictText.pack
+                    , toProperty value)) &
+        Map.fromList
       levels =
         content & Rattletrap.contentLevels & Rattletrap.listValue &
         map Rattletrap.textToString &
@@ -184,3 +202,51 @@ toRawReplay replay =
      { Rattletrap.replayHeader = header
      , Rattletrap.replayContent = content
      }
+
+toProperty :: Rattletrap.Property -> Property.Property
+toProperty property =
+  let size =
+        property & Rattletrap.propertySize & Rattletrap.word64Value & Word64.Word64
+  in case Rattletrap.propertyValue property of
+       Rattletrap.ArrayProperty x ->
+         let content =
+               x & Rattletrap.listValue &
+               map
+                 (\y ->
+                     y & Rattletrap.dictionaryValue &
+                     Maybe.mapMaybe
+                       (\(k, mv) ->
+                           case mv of
+                             Nothing -> Nothing
+                             Just v -> Just (toText k, toProperty v)) &
+                     Map.fromList &
+                     Dictionary.Dictionary) &
+               List.List
+         in Property.PropertyArray (Property.ArrayProperty size content)
+       Rattletrap.BoolProperty x ->
+         let content = x & Rattletrap.word8Value & (/= 0) & Boolean.Boolean
+         in Property.PropertyBool (Property.BoolProperty size content)
+       Rattletrap.ByteProperty k mv ->
+         let (key, value) =
+               case mv of
+                 Nothing -> ("OnlinePlatform", toText k)
+                 Just v -> (toText k, toText v)
+         in Property.PropertyByte (Property.ByteProperty size key value)
+       Rattletrap.FloatProperty x ->
+         let content = x & Rattletrap.float32Value & Float32.Float32
+         in Property.PropertyFloat (Property.FloatProperty size content)
+       Rattletrap.IntProperty x ->
+         let content = x & Rattletrap.int32Value & Int32.Int32
+         in Property.PropertyInt (Property.IntProperty size content)
+       Rattletrap.NameProperty x ->
+         let content = toText x
+         in Property.PropertyName (Property.NameProperty size content)
+       Rattletrap.QWordProperty x ->
+         let content = x & Rattletrap.word64Value & Word64.Word64
+         in Property.PropertyQWord (Property.QWordProperty size content)
+       Rattletrap.StrProperty x ->
+         let content = toText x
+         in Property.PropertyStr (Property.StrProperty size content)
+
+toText :: Rattletrap.Text -> Text.Text
+toText text = text & Rattletrap.textToString & StrictText.pack & Text.Text
