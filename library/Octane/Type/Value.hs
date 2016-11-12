@@ -42,9 +42,9 @@ import Octane.Type.Value.FloatValue
 import Octane.Type.Value.GameModeValue
 import Octane.Type.Value.IntValue
 import Octane.Type.Value.LoadoutOnlineValue
+import Octane.Type.Value.LoadoutValue
 import Octane.Type.Value.LoadoutsOnlineValue
 import Octane.Type.Value.LoadoutsValue
-import Octane.Type.Value.LoadoutValue
 import Octane.Type.Value.LocationValue
 import Octane.Type.Value.MusicStingerValue
 import Octane.Type.Value.PickupValue
