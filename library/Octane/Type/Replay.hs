@@ -40,8 +40,12 @@ import qualified Octane.Type.Property as Property
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Text as Text
+import qualified Octane.Type.Value as Value
 import qualified Octane.Type.Vector as Vector
+import qualified Octane.Type.Word16 as Word16
+import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
+import qualified Octane.Type.Word8 as Word8
 import qualified Rattletrap
 
 -- | A fully-processed, optimized replay.
@@ -259,8 +263,9 @@ toReplication :: ActorMap
               -> (Replication.Replication, ActorMap)
 toReplication actorMap replication =
   let actorId = replication & Rattletrap.replicationActorId & toCompressedWord
+      replicationValue = Rattletrap.replicationValue replication
       maybeNames =
-        case Rattletrap.replicationValue replication of
+        case replicationValue of
           Rattletrap.SpawnedReplicationValue spawned ->
             Just
               ( spawned & Rattletrap.spawnedReplication_objectName &
@@ -284,12 +289,12 @@ toReplication actorMap replication =
         , Replication.replicationObjectName = objectName
         , Replication.replicationClassName = className
         , Replication.replicationState =
-            case Rattletrap.replicationValue replication of
+            case replicationValue of
               Rattletrap.SpawnedReplicationValue _ -> State.Opening
               Rattletrap.UpdatedReplicationValue _ -> State.Existing
               Rattletrap.DestroyedReplicationValue _ -> State.Closing
         , Replication.replicationInitialization =
-            case Rattletrap.replicationValue replication of
+            case replicationValue of
               Rattletrap.SpawnedReplicationValue value ->
                 Just
                   Initialization.Initialization
@@ -303,9 +308,67 @@ toReplication actorMap replication =
                       fmap toInt8Vector
                   }
               _ -> Nothing
-        , Replication.replicationProperties = Map.empty -- TODO
+        , Replication.replicationProperties =
+            case replicationValue of
+              Rattletrap.UpdatedReplicationValue updated ->
+                updated & Rattletrap.updatedReplicationAttributes & map toValue &
+                Map.fromList
+              _ -> Map.empty
         }
   in (newReplication, newActorMap)
+
+toValue :: Rattletrap.Attribute -> (StrictText.Text, Value.Value)
+toValue attribute =
+  let key =
+        attribute & Rattletrap.attribute_name & Rattletrap.textToString &
+        StrictText.pack
+      value =
+        case Rattletrap.attributeValue attribute of
+          Rattletrap.BooleanAttributeValue x ->
+            Value.ValueBoolean
+              (Value.BooleanValue
+                 (Boolean.Boolean (Rattletrap.booleanAttributeValue x)))
+          Rattletrap.ByteAttributeValue x ->
+            Value.ValueByte
+              (Value.ByteValue
+                 (Word8.Word8
+                    (Rattletrap.word8Value (Rattletrap.byteAttributeValue x))))
+          Rattletrap.CamSettingsAttributeValue x ->
+            Value.ValueCamSettings
+              (Value.CamSettingsValue
+                 (toFloat32 (Rattletrap.camSettingsAttributeFov x))
+                 (toFloat32 (Rattletrap.camSettingsAttributeHeight x))
+                 (toFloat32 (Rattletrap.camSettingsAttributeAngle x))
+                 (toFloat32 (Rattletrap.camSettingsAttributeDistance x))
+                 (toFloat32 (Rattletrap.camSettingsAttributeStiffness x))
+                 (toFloat32 (Rattletrap.camSettingsAttributeSwivelSpeed x)))
+          Rattletrap.DemolishAttributeValue x ->
+            Value.ValueDemolish
+              (Value.DemolishValue
+                 (Boolean.Boolean (Rattletrap.demolishAttributeAttackerFlag x))
+                 (toWord32 (Rattletrap.demolishAttributeAttackerActorId x))
+                 (Boolean.Boolean (Rattletrap.demolishAttributeVictimFlag x))
+                 (toWord32 (Rattletrap.demolishAttributeVictimActorId x))
+                 (toIntVector (Rattletrap.demolishAttributeAttackerVelocity x))
+                 (toIntVector (Rattletrap.demolishAttributeVictimVelocity x)))
+          Rattletrap.EnumAttributeValue x ->
+            Value.ValueEnum
+              (Value.EnumValue
+                 (Word16.Word16 (Rattletrap.enumAttributeValue x))
+                 (Boolean.Boolean False))
+          Rattletrap.ExplosionAttributeValue x ->
+            Value.ValueExplosion
+              (Value.ExplosionValue
+                 (Boolean.Boolean False)
+                 (Just (toInt32 (Rattletrap.explosionAttributeActorId x)))
+                 (toIntVector (Rattletrap.explosionAttributeLocation x)))
+          Rattletrap.FlaggedIntAttributeValue x ->
+            Value.ValueFlaggedInt
+              (Value.FlaggedIntValue
+                 (Boolean.Boolean (Rattletrap.flaggedIntAttributeFlag x))
+                 (toInt32 (Rattletrap.flaggedIntAttributeInt x)))
+          _ -> undefined -- TODO
+  in (key, value)
 
 toCompressedWord :: Rattletrap.CompressedWord -> CompressedWord.CompressedWord
 toCompressedWord compressedWord =
@@ -343,3 +406,9 @@ toInt8Vector vector =
       y = vector & Rattletrap.int8VectorY & convert
       z = vector & Rattletrap.int8VectorZ & convert
   in Vector.Vector x y z
+
+toWord32 :: Rattletrap.Word32 -> Word32.Word32
+toWord32 word32 = Word32.Word32 (Rattletrap.word32Value word32)
+
+toInt32 :: Rattletrap.Int32 -> Int32.Int32
+toInt32 int32 = Int32.Int32 (Rattletrap.int32Value int32)
