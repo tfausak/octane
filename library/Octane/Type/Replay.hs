@@ -164,9 +164,13 @@ fromRawReplay replay =
         content & Rattletrap.contentPackages & Rattletrap.listValue &
         map Rattletrap.textToString &
         map StrictText.pack
-      frames =
+      (frames, _actorMap) =
         content & Rattletrap.contentFrames & zip [0 ..] &
-        map (toFrame Map.empty)
+        foldl
+          (\(fs, m) f ->
+             let (f', m') = toFrame m f
+             in (f' : fs, m'))
+          ([], Map.empty)
   in Replay
      { replayVersion = version
      , replayMetadata = metadata
@@ -174,7 +178,7 @@ fromRawReplay replay =
      , replayMessages = messages
      , replayTickMarks = tickMarks
      , replayPackages = packages
-     , replayFrames = frames
+     , replayFrames = reverse frames
      }
 
 toProperty :: Rattletrap.Property -> Property.Property
@@ -228,23 +232,24 @@ toText text = text & Rattletrap.textToString & StrictText.pack & Text.Text
 
 type ActorMap = Map.Map () ()
 
-toFrame :: ActorMap -> (Word, Rattletrap.Frame) -> Frame.Frame
+toFrame :: ActorMap -> (Word, Rattletrap.Frame) -> (Frame.Frame, ActorMap)
 toFrame actorMap (number, frame) =
-  Frame.Frame
-  { Frame.frameNumber = number
-  , Frame.frameIsKeyFrame = number == 0
-  , Frame.frameTime = frame & Rattletrap.frameTime & toFloat32
-  , Frame.frameDelta = frame & Rattletrap.frameDelta & toFloat32
-  , Frame.frameReplications =
-      frame & Rattletrap.frameReplications &
-      foldl
-        (\(rs, m) r ->
-           let (r', m') = toReplication m r
-           in (r' : rs, m'))
-        ([], actorMap) &
-      fst &
-      reverse
-  }
+  let (replications, newActorMap) =
+        frame & Rattletrap.frameReplications &
+        foldl
+          (\(rs, m) r ->
+             let (r', m') = toReplication m r
+             in (r' : rs, m'))
+          ([], actorMap)
+      newFrame =
+        Frame.Frame
+        { Frame.frameNumber = number
+        , Frame.frameIsKeyFrame = number == 0
+        , Frame.frameTime = frame & Rattletrap.frameTime & toFloat32
+        , Frame.frameDelta = frame & Rattletrap.frameDelta & toFloat32
+        , Frame.frameReplications = reverse replications
+        }
+  in (newFrame, newActorMap)
 
 toFloat32 :: Rattletrap.Float32 -> Float32.Float32
 toFloat32 float32 = float32 & Rattletrap.float32Value & Float32.Float32
