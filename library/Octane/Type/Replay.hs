@@ -230,7 +230,7 @@ toProperty property =
 toText :: Rattletrap.Text -> Text.Text
 toText text = text & Rattletrap.textToString & StrictText.pack & Text.Text
 
-type ActorMap = Map.Map () ()
+type ActorMap = Map.Map CompressedWord.CompressedWord (StrictText.Text, StrictText.Text)
 
 toFrame :: ActorMap -> (Word, Rattletrap.Frame) -> (Frame.Frame, ActorMap)
 toFrame actorMap (number, frame) =
@@ -258,25 +258,31 @@ toReplication :: ActorMap
               -> Rattletrap.Replication
               -> (Replication.Replication, ActorMap)
 toReplication actorMap replication =
-  let newActorMap = actorMap
+  let actorId = replication & Rattletrap.replicationActorId & toCompressedWord
+      maybeNames =
+        case Rattletrap.replicationValue replication of
+          Rattletrap.SpawnedReplicationValue spawned ->
+            Just
+              ( spawned & Rattletrap.spawnedReplication_objectName &
+                Rattletrap.textToString &
+                StrictText.pack
+              , spawned & Rattletrap.spawnedReplication_className &
+                Rattletrap.textToString &
+                StrictText.pack)
+          _ -> Nothing
+      newActorMap =
+        case maybeNames of
+          Nothing -> actorMap
+          Just names -> Map.insert actorId names actorMap
+      objectName =
+        newActorMap & Map.lookup actorId & fmap fst & Maybe.fromMaybe "unknown"
+      className =
+        newActorMap & Map.lookup actorId & fmap snd & Maybe.fromMaybe "unknown"
       newReplication =
         Replication.Replication
-        { Replication.replicationActorId =
-            replication & Rattletrap.replicationActorId & toCompressedWord
-        , Replication.replicationObjectName =
-            case Rattletrap.replicationValue replication of
-              Rattletrap.SpawnedReplicationValue spawned ->
-                spawned & Rattletrap.spawnedReplication_objectName &
-                Rattletrap.textToString &
-                StrictText.pack
-              _ -> "" -- TODO
-        , Replication.replicationClassName =
-            case Rattletrap.replicationValue replication of
-              Rattletrap.SpawnedReplicationValue spawned ->
-                spawned & Rattletrap.spawnedReplication_className &
-                Rattletrap.textToString &
-                StrictText.pack
-              _ -> "" -- TODO
+        { Replication.replicationActorId = actorId
+        , Replication.replicationObjectName = objectName
+        , Replication.replicationClassName = className
         , Replication.replicationState =
             case Rattletrap.replicationValue replication of
               Rattletrap.SpawnedReplicationValue _ -> State.Opening

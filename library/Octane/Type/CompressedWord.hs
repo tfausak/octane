@@ -36,7 +36,7 @@ import qualified Octane.Type.Boolean as Boolean
 data CompressedWord = CompressedWord
   { compressedWordLimit :: Word
   , compressedWordValue :: Word
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Generics.Generic, Ord, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''CompressedWord)
 
