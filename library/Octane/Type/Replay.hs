@@ -367,8 +367,62 @@ toValue attribute =
               (Value.FlaggedIntValue
                  (Boolean.Boolean (Rattletrap.flaggedIntAttributeFlag x))
                  (toInt32 (Rattletrap.flaggedIntAttributeInt x)))
-          _ -> undefined -- TODO
+          Rattletrap.FloatAttributeValue x ->
+            Value.ValueFloat
+              (Value.FloatValue (toFloat32 (Rattletrap.floatAttributeValue x)))
+          Rattletrap.GameModeAttributeValue x ->
+            Value.ValueGameMode
+              (Value.GameModeValue
+                 (Word8.Word8 (Rattletrap.gameModeAttributeWord x)))
+          Rattletrap.IntAttributeValue x ->
+            Value.ValueInt
+              (Value.IntValue (toInt32 (Rattletrap.intAttributeValue x)))
+          Rattletrap.LoadoutAttributeValue x -> Value.ValueLoadout (toLoadout x)
+          Rattletrap.LoadoutOnlineAttributeValue x ->
+            Value.ValueLoadoutOnline (toLoadoutOnline x)
+          Rattletrap.LoadoutsAttributeValue x ->
+            Value.ValueLoadouts
+              (Value.LoadoutsValue
+                 (toLoadout (Rattletrap.loadoutsAttributeBlue x))
+                 (toLoadout (Rattletrap.loadoutsAttributeOrange x)))
+          Rattletrap.LoadoutsOnlineAttributeValue x ->
+            Value.ValueLoadoutsOnline
+              (Value.LoadoutsOnlineValue
+                 (toLoadoutOnline (Rattletrap.loadoutsOnlineAttributeBlue x))
+                 (toLoadoutOnline (Rattletrap.loadoutsOnlineAttributeOrange x))
+                 (Boolean.Boolean (Rattletrap.loadoutsOnlineAttributeUnknown1 x))
+                 (Boolean.Boolean (Rattletrap.loadoutsOnlineAttributeUnknown2 x)))
+          Rattletrap.LocationAttributeValue x ->
+            Value.ValueLocation
+              (Value.LocationValue
+                 (toIntVector (Rattletrap.locationAttributeValue x)))
+          Rattletrap.MusicStingerAttributeValue x ->
+            Value.ValueMusicStinger
+              (Value.MusicStingerValue
+                 (Boolean.Boolean (Rattletrap.musicStingerAttributeFlag x))
+                 (toWord32 (Rattletrap.musicStingerAttributeCue x))
+                 (toWord8 (Rattletrap.musicStingerAttributeTrigger x)))
   in (key, value)
+
+toLoadout :: Rattletrap.LoadoutAttribute -> Value.LoadoutValue
+toLoadout x =
+  Value.LoadoutValue
+    (toWord8 (Rattletrap.loadoutAttributeVersion x))
+    (toWord32 (Rattletrap.loadoutAttributeBody x))
+    (toWord32 (Rattletrap.loadoutAttributeDecal x))
+    (toWord32 (Rattletrap.loadoutAttributeWheels x))
+    (toWord32 (Rattletrap.loadoutAttributeRocketTrail x))
+    (toWord32 (Rattletrap.loadoutAttributeAntenna x))
+    (toWord32 (Rattletrap.loadoutAttributeTopper x))
+    (toWord32 (Rattletrap.loadoutAttributeUnknown1 x))
+    (fmap toWord32 (Rattletrap.loadoutAttributeUnknown2 x))
+
+toLoadoutOnline :: Rattletrap.LoadoutOnlineAttribute -> Value.LoadoutOnlineValue
+toLoadoutOnline x =
+  Value.LoadoutOnlineValue
+    (map
+       (map (\(k, v) -> (toWord32 k, toCompressedWord v)))
+       (Rattletrap.loadoutAttributeValue x))
 
 toCompressedWord :: Rattletrap.CompressedWord -> CompressedWord.CompressedWord
 toCompressedWord compressedWord =
@@ -412,3 +466,6 @@ toWord32 word32 = Word32.Word32 (Rattletrap.word32Value word32)
 
 toInt32 :: Rattletrap.Int32 -> Int32.Int32
 toInt32 int32 = Int32.Int32 (Rattletrap.int32Value int32)
+
+toWord8 :: Rattletrap.Word8 -> Word8.Word8
+toWord8 word8 = Word8.Word8 (Rattletrap.word8Value word8)
