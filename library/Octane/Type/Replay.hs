@@ -243,8 +243,20 @@ toReplication replication =
   Replication.Replication
   { Replication.replicationActorId =
       replication & Rattletrap.replicationActorId & toCompressedWord
-  , Replication.replicationObjectName = "" -- TODO
-  , Replication.replicationClassName = "" -- TODO
+  , Replication.replicationObjectName =
+      case Rattletrap.replicationValue replication of
+        Rattletrap.SpawnedReplicationValue spawned ->
+          spawned & Rattletrap.spawnedReplication_objectName &
+          Rattletrap.textToString &
+          StrictText.pack
+        _ -> "" -- TODO
+  , Replication.replicationClassName =
+      case Rattletrap.replicationValue replication of
+        Rattletrap.SpawnedReplicationValue spawned ->
+          spawned & Rattletrap.spawnedReplication_className &
+          Rattletrap.textToString &
+          StrictText.pack
+        _ -> "" -- TODO
   , Replication.replicationState =
       case Rattletrap.replicationValue replication of
         Rattletrap.SpawnedReplicationValue _ -> State.Opening
