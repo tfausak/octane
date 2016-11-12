@@ -20,11 +20,13 @@ import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Bits as Bits
+import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
+import qualified Data.Text.Encoding as Encoding
 import qualified Data.Version as Version
 import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
@@ -37,6 +39,7 @@ import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Type.Int8 as Int8
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Property as Property
+import qualified Octane.Type.RemoteId as RemoteId
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
 import qualified Octane.Type.Text as Text
@@ -46,6 +49,7 @@ import qualified Octane.Type.Word16 as Word16
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
+import qualified Octane.Utility.Endian as Endian
 import qualified Rattletrap
 
 -- | A fully-processed, optimized replay.
@@ -402,6 +406,95 @@ toValue attribute =
                  (Boolean.Boolean (Rattletrap.musicStingerAttributeFlag x))
                  (toWord32 (Rattletrap.musicStingerAttributeCue x))
                  (toWord8 (Rattletrap.musicStingerAttributeTrigger x)))
+          Rattletrap.PartyLeaderAttributeValue x ->
+            Value.ValueUniqueId
+              (Value.UniqueIdValue
+                 (toWord8 (Rattletrap.partyLeaderAttributeSystemId x))
+                 (maybe
+                    (RemoteId.RemoteSplitscreenId
+                       (RemoteId.SplitscreenId Nothing))
+                    (\(r, _) -> toRemoteId r)
+                    (Rattletrap.partyLeaderAttributeId x))
+                 (fmap (toWord8 . snd) (Rattletrap.partyLeaderAttributeId x)))
+          Rattletrap.PickupAttributeValue x ->
+            Value.ValuePickup
+              (Value.PickupValue
+                 (Boolean.Boolean
+                    (maybe
+                       False
+                       (const True)
+                       (Rattletrap.pickupAttributeInstigatorId x)))
+                 (fmap toWord32 (Rattletrap.pickupAttributeInstigatorId x))
+                 (Boolean.Boolean (Rattletrap.pickupAttributePickedUp x)))
+          Rattletrap.PrivateMatchSettingsAttributeValue x ->
+            Value.ValuePrivateMatchSettings
+              (Value.PrivateMatchSettingsValue
+                 (toText (Rattletrap.privateMatchSettingsAttributeMutators x))
+                 (toWord32
+                    (Rattletrap.privateMatchSettingsAttributeJoinableBy x))
+                 (toWord32
+                    (Rattletrap.privateMatchSettingsAttributeMaxPlayers x))
+                 (toText (Rattletrap.privateMatchSettingsAttributeGameName x))
+                 (toText (Rattletrap.privateMatchSettingsAttributePassword x))
+                 (Boolean.Boolean
+                    (Rattletrap.privateMatchSettingsAttributeFlag x)))
+          Rattletrap.QWordAttributeValue x ->
+            Value.ValueQWord
+              (Value.QWordValue (toWord64 (Rattletrap.qWordAttributeValue x)))
+          Rattletrap.ReservationAttributeValue x ->
+            Value.ValueReservation
+              (Value.ReservationValue
+                 (toCompressedWord (Rattletrap.reservationAttributeNumber x))
+                 (toWord8
+                    (Rattletrap.uniqueIdAttributeSystemId
+                       (Rattletrap.reservationAttributeUniqueId x)))
+                 (toRemoteId
+                    (Rattletrap.uniqueIdAttributeRemoteId
+                       (Rattletrap.reservationAttributeUniqueId x)))
+                 (Just
+                    (toWord8
+                       (Rattletrap.uniqueIdAttributeLocalId
+                          (Rattletrap.reservationAttributeUniqueId x))))
+                 (fmap toText (Rattletrap.reservationAttributeName x))
+                 (Boolean.Boolean (Rattletrap.reservationAttributeUnknown1 x))
+                 (Boolean.Boolean (Rattletrap.reservationAttributeUnknown2 x)))
+          Rattletrap.RigidBodyStateAttributeValue x ->
+            Value.ValueRigidBodyState
+              (Value.RigidBodyStateValue
+                 (Boolean.Boolean (Rattletrap.rigidBodyStateAttributeSleeping x))
+                 (toIntVector (Rattletrap.rigidBodyStateAttributeLocation x))
+                 (toFloatVector (Rattletrap.rigidBodyStateAttributeRotation x))
+                 (fmap
+                    toIntVector
+                    (Rattletrap.rigidBodyStateAttributeLinearVelocity x))
+                 (fmap
+                    toIntVector
+                    (Rattletrap.rigidBodyStateAttributeAngularVelocity x)))
+          Rattletrap.StringAttributeValue x ->
+            Value.ValueString
+              (Value.StringValue (toText (Rattletrap.stringAttributeValue x)))
+          Rattletrap.TeamPaintAttributeValue x ->
+            Value.ValueTeamPaint
+              (Value.TeamPaintValue
+                 (toWord8 (Rattletrap.teamPaintAttributeTeam x))
+                 (toWord8 (Rattletrap.teamPaintAttributePrimaryColor x))
+                 (toWord8 (Rattletrap.teamPaintAttributeAccentColor x))
+                 (toWord32 (Rattletrap.teamPaintAttributePrimaryFinish x))
+                 (toWord32 (Rattletrap.teamPaintAttributeAccentFinish x)))
+          Rattletrap.UniqueIdAttributeValue x ->
+            Value.ValueUniqueId
+              (Value.UniqueIdValue
+                 (toWord8 (Rattletrap.uniqueIdAttributeSystemId x))
+                 (toRemoteId (Rattletrap.uniqueIdAttributeRemoteId x))
+                 (Just (toWord8 (Rattletrap.uniqueIdAttributeLocalId x))))
+          Rattletrap.WeldedInfoAttributeValue x ->
+            Value.ValueWeldedInfo
+              (Value.WeldedInfoValue
+                 (Boolean.Boolean (Rattletrap.weldedInfoAttributeActive x))
+                 (toInt32 (Rattletrap.weldedInfoAttributeActorId x))
+                 (toIntVector (Rattletrap.weldedInfoAttributeOffset x))
+                 (toFloat32 (Rattletrap.weldedInfoAttributeMass x))
+                 (toInt8Vector (Rattletrap.weldedInfoAttributeRotation x)))
   in (key, value)
 
 toLoadout :: Rattletrap.LoadoutAttribute -> Value.LoadoutValue
@@ -423,6 +516,25 @@ toLoadoutOnline x =
     (map
        (map (\(k, v) -> (toWord32 k, toCompressedWord v)))
        (Rattletrap.loadoutAttributeValue x))
+
+toRemoteId :: Rattletrap.RemoteId -> RemoteId.RemoteId
+toRemoteId remoteId =
+  case remoteId of
+    Rattletrap.PlayStationId x ->
+      let (a, b) = splitAt 16 x
+      in RemoteId.RemotePlayStationId
+           (RemoteId.PlayStationId
+              (a & LazyBytes.pack & LazyBytes.toStrict &
+               Endian.reverseBitsInStrictBytes &
+               Encoding.decodeLatin1 &
+               StrictText.dropWhileEnd (== '\0') &
+               Text.Text)
+              (LazyBytes.pack b))
+    Rattletrap.SplitscreenId _ ->
+      RemoteId.RemoteSplitscreenId (RemoteId.SplitscreenId (Just 0))
+    Rattletrap.SteamId x ->
+      RemoteId.RemoteSteamId (RemoteId.SteamId (toWord64 x))
+    Rattletrap.XboxId x -> RemoteId.RemoteXboxId (RemoteId.XboxId (toWord64 x))
 
 toCompressedWord :: Rattletrap.CompressedWord -> CompressedWord.CompressedWord
 toCompressedWord compressedWord =
@@ -469,3 +581,18 @@ toInt32 int32 = Int32.Int32 (Rattletrap.int32Value int32)
 
 toWord8 :: Rattletrap.Word8 -> Word8.Word8
 toWord8 word8 = Word8.Word8 (Rattletrap.word8Value word8)
+
+toWord64 :: Rattletrap.Word64 -> Word64.Word64
+toWord64 word64 = Word64.Word64 (Rattletrap.word64Value word64)
+
+toFloatVector :: Rattletrap.CompressedWordVector -> Vector.Vector Float
+toFloatVector vector =
+  Vector.Vector
+    (toFloat (Rattletrap.compressedWordVectorX vector))
+    (toFloat (Rattletrap.compressedWordVectorY vector))
+    (toFloat (Rattletrap.compressedWordVectorZ vector))
+
+-- TODO
+toFloat :: Rattletrap.CompressedWord -> Float
+toFloat compressedWord =
+  fromIntegral (Rattletrap.compressedWordValue compressedWord)
