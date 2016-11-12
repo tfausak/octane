@@ -31,10 +31,10 @@ import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Dictionary as Dictionary
 import qualified Octane.Type.Float32 as Float32
+import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.Initialization as Initialization
 import qualified Octane.Type.Int32 as Int32
 import qualified Octane.Type.Int8 as Int8
-import qualified Octane.Type.Frame as Frame
 import qualified Octane.Type.List as List
 import qualified Octane.Type.Property as Property
 import qualified Octane.Type.Replication as Replication
@@ -101,9 +101,7 @@ instance Binary.Binary Replay where
     rawReplay <- Rattletrap.getReplay
     let replay = fromRawReplay rawReplay
     pure replay
-  put replay = do
-    let rawReplay = toRawReplay replay
-    Rattletrap.putReplay rawReplay
+  put = undefined
 
 instance DeepSeq.NFData Replay
 
@@ -121,9 +119,9 @@ instance Aeson.ToJSON Replay where
 
 fromRawReplay :: Rattletrap.Replay -> Replay
 fromRawReplay replay =
-  let header = Rattletrap.replayHeader replay
+  let header = replay & Rattletrap.replayHeader & Rattletrap.sectionBody
       fromWord32 x = x & Rattletrap.word32Value & fromIntegral
-      content = Rattletrap.replayContent replay
+      content = replay & Rattletrap.replayContent & Rattletrap.sectionBody
       version =
         Version.makeVersion
           [ header & Rattletrap.headerEngineVersion & fromWord32
@@ -133,12 +131,12 @@ fromRawReplay replay =
         header & Rattletrap.headerProperties & Rattletrap.dictionaryValue &
         Maybe.mapMaybe
           (\(key, maybeValue) ->
-              case maybeValue of
-                Nothing -> Nothing
-                Just value ->
-                  Just
-                    ( key & Rattletrap.textToString & StrictText.pack
-                    , toProperty value)) &
+             case maybeValue of
+               Nothing -> Nothing
+               Just value ->
+                 Just
+                   ( key & Rattletrap.textToString & StrictText.pack
+                   , toProperty value)) &
         Map.fromList
       levels =
         content & Rattletrap.contentLevels & Rattletrap.listValue &
@@ -148,19 +146,19 @@ fromRawReplay replay =
         content & Rattletrap.contentMessages & Rattletrap.listValue &
         map
           (\message ->
-              ( message & Rattletrap.messageFrame & Rattletrap.word32Value & show &
-                StrictText.pack
-              , message & Rattletrap.messageValue & Rattletrap.textToString &
-                StrictText.pack)) &
+             ( message & Rattletrap.messageFrame & Rattletrap.word32Value & show &
+               StrictText.pack
+             , message & Rattletrap.messageValue & Rattletrap.textToString &
+               StrictText.pack)) &
         Map.fromList
       tickMarks =
         content & Rattletrap.contentMarks & Rattletrap.listValue &
         map
           (\mark ->
-              ( mark & Rattletrap.markFrame & Rattletrap.word32Value & show &
-                StrictText.pack
-              , mark & Rattletrap.markValue & Rattletrap.textToString &
-                StrictText.pack)) &
+             ( mark & Rattletrap.markFrame & Rattletrap.word32Value & show &
+               StrictText.pack
+             , mark & Rattletrap.markValue & Rattletrap.textToString &
+               StrictText.pack)) &
         Map.fromList
       packages =
         content & Rattletrap.contentPackages & Rattletrap.listValue &
@@ -177,57 +175,25 @@ fromRawReplay replay =
      , replayFrames = frames
      }
 
-toRawReplay :: Replay -> Rattletrap.Replay
-toRawReplay replay =
-  let toWord32 x = x & fromIntegral & Rattletrap.Word32
-      [majorVersion, minorVersion] =
-        replay & replayVersion & Version.versionBranch & map toWord32
-      header =
-        Rattletrap.Header
-        { Rattletrap.headerEngineVersion = majorVersion
-        , Rattletrap.headerLicenseeVersion = minorVersion
-        , Rattletrap.headerLabel =
-          Rattletrap.stringToText "TAGame.Replay_Soccar_TA"
-        , Rattletrap.headerProperties = Rattletrap.Dictionary [] -- TODO
-        }
-      content =
-        Rattletrap.Content
-        { Rattletrap.contentLevels = Rattletrap.List [] -- TODO
-        , Rattletrap.contentKeyFrames = Rattletrap.List []
-        , Rattletrap.contentStreamSize = Rattletrap.Word32 0 -- TODO
-        , Rattletrap.contentFrames = [] -- TODO
-        , Rattletrap.contentTrailingBits = []
-        , Rattletrap.contentMessages = Rattletrap.List [] -- TODO
-        , Rattletrap.contentMarks = Rattletrap.List [] -- TODO
-        , Rattletrap.contentPackages = Rattletrap.List [] -- TODO
-        , Rattletrap.contentObjects = Rattletrap.List [] -- TODO
-        , Rattletrap.contentNames = Rattletrap.List []
-        , Rattletrap.contentClassMappings = Rattletrap.List [] -- TODO
-        , Rattletrap.contentCaches = Rattletrap.List [] -- TODO
-        }
-  in Rattletrap.Replay
-     { Rattletrap.replayHeader = header
-     , Rattletrap.replayContent = content
-     }
-
 toProperty :: Rattletrap.Property -> Property.Property
 toProperty property =
   let size =
-        property & Rattletrap.propertySize & Rattletrap.word64Value & Word64.Word64
+        property & Rattletrap.propertySize & Rattletrap.word64Value &
+        Word64.Word64
   in case Rattletrap.propertyValue property of
        Rattletrap.ArrayProperty x ->
          let content =
                x & Rattletrap.listValue &
                map
                  (\y ->
-                     y & Rattletrap.dictionaryValue &
-                     Maybe.mapMaybe
-                       (\(k, mv) ->
-                           case mv of
-                             Nothing -> Nothing
-                             Just v -> Just (toText k, toProperty v)) &
-                     Map.fromList &
-                     Dictionary.Dictionary) &
+                    y & Rattletrap.dictionaryValue &
+                    Maybe.mapMaybe
+                      (\(k, mv) ->
+                         case mv of
+                           Nothing -> Nothing
+                           Just v -> Just (toText k, toProperty v)) &
+                    Map.fromList &
+                    Dictionary.Dictionary) &
                List.List
          in Property.PropertyArray (Property.ArrayProperty size content)
        Rattletrap.BoolProperty x ->
@@ -265,7 +231,8 @@ toFrame (number, frame) =
   , Frame.frameIsKeyFrame = number == 0
   , Frame.frameTime = frame & Rattletrap.frameTime & toFloat32
   , Frame.frameDelta = frame & Rattletrap.frameDelta & toFloat32
-  , Frame.frameReplications = frame & Rattletrap.frameReplications & map toReplication
+  , Frame.frameReplications =
+      frame & Rattletrap.frameReplications & map toReplication
   }
 
 toFloat32 :: Rattletrap.Float32 -> Float32.Float32
@@ -275,47 +242,56 @@ toReplication :: Rattletrap.Replication -> Replication.Replication
 toReplication replication =
   Replication.Replication
   { Replication.replicationActorId =
-    replication & Rattletrap.replicationActorId & toCompressedWord
+      replication & Rattletrap.replicationActorId & toCompressedWord
   , Replication.replicationObjectName = "" -- TODO
   , Replication.replicationClassName = "" -- TODO
   , Replication.replicationState =
-    case Rattletrap.replicationValue replication of
-      Rattletrap.SpawnedReplication _ -> State.Opening
-      Rattletrap.UpdatedReplication _ -> State.Existing
-      Rattletrap.DestroyedReplication _ -> State.Closing
+      case Rattletrap.replicationValue replication of
+        Rattletrap.SpawnedReplicationValue _ -> State.Opening
+        Rattletrap.UpdatedReplicationValue _ -> State.Existing
+        Rattletrap.DestroyedReplicationValue _ -> State.Closing
   , Replication.replicationInitialization =
-    case Rattletrap.replicationValue replication of
-      Rattletrap.SpawnedReplication value ->
-        Just
-          Initialization.Initialization
-          { Initialization.initializationLocation =
-            value & Rattletrap.spawnedReplicationValueInitialization &
-            Rattletrap.initializationLocation &
-            fmap toIntVector
-          , Initialization.initializationRotation =
-            value & Rattletrap.spawnedReplicationValueInitialization &
-            Rattletrap.initializationRotation &
-            fmap toInt8Vector
-          }
-      _ -> Nothing
+      case Rattletrap.replicationValue replication of
+        Rattletrap.SpawnedReplicationValue value ->
+          Just
+            Initialization.Initialization
+            { Initialization.initializationLocation =
+                value & Rattletrap.spawnedReplicationInitialization &
+                Rattletrap.initializationLocation &
+                fmap toIntVector
+            , Initialization.initializationRotation =
+                value & Rattletrap.spawnedReplicationInitialization &
+                Rattletrap.initializationRotation &
+                fmap toInt8Vector
+            }
+        _ -> Nothing
   , Replication.replicationProperties = Map.empty -- TODO
   }
 
 toCompressedWord :: Rattletrap.CompressedWord -> CompressedWord.CompressedWord
 toCompressedWord compressedWord =
   CompressedWord.CompressedWord
-  { CompressedWord.compressedWordLimit = compressedWord & Rattletrap.compressedWordLimit
-  , CompressedWord.compressedWordValue = compressedWord & Rattletrap.compressedWordValue
+  { CompressedWord.compressedWordLimit =
+      compressedWord & Rattletrap.compressedWordLimit
+  , CompressedWord.compressedWordValue =
+      compressedWord & Rattletrap.compressedWordValue
   }
 
 toIntVector :: Rattletrap.Vector -> Vector.Vector Int
 toIntVector vector =
   let numBits =
-        vector & Rattletrap.vectorBitSize & Rattletrap.compressedWordValue & fromIntegral
+        vector & Rattletrap.vectorBitSize & Rattletrap.compressedWordValue &
+        fromIntegral
       bias = Bits.shiftL 1 (numBits + 1)
-      dx = vector & Rattletrap.vectorDx & Rattletrap.compressedWordValue & fromIntegral
-      dy = vector & Rattletrap.vectorDy & Rattletrap.compressedWordValue & fromIntegral
-      dz = vector & Rattletrap.vectorDz & Rattletrap.compressedWordValue & fromIntegral
+      dx =
+        vector & Rattletrap.vectorDx & Rattletrap.compressedWordValue &
+        fromIntegral
+      dy =
+        vector & Rattletrap.vectorDy & Rattletrap.compressedWordValue &
+        fromIntegral
+      dz =
+        vector & Rattletrap.vectorDz & Rattletrap.compressedWordValue &
+        fromIntegral
       x = dx - bias
       y = dy - bias
       z = dz - bias
