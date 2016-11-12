@@ -236,53 +236,65 @@ toFrame actorMap (number, frame) =
   , Frame.frameTime = frame & Rattletrap.frameTime & toFloat32
   , Frame.frameDelta = frame & Rattletrap.frameDelta & toFloat32
   , Frame.frameReplications =
-      frame & Rattletrap.frameReplications & map (toReplication actorMap)
+      frame & Rattletrap.frameReplications &
+      foldl
+        (\(rs, m) r ->
+           let (r', m') = toReplication m r
+           in (r' : rs, m'))
+        ([], actorMap) &
+      fst &
+      reverse
   }
 
 toFloat32 :: Rattletrap.Float32 -> Float32.Float32
 toFloat32 float32 = float32 & Rattletrap.float32Value & Float32.Float32
 
-toReplication :: ActorMap -> Rattletrap.Replication -> Replication.Replication
-toReplication _actorMap replication =
-  Replication.Replication
-  { Replication.replicationActorId =
-      replication & Rattletrap.replicationActorId & toCompressedWord
-  , Replication.replicationObjectName =
-      case Rattletrap.replicationValue replication of
-        Rattletrap.SpawnedReplicationValue spawned ->
-          spawned & Rattletrap.spawnedReplication_objectName &
-          Rattletrap.textToString &
-          StrictText.pack
-        _ -> "" -- TODO
-  , Replication.replicationClassName =
-      case Rattletrap.replicationValue replication of
-        Rattletrap.SpawnedReplicationValue spawned ->
-          spawned & Rattletrap.spawnedReplication_className &
-          Rattletrap.textToString &
-          StrictText.pack
-        _ -> "" -- TODO
-  , Replication.replicationState =
-      case Rattletrap.replicationValue replication of
-        Rattletrap.SpawnedReplicationValue _ -> State.Opening
-        Rattletrap.UpdatedReplicationValue _ -> State.Existing
-        Rattletrap.DestroyedReplicationValue _ -> State.Closing
-  , Replication.replicationInitialization =
-      case Rattletrap.replicationValue replication of
-        Rattletrap.SpawnedReplicationValue value ->
-          Just
-            Initialization.Initialization
-            { Initialization.initializationLocation =
-                value & Rattletrap.spawnedReplicationInitialization &
-                Rattletrap.initializationLocation &
-                fmap toIntVector
-            , Initialization.initializationRotation =
-                value & Rattletrap.spawnedReplicationInitialization &
-                Rattletrap.initializationRotation &
-                fmap toInt8Vector
-            }
-        _ -> Nothing
-  , Replication.replicationProperties = Map.empty -- TODO
-  }
+toReplication :: ActorMap
+              -> Rattletrap.Replication
+              -> (Replication.Replication, ActorMap)
+toReplication actorMap replication =
+  let newActorMap = actorMap
+      newReplication =
+        Replication.Replication
+        { Replication.replicationActorId =
+            replication & Rattletrap.replicationActorId & toCompressedWord
+        , Replication.replicationObjectName =
+            case Rattletrap.replicationValue replication of
+              Rattletrap.SpawnedReplicationValue spawned ->
+                spawned & Rattletrap.spawnedReplication_objectName &
+                Rattletrap.textToString &
+                StrictText.pack
+              _ -> "" -- TODO
+        , Replication.replicationClassName =
+            case Rattletrap.replicationValue replication of
+              Rattletrap.SpawnedReplicationValue spawned ->
+                spawned & Rattletrap.spawnedReplication_className &
+                Rattletrap.textToString &
+                StrictText.pack
+              _ -> "" -- TODO
+        , Replication.replicationState =
+            case Rattletrap.replicationValue replication of
+              Rattletrap.SpawnedReplicationValue _ -> State.Opening
+              Rattletrap.UpdatedReplicationValue _ -> State.Existing
+              Rattletrap.DestroyedReplicationValue _ -> State.Closing
+        , Replication.replicationInitialization =
+            case Rattletrap.replicationValue replication of
+              Rattletrap.SpawnedReplicationValue value ->
+                Just
+                  Initialization.Initialization
+                  { Initialization.initializationLocation =
+                      value & Rattletrap.spawnedReplicationInitialization &
+                      Rattletrap.initializationLocation &
+                      fmap toIntVector
+                  , Initialization.initializationRotation =
+                      value & Rattletrap.spawnedReplicationInitialization &
+                      Rattletrap.initializationRotation &
+                      fmap toInt8Vector
+                  }
+              _ -> Nothing
+        , Replication.replicationProperties = Map.empty -- TODO
+        }
+  in (newReplication, newActorMap)
 
 toCompressedWord :: Rattletrap.CompressedWord -> CompressedWord.CompressedWord
 toCompressedWord compressedWord =
