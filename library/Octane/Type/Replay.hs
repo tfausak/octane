@@ -164,7 +164,9 @@ fromRawReplay replay =
         content & Rattletrap.contentPackages & Rattletrap.listValue &
         map Rattletrap.textToString &
         map StrictText.pack
-      frames = content & Rattletrap.contentFrames & zip [0 ..] & map toFrame
+      frames =
+        content & Rattletrap.contentFrames & zip [0 ..] &
+        map (toFrame Map.empty)
   in Replay
      { replayVersion = version
      , replayMetadata = metadata
@@ -224,22 +226,24 @@ toProperty property =
 toText :: Rattletrap.Text -> Text.Text
 toText text = text & Rattletrap.textToString & StrictText.pack & Text.Text
 
-toFrame :: (Word, Rattletrap.Frame) -> Frame.Frame
-toFrame (number, frame) =
+type ActorMap = Map.Map () ()
+
+toFrame :: ActorMap -> (Word, Rattletrap.Frame) -> Frame.Frame
+toFrame actorMap (number, frame) =
   Frame.Frame
   { Frame.frameNumber = number
   , Frame.frameIsKeyFrame = number == 0
   , Frame.frameTime = frame & Rattletrap.frameTime & toFloat32
   , Frame.frameDelta = frame & Rattletrap.frameDelta & toFloat32
   , Frame.frameReplications =
-      frame & Rattletrap.frameReplications & map toReplication
+      frame & Rattletrap.frameReplications & map (toReplication actorMap)
   }
 
 toFloat32 :: Rattletrap.Float32 -> Float32.Float32
 toFloat32 float32 = float32 & Rattletrap.float32Value & Float32.Float32
 
-toReplication :: Rattletrap.Replication -> Replication.Replication
-toReplication replication =
+toReplication :: ActorMap -> Rattletrap.Replication -> Replication.Replication
+toReplication _actorMap replication =
   Replication.Replication
   { Replication.replicationActorId =
       replication & Rattletrap.replicationActorId & toCompressedWord
