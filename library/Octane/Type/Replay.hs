@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -16,7 +15,6 @@ module Octane.Type.Replay
 import Data.Aeson ((.=))
 import Data.Function ((&))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Binary as Binary
 import qualified Data.Bits as Bits
@@ -28,7 +26,6 @@ import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as Encoding
 import qualified Data.Version as Version
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.Dictionary as Dictionary
@@ -100,7 +97,7 @@ data Replay = Replay
   , replayTickMarks :: Map.Map StrictText.Text StrictText.Text
   , replayPackages :: [StrictText.Text]
   , replayFrames :: [Frame.Frame]
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Replay)
 
@@ -110,8 +107,6 @@ instance Binary.Binary Replay where
     let replay = fromRawReplay rawReplay
     pure replay
   put = undefined
-
-instance DeepSeq.NFData Replay
 
 instance Aeson.ToJSON Replay where
   toJSON replay =

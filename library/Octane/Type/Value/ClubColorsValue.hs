@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -15,12 +14,10 @@ module Octane.Type.Value.ClubColorsValue
 
 import Data.Aeson ((.=))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.Word8 as Word8
 
@@ -29,11 +26,9 @@ data ClubColorsValue = ClubColorsValue
   , clubColorsValueBlueColor :: Word8.Word8
   , clubColorsValueOrangeFlag :: Boolean.Boolean
   , clubColorsValueOrangeColor :: Word8.Word8
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''ClubColorsValue)
-
-instance DeepSeq.NFData ClubColorsValue
 
 instance Aeson.ToJSON ClubColorsValue where
   toJSON x =

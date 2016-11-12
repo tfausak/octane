@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -11,29 +10,11 @@
 
 module Octane.Type.Vector
   ( Vector(..)
-  , getFloatVector
-  , getInt8Vector
-  , getIntVector
-  , putFloatVector
-  , putInt8Vector
-  , putIntVector
   ) where
 
-import Data.Function ((&))
-
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Binary.Bits as BinaryBit
-import qualified Data.Binary.Bits.Get as BinaryBit
-import qualified Data.Binary.Bits.Put as BinaryBit
-import qualified Data.Bits as Bits
 import qualified Data.Default.Class as Default
-import qualified Data.Foldable as Foldable
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified GHC.Generics as Generics
-import qualified Octane.Type.Boolean as Boolean
-import qualified Octane.Type.CompressedWord as CompressedWord
-import qualified Octane.Type.Int8 as Int8
 
 -- | Three values packed together. Although the fields are called @x@, @y@, and
 -- @z@, that may not be what they actually represent.
@@ -45,12 +26,9 @@ data Vector a = Vector
   { vectorX :: a
   , vectorY :: a
   , vectorZ :: a
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Vector)
-
-instance (DeepSeq.NFData a) =>
-         DeepSeq.NFData (Vector a)
 
 -- | Encoded as a JSON array with 3 elements.
 --
@@ -59,111 +37,3 @@ instance (DeepSeq.NFData a) =>
 instance (Aeson.ToJSON a) =>
          Aeson.ToJSON (Vector a) where
   toJSON vector = Aeson.toJSON [#x vector, #y vector, #z vector]
-
--- | Gets a 'Vector' full of 'Float's.
-getFloatVector :: BinaryBit.BitGet (Vector Float)
-getFloatVector = do
-  let maxValue = 1
-  let numBits = 16
-  x <- getFloat maxValue numBits
-  y <- getFloat maxValue numBits
-  z <- getFloat maxValue numBits
-  pure (Vector x y z)
-
-getFloat :: Int -> Int -> BinaryBit.BitGet Float
-getFloat maxValue numBits = do
-  let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
-  let bias = Bits.shiftL 1 (numBits - 1)
-  let serIntMax = Bits.shiftL 1 numBits
-  delta <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits serIntMax)
-  let unscaledValue = (delta :: Int) - bias
-  let invScale =
-        if maxValue > maxBitValue
-          then fromIntegral maxValue / fromIntegral maxBitValue
-          else 1.0 / (fromIntegral maxBitValue / fromIntegral maxValue)
-  let value = fromIntegral unscaledValue * invScale
-  pure value
-
--- | Gets a 'Vector' full of 'Int8's.
-getInt8Vector :: BinaryBit.BitGet (Vector Int8.Int8)
-getInt8Vector = do
-  (hasX :: Boolean.Boolean) <- BinaryBit.getBits 0
-  x <-
-    if #unpack hasX
-      then BinaryBit.getBits 0
-      else pure 0
-  (hasY :: Boolean.Boolean) <- BinaryBit.getBits 0
-  y <-
-    if #unpack hasY
-      then BinaryBit.getBits 0
-      else pure 0
-  (hasZ :: Boolean.Boolean) <- BinaryBit.getBits 0
-  z <-
-    if #unpack hasZ
-      then BinaryBit.getBits 0
-      else pure 0
-  pure (Vector x y z)
-
--- | Gets a 'Vector' full of 'Int's.
-getIntVector :: BinaryBit.BitGet (Vector Int)
-getIntVector = do
-  numBits <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits 19)
-  let bias = Bits.shiftL 1 (numBits + 1)
-  let maxBits = numBits + 2
-  let maxValue = 2 ^ maxBits
-  dx <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
-  dy <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
-  dz <- fmap CompressedWord.fromCompressedWord (BinaryBit.getBits maxValue)
-  pure (Vector (dx - bias) (dy - bias) (dz - bias))
-
--- | Puts a 'Vector' full of 'Float's.
-putFloatVector :: Vector Float -> BinaryBit.BitPut ()
-putFloatVector vector = do
-  let maxValue = 1
-  let numBits = 16
-  [#x, #y, #z] & map (\field -> field vector) &
-    mapM_ (\value -> putFloat maxValue numBits value)
-
-putFloat :: Int -> Int -> Float -> BinaryBit.BitPut ()
-putFloat maxValue numBits value = do
-  let serIntMax = Bits.shiftL 1 numBits
-  let bias = Bits.shiftL 1 (numBits - 1)
-  let maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
-  let invScale =
-        if maxValue > maxBitValue
-          then fromIntegral maxValue / fromIntegral maxBitValue
-          else 1.0 / (fromIntegral maxBitValue / fromIntegral maxValue)
-  if abs value > fromIntegral maxValue * (invScale + 1)
-    then fail ("value " ++ show value ++ " > max value " ++ show maxValue)
-    else do
-      let unscaledValue = value / invScale
-      let delta = ceiling (unscaledValue + fromIntegral (bias :: Int))
-      BinaryBit.putBits 0 (CompressedWord.CompressedWord serIntMax delta)
-
--- | Puts a 'Vector' full of 'Int8's.
-putInt8Vector :: Vector Int8.Int8 -> BinaryBit.BitPut ()
-putInt8Vector vector = do
-  Foldable.for_
-    [#x, #y, #z]
-    (\field -> do
-       case field vector of
-         0 -> BinaryBit.putBits 0 (Boolean.Boolean False)
-         value -> do
-           BinaryBit.putBits 0 (Boolean.Boolean True)
-           BinaryBit.putBits 0 value)
-
--- | Puts a 'Vector' full of 'Int's.
-putIntVector :: Vector Int -> BinaryBit.BitPut ()
-putIntVector vector = do
-  let maxNumBits = 19
-  let numBits = 18 -- TODO
-  BinaryBit.putBits 0 (CompressedWord.CompressedWord maxNumBits numBits)
-  let bias = Bits.shiftL 1 (fromIntegral numBits + 1)
-  let maxBits = numBits + 2
-  let maxValue = 2 ^ maxBits
-  let dx = vector & #x & (+ bias) & fromIntegral
-  let dy = vector & #y & (+ bias) & fromIntegral
-  let dz = vector & #z & (+ bias) & fromIntegral
-  BinaryBit.putBits 0 (CompressedWord.CompressedWord maxValue dx)
-  BinaryBit.putBits 0 (CompressedWord.CompressedWord maxValue dy)
-  BinaryBit.putBits 0 (CompressedWord.CompressedWord maxValue dz)

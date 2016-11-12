@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -15,22 +14,18 @@ module Octane.Type.Value.LoadoutsValue
 
 import Data.Aeson ((.=))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Value.LoadoutValue as LoadoutValue
 
 data LoadoutsValue = LoadoutsValue
   { loadoutsValueLoadout1 :: LoadoutValue.LoadoutValue -- ^ blue
   , loadoutsValueLoadout2 :: LoadoutValue.LoadoutValue -- ^ orange
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''LoadoutsValue)
-
-instance DeepSeq.NFData LoadoutsValue
 
 instance Aeson.ToJSON LoadoutsValue where
   toJSON x =

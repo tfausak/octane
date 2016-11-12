@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE StrictData #-}
 
 module Octane.Type.Value
@@ -23,7 +22,6 @@ module Octane.Type.Value
   , module Octane.Type.Value.PickupValue
   , module Octane.Type.Value.PrivateMatchSettingsValue
   , module Octane.Type.Value.QWordValue
-  , module Octane.Type.Value.RelativeRotationValue
   , module Octane.Type.Value.ReservationValue
   , module Octane.Type.Value.RigidBodyStateValue
   , module Octane.Type.Value.StringValue
@@ -52,7 +50,6 @@ import Octane.Type.Value.MusicStingerValue
 import Octane.Type.Value.PickupValue
 import Octane.Type.Value.PrivateMatchSettingsValue
 import Octane.Type.Value.QWordValue
-import Octane.Type.Value.RelativeRotationValue
 import Octane.Type.Value.ReservationValue
 import Octane.Type.Value.RigidBodyStateValue
 import Octane.Type.Value.StringValue
@@ -60,9 +57,7 @@ import Octane.Type.Value.TeamPaintValue
 import Octane.Type.Value.UniqueIdValue
 import Octane.Type.Value.WeldedInfoValue
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified GHC.Generics as Generics
 
 -- | A replicated property's value.
 data Value
@@ -86,16 +81,13 @@ data Value
   | ValuePickup PickupValue
   | ValuePrivateMatchSettings PrivateMatchSettingsValue
   | ValueQWord QWordValue
-  | ValueRelativeRotation RelativeRotationValue
   | ValueReservation ReservationValue
   | ValueRigidBodyState RigidBodyStateValue
   | ValueString StringValue
   | ValueTeamPaint TeamPaintValue
   | ValueUniqueId UniqueIdValue
   | ValueWeldedInfo WeldedInfoValue
-  deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData Value
+  deriving (Eq, Show)
 
 instance Aeson.ToJSON Value where
   toJSON value =
@@ -120,7 +112,6 @@ instance Aeson.ToJSON Value where
       ValuePickup x -> Aeson.toJSON x
       ValuePrivateMatchSettings x -> Aeson.toJSON x
       ValueQWord x -> Aeson.toJSON x
-      ValueRelativeRotation x -> Aeson.toJSON x
       ValueReservation x -> Aeson.toJSON x
       ValueRigidBodyState x -> Aeson.toJSON x
       ValueString x -> Aeson.toJSON x
