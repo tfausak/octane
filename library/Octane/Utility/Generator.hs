@@ -224,6 +224,7 @@ putValue value =
     Value.ValueTeamPaint x -> putTeamPaintValue x
     Value.ValueUniqueId x -> putUniqueIdValue x
     Value.ValueWeldedInfo x -> putWeldedInfoValue x
+    _ -> undefined
 
 putBooleanValue :: Value.BooleanValue -> BinaryBit.BitPut ()
 putBooleanValue value = do

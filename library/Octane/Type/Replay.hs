@@ -346,6 +346,13 @@ toValue attribute =
                  (toFloat32 (Rattletrap.camSettingsAttributeDistance x))
                  (toFloat32 (Rattletrap.camSettingsAttributeStiffness x))
                  (toFloat32 (Rattletrap.camSettingsAttributeSwivelSpeed x)))
+          Rattletrap.ClubColorsAttributeValue x ->
+            Value.ValueClubColors
+              (Value.ClubColorsValue
+                 (Boolean.Boolean (Rattletrap.clubColorsAttributeBlueFlag x))
+                 (toWord8 (Rattletrap.clubColorsAttributeBlueColor x))
+                 (Boolean.Boolean (Rattletrap.clubColorsAttributeOrangeFlag x))
+                 (toWord8 (Rattletrap.clubColorsAttributeOrangeColor x)))
           Rattletrap.DemolishAttributeValue x ->
             Value.ValueDemolish
               (Value.DemolishValue

@@ -6,6 +6,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.BooleanValue
   , module Octane.Type.Value.ByteValue
   , module Octane.Type.Value.CamSettingsValue
+  , module Octane.Type.Value.ClubColorsValue
   , module Octane.Type.Value.DemolishValue
   , module Octane.Type.Value.EnumValue
   , module Octane.Type.Value.ExplosionValue
@@ -34,6 +35,7 @@ module Octane.Type.Value
 import Octane.Type.Value.BooleanValue
 import Octane.Type.Value.ByteValue
 import Octane.Type.Value.CamSettingsValue
+import Octane.Type.Value.ClubColorsValue
 import Octane.Type.Value.DemolishValue
 import Octane.Type.Value.EnumValue
 import Octane.Type.Value.ExplosionValue
@@ -67,6 +69,7 @@ data Value
   = ValueBoolean BooleanValue
   | ValueByte ByteValue
   | ValueCamSettings CamSettingsValue
+  | ValueClubColors ClubColorsValue
   | ValueDemolish DemolishValue
   | ValueEnum EnumValue
   | ValueExplosion ExplosionValue
@@ -100,6 +103,7 @@ instance Aeson.ToJSON Value where
       ValueBoolean x -> Aeson.toJSON x
       ValueByte x -> Aeson.toJSON x
       ValueCamSettings x -> Aeson.toJSON x
+      ValueClubColors x -> Aeson.toJSON x
       ValueDemolish x -> Aeson.toJSON x
       ValueEnum x -> Aeson.toJSON x
       ValueExplosion x -> Aeson.toJSON x
