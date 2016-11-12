@@ -594,7 +594,17 @@ toFloatVector vector =
     (toFloat (Rattletrap.compressedWordVectorY vector))
     (toFloat (Rattletrap.compressedWordVectorZ vector))
 
--- TODO
 toFloat :: Rattletrap.CompressedWord -> Float
 toFloat compressedWord =
-  fromIntegral (Rattletrap.compressedWordValue compressedWord)
+  let serIntMax = Rattletrap.compressedWordLimit compressedWord
+      numBits = ceiling (log (fromIntegral serIntMax :: Float) / log 2)
+      bias = Bits.shiftL 1 (numBits - 1)
+      delta = fromIntegral (Rattletrap.compressedWordValue compressedWord)
+      unscaledValue = (delta :: Int) - bias
+      maxBitValue = (Bits.shiftL 1 (numBits - 1)) - 1
+      maxValue = 1 :: Int
+      invScale =
+        if maxValue > maxBitValue
+          then fromIntegral maxValue / fromIntegral maxBitValue
+          else 1 / (fromIntegral maxBitValue / fromIntegral maxValue)
+  in fromIntegral unscaledValue * invScale
