@@ -47,6 +47,7 @@ import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
 import qualified Octane.Utility.Endian as Endian
+import qualified Octane.Utility.Optimizer as Optimizer
 import qualified Rattletrap
 
 -- | A fully-processed, optimized replay.
@@ -181,7 +182,7 @@ fromRawReplay replay =
      , replayMessages = messages
      , replayTickMarks = tickMarks
      , replayPackages = packages
-     , replayFrames = reverse frames
+     , replayFrames = frames & reverse & Optimizer.optimizeFrames
      }
 
 toProperty :: Rattletrap.Property -> Property.Property
