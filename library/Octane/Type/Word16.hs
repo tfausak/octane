@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -16,34 +15,18 @@ module Octane.Type.Word16
 
 import Data.Function ((&))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Binary as Binary
-import qualified Data.Binary.Get as Binary
-import qualified Data.Binary.Put as Binary
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Word as Word
-import qualified GHC.Generics as Generics
 import qualified Text.Printf as Printf
 
 -- | A 16-bit unsigned integer.
 newtype Word16 = Word16
   { word16Unpack :: Word.Word16
-  } deriving (Eq, Generics.Generic, Num, Ord)
+  } deriving (Eq, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Word16)
-
--- | Little-endian.
-instance Binary.Binary Word16 where
-  get = do
-    value <- Binary.getWord16le
-    pure (Word16 value)
-  put word16 = do
-    let value = #unpack word16
-    Binary.putWord16le value
-
-instance DeepSeq.NFData Word16
 
 -- | Shown as @0x0102@.
 instance Show Word16 where

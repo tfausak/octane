@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -15,13 +14,11 @@ module Octane.Type.Value.LoadoutValue
 
 import Data.Aeson ((.=))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Bimap as Bimap
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Data as Data
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word8 as Word8
@@ -39,11 +36,9 @@ data LoadoutValue = LoadoutValue
   , loadoutValueTopper :: Word32.Word32
   , loadoutValueUnknown1 :: Word32.Word32
   , loadoutValueUnknown2 :: Maybe Word32.Word32
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''LoadoutValue)
-
-instance DeepSeq.NFData LoadoutValue
 
 instance Aeson.ToJSON LoadoutValue where
   toJSON x =

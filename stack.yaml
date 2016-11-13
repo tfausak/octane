@@ -1,7 +1,3 @@
-packages:
-- .
-- extra-dep: true
-  location:
-    commit: 6c87162af7366105e045f35bf34624db5292dbdb
-    git: https://github.com/bitemyapp/hspec-expectations.git
-resolver: nightly-2016-08-18
+extra-deps:
+- rattletrap-1.0.0
+resolver: lts-7.8

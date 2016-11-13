@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -16,13 +15,11 @@ module Octane.Type.Frame
 import Data.Aeson ((.=))
 import Data.Function ((&))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Default.Class as Default
 import qualified Data.Map.Strict as Map
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Float32 as Float32
 import qualified Octane.Type.Replication as Replication
 import qualified Octane.Type.State as State
@@ -42,11 +39,9 @@ data Frame = Frame
     -- ^ The time between the last frame and this one.
   , frameReplications :: [Replication.Replication]
     -- ^ A list of all the replications in this frame.
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Frame)
-
-instance DeepSeq.NFData Frame
 
 instance Aeson.ToJSON Frame where
   toJSON frame =

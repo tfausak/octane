@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -14,21 +13,17 @@ module Octane.Type.Value.IntValue
 
 import Data.Aeson ((.=))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Int32 as Int32
 
 newtype IntValue = IntValue
   { intValueUnpack :: Int32.Int32
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''IntValue)
-
-instance DeepSeq.NFData IntValue
 
 instance Aeson.ToJSON IntValue where
   toJSON x =

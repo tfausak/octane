@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -14,48 +13,16 @@ module Octane.Type.Float32
 
 import Data.Function ((&))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
-import qualified Data.Binary as Binary
-import qualified Data.Binary.Bits as BinaryBit
-import qualified Data.Binary.Bits.Get as BinaryBit
-import qualified Data.Binary.Bits.Put as BinaryBit
-import qualified Data.Binary.Get as Binary
-import qualified Data.Binary.IEEE754 as IEEE754
-import qualified Data.Binary.Put as Binary
-import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
-import qualified GHC.Generics as Generics
-import qualified Octane.Utility.Endian as Endian
 
 -- | A 32-bit float.
 newtype Float32 = Float32
   { float32Unpack :: Float
-  } deriving (Eq, Fractional, Generics.Generic, Num, Ord)
+  } deriving (Eq, Fractional, Num, Ord)
 
 $(OverloadedRecords.overloadedRecord Default.def ''Float32)
-
--- | Little-endian.
-instance Binary.Binary Float32 where
-  get = do
-    value <- IEEE754.getFloat32le
-    value & Float32 & pure
-  put float32 = float32 & #unpack & IEEE754.putFloat32le
-
--- | Little-endian with the bits in each byte reversed.
-instance BinaryBit.BinaryBit Float32 where
-  getBits _ = do
-    bytes <- BinaryBit.getByteString 4
-    bytes & LazyBytes.fromStrict & Endian.reverseBitsInLazyBytes &
-      Binary.runGet Binary.get &
-      pure
-  putBits _ float32 =
-    float32 & Binary.put & Binary.runPut & Endian.reverseBitsInLazyBytes &
-    LazyBytes.toStrict &
-    BinaryBit.putByteString
-
-instance DeepSeq.NFData Float32
 
 -- | Shown as @12.34@.
 instance Show Float32 where

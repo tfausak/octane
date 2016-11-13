@@ -8,8 +8,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Octane.Type.Value.ExplosionValue
-  ( ExplosionValue(..)
+module Octane.Type.Value.ClubColorsValue
+  ( ClubColorsValue(..)
   ) where
 
 import Data.Aeson ((.=))
@@ -19,25 +19,26 @@ import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
 import qualified Octane.Type.Boolean as Boolean
-import qualified Octane.Type.Int32 as Int32
-import qualified Octane.Type.Vector as Vector
+import qualified Octane.Type.Word8 as Word8
 
-data ExplosionValue = ExplosionValue
-  { explosionValueActorless :: Boolean.Boolean
-  , explosionValueActorId :: Maybe Int32.Int32
-  , explosionValuePosition :: Vector.Vector Int
+data ClubColorsValue = ClubColorsValue
+  { clubColorsValueBlueFlag :: Boolean.Boolean
+  , clubColorsValueBlueColor :: Word8.Word8
+  , clubColorsValueOrangeFlag :: Boolean.Boolean
+  , clubColorsValueOrangeColor :: Word8.Word8
   } deriving (Eq, Show)
 
-$(OverloadedRecords.overloadedRecord Default.def ''ExplosionValue)
+$(OverloadedRecords.overloadedRecord Default.def ''ClubColorsValue)
 
-instance Aeson.ToJSON ExplosionValue where
+instance Aeson.ToJSON ClubColorsValue where
   toJSON x =
     Aeson.object
-      [ "Type" .= ("Explosion" :: StrictText.Text)
+      [ "Type" .= ("ClubColors" :: StrictText.Text)
       , "Value" .=
         Aeson.object
-          [ "Actorless" .= #actorless x
-          , "ActorId" .= #actorId x
-          , "Position" .= #position x
+          [ "BlueFlag" .= #blueFlag x
+          , "BlueColor" .= #blueColor x
+          , "OrangeFlag" .= #orangeFlag x
+          , "OrangeColor" .= #orangeColor x
           ]
       ]

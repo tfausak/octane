@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -15,12 +14,10 @@ module Octane.Type.Value.ReservationValue
 
 import Data.Aeson ((.=))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
 import qualified Octane.Type.RemoteId as RemoteId
@@ -35,11 +32,9 @@ data ReservationValue = ReservationValue
   , reservationValuePlayerName :: Maybe Text.Text
   , reservationValueUnknown1 :: Boolean.Boolean
   , reservationValueUnknown2 :: Boolean.Boolean
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''ReservationValue)
-
-instance DeepSeq.NFData ReservationValue
 
 instance Aeson.ToJSON ReservationValue where
   toJSON x =

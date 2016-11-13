@@ -1,18 +1,12 @@
 {-# LANGUAGE BinaryLiterals #-}
 
 module Octane.Utility.Endian
-  ( reverseBitsInLazyBytes
-  , reverseBitsInStrictBytes
+  ( reverseBitsInStrictBytes
   ) where
 
 import qualified Data.Bits as Bits
 import qualified Data.ByteString as StrictBytes
-import qualified Data.ByteString.Lazy as LazyBytes
 import qualified Data.Word as Word
-
--- | Reverses all the bits in each lazy byte.
-reverseBitsInLazyBytes :: LazyBytes.ByteString -> LazyBytes.ByteString
-reverseBitsInLazyBytes bytes = LazyBytes.map reverseBits bytes
 
 -- | Reverses all the bits in each strict byte.
 reverseBitsInStrictBytes :: StrictBytes.ByteString -> StrictBytes.ByteString

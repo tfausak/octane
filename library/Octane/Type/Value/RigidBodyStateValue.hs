@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -15,12 +14,10 @@ module Octane.Type.Value.RigidBodyStateValue
 
 import Data.Aeson ((.=))
 
-import qualified Control.DeepSeq as DeepSeq
 import qualified Data.Aeson as Aeson
 import qualified Data.Default.Class as Default
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
-import qualified GHC.Generics as Generics
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.Vector as Vector
 
@@ -30,11 +27,9 @@ data RigidBodyStateValue = RigidBodyStateValue
   , rigidBodyStateValueRotation :: Vector.Vector Float
   , rigidBodyStateValueLinearVelocity :: Maybe (Vector.Vector Int)
   , rigidBodyStateValueAngularVelocity :: Maybe (Vector.Vector Int)
-  } deriving (Eq, Generics.Generic, Show)
+  } deriving (Eq, Show)
 
 $(OverloadedRecords.overloadedRecord Default.def ''RigidBodyStateValue)
-
-instance DeepSeq.NFData RigidBodyStateValue
 
 instance Aeson.ToJSON RigidBodyStateValue where
   toJSON x =

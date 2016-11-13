@@ -1,14 +1,9 @@
-{-# LANGUAGE DeriveGeneric #-}
-
 module Octane.Type.State
   ( State(..)
   , isOpening
   , isExisting
   , isClosing
   ) where
-
-import qualified Control.DeepSeq as DeepSeq
-import qualified GHC.Generics as Generics
 
 -- | The state of an actor in a replication.
 data State
@@ -18,9 +13,7 @@ data State
     -- ^ We have seen this actor before.
   | Closing
     -- ^ This actor is going away.
-  deriving (Eq, Generics.Generic, Show)
-
-instance DeepSeq.NFData State
+  deriving (Eq, Show)
 
 isOpening :: State -> Bool
 isOpening state = state == Opening
