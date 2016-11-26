@@ -133,15 +133,7 @@ fromRawReplay replay =
           ]
       metadata =
         header & Rattletrap.headerProperties & Rattletrap.dictionaryValue &
-        Maybe.mapMaybe
-          (\(key, maybeValue) ->
-             case maybeValue of
-               Nothing -> Nothing
-               Just value ->
-                 Just
-                   ( key & Rattletrap.textToString & StrictText.pack
-                   , toProperty value)) &
-        Map.fromList
+        Map.map toProperty
       levels =
         content & Rattletrap.contentLevels & Rattletrap.listValue &
         map Rattletrap.textToString &
@@ -196,13 +188,8 @@ toProperty property =
                x & Rattletrap.listValue &
                map
                  (\y ->
-                    y & Rattletrap.dictionaryValue &
-                    Maybe.mapMaybe
-                      (\(k, mv) ->
-                         case mv of
-                           Nothing -> Nothing
-                           Just v -> Just (toText k, toProperty v)) &
-                    Map.fromList &
+                    y & Rattletrap.dictionaryValue & Map.map toProperty &
+                    Map.mapKeys Text.Text &
                     Dictionary.Dictionary) &
                List.List
          in Property.PropertyArray (Property.ArrayProperty size content)
@@ -550,9 +537,10 @@ toCompressedWord compressedWord =
 
 toIntVector :: Rattletrap.Vector -> Vector.Vector Int
 toIntVector vector =
-  let numBits =
-        vector & Rattletrap.vectorBitSize & Rattletrap.compressedWordValue &
+  let limit =
+        vector & Rattletrap.vectorDx & Rattletrap.compressedWordLimit &
         fromIntegral
+      numBits = round (logBase (2 :: Float) limit) - 2
       bias = Bits.shiftL 1 (numBits + 1)
       dx =
         vector & Rattletrap.vectorDx & Rattletrap.compressedWordValue &
