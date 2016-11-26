@@ -2,5 +2,5 @@ packages:
 - .
 - location:
     commit: d08176ed70359abbe173b4dfe1ddbbf1ab17c1be
-    git: git@github.com:tfausak/rattletrap.git
+    git: https://github.com/tfausak/rattletrap
 resolver: lts-7.10
