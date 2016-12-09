@@ -24,7 +24,6 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.OverloadedRecords.TH as OverloadedRecords
 import qualified Data.Text as StrictText
-import qualified Data.Text.Encoding as Encoding
 import qualified Data.Version as Version
 import qualified Octane.Type.Boolean as Boolean
 import qualified Octane.Type.CompressedWord as CompressedWord
@@ -46,7 +45,6 @@ import qualified Octane.Type.Word16 as Word16
 import qualified Octane.Type.Word32 as Word32
 import qualified Octane.Type.Word64 as Word64
 import qualified Octane.Type.Word8 as Word8
-import qualified Octane.Utility.Endian as Endian
 import qualified Octane.Utility.Optimizer as Optimizer
 import qualified Rattletrap
 
@@ -255,10 +253,10 @@ toReplication actorMap replication =
         case replicationValue of
           Rattletrap.SpawnedReplicationValue spawned ->
             Just
-              ( spawned & Rattletrap.spawnedReplication_objectName &
+              ( spawned & Rattletrap.spawnedReplicationObjectName &
                 Rattletrap.textToString &
                 StrictText.pack
-              , spawned & Rattletrap.spawnedReplication_className &
+              , spawned & Rattletrap.spawnedReplicationClassName &
                 Rattletrap.textToString &
                 StrictText.pack)
           _ -> Nothing
@@ -307,7 +305,7 @@ toReplication actorMap replication =
 toValue :: Rattletrap.Attribute -> (StrictText.Text, Value.Value)
 toValue attribute =
   let key =
-        attribute & Rattletrap.attribute_name & Rattletrap.textToString &
+        attribute & Rattletrap.attributeName & Rattletrap.textToString &
         StrictText.pack
       value =
         case Rattletrap.attributeValue attribute of
@@ -510,16 +508,9 @@ toLoadoutOnline x =
 toRemoteId :: Rattletrap.RemoteId -> RemoteId.RemoteId
 toRemoteId remoteId =
   case remoteId of
-    Rattletrap.PlayStationId x ->
-      let (a, b) = splitAt 16 x
-      in RemoteId.RemotePlayStationId
-           (RemoteId.PlayStationId
-              (a & LazyBytes.pack & LazyBytes.toStrict &
-               Endian.reverseBitsInStrictBytes &
-               Encoding.decodeLatin1 &
-               StrictText.dropWhileEnd (== '\0') &
-               Text.Text)
-              (LazyBytes.pack b))
+    Rattletrap.PlayStationId a b ->
+      RemoteId.RemotePlayStationId
+        (RemoteId.PlayStationId (Text.Text a) (LazyBytes.pack b))
     Rattletrap.SplitscreenId _ ->
       RemoteId.RemoteSplitscreenId (RemoteId.SplitscreenId (Just 0))
     Rattletrap.SteamId x ->
@@ -537,24 +528,10 @@ toCompressedWord compressedWord =
 
 toIntVector :: Rattletrap.Vector -> Vector.Vector Int
 toIntVector vector =
-  let limit =
-        vector & Rattletrap.vectorDx & Rattletrap.compressedWordLimit &
-        fromIntegral
-      numBits = round (logBase (2 :: Float) limit) - 2
-      bias = Bits.shiftL 1 (numBits + 1)
-      dx =
-        vector & Rattletrap.vectorDx & Rattletrap.compressedWordValue &
-        fromIntegral
-      dy =
-        vector & Rattletrap.vectorDy & Rattletrap.compressedWordValue &
-        fromIntegral
-      dz =
-        vector & Rattletrap.vectorDz & Rattletrap.compressedWordValue &
-        fromIntegral
-      x = dx - bias
-      y = dy - bias
-      z = dz - bias
-  in Vector.Vector x y z
+  Vector.Vector
+    (vector & Rattletrap.vectorX)
+    (vector & Rattletrap.vectorY)
+    (vector & Rattletrap.vectorZ)
 
 toInt8Vector :: Rattletrap.Int8Vector -> Vector.Vector Int8.Int8
 toInt8Vector vector =

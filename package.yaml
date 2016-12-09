@@ -35,7 +35,7 @@ library:
   - data-default-class <0.2
   - file-embed ==0.0.*
   - overloaded-records ==0.4.*
-  - rattletrap ==1.0.*
+  - rattletrap ==2.0.*
   - text ==1.2.*
   other-modules: Paths_octane
   source-dirs: library

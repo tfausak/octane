@@ -1,6 +1,7 @@
 packages:
 - .
-- location:
-    commit: d08176ed70359abbe173b4dfe1ddbbf1ab17c1be
+- extra-dep: true
+  location:
+    commit: 2.0.0
     git: https://github.com/tfausak/rattletrap
 resolver: lts-7.10
