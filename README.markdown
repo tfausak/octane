@@ -8,7 +8,9 @@ Octane is the premier [Rocket League][] replay parser. [Rocket League
 Replays][] parses tens of thousands of replays with it. Octane parses most
 replays in less than 5 seconds. It outputs easy-to-read JSON.
 
-If you also want to generate replays, consider using [Rattletrap][] instead.
+That being said, Octane is not actively developed anymore. Consider using
+[Rattletrap][] (which is actively developed) instead. Rattletrap can also
+generate replay files from JSON, which Octane cannot do.
 
 Octane has a command-line interface. To get it, download and unpack [the latest
 release][] for your platform. You can run the executable one of three ways:
