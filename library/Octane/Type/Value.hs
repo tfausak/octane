@@ -2,10 +2,12 @@
 
 module Octane.Type.Value
   ( Value(..)
+  , module Octane.Type.Value.AppliedDamageValue
   , module Octane.Type.Value.BooleanValue
   , module Octane.Type.Value.ByteValue
   , module Octane.Type.Value.CamSettingsValue
   , module Octane.Type.Value.ClubColorsValue
+  , module Octane.Type.Value.DamageStateValue
   , module Octane.Type.Value.DemolishValue
   , module Octane.Type.Value.EnumValue
   , module Octane.Type.Value.ExplosionValue
@@ -30,10 +32,12 @@ module Octane.Type.Value
   , module Octane.Type.Value.WeldedInfoValue
   ) where
 
+import Octane.Type.Value.AppliedDamageValue
 import Octane.Type.Value.BooleanValue
 import Octane.Type.Value.ByteValue
 import Octane.Type.Value.CamSettingsValue
 import Octane.Type.Value.ClubColorsValue
+import Octane.Type.Value.DamageStateValue
 import Octane.Type.Value.DemolishValue
 import Octane.Type.Value.EnumValue
 import Octane.Type.Value.ExplosionValue
@@ -61,10 +65,12 @@ import qualified Data.Aeson as Aeson
 
 -- | A replicated property's value.
 data Value
-  = ValueBoolean BooleanValue
+  = ValueAppliedDamage AppliedDamageValue
+  | ValueBoolean BooleanValue
   | ValueByte ByteValue
   | ValueCamSettings CamSettingsValue
   | ValueClubColors ClubColorsValue
+  | ValueDamageState DamageStateValue
   | ValueDemolish DemolishValue
   | ValueEnum EnumValue
   | ValueExplosion ExplosionValue
@@ -92,10 +98,12 @@ data Value
 instance Aeson.ToJSON Value where
   toJSON value =
     case value of
+      ValueAppliedDamage x -> Aeson.toJSON x
       ValueBoolean x -> Aeson.toJSON x
       ValueByte x -> Aeson.toJSON x
       ValueCamSettings x -> Aeson.toJSON x
       ValueClubColors x -> Aeson.toJSON x
+      ValueDamageState x -> Aeson.toJSON x
       ValueDemolish x -> Aeson.toJSON x
       ValueEnum x -> Aeson.toJSON x
       ValueExplosion x -> Aeson.toJSON x

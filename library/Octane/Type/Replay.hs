@@ -309,6 +309,13 @@ toValue attribute =
         StrictText.pack
       value =
         case Rattletrap.attributeValue attribute of
+          Rattletrap.AppliedDamageAttributeValue x ->
+            Value.ValueAppliedDamage
+              (Value.AppliedDamageValue
+                (toWord8 (Rattletrap.appliedDamageAttributeUnknown1 x))
+                (toIntVector (Rattletrap.appliedDamageAttributeLocation x))
+                (toInt32 (Rattletrap.appliedDamageAttributeUnknown3 x))
+                (toInt32 (Rattletrap.appliedDamageAttributeUnknown4 x)))
           Rattletrap.BooleanAttributeValue x ->
             Value.ValueBoolean
               (Value.BooleanValue
@@ -334,6 +341,15 @@ toValue attribute =
                  (toWord8 (Rattletrap.clubColorsAttributeBlueColor x))
                  (Boolean.Boolean (Rattletrap.clubColorsAttributeOrangeFlag x))
                  (toWord8 (Rattletrap.clubColorsAttributeOrangeColor x)))
+          Rattletrap.DamageStateAttributeValue x ->
+            Value.ValueDamageState
+              (Value.DamageStateValue
+                (toWord8 (Rattletrap.damageStateAttributeUnknown1 x))
+                (Boolean.Boolean (Rattletrap.damageStateAttributeUnknown2 x))
+                (toInt32 (Rattletrap.damageStateAttributeUnknown3 x))
+                (toIntVector (Rattletrap.damageStateAttributeUnknown4 x))
+                (Boolean.Boolean (Rattletrap.damageStateAttributeUnknown5 x))
+                (Boolean.Boolean (Rattletrap.damageStateAttributeUnknown6 x)))
           Rattletrap.DemolishAttributeValue x ->
             Value.ValueDemolish
               (Value.DemolishValue
