@@ -6,7 +6,7 @@ cache:
 - '%LOCALAPPDATA%\Programs\stack\x86_64-windows\ghc-8.0.1.tar.xz'
 environment:
   GITHUB_TOKEN:
-    secure: CTD2sGkh3EQaLuMJybGza6XNaI+Ews42mdNy9p3U+eShkrjIwYrbUVKnpzra8kIZ
+    secure: 'L/78Qw3wSosowhhilcm/u+wHOM97yiHdXgz8pbwRD3PQVtVSB1lZQ/BDaIm8RpsA'
   PATH: '%PATH%;C:\bin'
   STACK_ROOT: 'C:\stack'
 install:
