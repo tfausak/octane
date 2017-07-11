@@ -370,6 +370,14 @@ toValue attribute =
                  (Boolean.Boolean False)
                  (Just (toInt32 (Rattletrap.explosionAttributeActorId x)))
                  (toIntVector (Rattletrap.explosionAttributeLocation x)))
+          Rattletrap.ExtendedExplosionAttributeValue x ->
+            Value.ValueExtendedExplosion
+              (Value.ExtendedExplosionValue
+                (Boolean.Boolean False)
+                (Just (toInt32 (Rattletrap.extendedExplosionAttributeActorId x)))
+                (toIntVector (Rattletrap.extendedExplosionAttributeLocation x))
+                (Boolean.Boolean (Rattletrap.extendedExplosionAttributeUnknown1 x))
+                (toInt32 (Rattletrap.extendedExplosionAttributeUnknown2 x)))
           Rattletrap.FlaggedIntAttributeValue x ->
             Value.ValueFlaggedInt
               (Value.FlaggedIntValue

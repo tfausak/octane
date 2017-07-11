@@ -11,6 +11,7 @@ module Octane.Type.Value
   , module Octane.Type.Value.DemolishValue
   , module Octane.Type.Value.EnumValue
   , module Octane.Type.Value.ExplosionValue
+  , module Octane.Type.Value.ExtendedExplosionValue
   , module Octane.Type.Value.FlaggedIntValue
   , module Octane.Type.Value.FloatValue
   , module Octane.Type.Value.GameModeValue
@@ -41,6 +42,7 @@ import Octane.Type.Value.DamageStateValue
 import Octane.Type.Value.DemolishValue
 import Octane.Type.Value.EnumValue
 import Octane.Type.Value.ExplosionValue
+import Octane.Type.Value.ExtendedExplosionValue
 import Octane.Type.Value.FlaggedIntValue
 import Octane.Type.Value.FloatValue
 import Octane.Type.Value.GameModeValue
@@ -74,6 +76,7 @@ data Value
   | ValueDemolish DemolishValue
   | ValueEnum EnumValue
   | ValueExplosion ExplosionValue
+  | ValueExtendedExplosion ExtendedExplosionValue
   | ValueFlaggedInt FlaggedIntValue
   | ValueFloat FloatValue
   | ValueGameMode GameModeValue
@@ -107,6 +110,7 @@ instance Aeson.ToJSON Value where
       ValueDemolish x -> Aeson.toJSON x
       ValueEnum x -> Aeson.toJSON x
       ValueExplosion x -> Aeson.toJSON x
+      ValueExtendedExplosion x -> Aeson.toJSON x
       ValueFlaggedInt x -> Aeson.toJSON x
       ValueFloat x -> Aeson.toJSON x
       ValueGameMode x -> Aeson.toJSON x
