@@ -44,4 +44,4 @@ license-file: LICENSE.markdown
 maintainer: Taylor Fausak
 name: octane
 synopsis: Parse Rocket League replays.
-version: '0.20.0'
+version: '0.20.1'
