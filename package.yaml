@@ -27,7 +27,7 @@ github: tfausak/octane
 library:
   dependencies:
   - aeson >=0.11 && <1.3
-  - base ==4.9.*
+  - base >=4.9 && <4.11
   - bimap ==0.3.*
   - binary ==0.8.*
   - bytestring ==0.10.*
