@@ -5,7 +5,7 @@ then
   echo 'GitHub Release is already installed.'
 else
   echo "Installing GitHub Release for $TRAVIS_OS_NAME..."
-  V='0.1.9'
+  V='1.0.4'
   URL="https://github.com/tfausak/github-release/releases/download/$V/github-release-$V-$TRAVIS_OS_NAME.gz"
   curl --location "$URL" > github-release.gz
   gunzip github-release.gz
