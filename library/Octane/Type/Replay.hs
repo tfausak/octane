@@ -526,7 +526,14 @@ toLoadoutOnline :: Rattletrap.LoadoutOnlineAttribute -> Value.LoadoutOnlineValue
 toLoadoutOnline x =
   Value.LoadoutOnlineValue
     (map
-       (map (\(k, v) -> (toWord32 k, toCompressedWord v)))
+       (map (\ y ->
+        ( y & Rattletrap.productAttributeObjectId & toWord32
+        , y
+          & Rattletrap.productAttributeValue
+          & maybe (CompressedWord.CompressedWord 0 0) (either
+            toCompressedWord
+            (\ z -> z & fromIntegral & CompressedWord.CompressedWord 0))
+        )))
        (Rattletrap.loadoutAttributeValue x))
 
 toRemoteId :: Rattletrap.RemoteId -> RemoteId.RemoteId
