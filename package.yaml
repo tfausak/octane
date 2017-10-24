@@ -1,31 +1,21 @@
+name: octane
+version: 0.20.2
+
 category: Game
 description: Octane parses Rocket League replays.
-executables:
-  octane:
-    dependencies:
-    - aeson
-    - base
-    - binary
-    - bytestring
-    - http-client >=0.4.30 && <0.6
-    - http-client-tls >=0.2 && <0.4
-    - octane
-    ghc-options:
-    - -rtsopts
-    - -threaded
-    - -with-rtsopts=-N
-    main: Main.hs
-    source-dirs: executable
 extra-source-files:
-- CHANGELOG.markdown
-- data/*.json
-- package.yaml
-- README.markdown
-- stack.yaml
-ghc-options: -Wall
+  - CHANGELOG.markdown
+  - data/*.json
+  - package.yaml
+  - README.markdown
+  - stack.yaml
 github: tfausak/octane
-library:
-  dependencies:
+license: MIT
+license-file: LICENSE.markdown
+maintainer: Taylor Fausak
+synopsis: Parse Rocket League replays.
+
+dependencies:
   - aeson >=0.11 && <1.3
   - base >=4.9 && <4.11
   - bimap ==0.3.*
@@ -37,11 +27,21 @@ library:
   - overloaded-records ==0.4.*
   - rattletrap ==2.*
   - text ==1.2.*
+ghc-options:
+  - -Wall
+
+library:
   other-modules: Paths_octane
   source-dirs: library
-license: MIT
-license-file: LICENSE.markdown
-maintainer: Taylor Fausak
-name: octane
-synopsis: Parse Rocket League replays.
-version: '0.20.2'
+
+executables:
+  octane:
+    dependencies:
+      - http-client >=0.4.30 && <0.6
+      - http-client-tls >=0.2 && <0.4
+      - octane
+    ghc-options:
+      - -rtsopts
+      - -threaded
+    main: Main.hs
+    source-dirs: executable
